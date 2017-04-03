@@ -131,3 +131,11 @@ TODO
 - 知乎
 - 雪球
 - cnode
+
+---
+
+- [什么是组件化 模块化？](https://www.zhihu.com/question/20282684)
+- [对组件化与模块化的思考与总结](http://tutuge.me/2016/03/29/modular-and-component-summary/)
+- [组件化-前端编程的选择](http://www.primeton.com/read.php?id=2294&his=1)
+- [2015前端组件化框架之路](https://github.com/xufei/blog/issues/19)
+- [组件化——前端编程的选择](http://geek.csdn.net/news/detail/129016)
