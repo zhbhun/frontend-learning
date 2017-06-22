@@ -1,1 +1,4 @@
 - [前端开发面试题](https://github.com/markyun/My-blog/tree/master/Front-end-Developer-Questions) - by [markyun](https://github.com/markyun).
+- [破解前端面试（80% 应聘者不及格系列）：从 闭包说起](https://zhuanlan.zhihu.com/p/25855075)
+- [破解前端面试（80% 应聘者不及格系列）：从 DOM 说起](https://zhuanlan.zhihu.com/p/26420034)
+- [破解前端面试系列（3）：如何搞定纸上代码环节？](https://zhuanlan.zhihu.com/p/27172276)
