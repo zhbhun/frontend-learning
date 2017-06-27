@@ -1,0 +1,2 @@
+- [完成 E2E 测试的 5 个最佳 Node.js 工具](https://medium.com/@adrian_lewis/top-5-most-rated-node-js-frameworks-for-end-to-end-web-testing-f8ebca4e5d44#.vk449a1r5)
+- [TestCafe](https://zhuanlan.zhihu.com/p/25973163)
