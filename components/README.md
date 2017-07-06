@@ -4,6 +4,9 @@
 - [Progressive Web App](https://developers.google.com/web/fundamentals/)
 - [beautiful-web-type](http://hellohappy.org/beautiful-web-type/)
 
+# 思考
+> 分而治之是软件工程中的重要思想，是复杂系统开发和维护的基石，这点放在前端开发中同样适用。在解决了基本开发效率运行效率问题之后，前端团队开始思考维护效率，组件化是目前前端最流行的分治手段。
+
 # 原则
 
 - 响应式设计
