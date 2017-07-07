@@ -10,10 +10,15 @@
 # 基础框架
 - jQuery
 - Backbone
+- Angular.js
+- Polymer
+- Ember
 - React
-- Redux
-- Vue
 - Angular
+
+---
+
+- [Choosing a frontend framework in 2017](https://medium.com/this-dot-labs/building-modern-web-applications-in-2017-791d2ef2e341)
 
 # 构建工具
 - Gulp
