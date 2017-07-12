@@ -1,0 +1,7 @@
+- [director](https://github.com/flatiron/director)
+- [universal-router](https://github.com/kriasoft/universal-router)
+- [razzle](https://github.com/jaredpalmer/razzle)
+- https://github.com/DavidWells/isomorphic-react-example
+- https://github.com/spikebrehm/isomorphic-tutorial
+- https://github.com/spikebrehm/isomorphic-tutorial
+- https://github.com/halt-hammerzeit/webpack-isomorphic-tools
