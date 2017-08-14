@@ -1,0 +1,3 @@
+- https://github.com/Bttstrp/bootstrap-switch
+- https://github.com/ghinda/css-toggle-switch
+- https://codemyui.com/tag/toggle-switch/
