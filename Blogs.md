@@ -1,0 +1,2 @@
+- [js-stack-from-scratch](https://github.com/verekia/js-stack-from-scratch)
+- https://github.com/grab/front-end-guide
