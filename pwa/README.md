@@ -10,6 +10,7 @@
 - [Notification](https://www.w3.org/TR/notifications/)
 
 # 开源项目
+- [workbox](https://github.com/GoogleChrome/workbox)
 - [lavas](https://lavas.baidu.com/)
 - [vuejs-templates/pwa](https://github.com/vuejs-templates/pwa)
 - [create-react-pwa](https://github.com/jeffposnick/create-react-pwa)

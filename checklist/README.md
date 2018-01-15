@@ -1,0 +1,2 @@
+- https://github.com/wearehive/project-guidelines
+- https://github.com/thedaviddias/Front-End-Checklist

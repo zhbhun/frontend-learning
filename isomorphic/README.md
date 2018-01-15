@@ -7,6 +7,7 @@
 - https://github.com/halt-hammerzeit/webpack-isomorphic-tools
 
 # 博文
+- [What is an isomorphic application?](https://www.lullabot.com/articles/what-is-an-isomorphic-application)
 - [精读前后端渲染之争](https://github.com/camsong/blog/issues/8)
 - [Isomorphic JavaScript: The Future of Web Apps](https://medium.com/airbnb-engineering/isomorphic-javascript-the-future-of-web-apps-10882b7a2ebc)
 - [Webpack实战-构建同构应用](https://juejin.im/post/5a38763af265da430a50b0d0)

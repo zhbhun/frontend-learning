@@ -40,3 +40,9 @@
 - [完成 E2E 测试的 5 个最佳 Node.js 工具](https://medium.com/@adrian_lewis/top-5-most-rated-node-js-frameworks-for-end-to-end-web-testing-f8ebca4e5d44#.vk449a1r5)
 - [TestCafe](https://zhuanlan.zhihu.com/p/25973163)
 - [page-monitor](https://github.com/fouber/page-monitor)
+- [为何国内的前端对自动化测试好像不是很看重？](https://www.zhihu.com/question/57415062)
+
+---
+
+- https://github.com/tebelorg/TagUI
+- https://github.com/alibaba/uirecorder
