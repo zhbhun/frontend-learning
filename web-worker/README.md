@@ -1,0 +1,5 @@
+- [Web Workers API](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Workers_API)
+- [Web Worker](http://javascript.ruanyifeng.com/htmlapi/webworker.html)
+- [【转向Javascript系列】深入理解Web Worker](http://www.alloyteam.com/2015/11/deep-in-web-worker/)
+- [Web Workers 的基本信息](https://www.html5rocks.com/zh/tutorials/workers/basics/)
+- [深入 HTML5 Web Worker 应用实践：多线程编程](https://www.ibm.com/developerworks/cn/web/1112_sunch_webworker/)
