@@ -1,0 +1,6 @@
+- https://csstriggers.com/ | [css-triggers](https://github.com/GoogleChromeLabs/css-triggers)
+- [浏览器的重绘与重排](https://kb.cnblogs.com/page/169820/)
+- [高性能JavaScript 重排与重绘](http://www.cnblogs.com/zichi/p/4720000.html)
+- [浏览器重绘和重排](http://www.cnblogs.com/blackmanba/p/browser-repaint-reflow.html)
+- [重排重绘，看这一篇就够了](https://juejin.im/entry/582f16fca22b9d006b7afd89) | https://www.phpied.com/rendering-repaint-reflowrelayout-restyle/
+- [翻译：让网络更快一些——最小化浏览器中的回流(reflow)](http://www.zhangxinxu.com/wordpress/2009/10/attention-reflow-to-make-web-faster/)
