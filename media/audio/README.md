@@ -4,3 +4,9 @@
 - [H5音频踩坑与填坑](https://segmentfault.com/a/1190000011080683)
 - [移动端HTML5音频与视频问题及解决方案](https://www.cnblogs.com/aaronjs/p/4812119.html)
 - [html5 video & audio cache issue](https://stackoverflow.com/questions/41992027/html5-video-audio-cache-issue)
+
+# 开源项目
+
+- [Sound.js](https://github.com/kittykatattack/sound.js)
+- [SoundJS](https://github.com/CreateJS/SoundJS)
+- [SoundManager2](https://github.com/scottschiller/SoundManager2)

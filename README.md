@@ -1,4 +1,7 @@
+- [Front-End Developer Handbook](https://www.frontendhandbook.com/)
+- [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
 - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017) - 前端开发者指南（2017）
+- [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
 
 # 编程语言
 - HTML

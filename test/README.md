@@ -16,7 +16,7 @@
 
     - mocha + chai
 
--  界面测试：常见的做法有像素对比和dom结构对比两个方向
+- 界面测试：常见的做法有像素对比和dom结构对比两个方向
 
     - PhantomCSS
     - page-monitor
@@ -49,6 +49,7 @@
 - [jest](https://github.com/facebook/jest)：简单的 JavaScript 单元测试框架。
 - [prova](https://github.com/azer/prova)：基于 Tape 和 Browserify 的测试运行器，它适用于 Node & 浏览器。
 - [DalekJS](https://github.com/dalekjs/dalek)：自动化且跨浏览器的 JavaScript 功能测试框架。
+- https://github.com/avajs/ava
 
 ## 覆盖率
 - [istanbul](https://github.com/gotwarlost/istanbul)：另一个 JS 代码覆盖率检测工具。
