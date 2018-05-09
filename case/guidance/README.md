@@ -1,0 +1,4 @@
+- https://github.com/usablica/intro.js/
+- https://github.com/HiDeoo/intro.js-react
+- https://github.com/mendhak/angular-intro.js
+- http://github.hubspot.com/shepherd/docs/welcome/
