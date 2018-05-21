@@ -7,3 +7,4 @@
 
 - [awesome-guidelines](https://github.com/Kristories/awesome-guidelines)
 - [project-guidelines](https://github.com/wearehive/project-guidelines)
+- [前端代码规范](https://github.com/ecomfe/spec)
