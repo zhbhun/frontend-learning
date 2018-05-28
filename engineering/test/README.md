@@ -78,6 +78,11 @@
 - https://codeship.com
 - https://circleci.com/
 
+## 假数据
+
+- http://chancejs.com/#
+- https://github.com/Marak/Faker.js
+
 
 # 开发模式
 - TDD：Test Drive Development，测试驱动开发

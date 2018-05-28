@@ -16,6 +16,17 @@ PixiJS
 - Stage
 - Sprite
 
+# 布局
+
+- [Layout engine / dynamic positioning](https://github.com/pixijs/pixi.js/issues/3482)
+- [Add a layout engine like yoga](https://github.com/pixijs/pixi.js/issues/4684) / https://github.com/facebook/yoga
+- [Layout engine / dynamic positioning](https://github.com/pixijs/pixi.js/issues/3482)
+- https://github.com/doctyper/flexie
+
+# 组件
+
+- [pixi-ui](https://github.com/pixijs/pixi-ui/blob/master/src/UI.js)
+
 # 工具
 
 - [hexi](https://github.com/kittykatattack/hexi)
@@ -34,3 +45,7 @@ PixiJS
     - [Shoebox](http://renderhjs.net/shoebox/)
     - [spritesheet.js](https://github.com/krzysztof-o/spritesheet.js/)
 
+
+- 调试
+
+    - [pixi-inspector](https://github.com/bfanger/pixi-inspector)
