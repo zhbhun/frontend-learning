@@ -1,2 +1,3 @@
 - [微信小程序](https://mp.weixin.qq.com/cgi-bin/wx)
 - [wepy](https://github.com/Tencent/wepy)
+- https://github.com/Meituan-Dianping/mpvue
