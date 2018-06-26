@@ -18,8 +18,13 @@ Phaser
     - [Getting Started with Phaser 3](https://phaser.io/tutorials/getting-started-phaser3)
     - [Making your first Phaser 3 game](http://phaser.io/tutorials/making-your-first-phaser-3-game)
     - [Phaser 3 Bootstrap Platformer](https://phaser.io/news/2018/02/phaser-3-bootstrap-platformer)
+    - [Game Analytics](https://phaser.io/tutorials/game-analytics)
 
 - [Community Phaser Tutorials](https://phaser.io/learn/community-tutorials)
+
+## 变更
+
+- [3.10.0](https://phaser.io/news/2018/06/phaser-3100-released)
 
 ## 脚手架
 

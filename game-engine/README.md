@@ -23,6 +23,7 @@
 
 * [H5 游戏开发：游戏引擎入门推荐](https://aotu.io/notes/2017/12/27/h5-game-engine-recommend/index.html)
 * [HTML5 游戏引擎深度测评](https://www.jianshu.com/p/0469cd7b1711)
+* [H5游戏开发：游戏引擎入门推荐](https://aotu.io/notes/2017/12/27/h5-game-engine-recommend/)
 
 ---
 
