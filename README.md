@@ -3,6 +3,7 @@
 - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017) - 前端开发者指南（2017）
 - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
 - [前端技能汇总](https://github.com/JacksonTian/fks)
+- [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
 
 
 # 编程语言
