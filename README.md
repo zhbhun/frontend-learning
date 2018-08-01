@@ -6,6 +6,11 @@
 - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
 
 
+## 书籍
+
+- [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
+- [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
+
 # 编程语言
 - HTML
 - CSS

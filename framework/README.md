@@ -1,6 +1,7 @@
 框架
 ========
 
+- https://www.stefankrause.net/js-frameworks-benchmark7/table.html
 - [Choo](https://choo.io/)
 - [Polymer](https://github.com/Polymer/polymer)
 - [Ractive](https://github.com/ractivejs/ractive)

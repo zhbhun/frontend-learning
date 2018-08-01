@@ -1,16 +1,28 @@
+Web 组件
+========
+
+- [Web Components](http://javascript.ruanyifeng.com/htmlapi/webcomponents.html)
+- [Web Components - 面向未来的组件标准](http://fex.baidu.com/blog/2014/05/web-components-future-oriented/)
+- [《Web Component 实战》翻译规范](https://zhuanlan.zhihu.com/p/20312275)
+- [A Guide to Web Components](https://css-tricks.com/modular-future-web-components/)
+
+---
 
 - [web-design-in-4-minutes](https://github.com/jgthms/web-design-in-4-minutes)
 - [web-design-standards](https://standards.usa.gov/)
 - [Progressive Web App](https://developers.google.com/web/fundamentals/)
 - [beautiful-web-type](http://hellohappy.org/beautiful-web-type/)
 
-# 思考
+## 思考
+
 > 分而治之是软件工程中的重要思想，是复杂系统开发和维护的基石，这点放在前端开发中同样适用。在解决了基本开发效率运行效率问题之后，前端团队开始思考维护效率，组件化是目前前端最流行的分治手段。
 
-# 原则
+> 组件是模块化编程思想的体现，非常有利于代码的重用。标准格式的模块，可以跨平台、跨框架使用，构建、部署和与其他UI元素互动都有统一做法。
+
+## 原则
 - 响应式设计
 
-# 框架
+## 框架
 - 配色
 - 排版
 
