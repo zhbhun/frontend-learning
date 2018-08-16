@@ -1,63 +1,172 @@
-- [Front-End Developer Handbook](https://www.frontendhandbook.com/)
-- [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
-- [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017) - 前端开发者指南（2017）
-- [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
-- [前端技能汇总](https://github.com/JacksonTian/fks)
-- [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
+前端开发
+========
 
+- [前端技能汇总](https://github.com/JacksonTian/fks)
 
 ## 书籍
 
-- [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
-- [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
+- 入门书籍
 
-# 编程语言
+    - 《JavaScript 权威指南》
+    - 《JavaScript 高级程序设计》
+
+- 进阶书籍
+
+    - 《JavaScript 设计模式 》
+    - 《JavaScript 语言精粹》
+    - 《高性能 JavaScript》
+    - 《你不知道的 JavaScript》
+
+- 博文汇总
+
+    - [Front-End Developer Handbook](https://www.frontendhandbook.com/)
+
+        - [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
+        - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017) - 前端开发者指南（2017）
+        - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
+    - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
+    - [Web-Series](https://github.com/wxyyxc1992/Web-Series)
+    - [JavaScript The Right Way](http://jstherightway.org/)
+
+- 推荐列表
+
+    - [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
+    - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
+
+## 标准
+
+- 网络
+
+    - HTTP
+    - HTTPS
+    - Websocket
+
+- ECMAScript
+- W3C
+
+    - BOM
+    - CSS
+    - DOM
+    - HTML5
+    - JSON
+    - SVG
+    - XML
+    - XHTML
+
+## 编程语言
+
 - HTML
 - CSS
 - JavaScript
-- ECMAScript
-- TypeScript
 
-# 基础框架
-- jQuery
-- Backbone
-- Angular.js
-- Polymer
-- Ember
-- React
-- Angular
+    - ECMAScript
+    - Flow
+    - TypeScript
 
----
+## 开发工具
 
-- [Choosing a frontend framework in 2017](https://medium.com/this-dot-labs/building-modern-web-applications-in-2017-791d2ef2e341)
+- 编辑器
 
-# 构建工具
-- Gulp
-- Webpack
-- Babel
-- ESLint
-- Flow
+    - Visual Studio Code
+    - Sublime
+    - Atom
+    - Webstorm
 
-# 持续集成
-- GitLab Continuous Integration (GitLab CI)
+- 调试器
 
-# 系统测试
+    - Chrome Dev Tools
+
+- 代理服务器
+
+    - Charles
+    - Fiddler
+    - Whistle
+    
+- 版本管理
+
+    - Git
+    - SVN
+
+- 开源项目
+
+    - Github
+    - Gitlab
+    - Bitbucket
+
+## 开发框架
+
+- HTML 模板
+
+    - EJS
+    - Pug
+
+- CSS 预处理器
+
+    - Sass
+    - Less
+    - Stylus
+
+- JS 框架
+
+    - Angular
+    - React
+    - Vue
+    - Polymer
+    - Ember
+    - jQuery
+    - Backbone
+
+- UI 库
+
+    - Ant Design
+    - Bootstrap
+    - Material Design
+    - Semantic UI
+
+- 工具库
+
+    - underscore
+    - lodash
+
+- 技术选型
+
+    - [Choosing a frontend framework in 2017](https://medium.com/this-dot-labs/building-modern-web-applications-in-2017-791d2ef2e341)
+
+## 工程化
+
+- 编译器
+
+    - Babel
+
+- 打包器
+
+    - Grunt
+    - Gulp
+    - Parcel
+    - Webpack
+
+- 代码规范/代码检查
+
+    - ESLint
+
 - 单元测试
-- 集成测试
+- E2E 测试
 
-# 日志统计
-TODO
+- 持续集成/持续交付/持续部署
 
-# 上线部署
-TODO
+    - GitLab Continuous Integration (GitLab CI)
 
-# 敏捷开发
-TODO
+- 监控系统
 
-# 性能优化
-TODO
+    - [Sentry](https://github.com/getsentry/sentry)
 
-# 参考文献
+## 性能优化
+
+- YSlow
+- Lighthouse
+
+## 参考文献
+
 - [从前端到全端：JavaScript逆袭之路](https://techblog.toutiao.com/2018/05/25/cong-qian-duan-dao-quan-duan-javascriptni-xi-zhi-lu/)
 - [谁能介绍下web前端工程化？](https://www.zhihu.com/question/24558375/answer/139490316)
 - [若你已做多年前端（5年+），你觉得你目前的核心竞争力在哪？](https://www.zhihu.com/question/53542412/answer/136249818)
