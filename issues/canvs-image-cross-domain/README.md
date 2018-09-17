@@ -5,7 +5,7 @@ Canvas 图片跨域问题
 
 HTML 规范中图片有一个 crossorigin 属性，结合合适的 CORS 响应头，就可以实现在画布中使用跨域 `<img>` 元素的图像。
 
-| crossOrigin/CORS | 同域 | 跨域 | 跨域-CORS |
+| crossOrigin/CORS | 同域 | 跨域无 CORS | 跨域有 CORS |
 | --- | --- | --- | --- |
 | default | 支持 | 支持渲染，不支持 `toDataURL` | 支持渲染，不支持 `toDataURL` |
 | anonymous | N/A | 同上 | 支持渲染，支持 `toDataURL` |
@@ -56,7 +56,7 @@ HTML 规范中图片有一个 crossorigin 属性，结合合适的 CORS 响应�
     [Error] Cross-origin image load denied by Cross-Origin Resource Sharing policy.
     ```
 
-## [测试示例](./index.html)
+## [测试示例](./package.json)
 
 1. 启动服务器
 
@@ -66,9 +66,15 @@ HTML 规范中图片有一个 crossorigin 属性，结合合适的 CORS 响应�
 
 2. 访问 http://localhost:3000
 
-## 兼容性问题
+## 其他问题
 
-对于不支持 `cossOrigin` 的浏览器（IE 10及以下版本不支持，Android 4.3 及以下版本不支持）可以使用 `XMLHttprequest` 和 `URL.createObjectURL()` 来做兼容，参考测试示例 [Ajax 解决 Canvas 图片跨域问题](./ajax.html)。
+1. cossOrigin 存在兼容性问题？
+
+    对于不支持 `cossOrigin` 的浏览器（IE 10及以下版本不支持，Android 4.3 及以下版本不支持）可以使用 `XMLHttprequest` 和 `URL.createObjectURL()` 来做兼容，参考测试示例 [Ajax 解决 Canvas 图片跨域问题](./ajax.html)。
+
+2. 为什么不使用同域图片？
+
+    现在的前端开发一般都是将静态资源放置到 CDN 上，例如：阿里云或者腾讯云服务，并且会有一个专门的域名来访问这些资源。
 
 ## 参考文献
 
