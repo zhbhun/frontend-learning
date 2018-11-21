@@ -1,4 +1,8 @@
-# 测试范围
+测试
+========
+
+## 测试范围
+
 - 单元测试：测试逻辑性强的代码
 - 界面测试：测试界面是否正常
 - 功能测试：测试功能操作是否正常，利用测试运行器来模拟用户操作
@@ -7,11 +11,13 @@
 
 > 测试金字塔，单元测试 -> 服务测试 -> UI 测试
 
-# 测试原则
+## 测试原则
+
 1. 针对网站核心功能而不是所有功能来添加case
 2. ...
 
-# 测试方案
+## 测试方案
+
 - 单元测试：测试框架 + 断言库
 
     - mocha + chai
@@ -35,14 +41,16 @@
 - 兼容性测试：dalekjs, triflejs
 
 
-# 测试工具
-## 断言
+## 测试工具
+### 断言
+
 - [chai](https://github.com/chaijs/chai)：适用于 node.js 和浏览器的 BDD / TDD 断言框架，并能搭配其它测试框架使用。
 - [Sinon.JS](https://github.com/sinonjs/sinon)：对 JavaScript 进行 spies、stubs 和 mock 测试。
 - [expect.js](https://github.com/Automattic/expect.js)：简约的、适用于 Node.js 和浏览器端的 BDD 式断言工具。
 - [should.js](https://github.com/tj/should.js)：适用于 Node.js 的 BDD 式断言工具。
 
-## 框架
+### 框架
+
 - [mocha](https://github.com/mochajs/mocha)：适用于 node.js 和浏览器、简易、灵活、有趣的 JavaScript 测试框架。
 - [jasmine](https://github.com/jasmine/jasmine)：简单无 DOM 的 JavaScript 测试框架。
 - [qunit](https://github.com/jquery/qunit)：一个易于使用的 JavaScript 单元测试框架。
@@ -51,12 +59,14 @@
 - [DalekJS](https://github.com/dalekjs/dalek)：自动化且跨浏览器的 JavaScript 功能测试框架。
 - https://github.com/avajs/ava
 
-## 覆盖率
+### 覆盖率
+
 - [istanbul](https://github.com/gotwarlost/istanbul)：另一个 JS 代码覆盖率检测工具。
 - [blanket](https://github.com/alex-seville/blanket)：一个简单的代码覆盖率检测库。它的设计理念是易于安装和使用，且可用于浏览器端和 node.js。
 - [JSCover](https://github.com/tntim96/JSCover)：JSCover 是一个检测 JavaScript 程序代码覆盖率的工具。
 
-## 运行器
+### 运行器
+
 - [phantomjs](https://github.com/ariya/phantomjs)：脚本化的 Headless WebKit。
 - [slimerjs](https://github.com/laurentj/slimerjs)：一个内核为 Gecko 的类似 PhantomJS 工具。
 - [casperjs](https://github.com/n1k0/casperjs)：基于 PhantomJS 和 Slimer JS 的导航脚本和测试工具。
@@ -67,29 +77,32 @@
 - [intern](https://github.com/theintern/intern)：下一代 JavaScript 代码测试栈。
 - [yolpo](http://www.yolpo.com/)：在浏览器逐句执行的 JavaScript 解释器。
 
-## 辅助
+### 辅助
+
 - https://github.com/Huddle/PhantomCSS
 - https://github.com/fouber/page-monitor
 
-## 持续集成
+### 持续集成
+
 - jenkin
 - http://wercker.com/
 - https://semaphoreci.com/
 - https://codeship.com
 - https://circleci.com/
 
-## 假数据
+### 假数据
 
 - http://chancejs.com/#
 - https://github.com/Marak/Faker.js
 
 
-# 开发模式
+## 开发模式
+
 - TDD：Test Drive Development，测试驱动开发
 - BDD：Behavior Drive Development，行为驱动开发
 - DDD：Domain Drive Design，领域驱动开发
 
-# 参考文献
+## 参考文献
 - [前端自动化测试探索](http://fex.baidu.com/blog/2015/07/front-end-test/)
 - [如何进行前端自动化测试？](https://www.zhihu.com/question/29922082)
 - [7 天打造前端性能监控系统](http://fex.baidu.com/blog/2014/05/build-performance-monitor-in-7-days/)
