@@ -11,3 +11,6 @@
     - [微信小程序」剖析（一）：运行机制](http://mp.weixin.qq.com/s?__biz=MjM5Mjg4NDMwMA==&mid=2652974093&idx=1&sn=0570a243304ea8bb7d1b636624886fb1&scene=21#wechat_redirect)
     - [「微信小程序」剖析（二）：框架原理](http://mp.weixin.qq.com/s?__biz=MjM5Mjg4NDMwMA==&mid=2652974111&idx=1&sn=93a868cdb59b5dd77c65c7a5303e6e31&scene=21#wechat_redirect)
 
+---
+
+- [近两万字小程序攻略发布了](https://juejin.im/post/5b8fd1416fb9a05cf3710690)
