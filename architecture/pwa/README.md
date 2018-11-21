@@ -59,3 +59,4 @@
 - [现在你可以在电脑Chrome上使用PWA啦！](https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&mid=2247485449&idx=1&sn=af3c79f7ebd3ed32c809dccfdab28e4e&chksm=f951bd4ace26345cd6fc7c6f805e9df8b2ef713191c7fbc80d5060bce54e61170b3e79be6b19&scene=21#wechat_redirect)
 - https://www.pwabuilder.com/
 - [Is Service Worker Ready](https://jakearchibald.github.io/isserviceworkerready/)
+- https://developers.google.com/web/tools/workbox/guides/get-started
