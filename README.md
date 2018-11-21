@@ -22,18 +22,22 @@
     - [Front-End Developer Handbook](https://www.frontendhandbook.com/)
 
         - [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
-        - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017) - 前端开发者指南（2017）
+        - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017)
         - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
+
     - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
     - [Web-Series](https://github.com/wxyyxc1992/Web-Series)
     - [JavaScript The Right Way](http://jstherightway.org/)
+    - https://www.awesomes.cn/
+    - [2014 年末有哪些比较火的 Web 开发技术？](https://www.zhihu.com/question/26644904/answer/33634518)
+    - [2015前端框架何去何从](http://www.cnblogs.com/sskyy/p/4264371.html)
 
 - 推荐列表
 
     - [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
     - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
 
-## 标准
+## 规范/标准
 
 - 网络
 
@@ -106,6 +110,11 @@
     - Less
     - Stylus
 
+- JS 库
+
+    - jQuery
+    - Backbone
+
 - JS 框架
 
     - Angular
@@ -113,8 +122,6 @@
     - Vue
     - Polymer
     - Ember
-    - jQuery
-    - Backbone
 
 - UI 库
 
@@ -164,6 +171,10 @@
 
 - YSlow
 - Lighthouse
+
+## 职业规划
+
+- [前端工程师职业规划](https://github.com/xiaojue/careerLive/blob/master/data/Transcript.md)
 
 ## 参考文献
 
