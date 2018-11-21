@@ -1,7 +1,15 @@
 性能优化
 ========
 
-- 首屏性能
+## 性能指标
+
+- 加载性能
+
+    - 白屏时间
+    - 首屏时间
+    - 用户可操作时间
+    - 页面总下载时间
+
 - 动画性能
 
 ## 浏览器原理
@@ -35,16 +43,22 @@
 >
 > 2. 另外一个创新性的做法：使用 HTML5 Web worker
 
-## 检测项目
+## 性能检测
 
-- https://jsperf.com/
+### 加载性能
+
+
+
+### 检测平台
+
+- https://jsperf.com/ | https://jsperf.com/popular
 - https://github.com/web-perf
-
-## 检测工具
-
 - https://github.com/mrdoob/stats.js
 
 ## 参考文献
 
 - [HTML5 Techniques for Optimizing Mobile Performance](https://www.html5rocks.com/en/mobile/optimization-and-performance/)
 - [网页性能管理详解](http://www.ruanyifeng.com/blog/2015/09/web-page-performance-in-depth.html)
+- [干货|移动端H5前端性能优化](https://www.jianshu.com/p/0a65c3d03591)
+- [移动端本地 H5 秒开方案探索与实现](https://segmentfault.com/a/1190000015250644)
+- [指尖的流畅体验－－基于canvas建立移动界面](https://zhuanlan.zhihu.com/p/19967854)
