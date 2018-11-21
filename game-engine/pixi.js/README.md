@@ -13,8 +13,10 @@ PixiJS
 
 # 概念
 
+- Application
 - Stage
 - Sprite
+- Texture
 
 # 布局
 
