@@ -58,11 +58,11 @@ https://nextjs.org
 - [React 16: Warning: Expected server HTML to contain a matching `<div>` in `<div>` due to State](https://stackoverflow.com/questions/46865880/react-16-warning-expected-server-html-to-contain-a-matching-div-in-div-due?rq=1)
 - https://stackoverflow.com/questions/47439079/expected-server-html-to-contain-a-matching-element-in-parentelement?rq=1
 
-## 无法自由定制静态资源名称
+### 无法自由定制静态资源名称
 
 - TODO
 
-## 定制项目结构
+### 定制项目结构
 
 - [pages folder outside of root? ](https://github.com/zeit/next.js/issues/819)
 - [Add configuration to specify `assetDirectory`](https://github.com/zeit/next.js/pull/2186)
@@ -70,12 +70,18 @@ https://nextjs.org
 - [Add configuration to specify the name of the `pages` directory.](https://github.com/zeit/next.js/pull/936)
 - [Custom source directory ](https://github.com/zeit/next.js/issues/1455)
 
-## 样式
+### next-css 开发环境首次加载分页时样式丢失
+
+- [Cant change page with 'next/link' & 'next-css'](https://github.com/zeit/next-plugins/issues/282#issuecomment-432127816)
+- [extracted-loader](https://github.com/sheerun/extracted-loader)
+- [css-hot-loader](https://github.com/shepherdwind/css-hot-loader)
+
+### 样式
 
 - [with-cxs](https://github.com/zeit/next.js/tree/canary/examples/with-cxs)
 - [with-fela](https://github.com/zeit/next.js/tree/canary/examples/with-fela)
 
-## 框架集成
+### 框架集成
 
 - [using-inferno](https://github.com/zeit/next.js/tree/canary/examples/using-inferno)
 - [using-nerv](https://github.com/zeit/next.js/tree/canary/examples/using-nerv)
@@ -93,7 +99,7 @@ https://nextjs.org
     - [next-redux-saga](https://github.com/bmealhouse/next-redux-saga)
     - [Using Redux Saga with Next.js](https://medium.com/@victor36max/using-redux-saga-with-next-js-2b5d5add1ec6)
 
-## 环境配置
+### 环境配置
 
 - [with-absolute-imports](https://github.com/zeit/next.js/tree/canary/examples/with-absolute-imports)
 - [with-asset-imports](https://github.com/zeit/next.js/tree/canary/examples/with-asset-imports)
@@ -102,7 +108,7 @@ https://nextjs.org
 - [with-custom-babel-config](https://github.com/zeit/next.js/tree/canary/examples/with-custom-babel-config)
 - [with-custom-reverse-proxy](https://github.com/zeit/next.js/tree/canary/examples/with-custom-reverse-proxy)
 
-## 集成框架
+### 集成框架
 
 - https://github.com/unicodeveloper/awesome-nextjs
 - [next-routes](https://github.com/fridays/next-routes)
