@@ -1,6 +1,7 @@
-- https://pwa.rocks/
-- https://developers.google.com/web/progressive-web-apps/
-- https://github.com/hemanth/awesome-pwa
+# PWA
+
+- [Progressive Web Apps](https://developers.google.com/web/progressive-web-apps/)
+- [awesome-pwa](https://github.com/hemanth/awesome-pwa)
 
 ## 技术体系
 
@@ -36,13 +37,57 @@
 
 ## 应用示例
 
-- https://pwa.rocks/
-- https://www.pwastats.com/
+- 汇总
+
+    - https://pwa.rocks/
+    - https://www.pwastats.com/
+    - https://outweb.io
+    - https://pwa-directory.appspot.com/
+    - https://appsco.pe/
+
+- 国外
+
+    - [Flipboard](https://flipboard.com)
+    - [Flipkart](https://www.flipkart.com/)
+    - [Instagram](https://www.Instagram.com)
+    - Twitter
+    - Wikipedia
+    - [The Weather Channel](https://weather.com/zh-CN/weather/today/l/CHXX0008:1:CH)
+    - [Spotlight](https://spotlight.tooo.io/)
+    - [Telegram](https://web.telegram.org/)
+    - [Wikipedia](https://wiki-offline.jakearchibald.com)
+
+- 国内
+
+    - [饿了么](https://h5.ele.me/)
+    - [微博](https://m.weibo.cn/beta)
+    - [哔哩哔哩](https://m.bilibili.com/)
+    - [豆瓣](https://m.douban.com/)
+    - [飞猪](https://h5.m.taobao.com/trip/home-pwa/index.html)
+    - [百度天气](https://weatherpwa.baidu.com/)
+    - [腾讯新闻](https://xw.qq.com/)
+    - [百度糯米](https://mdianying.baidu.com/)
+    - 
+
+- 参考
+
+    - [支持PWA(Progressive Web Apps) 的网站都有哪些？](https://www.zhihu.com/question/265807331)
+    - [有哪些网站支持 PWA (Progressive Web App)？](https://www.zhihu.com/question/267536854)
+    - [用过这些 Android 网页版应用后，或许你就不想装它们的客户端了](https://sspai.com/post/43656)
+    - [用新版的 Chrome 把 PWA 网站添加到桌面，获得媲美原生应用的体验](https://sspai.com/post/43499)
+    - [PWA国内应用推荐，无需下载APP，应用秒开黑科技！](https://www.5meng.cc/1017.html/)
+    - https://www.ifanr.com/app/825246
 
 ## 常见问题
 
 - [Service worker JavaScript update frequency (every 24 hours?)](https://stackoverflow.com/questions/38843970/service-worker-javascript-update-frequency-every-24-hours)
 - [Options for testing service workers via HTTP](https://stackoverflow.com/questions/34160509/options-for-testing-service-workers-via-http/34161385#34161385)
+- [Android Back Button on a Progressive Web Application closes de App](https://stackoverflow.com/questions/43329654/android-back-button-on-a-progressive-web-application-closes-de-app)
+
+### 兼容性
+
+- [iOS 终于支持了 PWA，一起来认识一下这个强化版「小程序」 | 科普](https://sspai.com/post/44027)
+- [Progressive Web Apps on iOS are here](https://medium.com/@firt/progressive-web-apps-on-ios-are-here-d00430dee3a7)
 
 ## 参考文献
 
