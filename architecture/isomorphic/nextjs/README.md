@@ -69,6 +69,7 @@ https://nextjs.org
 - [Make file-system based routes optional for custom servers](https://github.com/zeit/next.js/pull/914)
 - [Add configuration to specify the name of the `pages` directory.](https://github.com/zeit/next.js/pull/936)
 - [Custom source directory ](https://github.com/zeit/next.js/issues/1455)
+- [Add example of how to use next.js with other root directory. ](https://github.com/zeit/next.js/issues/2444)
 
 ### next-css 开发环境首次加载分页时样式丢失
 
