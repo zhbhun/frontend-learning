@@ -62,3 +62,21 @@
 - [干货|移动端H5前端性能优化](https://www.jianshu.com/p/0a65c3d03591)
 - [移动端本地 H5 秒开方案探索与实现](https://segmentfault.com/a/1190000015250644)
 - [指尖的流畅体验－－基于canvas建立移动界面](https://zhuanlan.zhihu.com/p/19967854)
+- [也许，DOM 不是答案](http://www.ruanyifeng.com/blog/2015/02/future-of-dom.html)
+- http://jankfree.org/
+- [Radical Statements about the Mobile Web](https://jlongster.com/Radical-Statements-about-the-Mobile-Web)
+- [为什么说DOM操作很慢](http://web.jobbole.com/84444/)
+- [高频dom操作和页面性能优化探索](https://feclub.cn/post/content/dom)
+- [既然用 virtual dom 可以提高性能，为什么浏览器不直接自带这个功能呢？](https://www.zhihu.com/question/67479886)
+- [揭露DOM操作以及性能优化](https://blog.csdn.net/m0_38099607/article/details/72961066)
+- [前端页面卡顿、也许是DOM操作惹的祸？](https://segmentfault.com/a/1190000009619572)
+- [HTML5实现APP和原生方式有多大差距，多少坑？](https://www.zhihu.com/question/36158085)
+- [Facebook: “Betting on HTML5 Was a Mistake” – Technical Reasons and Reactions](https://www.infoq.com/news/2012/09/Facebook-HTML5-Native)
+- [HTML5要如何达到原生性能](http://gad.qq.com/article/detail/16889)
+- [H5、React Native、Native应用对比分析](http://vczero.github.io/react_native/H5-React-Native-Native.html)
+- [HTML5 性能之争 —— 单线程：缺点还是特点？](https://www.infoq.cn/article/2012%2F12%2Fhtml5-performance)
+
+## 其他
+
+- https://github.com/servo/servo
+- https://github.com/dcloudio/mui
