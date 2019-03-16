@@ -14,6 +14,12 @@
 
 ## 浏览器原理
 
+- [原来JavaScript是这样运行的](https://juejin.im/post/5c6a732151882528735f2d33?)
+- [浏览器与Node的事件循环(Event Loop)有何区别?](https://juejin.im/post/5c337ae06fb9a049bc4cd218)
+- [HTML系列：macrotask和microtask](https://zhuanlan.zhihu.com/p/24460769)
+- [Difference between microtask and macrotask within an event loop context](https://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context)
+- [[译] 理解 JavaScript 中的执行上下文和执行栈](https://juejin.im/post/5ba32171f265da0ab719a6d7)
+
 ### JavaScript 主线程工作原理
 
 > 浏览器解析渲染 DOM Tree 和 CSS Tree，解析执行 JavaScript，几乎所有的操作都是在主线程中执行。因为 JavaScript 可以操作 DOM，影响渲染，所以 JavaScript 引擎线程和 UI 线程是互斥的。换句话说，JavaScript 代码执行时会阻塞页面的渲染。

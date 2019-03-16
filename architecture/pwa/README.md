@@ -67,7 +67,10 @@
     - [百度天气](https://weatherpwa.baidu.com/)
     - [腾讯新闻](https://xw.qq.com/)
     - [百度糯米](https://mdianying.baidu.com/)
-    - 
+
+- 开源
+
+    - [hacker-news-pwas](https://github.com/tastejs/hacker-news-pwas)
 
 - 参考
 

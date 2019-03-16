@@ -29,3 +29,4 @@
 
 * https://github.com/google/boardgame.io
 * https://github.com/rwv/chinese-dos-games
+* [HTML5游戏引擎深度测评](https://www.jianshu.com/p/0469cd7b1711)

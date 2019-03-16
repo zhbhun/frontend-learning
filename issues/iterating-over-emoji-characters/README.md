@@ -1,0 +1,3 @@
+- [Iterating Over Emoji Characters the ES6 Way](https://medium.com/@giltayar/iterating-over-emoji-characters-the-es6-way-f06e4589516)
+- [Javascript: Iterating over all unicode?](https://stackoverflow.com/questions/33792050/javascript-iterating-over-all-unicode)
+- https://github.com/medikoo/es6-iterator

@@ -178,6 +178,8 @@
 
 ## 参考文献
 
+- [developer-roadmap](https://github.com/kamranahmedse/developer-roadmap)
+- [前端开发漫游指南](https://www.yuque.com/fe9/basic/iwtzab)
 - [从前端到全端：JavaScript逆袭之路](https://techblog.toutiao.com/2018/05/25/cong-qian-duan-dao-quan-duan-javascriptni-xi-zhi-lu/)
 - [谁能介绍下web前端工程化？](https://www.zhihu.com/question/24558375/answer/139490316)
 - [若你已做多年前端（5年+），你觉得你目前的核心竞争力在哪？](https://www.zhihu.com/question/53542412/answer/136249818)
@@ -187,3 +189,4 @@
 - [Base64 Encoding & Performance, Part 1: What’s Up with Base64?](https://csswizardry.com/2017/02/base64-encoding-and-performance/)
 - https://github.com/renrenche/rock
 - [大公司里怎样开发和部署前端代码？](https://www.zhihu.com/question/20790576)
+- [如何在疲劳的JS世界中持续学习](https://juejin.im/post/5ae97bd05188256719521ae0#heading-1)
