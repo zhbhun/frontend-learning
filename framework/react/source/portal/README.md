@@ -1,0 +1,2 @@
+- https://reactjs.org/docs/portals.html
+- https://stackoverflow.com/questions/47745840/is-react-16s-portal-api-meant-to-replace-the-context-api

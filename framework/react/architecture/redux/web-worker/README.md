@@ -1,0 +1,4 @@
+- [React Redux 中间件思想遇见 Web Worker 的灵感（附demo）](https://segmentfault.com/a/1190000010676248)
+- [redux-worker](https://github.com/chikeichan/redux-worker)
+- [redux-worker-middleware](https://github.com/keyanzhang/redux-worker-middleware)
+- [Moving business logic into a Web Worker](https://github.com/reactjs/redux/issues/1841)

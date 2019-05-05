@@ -1,0 +1,1 @@
+- [HTML5 input类型踩坑记录](http://suibobuzhuliu.github.io/2016/05/04/HTML5%20input%E7%B1%BB%E5%9E%8B%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/)

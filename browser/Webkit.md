@@ -1,0 +1,2 @@
+- [开发者需要了解的WebKit](http://www.infoq.com/cn/articles/webkit-for-developers)
+- https://github.com/nwjs/nw.js

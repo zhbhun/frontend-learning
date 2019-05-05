@@ -1,0 +1,2 @@
+- [谈一谈创建React Component的几种方式](https://segmentfault.com/a/1190000008402834#articleHeader1)
+- [React Without ES6](https://reactjs.org/docs/react-without-es6.html)

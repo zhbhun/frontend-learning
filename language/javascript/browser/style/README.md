@@ -1,0 +1,3 @@
+- [CSSStyleDeclaration](https://developer.mozilla.org/zh-CN/docs/Web/API/CSSStyleDeclaration)
+- [Window.getComputedStyle()](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/getComputedStyle)
+- [HTMLElement.style](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/style)

@@ -1,0 +1,4 @@
+- [Dimensions.get('window').width incorrect in Android 6.0.1](https://github.com/facebook/react-native/issues/8587)
+- [[Android] Dimension module doesn't give correct height after orientation change](https://github.com/facebook/react-native/issues/3264)
+- [Update Dimensions when device orientation changes](https://github.com/facebook/react-native/commit/b653d43e2e9d8a5506818b47d69993328132bbe4)
+- [After rotation Dimensions remain the same ](https://github.com/yamill/react-native-orientation/issues/3)

@@ -1,0 +1,10 @@
+- https://github.com/web-perf/react-worker-dom
+- https://github.com/theefer/virtualdom-in-web-worker
+- [Do virtual DOM diffing on web worker?](https://github.com/developit/preact/issues/417)
+- [Preact rendering in a web worker](https://news.ycombinator.com/item?id=13106144)
+- [Create fake/virtual DOM in/for web worker?](https://stackoverflow.com/questions/40699465/create-fake-virtual-dom-in-for-web-worker)
+- [Using Webworkers to make React faster](http://blog.nparashuram.com/2016/02/using-webworkers-to-make-react-faster.html)
+- [Improving Web Worker usage in PWA's (and an implementation in PureScript)](https://frigoeu.github.io/vdomworker.html)
+- [Remote-DOM aka Virtual Virtual DOM](https://hackernoon.com/remote-dom-aka-virtual-virtual-dom-479c6d88de54)
+- [A way to the use DOM in a Web Worker](https://discourse.wicg.io/t/a-way-to-the-use-dom-in-a-web-worker/2483)
+- [Building an Async React Renderer with Diffing in Web Worker](https://medium.com/@azizhk/building-an-async-react-renderer-with-diffing-in-web-worker-f3be07f16d90)

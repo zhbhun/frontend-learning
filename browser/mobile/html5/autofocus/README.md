@@ -1,0 +1,2 @@
+- [Mobile Safari Autofocus text field](https://stackoverflow.com/questions/6287478/mobile-safari-autofocus-text-field)
+- [How can you autofocus on a form field in iPhone Safari?](https://stackoverflow.com/questions/5771785/how-can-you-autofocus-on-a-form-field-in-iphone-safari)

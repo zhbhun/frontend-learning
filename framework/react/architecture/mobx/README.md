@@ -1,0 +1,2 @@
+- https://cn.mobx.js.org/
+- [MobX 内部分治策略详解](http://divideandconquer.surge.sh/#1)

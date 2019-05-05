@@ -1,0 +1,4 @@
+- https://medium.com/farmdrop/using-normalizr-js-in-a-redux-store-96ab33991369
+- https://www.robinwieruch.de/the-soundcloud-client-in-react-redux-normalizr/
+- https://hackernoon.com/using-normalizr-to-organize-data-in-stores-practical-guide-82fa061b60fb
+- https://tonyhb.gitbooks.io/redux-without-profanity/content/normalizer.html

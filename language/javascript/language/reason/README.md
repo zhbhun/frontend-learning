@@ -1,0 +1,1 @@
+- [如何评价 Facebook 推出的编程语言 Reason?](https://www.zhihu.com/question/46551878/answer/110468322)

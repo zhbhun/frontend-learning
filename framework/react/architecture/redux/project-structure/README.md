@@ -1,0 +1,4 @@
+- https://redux.js.org/faq/code-structure
+- https://github.com/markerikson/react-redux-links/blob/master/redux-architecture.md
+- [A Better File Structure For React/Redux Applications](https://marmelab.com/blog/2015/12/17/react-directory-structure.html)
+- [The Three Pigs: how to structure your React-Redux application](https://medium.com/front-end-hacking/the-three-pigs-how-to-structure-react-redux-application-67f5e3c68392)

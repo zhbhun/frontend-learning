@@ -1,0 +1,4 @@
+- [Why Performance Matters](https://developers.google.com/web/fundamentals/performance/why-performance-matters/)
+- [Driving user growth with performance improvements](https://medium.com/@Pinterest_Engineering/driving-user-growth-with-performance-improvements-cfc50dafadd7)
+- [COOK Increases Conversions By Seven Percent Thanks to Faster Load Time](https://eggplant.io/case-studies/2018/10/19/cook-increases-conversions-by-seven-percent-thanks-to-faster-load-time)
+- [How the BBC builds websites that scale](https://www.creativebloq.com/features/how-the-bbc-builds-websites-that-scale)

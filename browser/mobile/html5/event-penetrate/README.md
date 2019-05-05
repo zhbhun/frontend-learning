@@ -1,0 +1,3 @@
+- [点击穿透](http://liudong.me/web/touch-defect/)
+- [点击穿透原理及解决](https://www.cnblogs.com/shytong/p/5463673.html)
+- [也来说说touch事件与点击穿透问题](https://segmentfault.com/a/1190000003848737)

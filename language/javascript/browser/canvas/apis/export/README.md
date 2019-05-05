@@ -1,0 +1,1 @@
+- [Why does canvas.toDataURL() throw a security exception?](https://stackoverflow.com/questions/2390232/why-does-canvas-todataurl-throw-a-security-exception)

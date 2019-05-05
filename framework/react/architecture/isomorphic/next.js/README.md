@@ -1,0 +1,3 @@
+- https://learnnextjs.com/basics/getting-started
+- https://github.com/zeit/next.js/
+- https://zeit.co/blog/next4

@@ -1,0 +1,10 @@
+- [gumbo-parser](https://github.com/google/gumbo-parser)
+- [htmlparser2](https://github.com/fb55/htmlparser2)
+- [node-htmlparser](https://github.com/tautologistics/node-htmlparser)
+- [html-parser](https://github.com/tmont/html-parser)
+- [html5](https://github.com/aredridel/html5)
+- [parse5](https://github.com/inikulin/parse5)
+- [node-hubbub](https://github.com/deanmao/node-hubbub)
+- [sax-js](https://github.com/isaacs/sax-js)
+- [libxmljs](https://github.com/libxmljs/libxmljs)
+- https://github.com/AndreasMadsen/htmlparser-benchmark

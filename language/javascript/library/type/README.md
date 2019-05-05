@@ -1,0 +1,1 @@
+- https://github.com/jonschlinkert/is-plain-object

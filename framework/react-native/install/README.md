@@ -1,0 +1,4 @@
+- [React Native开发环境搭建](http://blog.codingplayboy.com/2017/09/10/react-native-init/)
+- https://juejin.im/post/5b4d47e96fb9a04f844abde0
+- [大家都是怎样处理Gradle中的这个文件下载慢的问题的？](https://www.zhihu.com/question/37810416)
+- https://stackoverflow.com/questions/33417537/failed-to-find-target-with-hash-string-android-23

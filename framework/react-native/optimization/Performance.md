@@ -1,0 +1,4 @@
+- http://facebook.github.io/react-native/docs/performance.html
+- [ReactNative安卓首屏白屏优化](https://github.com/cnsnake11/blog/blob/master/ReactNative%E5%BC%80%E5%8F%91%E6%8C%87%E5%AF%BC/ReactNative%E5%AE%89%E5%8D%93%E9%A6%96%E5%B1%8F%E7%99%BD%E5%B1%8F%E4%BC%98%E5%8C%96.md)
+- [ React Native Android白屏优化终极方案](http://blog.csdn.net/voidmain_123/article/details/73549825)
+- [从 Android 到 React Native 开发（三、自定义原生控件支持）](https://juejin.im/post/5946253561ff4b006cee4d65)

@@ -1,0 +1,2 @@
+- [HTML5 实现录音，然后上传到服务器，有现成方案吗？](https://www.zhihu.com/question/21269447)
+- [Recorderjs](https://github.com/mattdiamond/Recorderjs)

@@ -1,0 +1,31 @@
+import {
+  Button,
+  Col,
+  DatePicker,
+  Dropdown,
+  Menu,
+  Icon,
+  Input,
+  InputNumber,
+  Modal,
+  Radio,
+  Select,
+  TimePicker,
+  TreeSelect,
+} from 'antd';
+
+export default {
+  Button,
+  Col,
+  DatePicker,
+  Dropdown,
+  Menu,
+  Icon,
+  Input,
+  InputNumber,
+  Modal,
+  Radio,
+  Select,
+  TimePicker,
+  TreeSelect,
+};

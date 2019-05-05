@@ -1,0 +1,1 @@
+- [代码讲解把 Console 用到极致](https://medium.freecodecamp.com/how-to-get-the-most-out-of-the-javascript-console-b57ca9db3e6d)

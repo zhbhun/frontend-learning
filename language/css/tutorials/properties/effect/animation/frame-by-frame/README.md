@@ -1,0 +1,5 @@
+- [CSS3动画之逐帧动画](https://zhuanlan.zhihu.com/p/20844840)
+- [利用css3-animation来制作逐帧动画](https://www.qianduan.net/css3-animation/)
+- [CSS秘密花园： 逐帧动画](https://www.w3cplus.com/css3/css-secrets/frame-by-frame-animations.html)
+- [小tips: CSS或JS实现gif动态图片的停止与播放](http://www.zhangxinxu.com/wordpress/2015/12/css3-animation-js-canvas-gif-pause-stop-play/)
+- [Frame-by-frame animation with HTML and JavaScript](https://modernweb.com/frame-by-frame-animation-with-html-and-javascript/)

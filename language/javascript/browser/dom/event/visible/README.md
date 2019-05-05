@@ -1,0 +1,2 @@
+- [页面统计时间问题解决过程](http://woshuone.com/article/425)
+- [Document: visibilitychange](https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event)

@@ -1,0 +1,6 @@
+- https://docs.angularjs.org/api/ngRoute
+- https://docs.angularjs.org/guide/component-router
+- [AngularJS路由和模板](http://blog.fens.me/angularjs-route-template/)
+- [AngularJS去掉的URL里的#号](http://blog.fens.me/angularjs-url/)
+- [Angular+Bootstrap3导航菜单](http://blog.fens.me/bootstrap-angularjs-navbar/)
+- [Bootstrap3多级导航菜单](http://blog.fens.me/bootstrap-multilevel-navbar/)

@@ -1,0 +1,6 @@
+- [TypeScript](http://www.typescriptlang.org)
+- [TypeScriptSamples](https://github.com/Microsoft/TypeScriptSamples)
+- [TypeScript Language Specification](https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md)
+- [TypeScript Handbook](https://zhongsp.gitbooks.io/typescript-handbook/content/)
+- [TypeScript 入门教程](https://ts.xcatliu.com/introduction/hello-typescript.html)
+- [来玩TypeScript啊，机都给你开好了！](https://zhuanlan.zhihu.com/c_206498766)

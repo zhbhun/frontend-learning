@@ -1,0 +1,3 @@
+- https://stackoverflow.com/questions/46192280/detect-if-the-device-is-iphone-x
+- [iPhone X 适配手Q H5 页面通用解决方案](https://cloud.tencent.com/community/article/686372)
+- [iPhone X的缺口和CSS](http://web.jobbole.com/92448/)

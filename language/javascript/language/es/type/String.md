@@ -1,0 +1,1 @@
+- [Is there a JavaScript function that can pad a string to get to a determined length?](https://stackoverflow.com/questions/2686855/is-there-a-javascript-function-that-can-pad-a-string-to-get-to-a-determined-leng)

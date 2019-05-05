@@ -1,0 +1,2 @@
+- [移动端 ios 长按复制兼容方案](http://www.cnblogs.com/1wen/p/4522729.html)
+- [TML5[5]：在移动端禁用长按选中文本功能](http://www.cnblogs.com/iihe602/p/4269083.html)

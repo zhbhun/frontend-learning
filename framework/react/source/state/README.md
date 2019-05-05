@@ -1,0 +1,1 @@
+- [RFClarification: why is `setState` asynchronous?](https://github.com/facebook/react/issues/11527#issuecomment-360199710)

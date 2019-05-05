@@ -1,0 +1,2 @@
+- [css移动端实现与pc端一样的:acitve效果](http://www.jb51.net/css/229841.html)
+- [指尖下的js ——多触式web前端开发之一：对于Touch的处理](http://www.cnblogs.com/pifoo/archive/2011/05/23/webkit-touch-event-1.html)

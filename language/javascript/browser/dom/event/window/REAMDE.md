@@ -1,0 +1,3 @@
+- [BeforeUnloadEvent](https://developer.mozilla.org/zh-CN/docs/Web/API/BeforeUnloadEvent)
+- [window.onbeforeunload](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/onbeforeunload)
+- [Run JavaScript code on window close or page refresh?](http://stackoverflow.com/questions/13443503/run-javascript-code-on-window-close-or-page-refresh)

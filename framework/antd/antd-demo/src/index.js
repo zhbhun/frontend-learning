@@ -1,0 +1,23 @@
+import Button from './Button';
+import DatePicker from './DatePicker';
+import Dropdown from './Dropdown';
+import Input from './Input';
+import InputNumber from './InputNumber';
+import Menu from './Menu';
+import Radio from './Radio';
+import Select from './Select';
+import TimePicker from './TimePicker';
+import TreeSelect from './TreeSelect';
+import Modal from './Modal';
+
+export const ButtonDemo = Button;
+export const DatePickerDemo = DatePicker;
+export const DropdownDemo = Dropdown;
+export const InputDemo = Input;
+export const InputNumberDemo = InputNumber;
+export const MenuDemo = Menu;
+export const ModalDemo = Modal;
+export const RadioDemo = Radio;
+export const SelectDemo = Select;
+export const TimePickerDemo = TimePicker;
+export const TreeSelectDemo = TreeSelect;

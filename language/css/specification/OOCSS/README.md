@@ -1,0 +1,2 @@
+- http://oocss.org/
+- https://github.com/stubbornella/oocss/wiki

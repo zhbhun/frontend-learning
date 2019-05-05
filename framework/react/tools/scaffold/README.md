@@ -1,0 +1,5 @@
+- [awesome-create-react-app](https://github.com/tuchk4/awesome-create-react-app)
+- [create-react-app](https://github.com/facebook/create-react-app)
+- [bookworm-react](https://github.com/Remchi/bookworm-react)
+- [react-starter-kit](https://github.com/kriasoft/react-starter-kit)
+- [react-boilerplate](https://github.com/react-boilerplate/react-boilerplate)

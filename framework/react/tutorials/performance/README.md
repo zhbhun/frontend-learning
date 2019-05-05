@@ -1,0 +1,1 @@
+- [Optimizing Performance](https://reactjs.org/docs/react-component.html)

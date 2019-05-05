@@ -1,0 +1,3 @@
+- [用 VSCode 做 React 开发推荐配置](https://hackernoon.com/configure-eslint-prettier-and-flow-in-vs-code-for-react-development-c9d95db07213)
+- [用 Atom 做 JS/React 开发的终极配置](https://medium.com/productivity-freak/my-atom-editor-setup-for-js-react-9726cd69ad20)
+- [Reactide：专门为 React 定制的 IDE](https://github.com/reactide/reactide)

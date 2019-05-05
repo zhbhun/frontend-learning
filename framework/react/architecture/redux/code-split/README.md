@@ -1,0 +1,5 @@
+- [gaearon/reducers.js](https://gist.github.com/gaearon/0a2213881b5d53973514)
+- [React + Redux + React Router 4 code splitting w/ RxJS & Webpack](https://medium.com/@luigiplr/react-redux-react-router-4-code-splitting-w-rxjs-webpack-32eabedf0e9)
+- [Redux modules and code-splitting](http://nicolasgallagher.com/redux-modules-and-code-splitting/)
+- [Splitting Reducer Logic](https://redux.js.org/recipes/structuring-reducers/splitting-reducer-logic)
+- [How to dynamically load reducers for code splitting in a Redux application?](https://stackoverflow.com/questions/32968016/how-to-dynamically-load-reducers-for-code-splitting-in-a-redux-application)

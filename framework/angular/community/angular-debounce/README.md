@@ -1,0 +1,1 @@
+- [angular-debounce](https://github.com/rubenv/angular-debounce)

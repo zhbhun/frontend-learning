@@ -1,0 +1,4 @@
+- 概念太多：Component、Controller、Template、Provider、Scope；
+- 依赖注入导致依赖模块来源不清晰；
+- 属性指令值存在多种形式；
+- 指令作用域繁琐；

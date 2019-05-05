@@ -1,0 +1,2 @@
+- [How do focus and blur bubble up the DOM when switching between children?](https://stackoverflow.com/questions/22156435/how-do-focus-and-blur-bubble-up-the-dom-when-switching-between-children)
+- [Javascript: Global Element Focus Listener](https://stackoverflow.com/questions/15882045/javascript-global-element-focus-listener)

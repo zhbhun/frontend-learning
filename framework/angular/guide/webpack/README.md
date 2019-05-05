@@ -1,0 +1,5 @@
+- [angular1-webpack-starter](https://github.com/PinkyJie/angular1-webpack-starter)
+- [express-angular-es6-starter](https://github.com/xie-qianyue/express-angular-es6-starter)
+- [基于AngularJS的企业软件前端架构](http://www.infoq.com/cn/news/2014/05/angularjs-front-end-architecture)
+- [[译] AngularJS内幕详解之 Directive](https://www.w3ctech.com/topic/1612)
+- [Web组件化-angularjs实践](http://greengerong.com/blog/2013/12/11/angularjs-web-component/)

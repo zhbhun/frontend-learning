@@ -1,0 +1,2 @@
+- https://github.com/jnordberg/gif.js
+- https://github.com/antimatter15/jsgif
