@@ -136,26 +136,30 @@ ps：下面是结果分析中的一些术语
 
 ### 搭建私有服务器
 
+官方文档
+
 - [Private Instances](https://github.com/WPO-Foundation/webpagetest-docs/blob/master/user/Private%20Instances/README.md)
-- [WPO-Foundation/webpagetest](https://github.com/WPO-Foundation/webpagetest/tree/master/docker/local)
-- [Configuring an ‘all-in-one’ WebPageTest Private Instance](https://andydavies.me/blog/2012/09/18/how-to-create-an-all-in-one-webpagetest-private-instance/)
-- [在 Windows 下搭建 WebPageTest 私有实例](https://ntflc.com/2017/06/04/Install-WebPageTest-on-Windows/)
-- [Web性能优化工具WebPageTest（三）——本地部署（Windows 7版本）](https://www.cnblogs.com/strick/p/6634637.html)
-- [WebPageTest部署到本地](https://blog.csdn.net/qq_24373725/article/details/80091532)
-- [搭建 WebPageTest Private Instance](http://www.jeffxue.cn/2017/05/15/%E6%90%AD%E5%BB%BA-WebPageTest-Private-Instance/)
-- [mac下webpagetest搭建](https://www.bbsmax.com/A/B0zqB1n2Jv/)
-- [Local WebPagetest Using Docker](https://medium.com/@francis.john/local-webpagetest-using-docker-90441d7c2513)
+- [WPTAgent](https://github.com/WPO-Foundation/wptagent/blob/master/docs/install.md)
+- [wptserver-install](https://github.com/WPO-Foundation/wptserver-install)
+- [wptagent-install](https://github.com/WPO-Foundation/wptagent-install)
+
+使用云服务器搭建
+
 - [How to Quickly Set Up a Private WebPageTest Server And Client](https://shades-of-orange.com/post/2015/11/14/How-to-Quickly-Set-Up-a-Private-WebPageTest-Server-And-Client)
 - [How to set up a private WebPageTest Instance on EC2 to measure front end performance](https://product.voxmedia.com/2014/5/8/5597842/private-webpagetest-instance-on-ec2-setup)
 - [Setting up a WebPageTest.org private instance](https://medium.com/@jovanovski/setting-up-a-webpagetest-org-private-instance-37ce56277f1d)
-- [Performance/WebPageTest/Run locally](https://wikitech.wikimedia.org/wiki/Performance/WebPageTest/Run_locally)
-- [Web性能优化工具WebPageTest（三）——本地部署（Windows 7版本）](http://www.cnblogs.com/strick/p/6634637.html)
-- [WebPageTest本地部署（Mac版本）](https://www.jianshu.com/p/7b67962aeef3)
-- [WebPageTest部署到本地](https://blog.csdn.net/qq_24373725/article/details/80091532)
+
+使用 Docke 搭建
+
+- [Local WebPagetest Using Docker](https://medium.com/@francis.john/local-webpagetest-using-docker-90441d7c2513)
+
+使用本机搭建
+
+- [How to Setup Web Page Test Private Instance Ubuntu 16.x](https://linuxhowtoguide.blogspot.com/2017/01/how-to-setup-web-page-test-private.html)
 - [搭建 WebPageTest Private Instance](http://www.jeffxue.cn/2017/05/15/%E6%90%AD%E5%BB%BA-WebPageTest-Private-Instance/)
-- [页面性能测量监控系统应用](https://hzxiaosheng.bitbucket.io/project/2014/07/25/web-page-performance-monitor/)
-- [基于docker搭建webpagetest服务](https://cpselvis.github.io/2018/11/%E5%9F%BA%E4%BA%8EDocker%E6%90%AD%E5%BB%BAWebpagetest%E6%9C%8D%E5%8A%A1/)
-- https://github.com/NicoPennec/vagrant-webpagetest
+
+常见问题
+
 - [Test Run Error: "Error configuring traffic-shaping"](https://github.com/WPO-Foundation/wptagent/issues/23)
 
 ## 教程
