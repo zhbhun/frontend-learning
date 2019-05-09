@@ -162,6 +162,13 @@ ps：下面是结果分析中的一些术语
 
 - [Test Run Error: "Error configuring traffic-shaping"](https://github.com/WPO-Foundation/wptagent/issues/23)
 
+    Docker 不支持配置网络情况
+
+- Ubuntu 安装需要检查存在命令工具 curl，apt
+- 使用 wptserver-install 脚本安装时需要克隆项目 https://github.com/WPO-Foundation/webpagetest.git，但是该项目较大，克隆时间太长
+
+    直接去 github 上下载压缩包来代替
+
 ## 教程
 
 - [WebPagetest：新手一眼看懂使用教程](https://cloud.tencent.com/developer/article/1361742)
