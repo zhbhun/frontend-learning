@@ -280,3 +280,4 @@ FP 和 FCP 指标用于标记导航之后浏览器在屏幕上渲染像素的时
 - [Estimated Input Latency](https://developers.google.com/web/tools/lighthouse/audits/estimated-input-latency)
 - [GoogleChromeLabs/first-input-delay](https://github.com/GoogleChromeLabs/first-input-delay)
 - [Moving beyond window.onload()](https://www.stevesouders.com/blog/2013/05/13/moving-beyond-window-onload/)
+- [Apdex-G and Apdex-R Composite Sections 1-5](http://www.apdex.org/index.php/2010/09/apdex-g-and-apdex-r-composite-sections-1-5/) / [Apdex 应用性能指数](https://www.frontjs.com/doc/view/apdex)
