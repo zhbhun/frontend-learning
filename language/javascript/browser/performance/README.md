@@ -28,7 +28,7 @@
 
 - [`Performance​.timing`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/timing)
 - [`Performance​Timing`](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceTiming)
-- [Navigation Timing](https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface)
+- [Navigation Timing](https://www.w3.org/TR/navigation-timing)
 
 #### `PerformanceNavigationTiming`
 
@@ -39,7 +39,7 @@
 - [`performance.getEntries`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntries)
 - [`performance.getEntriesByName`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntriesByName)
 - [`performance.getEntriesByType`](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntriesByType)
-- [`Performance Timeline Level 2`](https://w3c.github.io/performance-timeline)
+- [`Navigation Timing Level 2`](https://w3c.github.io/navigation-timing)
 
 ### 资源加载
 
