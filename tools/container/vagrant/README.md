@@ -123,6 +123,22 @@ https://www.vagrantup.com/intro/getting-started/provisioning.html
 
 - ["Warning: Authentication failure. Retrying... " after packaging box](https://github.com/hashicorp/vagrant/issues/5186#issuecomment-112052573)
 
+## Stderr: VBoxManage.exe: error: RawFile#0 failed to create the raw output file
+
+```
+There was an error while executing `VBoxManage`, a CLI used by Vagrant
+for controlling VirtualBox. The command and stderr is shown below.
+
+Command: ["startvm", "a5efe367-6388-4727-8d3e-af9e84171e47", "--type", "headless"]
+
+Stderr: VBoxManage: error: RawFile#0 failed to create the raw output file /.../.../ubuntu-xenial-16.04-cloudimg-console.log (VERR_FILE_NOT_FOUND)
+VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
+```
+
+- [Stderr: VBoxManage.exe: error: RawFile#0 failed to create the raw output file ../ubuntu-xenial-16.04-cloudimg-console.log (VERR_PATH_NOT_FOUND) ](https://github.com/joelhandwell/ubuntu_vagrant_boxes/issues/1)
+- [Vagrant up (1.9.5) not running on WSL](https://github.com/hashicorp/vagrant/issues/8604)
+- [vagrant with virtualbox on wsl VERR_PATH_NOT_FOUND](https://stackoverflow.com/questions/45773825/vagrant-with-virtualbox-on-wsl-verr-path-not-found)
+
 ## 衍生
 
 - https://github.com/jedi4ever/veewee
