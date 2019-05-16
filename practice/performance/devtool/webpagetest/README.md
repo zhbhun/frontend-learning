@@ -3,6 +3,7 @@
 - [官方网站](https://www.webpagetest.org)
 - [官方文档](https://sites.google.com/a/webpagetest.org/docs/) / [中文文档](https://github.com/pwstrick/WebPagetest-Docs)
 - https://github.com/WPO-Foundation/webpagetest
+- [Website Speed Test Image Analysis Tool](https://webspeedtest.cloudinary.com/)
 
 ## 使用方法
 
