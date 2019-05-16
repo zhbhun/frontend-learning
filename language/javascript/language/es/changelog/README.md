@@ -39,3 +39,7 @@
 ## ES5
 
 - [Proposed ECMAScript 4th Edition – Language Overview](https://www.ecma-international.org/activities/Languages/Language%20overview.pdf)
+
+## 兼容性
+
+- [Can I use ECMAScript 2015 (ES6)](https://caniuse.com/#feat=es6)
