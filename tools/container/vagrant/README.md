@@ -62,6 +62,11 @@ Box 是指 Vagrant 的基础镜像，使用基础镜像可以快速克隆创建�
     - [Vagrant创建自定义的BOX](http://www.winseliu.com/blog/2017/08/23/vagrant-create-your-own-box/)
     - [制作自己的Vagrant Box](https://segmentfault.com/a/1190000002507999)
 
+    - [用packer做vagrant的box](http://www.jiangjiang.space/2017/09/17/%E7%94%A8packer%E5%81%9Avagrant%E7%9A%84box/)
+    - [使用Packer制作vagrant box](https://blog.csdn.net/lingxuan630/article/details/47836105)
+    - [boxcutter](https://github.com/boxcutter/centos)
+    - [chef/bento](https://github.com/chef/bento)
+
 ### 启动和 SSH
 
 1. `vagrant up`：启动
@@ -123,7 +128,7 @@ https://www.vagrantup.com/intro/getting-started/provisioning.html
 
 - ["Warning: Authentication failure. Retrying... " after packaging box](https://github.com/hashicorp/vagrant/issues/5186#issuecomment-112052573)
 
-## Stderr: VBoxManage.exe: error: RawFile#0 failed to create the raw output file
+### Stderr: VBoxManage.exe: error: RawFile#0 failed to create the raw output file
 
 ```
 There was an error while executing `VBoxManage`, a CLI used by Vagrant
@@ -138,6 +143,23 @@ VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component Consol
 - [Stderr: VBoxManage.exe: error: RawFile#0 failed to create the raw output file ../ubuntu-xenial-16.04-cloudimg-console.log (VERR_PATH_NOT_FOUND) ](https://github.com/joelhandwell/ubuntu_vagrant_boxes/issues/1)
 - [Vagrant up (1.9.5) not running on WSL](https://github.com/hashicorp/vagrant/issues/8604)
 - [vagrant with virtualbox on wsl VERR_PATH_NOT_FOUND](https://stackoverflow.com/questions/45773825/vagrant-with-virtualbox-on-wsl-verr-path-not-found)
+
+### [Vagrant was unable to mount VirtualBox shared folders](https://stackoverflow.com/questions/43492322/vagrant-was-unable-to-mount-virtualbox-shared-folders)
+
+...
+
+### [sbin/mount.vboxsf: mounting failed with the error: No such device](https://www.google.com/search?q=sbin%2Fmount.vboxsf%3A+mounting+failed+with+the+error%3A+No+such+device&oq=sbin%2Fmount.vboxsf%3A+mounting+failed+with+the+error%3A+No+such+device&aqs=chrome..69i57j69i58.1187j0j4&sourceid=chrome&ie=UTF-8)
+
+- [VirtualBox: mount.vboxsf: mounting failed with the error: No such device [closed]](https://stackoverflow.com/questions/28328775/virtualbox-mount-vboxsf-mounting-failed-with-the-error-no-such-device)
+
+### 怎么升级 Vagrant VirtualBox Addition
+
+- [vagrant-vbguest](https://github.com/dotless-de/vagrant-vbguest)
+- [How to upgrade to VirtualBox Guest Additions on VM box?](https://stackoverflow.com/questions/20308794/how-to-upgrade-to-virtualbox-guest-additions-on-vm-box)
+- [manually install VBoxGuestAdditions.iso](https://askubuntu.com/questions/1077007/manually-install-vboxguestadditions-iso)
+- [How do I install the VirtualBox version from Oracle to install an Extension Pack?](https://askubuntu.com/questions/41478/how-do-i-install-the-virtualbox-version-from-oracle-to-install-an-extension-pack)
+- [How do I install Guest Additions in a VirtualBox VM?](https://askubuntu.com/questions/22743/how-do-i-install-guest-additions-in-a-virtualbox-vm)
+- https://download.virtualbox.org/virtualbox/
 
 ## 衍生
 
