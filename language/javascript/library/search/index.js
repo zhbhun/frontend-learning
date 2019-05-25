@@ -1,0 +1,2307 @@
+const dict = {"a":"阿啊呵腌嗄吖锕","e":"额阿俄恶鹅遏鄂厄饿峨扼娥鳄哦蛾噩愕讹锷垩婀鹗萼谔莪腭锇颚呃阏屙苊轭","ai":"爱埃艾碍癌哀挨矮隘蔼唉皑哎霭捱暧嫒嗳瑷嗌锿砹","ei":"诶","xi":"系西席息希习吸喜细析戏洗悉锡溪惜稀袭夕洒晰昔牺腊烯熙媳栖膝隙犀蹊硒兮熄曦禧嬉玺奚汐徙羲铣淅嘻歙熹矽蟋郗唏皙隰樨浠忾蜥檄郄翕阋鳃舾屣葸螅咭粞觋欷僖醯鼷裼穸饩舄禊诶菥蓰","yi":"一以已意议义益亿易医艺食依移衣异伊仪宜射遗疑毅谊亦疫役忆抑尾乙译翼蛇溢椅沂泄逸蚁夷邑怡绎彝裔姨熠贻矣屹颐倚诣胰奕翌疙弈轶蛾驿壹猗臆弋铱旖漪迤佚翊诒怿痍懿饴峄揖眙镒仡黟肄咿翳挹缢呓刈咦嶷羿钇殪荑薏蜴镱噫癔苡悒嗌瘗衤佾埸圯舣酏劓","an":"安案按岸暗鞍氨俺胺铵谙庵黯鹌桉埯犴揞厂广","han":"厂汉韩含旱寒汗涵函喊憾罕焊翰邯撼瀚憨捍酣悍鼾邗颔蚶晗菡旰顸犴焓撖","ang":"昂仰盎肮","ao":"奥澳傲熬凹鳌敖遨鏖袄坳翱嗷拗懊岙螯骜獒鏊艹媪廒聱","wa":"瓦挖娃洼袜蛙凹哇佤娲呙腽","yu":"于与育余预域予遇奥语誉玉鱼雨渔裕愈娱欲吁舆宇羽逾豫郁寓吾狱喻御浴愉禹俞邪榆愚渝尉淤虞屿峪粥驭瑜禺毓钰隅芋熨瘀迂煜昱汩於臾盂聿竽萸妪腴圄谕觎揄龉谀俣馀庾妤瘐鬻欤鹬阈嵛雩鹆圉蜮伛纡窬窳饫蓣狳肀舁蝓燠","niu":"牛纽扭钮拗妞忸狃","o":"哦噢喔","ba":"把八巴拔伯吧坝爸霸罢芭跋扒叭靶疤笆耙鲅粑岜灞钯捌菝魃茇","pa":"怕帕爬扒趴琶啪葩耙杷钯筢","pi":"被批副否皮坏辟啤匹披疲罢僻毗坯脾譬劈媲屁琵邳裨痞癖陂丕枇噼霹吡纰砒铍淠郫埤濞睥芘蚍圮鼙罴蜱疋貔仳庀擗甓陴","bi":"比必币笔毕秘避闭佛辟壁弊彼逼碧鼻臂蔽拂泌璧庇痹毙弼匕鄙陛裨贲敝蓖吡篦纰俾铋毖筚荸薜婢哔跸濞秕荜愎睥妣芘箅髀畀滗狴萆嬖襞舭","bai":"百白败摆伯拜柏佰掰呗擘捭稗","bo":"波博播勃拨薄佛伯玻搏柏泊舶剥渤卜驳簿脖膊簸菠礴箔铂亳钵帛擘饽跛钹趵檗啵鹁擗踣","bei":"北被备倍背杯勃贝辈悲碑臂卑悖惫蓓陂钡狈呗焙碚褙庳鞴孛鹎邶鐾","ban":"办版半班般板颁伴搬斑扮拌扳瓣坂阪绊钣瘢舨癍","pan":"判盘番潘攀盼拚畔胖叛拌蹒磐爿蟠泮袢襻丬","bin":"份宾频滨斌彬濒殡缤鬓槟摈膑玢镔豳髌傧","bang":"帮邦彭旁榜棒膀镑绑傍磅蚌谤梆浜蒡","pang":"旁庞乓磅螃彷滂逄耪","beng":"泵崩蚌蹦迸绷甭嘣甏堋","bao":"报保包宝暴胞薄爆炮饱抱堡剥鲍曝葆瀑豹刨褒雹孢苞煲褓趵鸨龅勹","bu":"不部步布补捕堡埔卜埠簿哺怖钚卟瓿逋晡醭钸","pu":"普暴铺浦朴堡葡谱埔扑仆蒲曝瀑溥莆圃璞濮菩蹼匍噗氆攵镨攴镤","mian":"面棉免绵缅勉眠冕娩腼渑湎沔黾宀眄","po":"破繁坡迫颇朴泊婆泼魄粕鄱珀陂叵笸泺皤钋钷","fan":"反范犯繁饭泛翻凡返番贩烦拚帆樊藩矾梵蕃钒幡畈蘩蹯燔","fu":"府服副负富复福夫妇幅付扶父符附腐赴佛浮覆辅傅伏抚赋辐腹弗肤阜袱缚甫氟斧孚敷俯拂俘咐腑孵芙涪釜脯茯馥宓绂讣呋罘麸蝠匐芾蜉跗凫滏蝮驸绋蚨砩桴赙菔呒趺苻拊阝鲋怫稃郛莩幞祓艴黻黼鳆","ben":"本体奔苯笨夯贲锛畚坌","feng":"风丰封峰奉凤锋冯逢缝蜂枫疯讽烽俸沣酆砜葑唪","bian":"变便边编遍辩鞭辨贬匾扁卞汴辫砭苄蝙鳊弁窆笾煸褊碥忭缏","pian":"便片篇偏骗翩扁骈胼蹁谝犏缏","zhen":"镇真针圳振震珍阵诊填侦臻贞枕桢赈祯帧甄斟缜箴疹砧榛鸩轸稹溱蓁胗椹朕畛浈","biao":"表标彪镖裱飚膘飙镳婊骠飑杓髟鳔灬瘭","piao":"票朴漂飘嫖瓢剽缥殍瞟骠嘌莩螵","huo":"和活或货获火伙惑霍祸豁嚯藿锪蠖钬耠镬夥灬劐攉","bie":"别鳖憋瘪蹩","min":"民敏闽闵皿泯岷悯珉抿黾缗玟愍苠鳘","fen":"分份纷奋粉氛芬愤粪坟汾焚酚吩忿棼玢鼢瀵偾鲼","bing":"并病兵冰屏饼炳秉丙摒柄槟禀枋邴冫","geng":"更耕颈庚耿梗埂羹哽赓绠鲠","fang":"方放房防访纺芳仿坊妨肪邡舫彷枋鲂匚钫","xian":"现先县见线限显险献鲜洗宪纤陷闲贤仙衔掀咸嫌掺羡弦腺痫娴舷馅酰铣冼涎暹籼锨苋蚬跹岘藓燹鹇氙莶霰跣猃彡祆筅","fou":"不否缶","ca":"拆擦嚓礤","cha":"查察差茶插叉刹茬楂岔诧碴嚓喳姹杈汊衩搽槎镲苴檫馇锸猹","cai":"才采财材菜彩裁蔡猜踩睬","can":"参残餐灿惨蚕掺璨惭粲孱骖黪","shen":"信深参身神什审申甚沈伸慎渗肾绅莘呻婶娠砷蜃哂椹葚吲糁渖诜谂矧胂","cen":"参岑涔","san":"三参散伞叁糁馓毵","cang":"藏仓苍沧舱臧伧","zang":"藏脏葬赃臧奘驵","chen":"称陈沈沉晨琛臣尘辰衬趁忱郴宸谌碜嗔抻榇伧谶龀肜","cao":"草操曹槽糙嘈漕螬艚屮","ce":"策测册侧厕栅恻","ze":"责则泽择侧咋啧仄箦赜笮舴昃迮帻","zhai":"债择齐宅寨侧摘窄斋祭翟砦瘵哜","dao":"到道导岛倒刀盗稻蹈悼捣叨祷焘氘纛刂帱忉","ceng":"层曾蹭噌","zha":"查扎炸诈闸渣咋乍榨楂札栅眨咤柞喳喋铡蚱吒怍砟揸痄哳齄","chai":"差拆柴钗豺侪虿瘥","ci":"次此差词辞刺瓷磁兹慈茨赐祠伺雌疵鹚糍呲粢","zi":"资自子字齐咨滋仔姿紫兹孜淄籽梓鲻渍姊吱秭恣甾孳訾滓锱辎趑龇赀眦缁呲笫谘嵫髭茈粢觜耔","cuo":"措错磋挫搓撮蹉锉厝嵯痤矬瘥脞鹾","chan":"产单阐崭缠掺禅颤铲蝉搀潺蟾馋忏婵孱觇廛谄谗澶骣羼躔蒇冁","shan":"山单善陕闪衫擅汕扇掺珊禅删膳缮赡鄯栅煽姗跚鳝嬗潸讪舢苫疝掸膻钐剡蟮芟埏彡骟","zhan":"展战占站崭粘湛沾瞻颤詹斩盏辗绽毡栈蘸旃谵搌","xin":"新心信辛欣薪馨鑫芯锌忻莘昕衅歆囟忄镡","lian":"联连练廉炼脸莲恋链帘怜涟敛琏镰濂楝鲢殓潋裢裣臁奁莶蠊蔹","chang":"场长厂常偿昌唱畅倡尝肠敞倘猖娼淌裳徜昶怅嫦菖鲳阊伥苌氅惝鬯","zhang":"长张章障涨掌帐胀彰丈仗漳樟账杖璋嶂仉瘴蟑獐幛鄣嫜","chao":"超朝潮炒钞抄巢吵剿绰嘲晁焯耖怊","zhao":"着照招找召朝赵兆昭肇罩钊沼嘲爪诏濯啁棹笊","zhou":"调州周洲舟骤轴昼宙粥皱肘咒帚胄绉纣妯啁诌繇碡籀酎荮","che":"车彻撤尺扯澈掣坼砗屮","ju":"车局据具举且居剧巨聚渠距句拒俱柜菊拘炬桔惧矩鞠驹锯踞咀瞿枸掬沮莒橘飓疽钜趄踽遽琚龃椐苣裾榘狙倨榉苴讵雎锔窭鞫犋屦醵","cheng":"成程城承称盛抢乘诚呈净惩撑澄秤橙骋逞瞠丞晟铛埕塍蛏柽铖酲裎枨","rong":"容荣融绒溶蓉熔戎榕茸冗嵘肜狨蝾","sheng":"生声升胜盛乘圣剩牲甸省绳笙甥嵊晟渑眚","deng":"等登邓灯澄凳瞪蹬噔磴嶝镫簦戥","zhi":"制之治质职只志至指织支值知识直致执置止植纸拓智殖秩旨址滞氏枝芝脂帜汁肢挚稚酯掷峙炙栉侄芷窒咫吱趾痔蜘郅桎雉祉郦陟痣蛭帙枳踯徵胝栀贽祗豸鸷摭轵卮轾彘觯絷跖埴夂黹忮骘膣踬","zheng":"政正证争整征郑丁症挣蒸睁铮筝拯峥怔诤狰徵钲","tang":"堂唐糖汤塘躺趟倘棠烫淌膛搪镗傥螳溏帑羰樘醣螗耥铴瑭","chi":"持吃池迟赤驰尺斥齿翅匙痴耻炽侈弛叱啻坻眙嗤墀哧茌豉敕笞饬踟蚩柢媸魑篪褫彳鸱螭瘛眵傺","shi":"是时实事市十使世施式势视识师史示石食始士失适试什泽室似诗饰殖释驶氏硕逝湿蚀狮誓拾尸匙仕柿矢峙侍噬嗜栅拭嘘屎恃轼虱耆舐莳铈谥炻豕鲥饣螫酾筮埘弑礻蓍鲺贳","qi":"企其起期气七器汽奇齐启旗棋妻弃揭枝歧欺骑契迄亟漆戚岂稽岐琦栖缉琪泣乞砌祁崎绮祺祈凄淇杞脐麒圻憩芪伎俟畦耆葺沏萋骐鳍綦讫蕲屺颀亓碛柒啐汔綮萁嘁蛴槭欹芑桤丌蜞","chuai":"揣踹啜搋膪","tuo":"托脱拓拖妥驼陀沱鸵驮唾椭坨佗砣跎庹柁橐乇铊沲酡鼍箨柝","duo":"多度夺朵躲铎隋咄堕舵垛惰哆踱跺掇剁柁缍沲裰哚隳","xue":"学血雪削薛穴靴谑噱鳕踅泶彐","chong":"重种充冲涌崇虫宠忡憧舂茺铳艟","chou":"筹抽绸酬愁丑臭仇畴稠瞅踌惆俦瘳雠帱","qiu":"求球秋丘邱仇酋裘龟囚遒鳅虬蚯泅楸湫犰逑巯艽俅蝤赇鼽糗","xiu":"修秀休宿袖绣臭朽锈羞嗅岫溴庥馐咻髹鸺貅","chu":"出处础初助除储畜触楚厨雏矗橱锄滁躇怵绌搐刍蜍黜杵蹰亍樗憷楮","tuan":"团揣湍疃抟彖","zhui":"追坠缀揣椎锥赘惴隹骓缒","chuan":"传川船穿串喘椽舛钏遄氚巛舡","zhuan":"专转传赚砖撰篆馔啭颛","yuan":"元员院原源远愿园援圆缘袁怨渊苑宛冤媛猿垣沅塬垸鸳辕鸢瑗圜爰芫鼋橼螈眢箢掾","cuan":"窜攒篡蹿撺爨汆镩","chuang":"创床窗闯幢疮怆","zhuang":"装状庄壮撞妆幢桩奘僮戆","chui":"吹垂锤炊椎陲槌捶棰","chun":"春纯醇淳唇椿蠢鹑朐莼肫蝽","zhun":"准屯淳谆肫窀","cu":"促趋趣粗簇醋卒蹴猝蹙蔟殂徂","dun":"吨顿盾敦蹲墩囤沌钝炖盹遁趸砘礅","qu":"区去取曲趋渠趣驱屈躯衢娶祛瞿岖龋觑朐蛐癯蛆苣阒诎劬蕖蘧氍黢蠼璩麴鸲磲","xu":"需许续须序徐休蓄畜虚吁绪叙旭邪恤墟栩絮圩婿戌胥嘘浒煦酗诩朐盱蓿溆洫顼勖糈砉醑","chuo":"辍绰戳淖啜龊踔辶","zu":"组族足祖租阻卒俎诅镞菹","ji":"济机其技基记计系期际及集级几给积极己纪即继击既激绩急奇吉季齐疾迹鸡剂辑籍寄挤圾冀亟寂暨脊跻肌稽忌饥祭缉棘矶汲畸姬藉瘠骥羁妓讥稷蓟悸嫉岌叽伎鲫诘楫荠戟箕霁嵇觊麂畿玑笈犄芨唧屐髻戢佶偈笄跽蒺乩咭赍嵴虮掎齑殛鲚剞洎丌墼蕺彐芰哜","cong":"从丛匆聪葱囱琮淙枞骢苁璁","zong":"总从综宗纵踪棕粽鬃偬枞腙","cou":"凑辏腠楱","cui":"衰催崔脆翠萃粹摧璀瘁悴淬啐隹毳榱","wei":"为位委未维卫围违威伟危味微唯谓伪慰尾魏韦胃畏帷喂巍萎蔚纬潍尉渭惟薇苇炜圩娓诿玮崴桅偎逶倭猥囗葳隗痿猬涠嵬韪煨艉隹帏闱洧沩隈鲔軎","cun":"村存寸忖皴","zuo":"作做座左坐昨佐琢撮祚柞唑嘬酢怍笮阼胙","zuan":"钻纂攥缵躜","da":"大达打答搭沓瘩惮嗒哒耷鞑靼褡笪怛妲","dai":"大代带待贷毒戴袋歹呆隶逮岱傣棣怠殆黛甙埭诒绐玳呔迨","tai":"大台太态泰抬胎汰钛苔薹肽跆邰鲐酞骀炱","ta":"他它她拓塔踏塌榻沓漯獭嗒挞蹋趿遢铊鳎溻闼","dan":"但单石担丹胆旦弹蛋淡诞氮郸耽殚惮儋眈疸澹掸膻啖箪聃萏瘅赕","lu":"路六陆录绿露鲁卢炉鹿禄赂芦庐碌麓颅泸卤潞鹭辘虏璐漉噜戮鲈掳橹轳逯渌蓼撸鸬栌氇胪镥簏舻辂垆","tan":"谈探坦摊弹炭坛滩贪叹谭潭碳毯瘫檀痰袒坍覃忐昙郯澹钽锬","ren":"人任认仁忍韧刃纫饪妊荏稔壬仞轫亻衽","jie":"家结解价界接节她届介阶街借杰洁截姐揭捷劫戒皆竭桔诫楷秸睫藉拮芥诘碣嗟颉蚧孑婕疖桀讦疥偈羯袷哜喈卩鲒骱","yan":"研严验演言眼烟沿延盐炎燕岩宴艳颜殷彦掩淹阎衍铅雁咽厌焰堰砚唁焉晏檐蜒奄俨腌妍谚兖筵焱偃闫嫣鄢湮赝胭琰滟阉魇酽郾恹崦芫剡鼹菸餍埏谳讠厣罨","dang":"当党档荡挡宕砀铛裆凼菪谠","tao":"套讨跳陶涛逃桃萄淘掏滔韬叨洮啕绦饕鼗","tiao":"条调挑跳迢眺苕窕笤佻啁粜髫铫祧龆蜩鲦","te":"特忑忒铽慝","de":"的地得德底锝","dei":"得","di":"的地第提低底抵弟迪递帝敌堤蒂缔滴涤翟娣笛棣荻谛狄邸嘀砥坻诋嫡镝碲骶氐柢籴羝睇觌","ti":"体提题弟替梯踢惕剔蹄棣啼屉剃涕锑倜悌逖嚏荑醍绨鹈缇裼","tui":"推退弟腿褪颓蜕忒煺","you":"有由又优游油友右邮尤忧幼犹诱悠幽佑釉柚铀鱿囿酉攸黝莠猷蝣疣呦蚴莸莜铕宥繇卣牖鼬尢蚰侑","dian":"电点店典奠甸碘淀殿垫颠滇癫巅惦掂癜玷佃踮靛钿簟坫阽","tian":"天田添填甜甸恬腆佃舔钿阗忝殄畋栝掭","zhu":"主术住注助属逐宁著筑驻朱珠祝猪诸柱竹铸株瞩嘱贮煮烛苎褚蛛拄铢洙竺蛀渚伫杼侏澍诛茱箸炷躅翥潴邾槠舳橥丶瘃麈疰","nian":"年念酿辗碾廿捻撵拈蔫鲶埝鲇辇黏","diao":"调掉雕吊钓刁貂凋碉鲷叼铫铞","yao":"要么约药邀摇耀腰遥姚窑瑶咬尧钥谣肴夭侥吆疟妖幺杳舀窕窈曜鹞爻繇徭轺铫鳐崾珧","die":"跌叠蝶迭碟爹谍牒耋佚喋堞瓞鲽垤揲蹀","she":"设社摄涉射折舍蛇拾舌奢慑赦赊佘麝歙畲厍猞揲滠","ye":"业也夜叶射野液冶喝页爷耶邪咽椰烨掖拽曳晔谒腋噎揶靥邺铘揲","xie":"些解协写血叶谢械鞋胁斜携懈契卸谐泄蟹邪歇泻屑挟燮榭蝎撷偕亵楔颉缬邂鲑瀣勰榍薤绁渫廨獬躞","zhe":"这者着著浙折哲蔗遮辙辄柘锗褶蜇蛰鹧谪赭摺乇磔螫","ding":"定订顶丁鼎盯钉锭叮仃铤町酊啶碇腚疔玎耵","diu":"丢铥","ting":"听庭停厅廷挺亭艇婷汀铤烃霆町蜓葶梃莛","dong":"动东董冬洞懂冻栋侗咚峒氡恫胴硐垌鸫岽胨","tong":"同通统童痛铜桶桐筒彤侗佟潼捅酮砼瞳恸峒仝嗵僮垌茼","zhong":"中重种众终钟忠仲衷肿踵冢盅蚣忪锺舯螽夂","dou":"都斗读豆抖兜陡逗窦渎蚪痘蔸钭篼","du":"度都独督读毒渡杜堵赌睹肚镀渎笃竺嘟犊妒牍蠹椟黩芏髑","duan":"断段短端锻缎煅椴簖","dui":"对队追敦兑堆碓镦怼憝","rui":"瑞兑锐睿芮蕊蕤蚋枘","yue":"月说约越乐跃兑阅岳粤悦曰钥栎钺樾瀹龠哕刖","tun":"吞屯囤褪豚臀饨暾氽","hui":"会回挥汇惠辉恢徽绘毁慧灰贿卉悔秽溃荟晖彗讳诲珲堕诙蕙晦睢麾烩茴喙桧蛔洄浍虺恚蟪咴隳缋哕","wu":"务物无五武午吴舞伍污乌误亡恶屋晤悟吾雾芜梧勿巫侮坞毋诬呜钨邬捂鹜兀婺妩於戊鹉浯蜈唔骛仵焐芴鋈庑鼯牾怃圬忤痦迕杌寤阢","ya":"亚压雅牙押鸭呀轧涯崖邪芽哑讶鸦娅衙丫蚜碣垭伢氩桠琊揠吖睚痖疋迓岈砑","he":"和合河何核盖贺喝赫荷盒鹤吓呵苛禾菏壑褐涸阂阖劾诃颌嗬貉曷翮纥盍","wo":"我握窝沃卧挝涡斡渥幄蜗喔倭莴龌肟硪","en":"恩摁蒽","n":"嗯唔","er":"而二尔儿耳迩饵洱贰铒珥佴鸸鲕","fa":"发法罚乏伐阀筏砝垡珐","quan":"全权券泉圈拳劝犬铨痊诠荃醛蜷颧绻犭筌鬈悛辁畎","fei":"费非飞肥废菲肺啡沸匪斐蜚妃诽扉翡霏吠绯腓痱芾淝悱狒榧砩鲱篚镄","pei":"配培坏赔佩陪沛裴胚妃霈淠旆帔呸醅辔锫","ping":"平评凭瓶冯屏萍苹乒坪枰娉俜鲆","fo":"佛","hu":"和护许户核湖互乎呼胡戏忽虎沪糊壶葫狐蝴弧瑚浒鹄琥扈唬滹惚祜囫斛笏芴醐猢怙唿戽槲觳煳鹕冱瓠虍岵鹱烀轷","ga":"夹咖嘎尬噶旮伽尕钆尜","ge":"个合各革格歌哥盖隔割阁戈葛鸽搁胳舸疙铬骼蛤咯圪镉颌仡硌嗝鬲膈纥袼搿塥哿虼","ha":"哈蛤铪","xia":"下夏峡厦辖霞夹虾狭吓侠暇遐瞎匣瑕唬呷黠硖罅狎瘕柙","gai":"改该盖概溉钙丐芥赅垓陔戤","hai":"海还害孩亥咳骸骇氦嗨胲醢","gan":"干感赶敢甘肝杆赣乾柑尴竿秆橄矸淦苷擀酐绀泔坩旰疳澉","gang":"港钢刚岗纲冈杠缸扛肛罡戆筻","jiang":"将强江港奖讲降疆蒋姜浆匠酱僵桨绛缰犟豇礓洚茳糨耩","hang":"行航杭巷夯吭桁沆绗颃","gong":"工公共供功红贡攻宫巩龚恭拱躬弓汞蚣珙觥肱廾","hong":"红宏洪轰虹鸿弘哄烘泓訇蕻闳讧荭黉薨","guang":"广光逛潢犷胱咣桄","qiong":"穷琼穹邛茕筇跫蛩銎","gao":"高告搞稿膏糕镐皋羔锆杲郜睾诰藁篙缟槁槔","hao":"好号毫豪耗浩郝皓昊皋蒿壕灏嚎濠蚝貉颢嗥薅嚆","li":"理力利立里李历例离励礼丽黎璃厉厘粒莉梨隶栗荔沥犁漓哩狸藜罹篱鲤砺吏澧俐骊溧砾莅锂笠蠡蛎痢雳俪傈醴栎郦俚枥喱逦娌鹂戾砬唳坜疠蜊黧猁鬲粝蓠呖跞疬缡鲡鳢嫠詈悝苈篥轹","jia":"家加价假佳架甲嘉贾驾嫁夹稼钾挟拮迦伽颊浃枷戛荚痂颉镓笳珈岬胛袈郏葭袷瘕铗跏蛱恝哿","luo":"落罗络洛逻螺锣骆萝裸漯烙摞骡咯箩珞捋荦硌雒椤镙跞瘰泺脶猡倮蠃","ke":"可科克客刻课颗渴壳柯棵呵坷恪苛咳磕珂稞瞌溘轲窠嗑疴蝌岢铪颏髁蚵缂氪骒钶锞","qia":"卡恰洽掐髂袷咭葜","gei":"给","gen":"根跟亘艮哏茛","hen":"很狠恨痕哏","gou":"构购够句沟狗钩拘勾苟垢枸篝佝媾诟岣彀缑笱鞲觏遘","kou":"口扣寇叩抠佝蔻芤眍筘","gu":"股古顾故固鼓骨估谷贾姑孤雇辜菇沽咕呱锢钴箍汩梏痼崮轱鸪牯蛊诂毂鹘菰罟嘏臌觚瞽蛄酤牿鲴","pai":"牌排派拍迫徘湃俳哌蒎","gua":"括挂瓜刮寡卦呱褂剐胍诖鸹栝呙","tou":"投头透偷愉骰亠","guai":"怪拐乖","kuai":"会快块筷脍蒯侩浍郐蒉狯哙","guan":"关管观馆官贯冠惯灌罐莞纶棺斡矜倌鹳鳏盥掼涫","wan":"万完晚湾玩碗顽挽弯蔓丸莞皖宛婉腕蜿惋烷琬畹豌剜纨绾脘菀芄箢","ne":"呢哪呐讷疒","gui":"规贵归轨桂柜圭鬼硅瑰跪龟匮闺诡癸鳜桧皈鲑刽晷傀眭妫炅庋簋刿宄匦","jun":"军均俊君峻菌竣钧骏龟浚隽郡筠皲麇捃","jiong":"窘炯迥炅冂扃","jue":"决绝角觉掘崛诀獗抉爵嚼倔厥蕨攫珏矍蹶谲镢鳜噱桷噘撅橛孓觖劂爝","gun":"滚棍辊衮磙鲧绲丨","hun":"婚混魂浑昏棍珲荤馄诨溷阍","guo":"国过果郭锅裹帼涡椁囗蝈虢聒埚掴猓崞蜾呙馘","hei":"黑嘿嗨","kan":"看刊勘堪坎砍侃嵌槛瞰阚龛戡凵莰","heng":"衡横恒亨哼珩桁蘅","mo":"万没么模末冒莫摩墨默磨摸漠脉膜魔沫陌抹寞蘑摹蓦馍茉嘿谟秣蟆貉嫫镆殁耱嬷麽瘼貊貘","peng":"鹏朋彭膨蓬碰苹棚捧亨烹篷澎抨硼怦砰嘭蟛堋","hou":"后候厚侯猴喉吼逅篌糇骺後鲎瘊堠","hua":"化华划话花画滑哗豁骅桦猾铧砉","huai":"怀坏淮徊槐踝","huan":"还环换欢患缓唤焕幻痪桓寰涣宦垸洹浣豢奂郇圜獾鲩鬟萑逭漶锾缳擐","xun":"讯训迅孙寻询循旬巡汛勋逊熏徇浚殉驯鲟薰荀浔洵峋埙巽郇醺恂荨窨蕈曛獯","huang":"黄荒煌皇凰慌晃潢谎惶簧璜恍幌湟蝗磺隍徨遑肓篁鳇蟥癀","nai":"能乃奶耐奈鼐萘氖柰佴艿","luan":"乱卵滦峦鸾栾銮挛孪脔娈","qie":"切且契窃茄砌锲怯伽惬妾趄挈郄箧慊","jian":"建间件见坚检健监减简艰践兼鉴键渐柬剑尖肩舰荐箭浅剪俭碱茧奸歼拣捡煎贱溅槛涧堑笺谏饯锏缄睑謇蹇腱菅翦戬毽笕犍硷鞯牮枧湔鲣囝裥踺搛缣鹣蒹谫僭戋趼楗","nan":"南难男楠喃囡赧腩囝蝻","qian":"前千钱签潜迁欠纤牵浅遣谦乾铅歉黔谴嵌倩钳茜虔堑钎骞阡掮钤扦芊犍荨仟芡悭缱佥愆褰凵肷岍搴箝慊椠","qiang":"强抢疆墙枪腔锵呛羌蔷襁羟跄樯戕嫱戗炝镪锖蜣","xiang":"向项相想乡象响香降像享箱羊祥湘详橡巷翔襄厢镶飨饷缃骧芗庠鲞葙蟓","jiao":"教交较校角觉叫脚缴胶轿郊焦骄浇椒礁佼蕉娇矫搅绞酵剿嚼饺窖跤蛟侥狡姣皎茭峤铰醮鲛湫徼鹪僬噍艽挢敫","zhuo":"着著缴桌卓捉琢灼浊酌拙茁涿镯淖啄濯焯倬擢斫棹诼浞禚","qiao":"桥乔侨巧悄敲俏壳雀瞧翘窍峭锹撬荞跷樵憔鞘橇峤诮谯愀鞒硗劁缲","xiao":"小效销消校晓笑肖削孝萧俏潇硝宵啸嚣霄淆哮筱逍姣箫骁枭哓绡蛸崤枵魈","si":"司四思斯食私死似丝饲寺肆撕泗伺嗣祀厮驷嘶锶俟巳蛳咝耜笥纟糸鸶缌澌姒汜厶兕","kai":"开凯慨岂楷恺揩锴铠忾垲剀锎蒈","jin":"进金今近仅紧尽津斤禁锦劲晋谨筋巾浸襟靳瑾烬缙钅矜觐堇馑荩噤廑妗槿赆衿卺","qin":"亲勤侵秦钦琴禽芹沁寝擒覃噙矜嗪揿溱芩衾廑锓吣檎螓","jing":"经京精境竞景警竟井惊径静劲敬净镜睛晶颈荆兢靖泾憬鲸茎腈菁胫阱旌粳靓痉箐儆迳婧肼刭弪獍","ying":"应营影英景迎映硬盈赢颖婴鹰荧莹樱瑛蝇萦莺颍膺缨瀛楹罂荥萤鹦滢蓥郢茔嘤璎嬴瘿媵撄潆","jiu":"就究九酒久救旧纠舅灸疚揪咎韭玖臼柩赳鸠鹫厩啾阄桕僦鬏","zui":"最罪嘴醉咀蕞觜","juan":"卷捐圈眷娟倦绢隽镌涓鹃鄄蠲狷锩桊","suan":"算酸蒜狻","yun":"员运云允孕蕴韵酝耘晕匀芸陨纭郧筠恽韫郓氲殒愠昀菀狁","qun":"群裙逡麇","ka":"卡喀咖咔咯佧胩","kang":"康抗扛慷炕亢糠伉钪闶","keng":"坑铿吭","kao":"考靠烤拷铐栲尻犒","ken":"肯垦恳啃龈裉","yin":"因引银印音饮阴隐姻殷淫尹荫吟瘾寅茵圻垠鄞湮蚓氤胤龈窨喑铟洇狺夤廴吲霪茚堙","kong":"空控孔恐倥崆箜","ku":"苦库哭酷裤枯窟挎骷堀绔刳喾","kua":"跨夸垮挎胯侉","kui":"亏奎愧魁馈溃匮葵窥盔逵睽馗聩喟夔篑岿喹揆隗傀暌跬蒉愦悝蝰","kuan":"款宽髋","kuang":"况矿框狂旷眶匡筐邝圹哐贶夼诳诓纩","que":"确却缺雀鹊阙瘸榷炔阕悫","kun":"困昆坤捆琨锟鲲醌髡悃阃","kuo":"扩括阔廓蛞","la":"拉落垃腊啦辣蜡喇剌旯砬邋瘌","lai":"来莱赖睐徕籁涞赉濑癞崃疠铼","lan":"兰览蓝篮栏岚烂滥缆揽澜拦懒榄斓婪阑褴罱啉谰镧漤","lin":"林临邻赁琳磷淋麟霖鳞凛拎遴蔺吝粼嶙躏廪檩啉辚膦瞵懔","lang":"浪朗郎廊狼琅榔螂阆锒莨啷蒗稂","liang":"量两粮良辆亮梁凉谅粱晾靓踉莨椋魉墚","lao":"老劳落络牢捞涝烙姥佬崂唠酪潦痨醪铑铹栳耢","mu":"目模木亩幕母牧莫穆姆墓慕牟牡募睦缪沐暮拇姥钼苜仫毪坶","le":"了乐勒肋叻鳓嘞仂泐","lei":"类累雷勒泪蕾垒磊擂镭肋羸耒儡嫘缧酹嘞诔檑","sui":"随岁虽碎尿隧遂髓穗绥隋邃睢祟濉燧谇眭荽","lie":"列烈劣裂猎冽咧趔洌鬣埒捩躐","leng":"冷愣棱楞塄","ling":"领令另零灵龄陵岭凌玲铃菱棱伶羚苓聆翎泠瓴囹绫呤棂蛉酃鲮柃","lia":"俩","liao":"了料疗辽廖聊寥缪僚燎缭撂撩嘹潦镣寮蓼獠钌尥鹩","liu":"流刘六留柳瘤硫溜碌浏榴琉馏遛鎏骝绺镏旒熘鹨锍","lun":"论轮伦仑纶沦抡囵","lv":"率律旅绿虑履吕铝屡氯缕滤侣驴榈闾偻褛捋膂稆","lou":"楼露漏陋娄搂篓喽镂偻瘘髅耧蝼嵝蒌","mao":"贸毛矛冒貌茂茅帽猫髦锚懋袤牦卯铆耄峁瑁蟊茆蝥旄泖昴瞀","long":"龙隆弄垄笼拢聋陇胧珑窿茏咙砻垅泷栊癃","nong":"农浓弄脓侬哝","shuang":"双爽霜孀泷","shu":"术书数属树输束述署朱熟殊蔬舒疏鼠淑叔暑枢墅俞曙抒竖蜀薯梳戍恕孰沭赎庶漱塾倏澍纾姝菽黍腧秫毹殳疋摅","shuai":"率衰帅摔甩蟀","lve":"略掠锊","ma":"么马吗摩麻码妈玛嘛骂抹蚂唛蟆犸杩","me":"么麽","mai":"买卖麦迈脉埋霾荬劢","man":"满慢曼漫埋蔓瞒蛮鳗馒幔谩螨熳缦镘颟墁鞔","mi":"米密秘迷弥蜜谜觅靡泌眯麋猕谧咪糜宓汨醚嘧弭脒冖幂祢縻蘼芈糸敉","men":"们门闷瞒汶扪焖懑鞔钔","mang":"忙盲茫芒氓莽蟒邙硭漭","meng":"蒙盟梦猛孟萌氓朦锰檬勐懵蟒蜢虻黾蠓艨甍艋瞢礞","miao":"苗秒妙描庙瞄缪渺淼藐缈邈鹋杪眇喵","mou":"某谋牟缪眸哞鍪蛑侔厶","miu":"缪谬","mei":"美没每煤梅媒枚妹眉魅霉昧媚玫酶镁湄寐莓袂楣糜嵋镅浼猸鹛","wen":"文问闻稳温纹吻蚊雯紊瘟汶韫刎璺玟阌","mie":"灭蔑篾乜咩蠛","ming":"明名命鸣铭冥茗溟酩瞑螟暝","na":"内南那纳拿哪娜钠呐捺衲镎肭","nei":"内那哪馁","nuo":"难诺挪娜糯懦傩喏搦锘","ruo":"若弱偌箬","nang":"囊馕囔曩攮","nao":"脑闹恼挠瑙淖孬垴铙桡呶硇猱蛲","ni":"你尼呢泥疑拟逆倪妮腻匿霓溺旎昵坭铌鲵伲怩睨猊","nen":"嫩恁","neng":"能","nin":"您恁","niao":"鸟尿溺袅脲茑嬲","nie":"摄聂捏涅镍孽捻蘖啮蹑嗫臬镊颞乜陧","niang":"娘酿","ning":"宁凝拧泞柠咛狞佞聍甯","nu":"努怒奴弩驽帑孥胬","nv":"女钕衄恧","ru":"入如女乳儒辱汝茹褥孺濡蠕嚅缛溽铷洳薷襦颥蓐","nuan":"暖","nve":"虐疟","re":"热若惹喏","ou":"区欧偶殴呕禺藕讴鸥瓯沤耦怄","pao":"跑炮泡抛刨袍咆疱庖狍匏脬","pou":"剖掊裒","pen":"喷盆湓","pie":"瞥撇苤氕丿","pin":"品贫聘频拼拚颦姘嫔榀牝","se":"色塞瑟涩啬穑铯槭","qing":"情青清请亲轻庆倾顷卿晴氢擎氰罄磬蜻箐鲭綮苘黥圊檠謦","zan":"赞暂攒堑昝簪糌瓒錾趱拶","shao":"少绍召烧稍邵哨韶捎勺梢鞘芍苕劭艄筲杓潲","sao":"扫骚嫂梢缫搔瘙臊埽缲鳋","sha":"沙厦杀纱砂啥莎刹杉傻煞鲨霎嗄痧裟挲铩唼歃","xuan":"县选宣券旋悬轩喧玄绚渲璇炫萱癣漩眩暄煊铉楦泫谖痃碹揎镟儇","ran":"然染燃冉苒髯蚺","rang":"让壤攘嚷瓤穰禳","rao":"绕扰饶娆桡荛","reng":"仍扔","ri":"日","rou":"肉柔揉糅鞣蹂","ruan":"软阮朊","run":"润闰","sa":"萨洒撒飒卅仨脎","suo":"所些索缩锁莎梭琐嗦唆唢娑蓑羧挲桫嗍睃","sai":"思赛塞腮噻鳃","shui":"说水税谁睡氵","sang":"桑丧嗓搡颡磉","sen":"森","seng":"僧","shai":"筛晒","shang":"上商尚伤赏汤裳墒晌垧觞殇熵绱","xing":"行省星腥猩惺兴刑型形邢饧醒幸杏性姓陉荇荥擤悻硎","shou":"收手受首售授守寿瘦兽狩绶艏扌","shuo":"说数硕烁朔铄妁槊蒴搠","su":"速素苏诉缩塑肃俗宿粟溯酥夙愫簌稣僳谡涑蔌嗉觫","shua":"刷耍唰","shuan":"栓拴涮闩","shun":"顺瞬舜吮","song":"送松宋讼颂耸诵嵩淞怂悚崧凇忪竦菘","sou":"艘搜擞嗽嗖叟馊薮飕嗾溲锼螋瞍","sun":"损孙笋荪榫隼狲飧","teng":"腾疼藤滕誊","tie":"铁贴帖餮萜","tu":"土突图途徒涂吐屠兔秃凸荼钍菟堍酴","wai":"外歪崴","wang":"王望往网忘亡旺汪枉妄惘罔辋魍","weng":"翁嗡瓮蓊蕹","zhua":"抓挝爪","yang":"样养央阳洋扬杨羊详氧仰秧痒漾疡泱殃恙鸯徉佯怏炀烊鞅蛘","xiong":"雄兄熊胸凶匈汹芎","yo":"哟唷","yong":"用永拥勇涌泳庸俑踊佣咏雍甬镛臃邕蛹恿慵壅痈鳙墉饔喁","za":"杂扎咱砸咋匝咂拶","zai":"在再灾载栽仔宰哉崽甾","zao":"造早遭枣噪灶燥糟凿躁藻皂澡蚤唣","zei":"贼","zen":"怎谮","zeng":"增曾综赠憎锃甑罾缯","zhei":"这","zou":"走邹奏揍诹驺陬楱鄹鲰","zhuai":"转拽","zun":"尊遵鳟樽撙","dia":"嗲","nou":"耨"};
+const allPinyin = ["a","ai","an","ang","ao","ba", "bao","bai","ban","bang","bei","ben","beng","bi","bian","biao","bie","bin","bing","bo","bu","ca","cai","can","cang","cao","ce","cen","ceng","cha","chai","chan","chang","chao","che","chen","cheng","chong","chou","chi","chu","chua","chuai","chuan","chuang","chui","chun","chuo","ci","cong","cou","cu","cuan","cui","cun","cuo","da","dai","dan","dang","dao","de","dei","den","deng","di","dian","diao","die","ding","diu","dong","dou","du","duan","dui","dun","duo","e","ei","en","eng","er","fa","fan","fang","fei","fen","feng","fo","fou","fu","ga","gai","gan","gang","gao","ge","gei","gen","geng","gong","gou","gu","gua","guai","guan","guang","gui","gun","guo","ha","hai","han","hang","hao","he","hei","hen","heng","hong","hou","hu","hua","huai","huan","huang","hui","hun","huo","ji","jia","jian","jiang","jiao","jie","jin","jing","jiong","jiu","ju","juan","jue","jun","ka","kai","kan","kang","kao","ke","ken","keng","kong","kou","ku","kua","kuai","kuan","kuang","kui","kun","kuo","la","lai","lan","lang","lao","le","lei","leng","li","lia","lian","liang","liao","lie","lin","ling","liu","long","lou","lu","lv","luan","lve","lun","luo","ma","mai","man","mang","mao","me","mei","men","meng","mi","mian","miao","mie","min","ming","miu","mo","mou","mu","na","nai","nan","nang","nao","ne","nei","nen","neng","ni","nian","niang","niao","nie","nin","ning","niu","nong","nou","nu","nv","nuan","nve","nuaio","o","ou","pa","pai","pan","pang","pao","pei","pen","peng","pi","pian","piao","pie","pin","ping","po","pou","pu","qi","qia","qian","qiang","qiao","qie","qin","qing","qiong","qiu","qu","quan","que","qun","ran","rang","rao","re","ren","reng","ri","rong","rou","ru","ruan","rui","run","ruo","sa","sai","san","sang","sao","se","sen","seng","sha","shai","shan","shang","shao","she","shei","shen","sheng","shou","shi","shu","shua","shuai","shuan","shuang","shui","shun","shuo","si","song","sou","su","suan","sui","sun","suo","ta","tai","tan","tang","tao","te","teng","ti","tian","tiao","tie","ting","tong","tou","tu","tuan","tui","tun","tuo","wa","wai","wan","wang","wei","wen","weng","wo","wu","xi","xia","xian","xiang","xiao","xie","xin","xing","xiong","xiu","xu","xuan","xue","xun","ya","yan","yang","yao","ye","yi","yin","ying","yong","you","yu","yuan","yue","yun","za","zai","zan","zang","zao","ze","zei","zen","zeng","zha","zhai","zhan","zhang","zhao","zhe","zhei","zhen","zheng","zhong","zhou","zhi","zhu","zhua","zhuai","zhuan","zhuang","zhui","zhun","zhuo","zi","zong","zou","zu","zuan","zui","zun","zuo"];
+const notone = parseDict()
+let storage = {}
+
+function parseDict() {
+  let parseDict = {}
+  for (let i in dict) {
+    let temp = dict[i]
+    for (let j = 0, len = temp.length; j < len; j++) {
+      if (!parseDict[temp[j]]) {
+        parseDict[temp[j]] = i
+      } else {
+        parseDict[temp[j]] = parseDict[temp[j]] + ' ' + i
+      }
+    }
+  }
+  return parseDict
+}
+
+function getPinyin(cn) {
+  let result = []
+  for (let i = 0, len = cn.length; i < len; i++) {
+    let temp = cn.charAt(i)
+    result.push(notone[temp] || temp)
+  }
+  return result
+}
+// 对输入拼音进行切分
+function wordBreak(s) {
+  let result = []
+  let solutions = []
+  let len = s.length
+  let possible = []
+  for (let i = 0; i <= s.length; i++) {
+    possible.push(true)
+  }
+  getAllSolutions(0, s, result, solutions, possible)
+  return solutions
+}
+
+function getAllSolutions(start, s, result, solutions, possible) {
+  if (start === s.length) {
+    solutions.push(result.join(' '))
+    return
+  }
+  for (let i = start; i < s.length; i++) {
+    let piece = s.substring(start, i + 1)
+    let match = false
+    // 最后一个音特殊处理，不需要全部打完整
+    if (allPinyin.some(i => i.indexOf(piece) === 0) && !s[i + 1] && possible[i + 1]) {
+      if (piece.length === 1) {
+        result.push(piece)
+      } else {
+        let s = []
+        allPinyin.forEach(i => {
+          if (i.indexOf(piece) === 0) {
+            s.push(i)
+          }
+        })
+        result.push(s)
+      }
+      match = true
+    } else {
+      if (allPinyin.indexOf(piece) !== -1 && possible[i + 1]) {
+        result.push(piece)
+        match = true
+      }
+    }
+    if (match) {
+      let beforeChange = solutions.length
+      getAllSolutions(i + 1, s, result, solutions, possible)
+      if (solutions.length === beforeChange) {
+        possible[i + 1] = false
+      }
+      result.pop()
+    }
+  }
+}
+// 获取输入拼音的所有组合（切分 + 首字母）
+function getFullKey(key) {
+  let result = []
+  wordBreak(key).forEach(i => {
+    let item = i.split(' ')
+    let last = item.length - 1
+    if (item[last].indexOf(',')) {
+      let keys = item[last].split(',')
+      keys.forEach(j => {
+        item.splice(last, 1, j)
+        result.push(JSON.parse(JSON.stringify(item)))
+      })
+    } else {
+      result.push(item)
+    }
+  })
+  if (result.length === 0 || (result[0].length !== key.length)) {
+    result.push(key.split(''))
+  }
+  // 缓存当前结果 避免重复计算
+  storage = {
+    [key]: result
+  }
+  return result
+}
+
+function point2point(test, key, last, extend) {
+  if (!test) return false
+  let a = test.split(' ')
+  a.forEach(i => {
+    if (i.length > 0 && extend) {
+      a.push(i.charAt(0))
+    }
+  })
+  if (!last) {
+    return a.indexOf(key) !== -1
+  }
+  return a.some((i) => i.indexOf(key) === 0)
+}
+
+function match(input, keys) {
+  input = input.toLowerCase()
+  keys = keys.replace(/\s+/g, '').toLowerCase()
+  let indexOf = input.indexOf(keys)
+  if (indexOf !== -1) {
+    return [indexOf, indexOf + keys.length - 1]
+  }
+  // 原文匹配(带空格)
+  let noPyIndex = getIndex(input.split(''), [keys.split('')], keys)
+  if (noPyIndex) return noPyIndex
+  // pinyin匹配
+  let py = getPinyin(input)
+  let fullString = storage[keys] || getFullKey(keys)
+  return getIndex(py, fullString, keys)
+}
+
+function getIndex(py, fullString, keys) {
+  let pyLength = py.length
+  for (let k = 0; k < fullString.length; k++) {
+    let key = fullString[k]
+    let keyLength = key.length
+    let extend = keyLength === keys.length
+    if (keyLength <= pyLength) {
+      for (let temp = 0;;) {
+        if (pyLength - temp >= keyLength) {
+          let isMatch = true
+          let preSpaceNum = 0
+          let spaceNum = 0
+          let i = 0
+          for (; i < key.length; i += 1) {
+            if (i === 0 && py[temp + i + preSpaceNum] === ' ') {
+              preSpaceNum += 1
+              i -= 1
+            } else {
+              if (py[temp + i + spaceNum] === ' ') {
+                spaceNum += 1
+                i -= 1
+              } else {
+                if (!point2point(py[temp + i + spaceNum], key[i], (py[temp + i + 1] && key[i + 1]) ? false : true, extend)) {
+                  temp = temp + 1
+                  isMatch = false
+                  break
+                }
+              }
+            }
+          }
+          if (isMatch) {
+            return [temp + preSpaceNum, temp + spaceNum + i - 1]
+          }
+        } else {
+          break
+        }
+      }
+    }
+  }
+  return false
+}
+
+window.pinyin = match;
+
+var address_pc = [{
+  "code": "110000",
+  "name": "北京",
+  "children": [{
+    "capital": true,
+    "code": "110100",
+    "name": "北京",
+    "spell": "beijing",
+    "coordinate": "116.405285,39.904989"
+  }]
+}, {
+  "code": "120000",
+  "name": "天津",
+  "children": [{
+    "capital": true,
+    "code": "120100",
+    "name": "天津",
+    "spell": "tianjin",
+    "coordinate": "117.190182,39.125596"
+  }]
+}, {
+  "code": "130000",
+  "name": "河北",
+  "children": [{
+    "capital": true,
+    "code": "130100",
+    "name": "石家庄",
+    "spell": "shijiazhuang",
+    "coordinate": "114.502461,38.045474"
+  }, {
+    "code": "130200",
+    "name": "唐山",
+    "spell": "tangshan",
+    "coordinate": "118.175393,39.635113"
+  }, {
+    "code": "130300",
+    "name": "秦皇岛",
+    "spell": "qinhuangdao",
+    "coordinate": "119.586579,39.942531"
+  }, {
+    "code": "130400",
+    "name": "邯郸",
+    "spell": "handan",
+    "coordinate": "114.490686,36.612273"
+  }, {
+    "code": "130500",
+    "name": "邢台",
+    "spell": "xingtai",
+    "coordinate": "114.508851,37.0682"
+  }, {
+    "code": "130600",
+    "name": "保定",
+    "spell": "baoding",
+    "coordinate": "115.482331,38.867657"
+  }, {
+    "code": "130700",
+    "name": "张家口",
+    "spell": "zhangjiakou",
+    "coordinate": "114.884091,40.811901"
+  }, {
+    "code": "130800",
+    "name": "承德",
+    "spell": "chengde",
+    "coordinate": "117.939152,40.976204"
+  }, {
+    "code": "130900",
+    "name": "沧州",
+    "spell": "cangzhou",
+    "coordinate": "116.857461,38.310582"
+  }, {
+    "code": "131000",
+    "name": "廊坊",
+    "spell": "langfang",
+    "coordinate": "116.704441,39.523927"
+  }, {
+    "code": "131100",
+    "name": "衡水",
+    "spell": "hengshui",
+    "coordinate": "115.665993,37.735097"
+  }]
+}, {
+  "code": "140000",
+  "name": "山西",
+  "children": [{
+    "capital": true,
+    "code": "140100",
+    "name": "太原",
+    "spell": "taiyuan",
+    "coordinate": "112.549248,37.857014"
+  }, {
+    "code": "140200",
+    "name": "大同",
+    "spell": "datong",
+    "coordinate": "113.295259,40.09031"
+  }, {
+    "code": "140300",
+    "name": "阳泉",
+    "spell": "yangquan",
+    "coordinate": "113.583285,37.861188"
+  }, {
+    "code": "140400",
+    "name": "长治",
+    "spell": "changzhi",
+    "coordinate": "113.113556,36.191112"
+  }, {
+    "code": "140500",
+    "name": "晋城",
+    "spell": "jincheng",
+    "coordinate": "112.851274,35.497553"
+  }, {
+    "code": "140600",
+    "name": "朔州",
+    "spell": "shuozhou",
+    "coordinate": "112.433387,39.331261"
+  }, {
+    "code": "140700",
+    "name": "晋中",
+    "spell": "jinzhong",
+    "coordinate": "112.736465,37.696495"
+  }, {
+    "code": "140800",
+    "name": "运城",
+    "spell": "yuncheng",
+    "coordinate": "111.003957,35.022778"
+  }, {
+    "code": "140900",
+    "name": "忻州",
+    "spell": "xinzhou",
+    "coordinate": "112.733538,38.41769"
+  }, {
+    "code": "141000",
+    "name": "临汾",
+    "spell": "linfen",
+    "coordinate": "111.517973,36.08415"
+  }, {
+    "code": "141100",
+    "name": "吕梁",
+    "spell": "lvliang",
+    "coordinate": "111.134335,37.524366"
+  }]
+}, {
+  "code": "150000",
+  "name": "内蒙古",
+  "children": [{
+    "capital": true,
+    "code": "150100",
+    "name": "呼和浩特",
+    "spell": "huhehaote",
+    "coordinate": "111.670801,40.818311"
+  }, {
+    "code": "150200",
+    "name": "包头",
+    "spell": "baotou",
+    "coordinate": "109.840405,40.658168"
+  }, {
+    "code": "150300",
+    "name": "乌海",
+    "spell": "wuhai",
+    "coordinate": "106.825563,39.673734"
+  }, {
+    "code": "150400",
+    "name": "赤峰",
+    "spell": "chifeng",
+    "coordinate": "118.956806,42.275317"
+  }, {
+    "code": "150500",
+    "name": "通辽",
+    "spell": "tongliao",
+    "coordinate": "122.263119,43.617429"
+  }, {
+    "code": "150600",
+    "name": "鄂尔多斯",
+    "spell": "eerduosi",
+    "coordinate": "109.99029,39.817179"
+  }, {
+    "code": "150700",
+    "name": "呼伦贝尔",
+    "spell": "hulunbeier",
+    "coordinate": "119.758168,49.215333"
+  }, {
+    "code": "150800",
+    "name": "巴彦淖尔",
+    "spell": "bayannaoer",
+    "coordinate": "107.416959,40.757402"
+  }, {
+    "code": "150900",
+    "name": "乌兰察布",
+    "spell": "wulanchabu",
+    "coordinate": "113.114543,41.034126"
+  }, {
+    "code": "152200",
+    "name": "兴安盟",
+    "spell": "xinganmeng",
+    "coordinate": "122.070317,46.076268"
+  }, {
+    "code": "152500",
+    "name": "锡林郭勒盟",
+    "spell": "xilinguolemeng",
+    "coordinate": "116.090996,43.944018"
+  }, {
+    "code": "152900",
+    "name": "阿拉善盟",
+    "spell": "elashanmeng",
+    "coordinate": "105.706422,38.844814"
+  }]
+}, {
+  "code": "210000",
+  "name": "辽宁",
+  "children": [{
+    "capital": true,
+    "code": "210100",
+    "name": "沈阳",
+    "spell": "shenyang",
+    "coordinate": "123.429096,41.796767"
+  }, {
+    "code": "210200",
+    "name": "大连",
+    "spell": "dalian",
+    "coordinate": "121.618622,38.91459"
+  }, {
+    "code": "210300",
+    "name": "鞍山",
+    "spell": "anshan",
+    "coordinate": "122.995632,41.110626"
+  }, {
+    "code": "210400",
+    "name": "抚顺",
+    "spell": "fushun",
+    "coordinate": "123.921109,41.875956"
+  }, {
+    "code": "210500",
+    "name": "本溪",
+    "spell": "benxi",
+    "coordinate": "123.770519,41.297909"
+  }, {
+    "code": "210600",
+    "name": "丹东",
+    "spell": "dandong",
+    "coordinate": "124.383044,40.124296"
+  }, {
+    "code": "210700",
+    "name": "锦州",
+    "spell": "jinzhou",
+    "coordinate": "121.135742,41.119269"
+  }, {
+    "code": "210800",
+    "name": "营口",
+    "spell": "yingkou",
+    "coordinate": "122.235151,40.667432"
+  }, {
+    "code": "210900",
+    "name": "阜新",
+    "spell": "fuxin",
+    "coordinate": "121.648962,42.011796"
+  }, {
+    "code": "211000",
+    "name": "辽阳",
+    "spell": "liaoyang",
+    "coordinate": "123.18152,41.269402"
+  }, {
+    "code": "211100",
+    "name": "盘锦",
+    "spell": "panjin",
+    "coordinate": "122.06957,41.124484"
+  }, {
+    "code": "211200",
+    "name": "铁岭",
+    "spell": "tieling",
+    "coordinate": "123.844279,42.290585"
+  }, {
+    "code": "211300",
+    "name": "朝阳",
+    "spell": "chaoyang",
+    "coordinate": "120.451176,41.576758"
+  }, {
+    "code": "211400",
+    "name": "葫芦岛",
+    "spell": "huludao",
+    "coordinate": "120.856394,40.755572"
+  }]
+}, {
+  "code": "220000",
+  "name": "吉林",
+  "children": [{
+    "capital": true,
+    "code": "220100",
+    "name": "长春",
+    "spell": "changchun",
+    "coordinate": "125.3245,43.886841"
+  }, {
+    "code": "220200",
+    "name": "吉林",
+    "spell": "jilin",
+    "coordinate": "126.55302,43.843577"
+  }, {
+    "code": "220300",
+    "name": "四平",
+    "spell": "siping",
+    "coordinate": "124.370785,43.170344"
+  }, {
+    "code": "220400",
+    "name": "辽源",
+    "spell": "liaoyuan",
+    "coordinate": "125.145349,42.902692"
+  }, {
+    "code": "220500",
+    "name": "通化",
+    "spell": "tonghua",
+    "coordinate": "125.936501,41.721177"
+  }, {
+    "code": "220600",
+    "name": "白山",
+    "spell": "baishan",
+    "coordinate": "126.427839,41.942505"
+  }, {
+    "code": "220700",
+    "name": "松原",
+    "spell": "songyuan",
+    "coordinate": "124.823608,45.118243"
+  }, {
+    "code": "220800",
+    "name": "白城",
+    "spell": "baicheng",
+    "coordinate": "122.841114,45.619026"
+  }, {
+    "code": "222400",
+    "name": "延边",
+    "spell": "yanbian",
+    "coordinate": "129.513228,42.904823"
+  }]
+}, {
+  "code": "230000",
+  "name": "黑龙江",
+  "children": [{
+    "capital": true,
+    "code": "230100",
+    "name": "哈尔滨",
+    "spell": "haerbin",
+    "coordinate": "126.642464,45.756967"
+  }, {
+    "code": "230200",
+    "name": "齐齐哈尔",
+    "spell": "qiqihaer",
+    "coordinate": "123.95792,47.342081"
+  }, {
+    "code": "230300",
+    "name": "鸡西",
+    "spell": "jixi",
+    "coordinate": "130.975966,45.300046"
+  }, {
+    "code": "230400",
+    "name": "鹤岗",
+    "spell": "hegang",
+    "coordinate": "130.277487,47.332085"
+  }, {
+    "code": "230500",
+    "name": "双鸭山",
+    "spell": "shuangyashan",
+    "coordinate": "131.157304,46.643442"
+  }, {
+    "code": "230600",
+    "name": "大庆",
+    "spell": "daqing",
+    "coordinate": "125.11272,46.590734"
+  }, {
+    "code": "230700",
+    "name": "伊春",
+    "spell": "yichun",
+    "coordinate": "128.899396,47.724775"
+  }, {
+    "code": "230800",
+    "name": "佳木斯",
+    "spell": "jiamusi",
+    "coordinate": "130.361634,46.809606"
+  }, {
+    "code": "230900",
+    "name": "七台河",
+    "spell": "qitaihe",
+    "coordinate": "131.015584,45.771266"
+  }, {
+    "code": "231000",
+    "name": "牡丹江",
+    "spell": "mudanjiang",
+    "coordinate": "129.618602,44.582962"
+  }, {
+    "code": "231100",
+    "name": "黑河",
+    "spell": "heihe",
+    "coordinate": "127.499023,50.249585"
+  }, {
+    "code": "231200",
+    "name": "绥化",
+    "spell": "suihua",
+    "coordinate": "126.99293,46.637393"
+  }, {
+    "code": "232700",
+    "name": "大兴安岭",
+    "spell": "daxinganling",
+    "coordinate": "124.711526,52.335262"
+  }]
+}, {
+  "code": "310000",
+  "name": "上海",
+  "children": [{
+    "capital": true,
+    "code": "310100",
+    "name": "上海",
+    "spell": "shanghai",
+    "coordinate": "121.472644,31.231706"
+  }]
+}, {
+  "code": "320000",
+  "name": "江苏",
+  "children": [{
+    "capital": true,
+    "code": "320100",
+    "name": "南京",
+    "spell": "nanjing",
+    "coordinate": "118.767413,32.041544"
+  }, {
+    "code": "320200",
+    "name": "无锡",
+    "spell": "wuxi",
+    "coordinate": "120.301663,31.574729"
+  }, {
+    "code": "320300",
+    "name": "徐州",
+    "spell": "xuzhou",
+    "coordinate": "117.184811,34.261792"
+  }, {
+    "code": "320400",
+    "name": "常州",
+    "spell": "changzhou",
+    "coordinate": "119.946973,31.772752"
+  }, {
+    "code": "320500",
+    "name": "苏州",
+    "spell": "suzhou",
+    "coordinate": "120.619585,31.299379"
+  }, {
+    "code": "320600",
+    "name": "南通",
+    "spell": "nantong",
+    "coordinate": "120.864608,32.016212"
+  }, {
+    "code": "320700",
+    "name": "连云港",
+    "spell": "lianyungang",
+    "coordinate": "119.178821,34.600018"
+  }, {
+    "code": "320800",
+    "name": "淮安",
+    "spell": "huaian",
+    "coordinate": "119.021265,33.597506"
+  }, {
+    "code": "320900",
+    "name": "盐城",
+    "spell": "yancheng",
+    "coordinate": "120.139998,33.377631"
+  }, {
+    "code": "321000",
+    "name": "扬州",
+    "spell": "yangzhou",
+    "coordinate": "119.421003,32.393159"
+  }, {
+    "code": "321100",
+    "name": "镇江",
+    "spell": "zhenjiang",
+    "coordinate": "119.452753,32.204402"
+  }, {
+    "code": "321200",
+    "name": "泰州",
+    "spell": "taizhou",
+    "coordinate": "119.915176,32.484882"
+  }, {
+    "code": "321300",
+    "name": "宿迁",
+    "spell": "xiuqian",
+    "coordinate": "118.275162,33.963008"
+  }]
+}, {
+  "code": "330000",
+  "name": "浙江",
+  "children": [{
+    "capital": true,
+    "code": "330100",
+    "name": "杭州",
+    "spell": "hangzhou",
+    "coordinate": "120.153576,30.287459"
+  }, {
+    "code": "330200",
+    "name": "宁波",
+    "spell": "ningbo",
+    "coordinate": "121.549792,29.868388"
+  }, {
+    "code": "330300",
+    "name": "温州",
+    "spell": "wenzhou",
+    "coordinate": "120.672111,28.000575"
+  }, {
+    "code": "330400",
+    "name": "嘉兴",
+    "spell": "jiaxing",
+    "coordinate": "120.750865,30.762653"
+  }, {
+    "code": "330500",
+    "name": "湖州",
+    "spell": "huzhou",
+    "coordinate": "120.102398,30.867198"
+  }, {
+    "code": "330600",
+    "name": "绍兴",
+    "spell": "shaoxing",
+    "coordinate": "120.582112,29.997117"
+  }, {
+    "code": "330700",
+    "name": "金华",
+    "spell": "jinhua",
+    "coordinate": "119.649506,29.089524"
+  }, {
+    "code": "330800",
+    "name": "衢州",
+    "spell": "quzhou",
+    "coordinate": "118.87263,28.941708"
+  }, {
+    "code": "330900",
+    "name": "舟山",
+    "spell": "zhoushan",
+    "coordinate": "122.106863,30.016028"
+  }, {
+    "code": "331000",
+    "name": "台州",
+    "spell": "taizhou",
+    "coordinate": "121.428599,28.661378"
+  }, {
+    "code": "331100",
+    "name": "丽水",
+    "spell": "lishui",
+    "coordinate": "119.921786,28.451993"
+  }]
+}, {
+  "code": "340000",
+  "name": "安徽",
+  "children": [{
+    "capital": true,
+    "code": "340100",
+    "name": "合肥",
+    "spell": "hefei",
+    "coordinate": "117.283042,31.86119"
+  }, {
+    "code": "340200",
+    "name": "芜湖",
+    "spell": "wuhu",
+    "coordinate": "118.376451,31.326319"
+  }, {
+    "code": "340300",
+    "name": "蚌埠",
+    "spell": "bengbu",
+    "coordinate": "117.363228,32.939667"
+  }, {
+    "code": "340400",
+    "name": "淮南",
+    "spell": "huainan",
+    "coordinate": "117.018329,32.647574"
+  }, {
+    "code": "340500",
+    "name": "马鞍山",
+    "spell": "maanshan",
+    "coordinate": "118.507906,31.689362"
+  }, {
+    "code": "340600",
+    "name": "淮北",
+    "spell": "huaibei",
+    "coordinate": "116.794664,33.971707"
+  }, {
+    "code": "340700",
+    "name": "铜陵",
+    "spell": "tongling",
+    "coordinate": "117.816576,30.929935"
+  }, {
+    "code": "340800",
+    "name": "安庆",
+    "spell": "anqing",
+    "coordinate": "117.043551,30.50883"
+  }, {
+    "code": "341000",
+    "name": "黄山",
+    "spell": "huangshan",
+    "coordinate": "118.317325,29.709239"
+  }, {
+    "code": "341100",
+    "name": "滁州",
+    "spell": "chuzhou",
+    "coordinate": "118.316264,32.303627"
+  }, {
+    "code": "341200",
+    "name": "阜阳",
+    "spell": "fuyang",
+    "coordinate": "115.819729,32.896969"
+  }, {
+    "code": "341300",
+    "name": "宿州",
+    "spell": "xiuzhou",
+    "coordinate": "116.984084,33.633891"
+  }, {
+    "code": "341500",
+    "name": "六安",
+    "spell": "liuan",
+    "coordinate": "116.507676,31.752889"
+  }, {
+    "code": "341600",
+    "name": "亳州",
+    "spell": "bozhou",
+    "coordinate": "115.782939,33.869338"
+  }, {
+    "code": "341700",
+    "name": "池州",
+    "spell": "chizhou",
+    "coordinate": "117.489157,30.656037"
+  }, {
+    "code": "341800",
+    "name": "宣城",
+    "spell": "xuancheng",
+    "coordinate": "118.757995,30.945667"
+  }]
+}, {
+  "code": "350000",
+  "name": "福建",
+  "children": [{
+    "capital": true,
+    "code": "350100",
+    "name": "福州",
+    "spell": "fuzhou",
+    "coordinate": "119.306239,26.075302"
+  }, {
+    "code": "350200",
+    "name": "厦门",
+    "spell": "shamen",
+    "coordinate": "118.11022,24.490474"
+  }, {
+    "code": "350300",
+    "name": "莆田",
+    "spell": "putian",
+    "coordinate": "119.007558,25.431011"
+  }, {
+    "code": "350400",
+    "name": "三明",
+    "spell": "sanming",
+    "coordinate": "117.635001,26.265444"
+  }, {
+    "code": "350500",
+    "name": "泉州",
+    "spell": "quanzhou",
+    "coordinate": "118.589421,24.908853"
+  }, {
+    "code": "350600",
+    "name": "漳州",
+    "spell": "zhangzhou",
+    "coordinate": "117.661801,24.510897"
+  }, {
+    "code": "350700",
+    "name": "南平",
+    "spell": "nanping",
+    "coordinate": "118.178459,26.635627"
+  }, {
+    "code": "350800",
+    "name": "龙岩",
+    "spell": "longyan",
+    "coordinate": "117.02978,25.091603"
+  }, {
+    "code": "350900",
+    "name": "宁德",
+    "spell": "ningde",
+    "coordinate": "119.527082,26.65924"
+  }]
+}, {
+  "code": "360000",
+  "name": "江西",
+  "children": [{
+    "capital": true,
+    "code": "360100",
+    "name": "南昌",
+    "spell": "nanchang",
+    "coordinate": "115.892151,28.676493"
+  }, {
+    "code": "360200",
+    "name": "景德镇",
+    "spell": "jingdezhen",
+    "coordinate": "117.214664,29.29256"
+  }, {
+    "code": "360300",
+    "name": "萍乡",
+    "spell": "pingxiang",
+    "coordinate": "113.852186,27.622946"
+  }, {
+    "code": "360400",
+    "name": "九江",
+    "spell": "jiujiang",
+    "coordinate": "115.992811,29.712034"
+  }, {
+    "code": "360500",
+    "name": "新余",
+    "spell": "xinyu",
+    "coordinate": "114.930835,27.810834"
+  }, {
+    "code": "360600",
+    "name": "鹰潭",
+    "spell": "yingtan",
+    "coordinate": "117.033838,28.238638"
+  }, {
+    "code": "360700",
+    "name": "赣州",
+    "spell": "ganzhou",
+    "coordinate": "114.940278,25.85097"
+  }, {
+    "code": "360800",
+    "name": "吉安",
+    "spell": "jian",
+    "coordinate": "114.986373,27.111699"
+  }, {
+    "code": "360900",
+    "name": "宜春",
+    "spell": "yichun",
+    "coordinate": "114.391136,27.8043"
+  }, {
+    "code": "361000",
+    "name": "抚州",
+    "spell": "fuzhou",
+    "coordinate": "116.358351,27.98385"
+  }, {
+    "code": "361100",
+    "name": "上饶",
+    "spell": "shangrao",
+    "coordinate": "117.971185,28.44442"
+  }]
+}, {
+  "code": "370000",
+  "name": "山东",
+  "children": [{
+    "capital": true,
+    "code": "370100",
+    "name": "济南",
+    "spell": "jinan",
+    "coordinate": "117.000923,36.675807"
+  }, {
+    "code": "370200",
+    "name": "青岛",
+    "spell": "qingdao",
+    "coordinate": "120.355173,36.082982"
+  }, {
+    "code": "370300",
+    "name": "淄博",
+    "spell": "zibo",
+    "coordinate": "118.047648,36.814939"
+  }, {
+    "code": "370400",
+    "name": "枣庄",
+    "spell": "zaozhuang",
+    "coordinate": "117.557964,34.856424"
+  }, {
+    "code": "370500",
+    "name": "东营",
+    "spell": "dongying",
+    "coordinate": "118.66471,37.434564"
+  }, {
+    "code": "370600",
+    "name": "烟台",
+    "spell": "yantai",
+    "coordinate": "121.391382,37.539297"
+  }, {
+    "code": "370700",
+    "name": "潍坊",
+    "spell": "weifang",
+    "coordinate": "119.107078,36.70925"
+  }, {
+    "code": "370800",
+    "name": "济宁",
+    "spell": "jining",
+    "coordinate": "116.587245,35.415393"
+  }, {
+    "code": "370900",
+    "name": "泰安",
+    "spell": "taian",
+    "coordinate": "117.129063,36.194968"
+  }, {
+    "code": "371000",
+    "name": "威海",
+    "spell": "weihai",
+    "coordinate": "122.116394,37.509691"
+  }, {
+    "code": "371100",
+    "name": "日照",
+    "spell": "rizhao",
+    "coordinate": "119.461208,35.428588"
+  }, {
+    "code": "371200",
+    "name": "莱芜",
+    "spell": "laiwu",
+    "coordinate": "117.677736,36.214397"
+  }, {
+    "code": "371300",
+    "name": "临沂",
+    "spell": "linyi",
+    "coordinate": "118.326443,35.065282"
+  }, {
+    "code": "371400",
+    "name": "德州",
+    "spell": "dezhou",
+    "coordinate": "116.307428,37.453968"
+  }, {
+    "code": "371500",
+    "name": "聊城",
+    "spell": "liaocheng",
+    "coordinate": "115.980367,36.456013"
+  }, {
+    "code": "371600",
+    "name": "滨州",
+    "spell": "binzhou",
+    "coordinate": "118.016974,37.383542"
+  }, {
+    "code": "371700",
+    "name": "菏泽",
+    "spell": "heze",
+    "coordinate": "115.469381,35.246531"
+  }]
+}, {
+  "code": "410000",
+  "name": "河南",
+  "children": [{
+    "capital": true,
+    "code": "410100",
+    "name": "郑州",
+    "spell": "zhengzhou",
+    "coordinate": "113.665412,34.757975"
+  }, {
+    "code": "410200",
+    "name": "开封",
+    "spell": "kaifeng",
+    "coordinate": "114.341447,34.797049"
+  }, {
+    "code": "410300",
+    "name": "洛阳",
+    "spell": "luoyang",
+    "coordinate": "112.434468,34.663041"
+  }, {
+    "code": "410400",
+    "name": "平顶山",
+    "spell": "pingdingshan",
+    "coordinate": "113.307718,33.735241"
+  }, {
+    "code": "410500",
+    "name": "安阳",
+    "spell": "anyang",
+    "coordinate": "114.352482,36.103442"
+  }, {
+    "code": "410600",
+    "name": "鹤壁",
+    "spell": "hebi",
+    "coordinate": "114.295444,35.748236"
+  }, {
+    "code": "410700",
+    "name": "新乡",
+    "spell": "xinxiang",
+    "coordinate": "113.883991,35.302616"
+  }, {
+    "code": "410800",
+    "name": "焦作",
+    "spell": "jiaozuo",
+    "coordinate": "113.238266,35.23904"
+  }, {
+    "code": "410881",
+    "name": "济源",
+    "spell": "jiyuan",
+    "coordinate": ""
+  }, {
+    "code": "410900",
+    "name": "濮阳",
+    "spell": "puyang",
+    "coordinate": "115.041299,35.768234"
+  }, {
+    "code": "411000",
+    "name": "许昌",
+    "spell": "xuchang",
+    "coordinate": "113.826063,34.022956"
+  }, {
+    "code": "411100",
+    "name": "漯河",
+    "spell": "luohe",
+    "coordinate": "114.026405,33.575855"
+  }, {
+    "code": "411200",
+    "name": "三门峡",
+    "spell": "sanmenxia",
+    "coordinate": "111.194099,34.777338"
+  }, {
+    "code": "411300",
+    "name": "南阳",
+    "spell": "nanyang",
+    "coordinate": "112.540918,32.999082"
+  }, {
+    "code": "411400",
+    "name": "商丘",
+    "spell": "shangqiu",
+    "coordinate": "115.650497,34.437054"
+  }, {
+    "code": "411500",
+    "name": "信阳",
+    "spell": "xinyang",
+    "coordinate": "114.075031,32.123274"
+  }, {
+    "code": "411600",
+    "name": "周口",
+    "spell": "zhoukou",
+    "coordinate": "114.649653,33.620357"
+  }, {
+    "code": "411700",
+    "name": "驻马店",
+    "spell": "zhumadian",
+    "coordinate": "114.024736,32.980169"
+  }]
+}, {
+  "code": "420000",
+  "name": "湖北",
+  "children": [{
+    "capital": true,
+    "code": "420100",
+    "name": "武汉",
+    "spell": "wuhan",
+    "coordinate": "114.298572,30.584355"
+  }, {
+    "code": "420200",
+    "name": "黄石",
+    "spell": "huangshi",
+    "coordinate": "115.077048,30.220074"
+  }, {
+    "code": "420300",
+    "name": "十堰",
+    "spell": "shiyan",
+    "coordinate": "110.787916,32.646907"
+  }, {
+    "code": "420500",
+    "name": "宜昌",
+    "spell": "yichang",
+    "coordinate": "111.290843,30.702636"
+  }, {
+    "code": "420600",
+    "name": "襄阳",
+    "spell": "xiangyang",
+    "coordinate": "112.144146,32.042426"
+  }, {
+    "code": "420700",
+    "name": "鄂州",
+    "spell": "ezhou",
+    "coordinate": "114.890593,30.396536"
+  }, {
+    "code": "420800",
+    "name": "荆门",
+    "spell": "jingmen",
+    "coordinate": "112.204251,31.03542"
+  }, {
+    "code": "420900",
+    "name": "孝感",
+    "spell": "xiaogan",
+    "coordinate": "113.926655,30.926423"
+  }, {
+    "code": "421000",
+    "name": "荆州",
+    "spell": "jingzhou",
+    "coordinate": "112.23813,30.326857"
+  }, {
+    "code": "421100",
+    "name": "黄冈",
+    "spell": "huanggang",
+    "coordinate": "114.879365,30.447711"
+  }, {
+    "code": "421200",
+    "name": "咸宁",
+    "spell": "xianning",
+    "coordinate": "114.328963,29.832798"
+  }, {
+    "code": "421300",
+    "name": "随州",
+    "spell": "suizhou",
+    "coordinate": "113.37377,31.717497"
+  }, {
+    "code": "422800",
+    "name": "恩施",
+    "spell": "enshi",
+    "coordinate": "109.48699,30.283114"
+  }, {
+    "code": "429004",
+    "name": "仙桃",
+    "spell": "xiantao",
+    "coordinate": "113.453974,30.364953"
+  }, {
+    "code": "429005",
+    "name": "潜江",
+    "spell": "qianjiang",
+    "coordinate": "112.896866,30.421215"
+  }, {
+    "code": "429006",
+    "name": "天门",
+    "spell": "tianmen",
+    "coordinate": "113.165862,30.653061"
+  }, {
+    "code": "429021",
+    "name": "神农架",
+    "spell": "shennongjia",
+    "coordinate": "110.671525,31.744449"
+  }]
+}, {
+  "code": "430000",
+  "name": "湖南",
+  "children": [{
+    "capital": true,
+    "code": "430100",
+    "name": "长沙",
+    "spell": "changsha",
+    "coordinate": "112.982279,28.19409"
+  }, {
+    "code": "430200",
+    "name": "株洲",
+    "spell": "zhuzhou",
+    "coordinate": "113.151737,27.835806"
+  }, {
+    "code": "430300",
+    "name": "湘潭",
+    "spell": "xiangtan",
+    "coordinate": "112.944052,27.82973"
+  }, {
+    "code": "430400",
+    "name": "衡阳",
+    "spell": "hengyang",
+    "coordinate": "112.607693,26.900358"
+  }, {
+    "code": "430500",
+    "name": "邵阳",
+    "spell": "shaoyang",
+    "coordinate": "111.46923,27.237842"
+  }, {
+    "code": "430600",
+    "name": "岳阳",
+    "spell": "yueyang",
+    "coordinate": "113.132855,29.37029"
+  }, {
+    "code": "430700",
+    "name": "常德",
+    "spell": "changde",
+    "coordinate": "111.691347,29.040225"
+  }, {
+    "code": "430800",
+    "name": "张家界",
+    "spell": "zhangjiajie",
+    "coordinate": "110.479921,29.127401"
+  }, {
+    "code": "430900",
+    "name": "益阳",
+    "spell": "yiyang",
+    "coordinate": "112.355042,28.570066"
+  }, {
+    "code": "431000",
+    "name": "郴州",
+    "spell": "chenzhou",
+    "coordinate": "113.032067,25.793589"
+  }, {
+    "code": "431100",
+    "name": "永州",
+    "spell": "yongzhou",
+    "coordinate": "111.608019,26.434516"
+  }, {
+    "code": "431200",
+    "name": "怀化",
+    "spell": "huaihua",
+    "coordinate": "109.97824,27.550082"
+  }, {
+    "code": "431300",
+    "name": "娄底",
+    "spell": "loudi",
+    "coordinate": "112.008497,27.728136"
+  }, {
+    "code": "433100",
+    "name": "湘西",
+    "spell": "xiangxi",
+    "coordinate": "109.739735,28.314296"
+  }]
+}, {
+  "code": "440000",
+  "name": "广东",
+  "children": [{
+    "capital": true,
+    "code": "440100",
+    "name": "广州",
+    "spell": "guangzhou",
+    "coordinate": "113.280637,23.125178"
+  }, {
+    "code": "440200",
+    "name": "韶关",
+    "spell": "shaoguan",
+    "coordinate": "113.591544,24.801322"
+  }, {
+    "code": "440300",
+    "name": "深圳",
+    "spell": "shenzhen",
+    "coordinate": "114.085947,22.547"
+  }, {
+    "code": "440400",
+    "name": "珠海",
+    "spell": "zhuhai",
+    "coordinate": "113.553986,22.224979"
+  }, {
+    "code": "440500",
+    "name": "汕头",
+    "spell": "shantou",
+    "coordinate": "116.708463,23.37102"
+  }, {
+    "code": "440600",
+    "name": "佛山",
+    "spell": "foshan",
+    "coordinate": "113.122717,23.028762"
+  }, {
+    "code": "440700",
+    "name": "江门",
+    "spell": "jiangmen",
+    "coordinate": "113.094942,22.590431"
+  }, {
+    "code": "440800",
+    "name": "湛江",
+    "spell": "zhanjiang",
+    "coordinate": "110.364977,21.274898"
+  }, {
+    "code": "440900",
+    "name": "茂名",
+    "spell": "maoming",
+    "coordinate": "110.919229,21.659751"
+  }, {
+    "code": "441200",
+    "name": "肇庆",
+    "spell": "zhaoqing",
+    "coordinate": "112.472529,23.051546"
+  }, {
+    "code": "441300",
+    "name": "惠州",
+    "spell": "huizhou",
+    "coordinate": "114.412599,23.079404"
+  }, {
+    "code": "441400",
+    "name": "梅州",
+    "spell": "meizhou",
+    "coordinate": "116.117582,24.299112"
+  }, {
+    "code": "441500",
+    "name": "汕尾",
+    "spell": "shanwei",
+    "coordinate": "115.364238,22.774485"
+  }, {
+    "code": "441600",
+    "name": "河源",
+    "spell": "heyuan",
+    "coordinate": "114.697802,23.746266"
+  }, {
+    "code": "441700",
+    "name": "阳江",
+    "spell": "yangjiang",
+    "coordinate": "111.975107,21.859222"
+  }, {
+    "code": "441800",
+    "name": "清远",
+    "spell": "qingyuan",
+    "coordinate": "113.051227,23.685022"
+  }, {
+    "code": "441900",
+    "name": "东莞",
+    "spell": "dongguan",
+    "coordinate": "113.746262,23.046237"
+  }, {
+    "code": "442000",
+    "name": "中山",
+    "spell": "zhongshan",
+    "coordinate": "113.382391,22.521113"
+  }, {
+    "code": "445100",
+    "name": "潮州",
+    "spell": "chaozhou",
+    "coordinate": "116.632301,23.661701"
+  }, {
+    "code": "445200",
+    "name": "揭阳",
+    "spell": "jieyang",
+    "coordinate": "116.355733,23.543778"
+  }, {
+    "code": "445300",
+    "name": "云浮",
+    "spell": "yunfu",
+    "coordinate": "112.044439,22.929801"
+  }]
+}, {
+  "code": "450000",
+  "name": "广西",
+  "children": [{
+    "capital": true,
+    "code": "450100",
+    "name": "南宁",
+    "spell": "nanning",
+    "coordinate": "108.320004,22.82402"
+  }, {
+    "code": "450200",
+    "name": "柳州",
+    "spell": "liuzhou",
+    "coordinate": "109.411703,24.314617"
+  }, {
+    "code": "450300",
+    "name": "桂林",
+    "spell": "guilin",
+    "coordinate": "110.299121,25.274215"
+  }, {
+    "code": "450400",
+    "name": "梧州",
+    "spell": "wuzhou",
+    "coordinate": "111.297604,23.474803"
+  }, {
+    "code": "450500",
+    "name": "北海",
+    "spell": "beihai",
+    "coordinate": "109.119254,21.473343"
+  }, {
+    "code": "450600",
+    "name": "防城港",
+    "spell": "fangchenggang",
+    "coordinate": "108.345478,21.614631"
+  }, {
+    "code": "450700",
+    "name": "钦州",
+    "spell": "qinzhou",
+    "coordinate": "108.624175,21.967127"
+  }, {
+    "code": "450800",
+    "name": "贵港",
+    "spell": "guigang",
+    "coordinate": "109.602146,23.0936"
+  }, {
+    "code": "450900",
+    "name": "玉林",
+    "spell": "yulin",
+    "coordinate": "110.154393,22.63136"
+  }, {
+    "code": "451000",
+    "name": "百色",
+    "spell": "baise",
+    "coordinate": "106.616285,23.897742"
+  }, {
+    "code": "451100",
+    "name": "贺州",
+    "spell": "hezhou",
+    "coordinate": "111.552056,24.414141"
+  }, {
+    "code": "451200",
+    "name": "河池",
+    "spell": "hechi",
+    "coordinate": "108.062105,24.695899"
+  }, {
+    "code": "451300",
+    "name": "来宾",
+    "spell": "laibin",
+    "coordinate": "109.229772,23.733766"
+  }, {
+    "code": "451400",
+    "name": "崇左",
+    "spell": "chongzuo",
+    "coordinate": "107.353926,22.404108"
+  }]
+}, {
+  "code": "460000",
+  "name": "海南",
+  "children": [{
+    "capital": true,
+    "code": "460100",
+    "name": "海口",
+    "spell": "haikou",
+    "coordinate": "110.33119,20.031971"
+  }, {
+    "code": "460200",
+    "name": "三亚",
+    "spell": "sanya",
+    "coordinate": "109.508268,18.247872"
+  }, {
+    "code": "469001",
+    "name": "五指山",
+    "spell": "wuzhishan",
+    "coordinate": "109.516662,18.776921"
+  }, {
+    "code": "469002",
+    "name": "琼海",
+    "spell": "qionghai",
+    "coordinate": "110.466785,19.246011"
+  }, {
+    "code": "469003",
+    "name": "儋州",
+    "spell": "danzhou",
+    "coordinate": ""
+  }, {
+    "code": "469005",
+    "name": "文昌",
+    "spell": "wenchang",
+    "coordinate": "110.753975,19.612986"
+  }, {
+    "code": "469006",
+    "name": "万宁",
+    "spell": "wanning",
+    "coordinate": "110.388793,18.796216"
+  }, {
+    "code": "469007",
+    "name": "东方",
+    "spell": "dongfang",
+    "coordinate": "108.653789,19.10198"
+  }, {
+    "code": "469025",
+    "name": "定安县",
+    "spell": "dinganxian",
+    "coordinate": "109.452606,19.224584"
+  }, {
+    "code": "469026",
+    "name": "屯昌县",
+    "spell": "tunchangxian",
+    "coordinate": "109.053351,19.260968"
+  }, {
+    "code": "469027",
+    "name": "澄迈县",
+    "spell": "chengmaixian",
+    "coordinate": "109.175444,18.74758"
+  }, {
+    "code": "469028",
+    "name": "临高县",
+    "spell": "lingaoxian",
+    "coordinate": "110.037218,18.505006"
+  }, {
+    "code": "469030",
+    "name": "白沙黎族自治县",
+    "spell": "baishalizuzizhixian",
+    "coordinate": "109.839996,19.03557"
+  }, {
+    "code": "469031",
+    "name": "昌江黎族自治县",
+    "spell": "changjianglizuzizhixian",
+    "coordinate": ""
+  }, {
+    "code": "469033",
+    "name": "乐东黎族自治县",
+    "spell": "ledonglizuzizhixian",
+    "coordinate": ""
+  }, {
+    "code": "469034",
+    "name": "陵水黎族自治县",
+    "spell": "lingshuilizuzizhixian",
+    "coordinate": ""
+  }, {
+    "code": "469035",
+    "name": "保亭黎族苗族自治县",
+    "spell": "baotinglizumiaozuzizhixian",
+    "coordinate": ""
+  }, {
+    "code": "469036",
+    "name": "琼中黎族苗族自治县",
+    "spell": "qiongzhonglizumiaozuzizhixian",
+    "coordinate": ""
+  }, {
+    "code": "469040",
+    "name": "三沙",
+    "spell": "sansha",
+    "coordinate": ""
+  }]
+}, {
+  "code": "500000",
+  "name": "重庆",
+  "children": [{
+    "capital": true,
+    "code": "500100",
+    "name": "重庆",
+    "spell": "zhongqing",
+    "coordinate": "106.504962,29.533155"
+  }]
+}, {
+  "code": "510000",
+  "name": "四川",
+  "children": [{
+    "capital": true,
+    "code": "510100",
+    "name": "成都",
+    "spell": "chengdou",
+    "coordinate": "104.065735,30.659462"
+  }, {
+    "code": "510300",
+    "name": "自贡",
+    "spell": "zigong",
+    "coordinate": "104.773447,29.352765"
+  }, {
+    "code": "510400",
+    "name": "攀枝花",
+    "spell": "panzhihua",
+    "coordinate": "101.716007,26.580446"
+  }, {
+    "code": "510500",
+    "name": "泸州",
+    "spell": "luzhou",
+    "coordinate": "105.443348,28.889138"
+  }, {
+    "code": "510600",
+    "name": "德阳",
+    "spell": "deyang",
+    "coordinate": "104.398651,31.127991"
+  }, {
+    "code": "510700",
+    "name": "绵阳",
+    "spell": "mianyang",
+    "coordinate": "104.741722,31.46402"
+  }, {
+    "code": "510800",
+    "name": "广元",
+    "spell": "guangyuan",
+    "coordinate": "105.829757,32.433668"
+  }, {
+    "code": "510900",
+    "name": "遂宁",
+    "spell": "suining",
+    "coordinate": "105.571331,30.513311"
+  }, {
+    "code": "511000",
+    "name": "内江",
+    "spell": "neijiang",
+    "coordinate": "105.066138,29.58708"
+  }, {
+    "code": "511100",
+    "name": "乐山",
+    "spell": "leshan",
+    "coordinate": "103.761263,29.582024"
+  }, {
+    "code": "511300",
+    "name": "南充",
+    "spell": "nanchong",
+    "coordinate": "106.082974,30.795281"
+  }, {
+    "code": "511400",
+    "name": "眉山",
+    "spell": "meishan",
+    "coordinate": "103.831788,30.048318"
+  }, {
+    "code": "511500",
+    "name": "宜宾",
+    "spell": "yibin",
+    "coordinate": "104.630825,28.760189"
+  }, {
+    "code": "511600",
+    "name": "广安",
+    "spell": "guangan",
+    "coordinate": "106.633369,30.456398"
+  }, {
+    "code": "511700",
+    "name": "达州",
+    "spell": "dazhou",
+    "coordinate": "107.502262,31.209484"
+  }, {
+    "code": "511800",
+    "name": "雅安",
+    "spell": "yaan",
+    "coordinate": "103.001033,29.987722"
+  }, {
+    "code": "511900",
+    "name": "巴中",
+    "spell": "bazhong",
+    "coordinate": "106.753669,31.858809"
+  }, {
+    "code": "512000",
+    "name": "资阳",
+    "spell": "ziyang",
+    "coordinate": "104.641917,30.122211"
+  }, {
+    "code": "513200",
+    "name": "阿坝",
+    "spell": "eba",
+    "coordinate": "102.221374,31.899792"
+  }, {
+    "code": "513300",
+    "name": "甘孜",
+    "spell": "ganzi",
+    "coordinate": "101.963815,30.050663"
+  }, {
+    "code": "513400",
+    "name": "凉山",
+    "spell": "liangshan",
+    "coordinate": "102.258746,27.886762"
+  }]
+}, {
+  "code": "520000",
+  "name": "贵州",
+  "children": [{
+    "capital": true,
+    "code": "520100",
+    "name": "贵阳",
+    "spell": "guiyang",
+    "coordinate": "106.713478,26.578343"
+  }, {
+    "code": "520200",
+    "name": "六盘水",
+    "spell": "liupanshui",
+    "coordinate": "104.846743,26.584643"
+  }, {
+    "code": "520300",
+    "name": "遵义",
+    "spell": "zunyi",
+    "coordinate": "106.937265,27.706626"
+  }, {
+    "code": "520400",
+    "name": "安顺",
+    "spell": "anshun",
+    "coordinate": "105.932188,26.245544"
+  }, {
+    "code": "522200",
+    "name": "铜仁地区",
+    "spell": "tongrendiqu",
+    "coordinate": ""
+  }, {
+    "code": "522300",
+    "name": "黔西南",
+    "spell": "qianxinan",
+    "coordinate": "104.897971,25.08812"
+  }, {
+    "code": "522400",
+    "name": "毕节地区",
+    "spell": "bijiediqu",
+    "coordinate": ""
+  }, {
+    "code": "522600",
+    "name": "黔东南",
+    "spell": "qiandongnan",
+    "coordinate": "107.977488,26.583352"
+  }, {
+    "code": "522700",
+    "name": "黔南",
+    "spell": "qiannan",
+    "coordinate": "107.517156,26.258219"
+  }]
+}, {
+  "code": "530000",
+  "name": "云南",
+  "children": [{
+    "capital": true,
+    "code": "530100",
+    "name": "昆明",
+    "spell": "kunming",
+    "coordinate": "102.712251,25.040609"
+  }, {
+    "code": "530300",
+    "name": "曲靖",
+    "spell": "qujing",
+    "coordinate": "103.797851,25.501557"
+  }, {
+    "code": "530400",
+    "name": "玉溪",
+    "spell": "yuxi",
+    "coordinate": "102.543907,24.350461"
+  }, {
+    "code": "530500",
+    "name": "保山",
+    "spell": "baoshan",
+    "coordinate": "99.167133,25.111802"
+  }, {
+    "code": "530600",
+    "name": "昭通",
+    "spell": "zhaotong",
+    "coordinate": "103.717216,27.336999"
+  }, {
+    "code": "530700",
+    "name": "丽江",
+    "spell": "lijiang",
+    "coordinate": "100.233026,26.872108"
+  }, {
+    "code": "530800",
+    "name": "普洱",
+    "spell": "puer",
+    "coordinate": "100.972344,22.777321"
+  }, {
+    "code": "530900",
+    "name": "临沧",
+    "spell": "lincang",
+    "coordinate": "100.08697,23.886567"
+  }, {
+    "code": "532300",
+    "name": "楚雄",
+    "spell": "chuxiong",
+    "coordinate": "101.546046,25.041988"
+  }, {
+    "code": "532500",
+    "name": "红河",
+    "spell": "honghe",
+    "coordinate": "103.384182,23.366775"
+  }, {
+    "code": "532600",
+    "name": "文山",
+    "spell": "wenshan",
+    "coordinate": "104.24401,23.36951"
+  }, {
+    "code": "532800",
+    "name": "西双版纳",
+    "spell": "xishuangbanna",
+    "coordinate": "100.797941,22.001724"
+  }, {
+    "code": "532900",
+    "name": "大理",
+    "spell": "dali",
+    "coordinate": "100.225668,25.589449"
+  }, {
+    "code": "533100",
+    "name": "德宏",
+    "spell": "dehong",
+    "coordinate": "98.578363,24.436694"
+  }, {
+    "code": "533300",
+    "name": "怒江",
+    "spell": "nujiang",
+    "coordinate": "98.854304,25.850949"
+  }, {
+    "code": "533400",
+    "name": "迪庆",
+    "spell": "diqing",
+    "coordinate": "99.706463,27.826853"
+  }]
+}, {
+  "code": "540000",
+  "name": "西藏",
+  "children": [{
+    "capital": true,
+    "code": "540100",
+    "name": "拉萨",
+    "spell": "lasa",
+    "coordinate": "91.132212,29.660361"
+  }, {
+    "code": "542100",
+    "name": "昌都",
+    "spell": "changdou",
+    "coordinate": ""
+  }, {
+    "code": "542200",
+    "name": "山南",
+    "spell": "shannan",
+    "coordinate": "91.766529,29.236023"
+  }, {
+    "code": "542300",
+    "name": "日喀则",
+    "spell": "rikaze",
+    "coordinate": ""
+  }, {
+    "code": "542400",
+    "name": "那曲",
+    "spell": "naqu",
+    "coordinate": "92.060214,31.476004"
+  }, {
+    "code": "542500",
+    "name": "阿里",
+    "spell": "eli",
+    "coordinate": "80.105498,32.503187"
+  }, {
+    "code": "542600",
+    "name": "林芝",
+    "spell": "linzhi",
+    "coordinate": ""
+  }]
+}, {
+  "code": "610000",
+  "name": "陕西",
+  "children": [{
+    "capital": true,
+    "code": "610100",
+    "name": "西安",
+    "spell": "xian",
+    "coordinate": "108.948024,34.263161"
+  }, {
+    "code": "610200",
+    "name": "铜川",
+    "spell": "tongchuan",
+    "coordinate": "108.979608,34.916582"
+  }, {
+    "code": "610300",
+    "name": "宝鸡",
+    "spell": "baoji",
+    "coordinate": "107.14487,34.369315"
+  }, {
+    "code": "610400",
+    "name": "咸阳",
+    "spell": "xianyang",
+    "coordinate": "108.705117,34.333439"
+  }, {
+    "code": "610500",
+    "name": "渭南",
+    "spell": "weinan",
+    "coordinate": "109.502882,34.499381"
+  }, {
+    "code": "610600",
+    "name": "延安",
+    "spell": "yanan",
+    "coordinate": "109.49081,36.596537"
+  }, {
+    "code": "610700",
+    "name": "汉中",
+    "spell": "hanzhong",
+    "coordinate": "107.028621,33.077668"
+  }, {
+    "code": "610800",
+    "name": "榆林",
+    "spell": "yulin",
+    "coordinate": "109.741193,38.290162"
+  }, {
+    "code": "610900",
+    "name": "安康",
+    "spell": "ankang",
+    "coordinate": "109.029273,32.6903"
+  }, {
+    "code": "611000",
+    "name": "商洛",
+    "spell": "shangluo",
+    "coordinate": "109.939776,33.868319"
+  }]
+}, {
+  "code": "620000",
+  "name": "甘肃",
+  "children": [{
+    "capital": true,
+    "code": "620100",
+    "name": "兰州",
+    "spell": "lanzhou",
+    "coordinate": "103.823557,36.058039"
+  }, {
+    "code": "620200",
+    "name": "嘉峪关",
+    "spell": "jiayuguan",
+    "coordinate": "98.277304,39.786529"
+  }, {
+    "code": "620300",
+    "name": "金昌",
+    "spell": "jinchang",
+    "coordinate": "102.187888,38.514238"
+  }, {
+    "code": "620400",
+    "name": "白银",
+    "spell": "baiyin",
+    "coordinate": "104.173606,36.54568"
+  }, {
+    "code": "620500",
+    "name": "天水",
+    "spell": "tianshui",
+    "coordinate": "105.724998,34.578529"
+  }, {
+    "code": "620600",
+    "name": "武威",
+    "spell": "wuwei",
+    "coordinate": "102.634697,37.929996"
+  }, {
+    "code": "620700",
+    "name": "张掖",
+    "spell": "zhangye",
+    "coordinate": "100.455472,38.932897"
+  }, {
+    "code": "620800",
+    "name": "平凉",
+    "spell": "pingliang",
+    "coordinate": "106.684691,35.54279"
+  }, {
+    "code": "620900",
+    "name": "酒泉",
+    "spell": "jiuquan",
+    "coordinate": "98.510795,39.744023"
+  }, {
+    "code": "621000",
+    "name": "庆阳",
+    "spell": "qingyang",
+    "coordinate": "107.638372,35.734218"
+  }, {
+    "code": "621100",
+    "name": "定西",
+    "spell": "dingxi",
+    "coordinate": "104.626294,35.579578"
+  }, {
+    "code": "621200",
+    "name": "陇南",
+    "spell": "longnan",
+    "coordinate": "104.929379,33.388598"
+  }, {
+    "code": "622900",
+    "name": "临夏",
+    "spell": "linxia",
+    "coordinate": "103.212006,35.599446"
+  }, {
+    "code": "623000",
+    "name": "甘南",
+    "spell": "gannan",
+    "coordinate": "102.911008,34.986354"
+  }]
+}, {
+  "code": "630000",
+  "name": "青海",
+  "children": [{
+    "capital": true,
+    "code": "630100",
+    "name": "西宁",
+    "spell": "xining",
+    "coordinate": "101.778916,36.623178"
+  }, {
+    "code": "632100",
+    "name": "海东地区",
+    "spell": "haidongdiqu",
+    "coordinate": ""
+  }, {
+    "code": "632200",
+    "name": "海北",
+    "spell": "haibei",
+    "coordinate": "100.901059,36.959435"
+  }, {
+    "code": "632300",
+    "name": "黄南",
+    "spell": "huangnan",
+    "coordinate": "102.019988,35.517744"
+  }, {
+    "code": "632500",
+    "name": "海南",
+    "spell": "hainan",
+    "coordinate": "100.619542,36.280353"
+  }, {
+    "code": "632600",
+    "name": "果洛",
+    "spell": "guoluo",
+    "coordinate": "100.242143,34.4736"
+  }, {
+    "code": "632700",
+    "name": "玉树",
+    "spell": "yushu",
+    "coordinate": "97.008522,33.004049"
+  }, {
+    "code": "632800",
+    "name": "海西",
+    "spell": "haixi",
+    "coordinate": "97.370785,37.374663"
+  }]
+}, {
+  "code": "640000",
+  "name": "宁夏",
+  "children": [{
+    "capital": true,
+    "code": "640100",
+    "name": "银川",
+    "spell": "yinchuan",
+    "coordinate": "106.278179,38.46637"
+  }, {
+    "code": "640200",
+    "name": "石嘴山",
+    "spell": "shizuishan",
+    "coordinate": "106.376173,39.01333"
+  }, {
+    "code": "640300",
+    "name": "吴忠",
+    "spell": "wuzhong",
+    "coordinate": "106.199409,37.986165"
+  }, {
+    "code": "640400",
+    "name": "固原",
+    "spell": "guyuan",
+    "coordinate": "106.285241,36.004561"
+  }, {
+    "code": "640500",
+    "name": "中卫",
+    "spell": "zhongwei",
+    "coordinate": "105.189568,37.514951"
+  }]
+}, {
+  "code": "650000",
+  "name": "新疆",
+  "children": [{
+    "capital": true,
+    "code": "650100",
+    "name": "乌鲁木齐",
+    "spell": "wulumuqi",
+    "coordinate": "87.617733,43.792818"
+  }, {
+    "code": "650200",
+    "name": "克拉玛依",
+    "spell": "kelamayi",
+    "coordinate": "84.873946,45.595886"
+  }, {
+    "code": "652100",
+    "name": "吐鲁番",
+    "spell": "tulufan",
+    "coordinate": ""
+  }, {
+    "code": "652200",
+    "name": "哈密",
+    "spell": "hami",
+    "coordinate": "93.51316,42.833248"
+  }, {
+    "code": "652300",
+    "name": "昌吉",
+    "spell": "changji",
+    "coordinate": "87.304012,44.014577"
+  }, {
+    "code": "652700",
+    "name": "博尔塔拉",
+    "spell": "boertala",
+    "coordinate": "82.074778,44.903258"
+  }, {
+    "code": "652800",
+    "name": "巴音郭楞",
+    "spell": "bayinguoleng",
+    "coordinate": "86.150969,41.768552"
+  }, {
+    "code": "652900",
+    "name": "阿克苏",
+    "spell": "ekesu",
+    "coordinate": "80.265068,41.170712"
+  }, {
+    "code": "653000",
+    "name": "克孜勒苏柯尔克孜",
+    "spell": "kezilesukeerkezi",
+    "coordinate": "76.172825,39.713431"
+  }, {
+    "code": "653100",
+    "name": "喀什",
+    "spell": "kashen",
+    "coordinate": "75.989138,39.467664"
+  }, {
+    "code": "653200",
+    "name": "和田",
+    "spell": "hetian",
+    "coordinate": "79.92533,37.110687"
+  }, {
+    "code": "654000",
+    "name": "伊犁",
+    "spell": "yili",
+    "coordinate": "81.317946,43.92186"
+  }, {
+    "code": "654200",
+    "name": "塔城",
+    "spell": "tacheng",
+    "coordinate": "82.985732,46.746301"
+  }, {
+    "code": "654300",
+    "name": "阿勒泰",
+    "spell": "eletai",
+    "coordinate": "88.13963,47.848393"
+  }, {
+    "code": "659001",
+    "name": "石河子",
+    "spell": "shihezi",
+    "coordinate": "86.041075,44.305886"
+  }, {
+    "code": "659002",
+    "name": "阿拉尔",
+    "spell": "elaer",
+    "coordinate": "81.285884,40.541914"
+  }, {
+    "code": "659003",
+    "name": "图木舒克",
+    "spell": "tumushuke",
+    "coordinate": "79.077978,39.867316"
+  }, {
+    "code": "659004",
+    "name": "五家渠",
+    "spell": "wujiaqu",
+    "coordinate": "87.526884,44.167401"
+  }]
+}, {
+  "code": "710000",
+  "name": "台湾",
+  "children": [{
+    "capital": true,
+    "code": "710100",
+    "name": "台北",
+    "spell": "taibei",
+    "coordinate": ""
+  }, {
+    "code": "710200",
+    "name": "高雄",
+    "spell": "gaoxiong",
+    "coordinate": ""
+  }, {
+    "code": "710300",
+    "name": "台南",
+    "spell": "tainan",
+    "coordinate": ""
+  }, {
+    "code": "710400",
+    "name": "台中",
+    "spell": "taizhong",
+    "coordinate": ""
+  }, {
+    "code": "710500",
+    "name": "金门县",
+    "spell": "jinmenxian",
+    "coordinate": ""
+  }, {
+    "code": "710600",
+    "name": "南投县",
+    "spell": "nantouxian",
+    "coordinate": ""
+  }, {
+    "code": "710700",
+    "name": "基隆",
+    "spell": "jilong",
+    "coordinate": ""
+  }, {
+    "code": "710800",
+    "name": "新竹",
+    "spell": "xinzhu",
+    "coordinate": ""
+  }, {
+    "code": "710900",
+    "name": "嘉义",
+    "spell": "jiayi",
+    "coordinate": ""
+  }, {
+    "code": "711100",
+    "name": "新北",
+    "spell": "xinbei",
+    "coordinate": ""
+  }, {
+    "code": "711200",
+    "name": "宜兰县",
+    "spell": "yilanxian",
+    "coordinate": ""
+  }, {
+    "code": "711300",
+    "name": "新竹县",
+    "spell": "xinzhuxian",
+    "coordinate": ""
+  }, {
+    "code": "711400",
+    "name": "桃园县",
+    "spell": "taoyuanxian",
+    "coordinate": ""
+  }, {
+    "code": "711500",
+    "name": "苗栗县",
+    "spell": "miaolixian",
+    "coordinate": ""
+  }, {
+    "code": "711900",
+    "name": "嘉义县",
+    "spell": "jiayixian",
+    "coordinate": ""
+  }, {
+    "code": "712100",
+    "name": "云林县",
+    "spell": "yunlinxian",
+    "coordinate": ""
+  }, {
+    "code": "712400",
+    "name": "屏东县",
+    "spell": "pingdongxian",
+    "coordinate": ""
+  }, {
+    "code": "712500",
+    "name": "台东县",
+    "spell": "taidongxian",
+    "coordinate": ""
+  }, {
+    "code": "712600",
+    "name": "花莲县",
+    "spell": "hualianxian",
+    "coordinate": ""
+  }, {
+    "code": "712700",
+    "name": "澎湖县",
+    "spell": "penghuxian",
+    "coordinate": ""
+  }]
+}, {
+  "code": "810000",
+  "name": "香港",
+  "children": [{
+    "capital": true,
+    "code": "810100",
+    "name": "香港岛",
+    "spell": "xianggangdao",
+    "coordinate": ""
+  }, {
+    "code": "810200",
+    "name": "九龙",
+    "spell": "jiulong",
+    "coordinate": ""
+  }, {
+    "code": "810300",
+    "name": "新界",
+    "spell": "xinjie",
+    "coordinate": ""
+  }]
+}, {
+  "code": "820000",
+  "name": "澳门",
+  "children": [{
+    "capital": true,
+    "code": "820100",
+    "name": "澳门半岛",
+    "spell": "aomenbandao",
+    "coordinate": ""
+  }, {
+    "code": "820200",
+    "name": "离岛",
+    "spell": "lidao",
+    "coordinate": ""
+  }]
+}];
+
+var address_cities = address_pc.reduce((rcc, item) => {
+  item.children.forEach((city) => {
+    rcc.push(city);
+  });
+  return rcc;
+}, []);
+
+function address_search(k) {
+  const begin = performance.now();
+  const results = []
+  for (let i = 0; i < address_cities.length; i ++) {
+  	const match = pinyin(address_cities[i].name, k);
+    if (match) {
+      results.push(address_cities[i]);
+    }
+  }
+  return {
+    time: performance.now() - begin,
+    cities: results,
+  };
+}
