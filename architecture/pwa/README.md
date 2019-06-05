@@ -108,3 +108,8 @@
 - https://www.pwabuilder.com/
 - [Is Service Worker Ready](https://jakearchibald.github.io/isserviceworkerready/)
 - https://developers.google.com/web/tools/workbox/guides/get-started
+
+---
+
+- [sw-precache](https://github.com/GoogleChromeLabs/sw-precache)
+- [Migrate from sw-precache or sw-toolbox](https://developers.google.com/web/tools/workbox/guides/migrations/migrate-from-sw)
