@@ -26,3 +26,6 @@
 - [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark)
 
     - [Results for js web frameworks benchmark – round 8](https://stefankrause.net/js-frameworks-benchmark8/table.html)
+
+- [uibench](https://github.com/localvoid/uibench)
+- [js-repaint-perfs](https://github.com/mathieuancelin/js-repaint-perfs)
