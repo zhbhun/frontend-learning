@@ -32,6 +32,7 @@
 
 ## 教程
 
+- [一个Bug引发的思考——移动端定位](https://zhuanlan.zhihu.com/p/30576566)
 - [使用 HTML5 Geolocation 构建基于地理位置的 Web 应用](https://www.ibm.com/developerworks/cn/web/1208_wangjian_html5geo/index.html)
 - [前端开发中的地理定位问题小总结](https://wufenfen.github.io/2017/03/22/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%9C%B0%E7%90%86%E5%AE%9A%E4%BD%8D%E9%97%AE%E9%A2%98%E5%B0%8F%E6%80%BB%E7%BB%93/)
 - [h5 geolocation 的那些事～](https://cloud.tencent.com/developer/article/1009785)
