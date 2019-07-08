@@ -113,3 +113,5 @@
 
 - [sw-precache](https://github.com/GoogleChromeLabs/sw-precache)
 - [Migrate from sw-precache or sw-toolbox](https://developers.google.com/web/tools/workbox/guides/migrations/migrate-from-sw)
+- [Workbox](https://github.com/googlechrome/workbox)
+- [Workbox webpack Plugins](https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin)
