@@ -1,1 +1,2 @@
+- https://github.com/react-native-community/react-native-tab-view
 - https://github.com/skv-headless/react-native-scrollable-tab-view

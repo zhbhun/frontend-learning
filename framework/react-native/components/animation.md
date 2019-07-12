@@ -1,5 +1,6 @@
 - [Easing](http://easings.net/zh-cn)
 - https://github.com/airbnb/lottie-web
+- [react-native-reanimated](https://github.com/kmagiera/react-native-reanimated)
 - [react-native-animatable](https://github.com/oblador/react-native-animatable)
 - [shoutem/animation](https://github.com/shoutem/animation) - Animate your React Native components.
 - [Declare Peace with React Native Animations](https://medium.com/shoutem/declare-peace-with-react-native-animations-e947332fa9b1)
