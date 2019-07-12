@@ -34,4 +34,12 @@
 - [将 JavaScript 设为异步加载](https://developers.google.com/speed/docs/insights/BlockingJS#deferJS)
 - [使用 JavaScript 添加交互](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript#parser-blocking-vs-asynchronous-javascript)
 - [Is async ever better than defer?](https://stackoverflow.com/questions/42079902/is-async-ever-better-than-defer)
-- [使用 JavaScript 添加交互]（https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript#parser-blocking-vs-asynchronous-javascript
+- [使用 JavaScript 添加交互](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript#parser-blocking-vs-asynchronous-javascript)
+
+---
+
+- [LABjs](https://github.com/getify/LABjs)
+- [RequireJS](https://requirejs.org/)
+- [seajs](https://github.com/seajs/seajs)
+- [LABjs、RequireJS、SeaJS 哪个最好用？为什么？](https://www.zhihu.com/question/20342350)
+- [The difference between LABJS, Requirejs and Seajs](https://topic.alibabacloud.com/a/the-difference-between-labjs-requirejs-and-seajs_8_8_10184938.html)
