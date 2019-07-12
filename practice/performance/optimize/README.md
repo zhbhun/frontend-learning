@@ -1,669 +1,607 @@
 # 性能优化
 
-![timestamp-diagram](./.assets/timestamp-diagram.svg)
-
-## 浏览器原理
-
-- 功能
-- 架构
-- 网络
-- 渲染
-
-    1. HTML 解析
-    2. DOM 树构建 + CSS 解析
-    3. 渲染树构建
-    4. 布局
-    5. 绘制
-    6. 重排与重绘
-
-- CSS：可视化模型
-- JavaScript：单线程 + 事件驱动
-
-参考文献
-
-- [browser how to work](https://www.google.com/search?newwindow=1&safe=active&ei=ALL8XJGYHtXa9APEm7OQCQ&q=browser+hwot+ot+work&oq=browser+hwot+ot+work) / [浏览器工作原理](https://www.google.com/search?q=%E6%B5%8F%E8%A7%88%E5%99%A8%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
-- [Round-up of Web Browser Internals Resources](https://developers.google.com/web/updates/2012/04/Round-up-of-Web-Browser-Internals-Resources)
-- [浏览器的工作原理：新式网络浏览器幕后揭秘](https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/) / [How Browsers Work: Behind the scenes of modern web browsers](https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/#Dynamic_changes)
-
-    - 浏览器架构
-
-        - [A Reference Architecture for Web Browsers (pdf)](http://grosskurth.ca/papers/browser-refarch.pdf)
-        - [How Browsers Work - Part 1 - Architecture](http://www.vineetgupta.com/2010/11/how-browsers-work-part-1-architecture/)
-
-    - 解析
-
-        - [The Bold and the Beautiful: two new drafts for HTML 5.](http://broadcast.oreilly.com/2009/05/the-bold-and-the-beautiful-two.html)
-
-    - Firefox
-
-        - [Faster HTML and CSS: Layout Engine Internals for Web Developers.](http://dbaron.org/talks/2008-11-12-faster-html-and-css/slide-6.xhtml) / [Faster HTML and CSS: Layout Engine Internals for Web Developers（Google 技术访谈视频）](https://www.youtube.com/watch?v=a2_6bGNZ7bA)
-        - [Mozilla's Layout Engine](http://www.mozilla.org/newlayout/doc/layout-2006-07-12/slide-6.xhtml)
-        - [Mozilla Style System Documentation](http://www.mozilla.org/newlayout/doc/style-system.html)
-        - [Notes on HTML Reflow](http://www.mozilla.org/newlayout/doc/reflow.html)
-        - [Gecko Overview](http://www.mozilla.org/newlayout/doc/gecko-overview.htm)
-        - [The life of an HTML HTTP request](https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/#Dynamic_changes)
-
-    - WebKit
-
-        - [Implementing CSS（第一部分）](http://weblogs.mozillazine.org/hyatt/archives/cat_safari.html)
-        - [An Overview of WebCore](http://weblogs.mozillazine.org/hyatt/WebCore/chapter2.html)
-        - [WebCore Rendering](http://webkit.org/blog/114/)
-        - [The FOUC Problem](http://webkit.org/blog/66/the-fouc-problem/)
-
-    - HTML
-
-        - [HTML 4.01 规范](http://www.w3.org/TR/html4/)
-        - [W3C HTML5 规范](http://dev.w3.org/html5/spec/Overview.html)
-        - [Parsing HTML documents](https://html.spec.whatwg.org/multipage/parsing.html)
-
-    - CSS
-
-        - [层叠样式表第 2 级第 1 次修改 (CSS 2.1) 规范](http://www.w3.org/TR/CSS2/)
-        - [The CSS 2.1 processing model](https://www.w3.org/TR/CSS21/intro.html#processing-model)
-        - [CSS 2 Box model](https://www.w3.org/TR/CSS2/box.html)
-        - [Elaborate description of Stacking Contexts](https://www.w3.org/TR/CSS2/zindex.html)
-        - [Grammar of CSS 2.1](https://www.w3.org/TR/CSS2/grammar.html)
-
-- [Notes on “How Browsers Work” ](https://codeburst.io/how-browsers-work-6350a4234634)
-- [聊聊 JavaScript 与浏览器的那些事 - 引擎与线程](https://hijiangtao.github.io/2018/01/08/JavaScript-and-Browser-Engines-with-Threads/)
-- [JavaScript是如何工作的：渲染引擎和优化其性能的技巧](https://blog.fundebug.com/2019/01/14/browser-rendering-and-optimizaiton/)
-- [浏览器的渲染原理简介](https://coolshell.cn/articles/9666.html)
-- [Multi-process Architecture](https://www.chromium.org/developers/design-documents/multi-process-architecture)
-- [Mobile Browser Internal (Blink Rendering Engine)](https://www.slideshare.net/HyungwookLee/mobilebrowserinternal-20140122)
-
-### 功能特性
-
-> 浏览器的主要功能就是向服务器发出请求，在浏览器窗口中展示您选择的网络资源。这里所说的资源一般是指 HTML 文档，也可以是 PDF、图片或其他的类型。资源的位置由用户使用 URI（统一资源标示符）指定。
->
-> 浏览器解释并显示 HTML 文件的方式是在 HTML 和 CSS 规范中指定的。这些规范由网络标准化组织 W3C（万维网联盟）进行维护。 
-
-- 用来输入 URI 的地址栏
-- 前进和后退按钮
-- 书签设置选项
-- 用于刷新和停止加载当前文档的刷新和停止按钮
-- 用于返回主页的主页按钮
-
-### 技术架构
-
-![browser-layers.png](./.assets/browser-layers.png)
-
-- 用户界面 - 包括地址栏、前进/后退按钮、书签菜单等。除了浏览器主窗口显示的您请求的页面外，其他显示的各个部分都属于用户界面。
-- 浏览器引擎 - 在用户界面和渲染引擎之间传送指令。
-- 渲染引擎 - 负责显示请求的内容。如果请求的内容是 HTML，它就负责解析 HTML 和 CSS 内容，并将解析后的内容显示在屏幕上。
-- 网络 - 用于网络调用，比如 HTTP 请求。其接口与平台无关，并为所有平台提供底层实现。
-- 用户界面后端 - 用于绘制基本的窗口小部件，比如组合框和窗口。其公开了与平台无关的通用接口，而在底层使用操作系统的用户界面方法。
-- JavaScript 解释器 - 用于解析和执行 JavaScript 代码。
-- 数据存储 = 这是持久层。浏览器需要在硬盘上保存各种数据，例如 Cookie。新的 HTML 规范 (HTML5) 定义了“网络数据库”，这是一个完整（但是轻便）的浏览器内数据库。
-
-### 网络请求
-
-1. You enter a URL into a web browser
-2. The browser looks up the IP address for the domain name via DNS
-3. The browser sends a HTTP request to the server
-4. The server sends back a HTTP response
-5. The browser begins rendering the HTML
-6. The browser sends requests for additional objects embedded in HTML (images, css, JavaScript) and repeats steps 3-5.
-7. Once the page is loaded, the browser sends further async requests as needed.
-
-参考文献
-
-- [what happen when Type url on browser](https://www.google.com/search?q=what+happen+when+Type+url+on+browser&oq=what+happen+when+Type+url+on+browser) / [浏览器输入URL后发生了什么](https://www.google.com/search?q=%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5URL%E5%90%8E%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88s)
-- [What Happens When You Type in a URL](https://wsvincent.com/what-happens-when-url/)
-- [What happens when you type an URL in the browser and press enter?](https://medium.com/@graceodonnell/what-happens-when-you-type-an-url-in-the-browser-and-press-enter-be22335fc3a0)
-- [what-happens-when](https://github.com/alex/what-happens-when)
-- [what happens when you type in a URL in browser [closed]](https://stackoverflow.com/questions/2092527/what-happens-when-you-type-in-a-url-in-browser)
-- [细说浏览器输入URL后发生了什么](https://segmentfault.com/a/1190000012092552)
-- [浏览器输入 URL 后发生了什么？](https://zhuanlan.zhihu.com/p/43369093)
-
-#### DNS 查询
-
-![dns](./.assets/dns.png)
-
-1. 浏览器检查域名是否在缓存当中（要查看 Chrome 当中的缓存， 打开 chrome://net-internals/#dns)。
-2. 如果缓存中没有，就去调用 gethostbyname 库函数（操作系统不同函数也不同）进行查询。
-3. gethostbyname 函数在试图进行DNS解析之前首先检查域名是否在本地 Hosts 里，Hosts 的位置（不同的操作系统有所不同）。
-4. 如果 gethostbyname 没有这个域名的缓存记录，也没有在 hosts 里找到，它将会向 DNS 服务器发送一条 DNS 查询请求（使用 53 端口向 DNS 服务器发送 UDP 请求包，如果响应包太大，会使用 TCP 协议）。DNS 服务器是由网络通信栈提供的，通常是本地路由器或者 ISP 的缓存 DNS 服务器。
-5. 如果本地/ISP DNS 服务器没有找到结果，它会发送一个递归查询请求，一层一层向高层 DNS 服务器做查询，直到查询到起始授权机构，如果找到会把结果返回。
-
-参考文献
-
-- [DNS 原理入门](http://www.ruanyifeng.com/blog/2016/06/dns.html)
-- [DNS 查询](https://github.com/skyline75489/what-happens-when-zh_CN#dns-%E6%9F%A5%E8%AF%A2)
-- [ARP 过程](https://github.com/skyline75489/what-happens-when-zh_CN#arp-%E8%BF%87%E7%A8%8B)
-- [DNS解析的过程是什么，求详细的？]
-- [How to clear/flush the DNS cache in Google Chrome?](https://superuser.com/questions/203674/how-to-clear-flush-the-dns-cache-in-google-chrome)
-
-#### TCP 连接和关闭
-
-![http-connect](./.assets/http-connect.jpg)
-
-- [使用套接字](https://github.com/skyline75489/what-happens-when-zh_CN#%E4%BD%BF%E7%94%A8%E5%A5%97%E6%8E%A5%E5%AD%97)
-- [TLS 握手](https://github.com/skyline75489/what-happens-when-zh_CN#tls)
-- [TCP的keepalive和HTTP的keepalive之间的关系？](https://www.zhihu.com/question/24437644)
-- [聊聊 TCP 中的 KeepAlive 机制](https://zhuanlan.zhihu.com/p/28894266)
-
-#### HTTP 请求和响应
-
-- [HTTP 协议](https://github.com/skyline75489/what-happens-when-zh_CN#http-%E5%8D%8F%E8%AE%AE)
-- [HTTP 服务器请求处理](https://github.com/skyline75489/what-happens-when-zh_CN#http-%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86)
-- [HTTP Keep-Alive是什么？如何工作？](http://www.nowamagic.net/academy/detail/23350305)
-- HTTP2
-
-    - [HTTP 协议入门](http://www.ruanyifeng.com/blog/2016/08/http.html)
-    - [HTTP/2 服务器推送（Server Push）教程](http://www.ruanyifeng.com/blog/2018/03/http2_server_push.html)
-
-- [HTTP 缓存]
-
-#### 网络变迁
-
-| Generation | Icon | Technology | Maximum Download Speed | Typical Download Speed |
-| --- | --- | --- | --- | --- | --- |
-| 2G | G | GPRS | 0.1Mbit/s | <0.1Mbit/s |
-| | E | EDGE | 0.3Mbit/s | 0.1Mbit/s |
-| 3G | 3G | 3G (Basic) | 0.3Mbit/s | 0.1Mbit/s |
-| | H | HSPA | 7.2Mbit/s | 1.5Mbit/s |
-| | H+ | HSPA+ | 21Mbit/s | 4Mbit/s |
-| | H+ | DC-HSPA+ | 42Mbit/s | 8Mbit/s |
-| 4G | 4G | LTE Category 4 | 150Mbit/s | 12-15Mbit/s |
-| 4G+ |	4G+ | LTE-Advanced Cat6 | 300Mbit/s | 24-30Mbit/s |
-| | 4G+ | LTE-Advanced Cat9 | 450Mbit/s | 60Mbit/s |
-| | 4G+ | LTE-Advanced Cat12 | 600Mbit/s | TBC |
-| | 4G+ | LTE-Advanced Cat16 | 979Mbit/s | TBC |
-| 5G | 5G | 5G | 1,000-10,000Mbit/s(1-10Gbit/s) | TBC
-
-
-| Generation | Typical Latency |
-| --- | --- |
-| 2G | 500ms (0.5 seconds) |
-| 3G | 100ms (0.1 seconds) |
-| 4G | 50ms (0.05 seconds) |
-| 5G | 1ms (0.001 seconds)* |
-
-
-- [Download Speeds: What Do 2G, 3G, 4G & 5G Actually Mean?](https://kenstechtips.com/index.php/download-speeds-2g-3g-and-4g-actual-meaning)
-- 测试网站
-
-    - [Google’s Speed Test](https://www.google.co.uk/search?q=speed+test)
-    - [Netflix’s Fast.com](https://fast.com/)
-    - [Ookla’s SpeedTest.net](http://www.speedtest.net/)
-
-### 渲染引擎
-
-> 渲染引擎，又称渲染引擎，也被称为浏览器内核，在线程方面又称为 UI 线程。
-
-![webkit-architecture.jpg](./.assets/webkit-architecture.jpg)
-
-- [browser render engine](https://www.google.com/search?q=browser+render+engine)
-- [浏览器渲染引擎](https://zhuanlan.zhihu.com/p/35295235)
-- [渲染树构建、布局及绘制](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/render-tree-construction)
-- [What's the difference between a browser engine and rendering engine?](https://stackoverflow.com/questions/46169376/whats-the-difference-between-a-browser-engine-and-rendering-engine)
-- [【FE】浏览器渲染引擎「内核」](https://github.com/zwwill/blog/issues/2)
-
-#### 有哪些渲染引擎？
-
-> 各大浏览器厂商依照 W3C 标准自行研发的，常见的浏览器内核可以分这四种：Trident、Gecko、Blink、Webkit。
-
-内核 | 浏览器 | 出生年份 | JS 引擎 | 开源
--------| -----| ---------| -------------| --------|----
-Trident | IE4 - IE11| 1997 | JScript，9+chakra |
-Gecko | Firefox | 2004 | SpiderMonkey | MPL | 
-WebKit | Safari,Chromium,Chrome(-2013) ,Android浏览器,ChromeOS,WebOS 等 | 2005| WebCore + JavascriptCore | BSD
-Blink | Chrome, Opera | 2013 | V8 | GPL
-Edge | Edge | 2015 | EdgeHTML + Chakra | MIT(chakra)
-
-疑问：浏览器内核，浏览器引擎，渲染引擎，JavaScript 引擎之间的区别和关系？
-
-> 浏览器内核又可以分为渲染引擎和 JavaScript 引擎，最开始渲染引擎和 JS 引擎并没有区分的很明确，后来 JS 引擎越来越独立，内核就倾向于只指渲染引擎。
-
-- [浏览器内核、JavaScript引擎和排版引擎](https://hehuiyun.github.io/2017/11/16/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%86%85%E6%A0%B8%E3%80%81JavaScript%E5%BC%95%E6%93%8E%E5%92%8C%E6%8E%92%E7%89%88%E5%BC%95%E6%93%8E/)
-
-#### 渲染引擎的工作原理
-
-![render-flow.png](./.assets/render-flow.png)
-
-![summary-of-browser-main-flows.jpg](./.assets/summary-of-browser-main-flows.jpg)
-
-Webkit VS Gecko
-
-![webkitflow.png](./.assets/webkitflow.png)
-
-![geckoflow.jpg](./.assets/geckoflow.jpg)
-
-
-虽然 WebKit 和 Gecko 使用的术语略有不同，但整体流程是基本相同的。
-
-Gecko 将视觉格式化元素组成的树称为“框架树”。每个元素都是一个框架。WebKit 使用的术语是“渲染树”，它由“渲染对象”组成。对于元素的放置，WebKit 使用的术语是“布局”，而 Gecko 称之为“重排”。对于连接 DOM 节点和可视化信息从而创建渲染树的过程，WebKit 使用的术语是“附加”。有一个细微的非语义差别，就是 Gecko 在 HTML 与 DOM 树之间还有一个称为“内容槽”的层，用于生成 DOM 元素。
-
-##### 1. 解析
-
-渲染引擎将开始解析 HTML 文档，并将各标记逐个转化成“内容树”上的 DOM 节点。同时也会解析外部 CSS 文件以及样式元素中的样式数据。
-
-###### 解析是什么？
-
-解析文档是指将文档转化成为有意义的结构，也就是可让代码理解和使用的结构。解析得到的结果通常是代表了文档结构的节点树，它称作解析树或者语法树。解析的过程可以分成两个子过程：词法分析和语法分析。解析器通常将解析工作分给以下两个组件来处理：词法分析器（有时也称为标记生成器），负责将输入内容分解成一个个有效标记；而解析器负责根据语言的语法规则分析文档的结构，从而构建解析树。
-
-    - 词法分析是将输入内容分割成大量标记的过程。标记是语言中的词汇，即构成内容的单位。在人类语言中，它相当于语言字典中的单词。
-    - 语法分析是应用语言的语法规则的过程。
-
-翻译：很多时候，解析树还不是最终产品。解析通常是在翻译过程中使用的，而翻译是指将输入文档转换成另一种格式。编译就是这样一个例子。编译器可将源代码编译成机器代码，具体过程是首先将源代码解析成解析树，然后将解析树翻译成机器代码文档。
-
-自动生成解析器：有一些工具可以帮助您生成解析器，它们称为解析器生成器。您只要向其提供您所用语言的语法（词汇和语法规则），它就会生成相应的解析器。创建解析器需要对解析有深刻理解，而人工创建并优化解析器并不是一件容易的事情，所以解析器生成器是非常实用的。WebKit 使用了两种非常有名的解析器生成器：用于创建词法分析器的 [Flex](http://en.wikipedia.org/wiki/Flex_lexical_analyser) 以及用于创建解析器的 Bison（您也可能遇到 Lex 和 Yacc 这样的别名）。Flex 的输入是包含标记的正则表达式定义的文件。Bison 的输入是采用 [BNF](http://www.gnu.org/software/bison/) 格式的语言语法规则。
-
-
-###### HTML 解析
-
-1. HTML 解析器的任务是将 HTML 标记解析成解析树，HTML 的词汇和语法在 W3C 组织创建的规范中进行了定义。
-2. 所有的常规解析器都不适用于 HTML（我并不是开玩笑，它们可以用于解析 CSS 和 JavaScript）。HTML 并不能很容易地用解析器所需的与上下文无关的语法来定义。
-
-    - 语言的宽容本质。
-    - 浏览器历来对一些常见的无效 HTML 用法采取包容态度。
-    - 解析过程需要不断地反复。源内容在解析过程中通常不会改变，但是在 HTML 中，脚本标记如果包含 document.write，就会添加额外的标记，这样解析过程实际上就更改了输入内容。
-
-3. 由于不能使用常规的解析技术，浏览器就创建了自定义的解析器来解析 HTML。[HTML5 规范详细地描述了解析算法](https://html.spec.whatwg.org/multipage/parsing.html)，此算法由两个阶段组成：标记化和树构建。
-
-![html-parser.png](./.assets/html-parser.png)
-
-```html
-<html>
-  <body>
-    <p>
-      Hello World
-    </p>
-    <div> <img src="example.png"/></div>
-  </body>
-</html>
-```
-
-![dom.png](./.assets/dom.png)
-
-ps：DOM 也是由 W3C 组织指定的。请参见 www.w3.org/DOM/DOMTR。
-
-###### CSS 解析
-
-和 HTML 不同，CSS 是上下文无关的语法，可以使用简介中描述的各种解析器进行解析。事实上，CSS 规范定义了 [CSS 的词法和语法](http://www.w3.org/TR/CSS2/grammar.html)。
-
-WebKit 使用 Flex 和 Bison 解析器生成器，通过 CSS 语法文件自动创建解析器。
-
-![css-parser](./.assets/css-parser.png)
-
-解析器都会将 CSS 文件解析成 StyleSheet 对象，且每个对象都包含 CSS 规则。CSS 规则对象则包含选择器和声明对象，以及其他与 CSS 语法对应的对象。
-
-```js
-document.styleSheets
-```
-
-![css-stylesheet.jpg](./.assets/css-stylesheet.jpg)
-
-理论上来说，应用样式表不会更改 DOM 树，因此似乎没有必要等待样式表并停止文档解析。但这涉及到一个问题，就是脚本在文档解析阶段会请求样式信息。如果当时还没有加载和解析样式，脚本就会获得错误的回复，这样显然会产生很多问题。这看上去是一个非典型案例，但事实上非常普遍。Firefox 在样式表加载和解析的过程中，会禁止所有脚本。
-
-- [css-block-render.html](./examples/css-block-render.html)
-- [css-block-script.html](./examples/css-block-script.html)
-
-###### JavaScript 解析
-
-脚本
-
-HTML 文档在解析器遇到 `<script>` 标记时立即解析并执行脚本，且文档的解析将停止，直到脚本执行完毕。如果脚本是外部的，那么解析过程会停止，直到从网络同步抓取资源完成后再继续。此模型已经使用了多年，也在 HTML4 和 HTML5 规范中进行了指定。
-
-预解析
-
-。在执行脚本时，其他线程会解析文档的其余部分，找出并加载需要通过网络加载的其他资源。通过这种方式，资源可以在并行连接上加载，从而提高总体速度。请注意，预解析器不会修改 DOM 树，而是将这项工作交由主解析器处理；预解析器只会解析外部资源（例如外部脚本、样式表和图片）的引用。
-
-异步
-
-此外，也可以将脚本标注为“defer”，这样它就不会停止文档解析，而是等到解析结束才执行。HTML5 增加了一个选项，可将脚本标记为异步，以便由其他线程解析和执行。
-
-![script-defer-and-async.png](./.assets/script-defer-and-async.png)
-
-##### 2. 构建渲染树
-
-渲染树是由可视化元素按照其显示顺序而组成的树，也是文档的可视化表示。它的作用是让您按照正确的顺序绘制内容。
-
-WebKit 将呈现树中的元素称为渲染器或渲染对象。渲染器知道如何布局并将自身及其子元素绘制出来。 WebKits RenderObject 类是所有呈现器的基类，其定义如下：
-
-```c++
-class RenderObject{
-  virtual void layout();
-  virtual void paint(PaintInfo);
-  virtual void rect repaintRect();
-  Node* node;  //the DOM node
-  RenderStyle* style;  // the computed style
-  RenderLayer* containgLayer; //the containing z-index layer
-}
-```
-
-每一个渲染器都代表了一个矩形的区域，通常对应于相关节点的 CSS 框，这一点在 CSS2 规范中有所描述。它包含诸如宽度、高度和位置等几何信息。 它包含诸如宽度、高度和位置等几何信息。框的类型会受到与节点相关的“display”样式属性的影响。
-
-###### 呈现树和 DOM 树的关系
-
-呈现器是和 DOM 元素相对应的，但并非一一对应。非可视化的 DOM 元素不会插入呈现树中，例如“head”元素。如果元素的 display 属性值为“none”，那么也不会显示在呈现树中（但是 visibility 属性值为“hidden”的元素仍会显示）。
-
-有一些 DOM 元素对应多个可视化对象。它们往往是具有复杂结构的元素，无法用单一的矩形来描述。例如，“select”元素有 3 个呈现器：一个用于显示区域，一个用于下拉列表框，还有一个用于按钮。如果由于宽度不够，文本无法在一行中显示而分为多行，那么新的行也会作为新的呈现器而添加。 
-
-有一些呈现对象对应于 DOM 节点，但在树中所在的位置与 DOM 节点不同。浮动定位和绝对定位的元素就是这样，它们处于正常的流程之外，放置在树中的其他地方，并映射到真正的框架，而放在原位的是占位框架。
-
-![dom-and-render-object.png](./.assets/dom-and-render-object.png)
-
-##### 3. 布局
-
-呈现器在创建完成并添加到呈现树时，并不包含位置和大小信息。计算这些值的过程称为布局或重排。布局为每个节点分配一个应出现在屏幕上的确切坐标。
-
-布局是一个递归的过程。它从根呈现器（对应于 HTML 文档的 `<html>` 元素）开始，然后递归遍历部分或所有的框架层次结构，为每一个需要计算的呈现器计算几何信息。
-
-根呈现器的位置左边是 0,0，其尺寸为视口（也就是浏览器窗口的可见区域）。
-
-所有的呈现器都有一个“layout”或者“reflow”方法，每一个呈现器都会调用其需要进行布局的子代的 layout 方法。
-
-![css-box-model.jpg](./.assets/css-box-model.jpg)
-
-##### 4. 绘制
-
-渲染引擎会遍历渲染树，由用户界面后端层将每个节点绘制出来。
-
-##### 5. 动态变化(重排和重绘)
-
-在发生变化时，浏览器会尽可能做出最小的响应。因此，元素的颜色改变后，只会对该元素进行重绘。元素的位置改变后，只会对该元素及其子元素（可能还有同级元素）进行布局和重绘。添加 DOM 节点后，会对该节点进行布局和重绘。一些重大变化（例如增大“html”元素的字体）会导致缓存无效，使得整个呈现树都会进行重新布局和绘制。
-
-##### 6. 总结
-
-1. 
-2. 渲染引擎会力求尽快将内容显示在屏幕上。它不必等到整个 HTML 文档解析完毕之后，就会开始构建渲染树和设置布局。在不断接收和处理来自网络的其余内容的同时，渲染引擎会将部分内容解析并显示出来。。
-
-
-测试示例
-
-- [render-progressive.html](./examples/render-progressive.html)：测试渲染引擎的渐进式渲染和 JS 阻塞
-
-### JavaScript 引擎
-
-- [how javascript work](https://www.google.com/search?q=how+javascript+work&oq=how+javascript+work) / [javascript 是怎么工作的](https://www.google.com/search?q=javascript+%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84) / [JavaScript 工作原理](https://www.google.com/search?q=JavaScript+%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
-- [原来JavaScript是这样运行的](https://juejin.im/post/5c6a732151882528735f2d33?)
-
-#### JavaScript 特性
-
-- 单线程
-- 非阻塞 I/O
-- 事件驱动
-
-参考文献
-
-- JavaScript
-
-    - [我对 javascript 事件驱动机制的理解](https://juejin.im/post/59e21e8551882578db27c364)
-    - [How JavaScript works in browser and node?](https://itnext.io/how-javascript-works-in-browser-and-node-ab7d0d09ac2f)
-    - [What exactly is an Event-loop?](https://blog.rapid7.com/2016/07/27/what-exactly-is-an-event-loop/)
-    - [Concurrency model and Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop)
-    - [The JavaScript Event Loop: Explained](https://blog.carbonfive.com/2013/10/27/the-javascript-event-loop-explained/)
-    - [第一期：JavaScript单线程与异步](https://cloud.tencent.com/developer/article/1393277)
-
-- Node.js
-
-    - [Node.js十问十答](https://www.jianshu.com/p/936d00cb23d8)
-    - [Node.js的核心概念——单线程，非阻塞，事件驱动](https://github.com/jawil/Node.js/issues/2)
-    - [Nodejs探秘：深入理解单线程实现高并发原理](https://imweb.io/topic/5b6cf97093759a0e51c917c8)
-    - [Node.js 探秘：初识单线程的 Node.js](http://taobaofed.org/blog/2015/10/29/deep-into-node-1/)
-    - [nodejs真的是单线程吗？](https://segmentfault.com/a/1190000014926921)
-    - [Node.js 事件循环机制](https://www.cnblogs.com/onepixel/p/7143769.html)
-    - [Node.js event loop architecture](https://medium.com/preezma/node-js-event-loop-architecture-go-deeper-node-core-c96b4cec7aa4)
-    - [浅谈 Node.js 单线程模型](http://web.jobbole.com/91687/)
-    - [javascript单线程异步与执行机制](https://www.xc123.net/art/detail/39)
-    - [Node.js的事件驱动模型](http://www.edwardesire.com/2015/05/09/nodejs-event-model/)
-
-- [Concurrency VS Event Loop](https://www.google.com/search?newwindow=1&safe=active&ei=ohX9XKmaJZLh-gS4s4TYAg&q=concurrency+vs+event+loop&oq=concurrency+vs+event+loop) / [事件驱动 vs 多线程](https://www.google.com/search?q=%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8+vs+%E5%A4%9A%E7%BA%BF%E7%A8%8B)
-
-    - [阻塞对比非阻塞一览](https://nodejs.org/zh-cn/docs/guides/blocking-vs-non-blocking/)
-    - [并发编程模型：事件驱动 vs 线程](https://zhuanlan.zhihu.com/p/32961438)
-    - [为什么使用多线程在大多数情况下是个坏注意？](http://alexiachen.github.io/blog/2018/03/20/why-threads-bad-idea/)
-    - [事件驱动引擎会取代多线程编程吗](https://cloud.tencent.com/developer/article/1354148)
-    - [What are the differences between event-driven and thread-based server system?](https://stackoverflow.com/questions/25280207/what-are-the-differences-between-event-driven-and-thread-based-server-system)
-    - [What Makes Node.js Faster Than Java?](https://strongloop.com/strongblog/node-js-is-faster-than-java/)
-    - [How Node.Js Single Thread mechanism Work ? Understanding Event Loop in NodeJs](https://codeburst.io/how-node-js-single-thread-mechanism-work-understanding-event-loop-in-nodejs-230f7440b0ea)
-    - [Node.js 软肋之 CPU 密集型任务](https://www.sohamkamani.com/blog/2016/03/14/wrapping-your-head-around-async-programming/)
-    - [Concurrency vs Event Loop vs Event Loop + Concurrency](https://medium.com/@tigranbs/concurrency-vs-event-loop-vs-event-loop-concurrency-eb542ad4067b)
-
-- C10K 问题
-
-    - [C10K问题](https://juejin.im/post/5aeb2da8f265da0b807095bf)
-    - [聊聊C10K问题及解决方案](https://cloud.tencent.com/developer/article/1031629)
-    - [程序员怎么会不知道 C10K 问题呢？](https://medium.com/@chijianqiang/%E7%A8%8B%E5%BA%8F%E5%91%98%E6%80%8E%E4%B9%88%E4%BC%9A%E4%B8%8D%E7%9F%A5%E9%81%93-c10k-%E9%97%AE%E9%A2%98%E5%91%A2-d024cb7880f3)
-    - [Node.js异步处理CPU密集型任务](https://gist.github.com/JacksonTian/11168086)
-
-#### 为什么要单线程？
-
-> JavaScript的单线程，与它的用途有关。作为浏览器脚本语言，JavaScript的主要用途是与用户互动，以及操作DOM。这决定了它只能是单线程，否则会带来很复杂的同步问题。比如，假定JavaScript同时有两个线程，一个线程在某个DOM节点上添加内容，另一个线程删除了这个节点，这时浏览器应该以哪个线程为准？ —— [JavaScript 运行机制详解：再谈Event Loop](http://www.ruanyifeng.com/blog/2014/10/event-loop.html)
-
-
-参考文献
-
-- [Why doesn't JavaScript support multithreading?](https://stackoverflow.com/questions/39879/why-doesnt-javascript-support-multithreading)
-- [Multithreading Javascript](https://medium.com/techtrument/multithreading-javascript-46156179cf9a)
-- [Multi-threading in JavaScript](https://www.sitepoint.com/multi-threading-javascript/)
-- [Why Web Workers Make JavaScript More Than a Single Thread](https://codeburst.io/why-web-workers-make-javascript-more-than-a-single-thread-3d489ffad502)
-- [Concurrency model and Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop)
-- [Parallel programming in JavaScript using Web Workers](https://itnext.io/achieving-parallelism-in-javascript-using-web-workers-8f921f2d26db)
-
-##### 可以使用多线程操作 UI 吗？
-
-如果 UI 组件（无论是浏览器的 DOM 操作还是移动端的 View 操作）是非线程安全的（[什么是线程安全？](https://blog.csdn.net/suifeng3051/article/details/52164267)），假定有两个线程，一个线程在界面修改内容，同时另一个线程删除这个内容，那么以哪个线程结果为准呢？如果实现类似 Java 线程安全的容器，让 UI 组件变得也是线程安全的，那么内部必须存在线程锁机制，但是怎么界定那些 UI 属性能够同时生效呢？而且这样会耗费大量资源并拖慢运行速度。
-
-在 [Thread-Safe Class Design](https://link.juejin.im/?target=https%3A%2F%2Fwww.objc.io%2Fissues%2F2-concurrency%2Fthread-safe-class-design%2F) 一文提到：
-
-> It’s a conscious design decision from Apple’s side to not have UIKit be thread-safe. Making it thread-safe wouldn’t buy you much in terms of performance; it would in fact make many things slower. And the fact that UIKit is tied to the main thread makes it very easy to write concurrent programs and use UIKit. All you have to do is make sure that calls into UIKit are always made on the main thread. —— 大意为把 UIKit 设计成线程安全并不会带来太多的便利，也不会提升太多的性能表现，甚至会因为加锁解锁而耗费大量的时间。事实上并发编程也没有因为 UIKit 是线程不安全而变得困难，我们所需要做的只是要确保 UI 操作在主线程进行就可以了。
-
-##### 其他客户端也是这样的吗？
-
-- Android
-
-    ![android-developer-fundamentals-training-overview.jpg](./.assets/android-developer-fundamentals-training-overview.jpg)
-
-    1. Android 应用启动时，系统会为应用创建一个名为“主线程”的执行线程，它是应用与 Android UI 工具包组件进行交互的线程，因此，主线程有时也称为 UI 线程。
-    2. 系统不会为每个组件实例创建单独的线程，运行于同一进程的所有组件均在 UI 线程中实例化，并且对每个组件的系统调用均由该线程进行分派。
-    3. 除了 UI 主线程外，Android 支持工作线程，用来处理一些复杂的交互计算。但是 Android UI 组件是非线程安全的（什么样才是线程安全呢？类似 Java 线程安全的数据结构 `ConcurrentHashMap`，参考 [如何证明一个数据结构是线程安全的？](https://www.zhihu.com/question/26595480)），不能通过非 UI 线程操作 UI。
-
-        - 不要阻塞 UI 线程 —— 使用工作线程来处理复杂的计算
-        - 不要在 UI 线程之外操作 Android UI 组件
-
-    参考
-
-    - [进程和线程](https://developer.android.com/guide/components/processes-and-threads.html#ThreadSafe)
-    - [Why non UI thread can modify UI?](https://stackoverflow.com/questions/48727254/why-non-ui-thread-can-modify-ui)
-
-- iOS
-
-    - [iOS拾遗——为什么必须在主线程操作UI](https://juejin.im/post/5c406d97e51d4552475fe178)
-
-##### JavaScript 有工作线程吗？
-
-> 为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
-
-现代浏览器都开始支持 [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)，它是独立于 JavaScript 主线程外的后台线程，可以执行任务而不干扰用户界面（也做不到）。
-
-实际应用
-
-- [redux-worker](https://github.com/chikeichan/redux-worker) 是一个 redux 中间件，将 reducer 迁移到 web worker 上运行
-
-    使用 redux + web worker 来解决 [八皇后问题](https://baike.baidu.com/item/%E5%85%AB%E7%9A%87%E5%90%8E%E9%97%AE%E9%A2%98/11053477?fr=aladdin)
-
-- [antimatter15/jsgif](https://github.com/antimatter15/jsgif) 使用 web Worker 来生成 GIF 图，避免主线程卡主
-- [如何使用worker预加载图片](https://juejin.im/post/5a0875fcf265da431f4a8ddc)
-- [What are the use-cases for Web Workers? [closed]](https://stackoverflow.com/questions/2773682/what-are-the-use-cases-for-web-workers)
-- [深入 HTML5 Web Worker 应用实践：多线程编程](https://www.ibm.com/developerworks/cn/web/1112_sunch_webworker/index.html)
-
-#### 单线程怎么解决 I/O 阻塞问题？
-
-单线程就意味着，所有任务需要排队，前一个任务结束，才会执行后一个任务。如果前一个任务耗时很长，后一个任务就不得不一直等着。
-
-而 I/O 操作一般都是比较耗时的（比如 Ajax 操作从网络读取数据），假设 I/O 操作会阻塞 JavaScript 线程（很多前端开发人员理所当然的认为 I/O 就是非阻塞的，然而很多编程语言并不是这样，例如 Java 语言的 I/O 操作就是阻塞线程的），这样便导致 Web 页面卡主。
-
-为了避免 I/O 阻塞主线程，JavaScript 语言的设计者将 I/O 操作都交给非主线程处理，调用 I/O 操作的时候只要给个回调函数，其他工作线程处理完 I/O 操作后在将处理结果传给回调函数，而主线程不需要等待 I/O 操作就可以继续处理下个一个任务。
-
-ps：
-
-JavaScript 所有 I/O 都是非阻塞的吗？
-
-答案：否。[XMLHttp​Request​](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/open#Parameters) 也支持同步调用，window.alert 也是同步的。—— 参考示例 [javascript-io-block.html](./.assets/javascript-io-block.html)
-
-[![Edit javascript-io-block](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/javascript-io-block-pccsj?fontsize=14)
-
-#### JavaScript 主线程工作原理
-
-![JavaScript 主线程工作原理](./.assets/javascript-main-thread.webp)
-
-ps: 从左到右，从上倒下分析各个部分。
-
-- Call Stack：调用栈（后进先出），即 JavaScript 代码执行的地方，Chrome 和 NodeJS 中对应 V8 引擎。当它执行完当前所有任务时，栈为空，等待接收 Event Loop 中 next Tick 的任务。
-
-    - [[译] 理解 JavaScript 中的执行上下文和执行栈](https://juejin.im/post/5ba32171f265da0ab719a6d7)
-    - [Stack的三种含义](http://www.ruanyifeng.com/blog/2013/11/stack.html)
-    - [什么是堆？什么是栈？他们之间有什么区别和联系？](https://www.zhihu.com/question/19729973)
-    - [Stack vs Heap. What’s the difference and why should I care?](https://medium.com/@nickteixeira/stack-vs-heap-whats-the-difference-and-why-should-i-care-5abc78da1a88)
-    - [What and where are the stack and heap?](https://stackoverflow.com/questions/79923/what-and-where-are-the-stack-and-heap)
-    - [Microtask and Macrotask: A Hands-on Approach](https://blog.bitsrc.io/microtask-and-macrotask-a-hands-on-approach-5d77050e2168)
-    - [Microtasks & Macrotasks — More On The Event Loop](https://abc.danch.me/microtasks-macrotasks-more-on-the-event-loop-881557d7af6f)
-    - [Tasks, microtasks, queues and schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
-
-- Browser APIs：这是连接 JavaScript 代码和浏览器内部的桥梁，使得 JavaScript 代码可以通过 Browser APIs 操作 DOM，调用 setTimeout，AJAX 等。
-- Job queue: 这是预留给 promise 且优先级较高的通道，代表着“稍后执行这段代码，但是在 next Event Loop tick 之前执行”（它属于 ES 规范）。
-
-    - [macrotask与microtask](http://www.ayqy.net/blog/javascript-macrotask-vs-microtask/)
-    - [45.理解事件循环二(macrotask和microtask)](https://github.com/ccforward/cc/issues/48)
-    - [Microtasks and event loop](https://javascript.info/microtask-queue)
-    - [理解 JavaScript 中的 macrotask 和 microtask](https://juejin.im/entry/58d4df3b5c497d0057eb99ff)
-    - [HTML系列：macrotask和microtask](https://zhuanlan.zhihu.com/p/24460769)
-    - [Javascript中的Microtask和Macrotask——从一道很少有人能答对的题目说起](https://www.cnblogs.com/xuning/p/8117581.html)
-    - [Javascript 基础夯实——理解 Event Loop、Micro Task & Macro Task](https://zhuanlan.zhihu.com/p/28051505)
-    - [Difference between microtask and macrotask within an event loop context](https://stackoverflow.com/questions/25915634/difference-between-microtask-and-macrotask-within-an-event-loop-context)
-
-    [micro-and-macro-task1.html](./examples/micro-and-macro-task1.html)
-
-    [micro-and-macro-task2.html](./examples/micro-and-macro-task2.html)
-
-- Event queue: 每次通过 AJAX 或者 setTimeout 添加一个异步回调时，（事件触发时）回调函数一般会加入到 Event queue 当中。
-
-    测试示例：
-
-    - [render-queue.html](./examples/render-queue.html)
-    - [render-queue-flush.html](./examples/render-queue-flush.html)
-
-- Render Queue：浏览器渲染引擎有批量刷新机制，JavaScript 操作 DOM 不一定会立刻触发重排和重绘，在每一次 Event Loop 中操作 DOM 都会往 Render Queue 里加入渲染更新操作，然后等到当前 Event Loop 执行完 Job Queue 里的所有任务后就开始重排和重绘。
-- Event Loop: 它会“监视”（轮询）call stack 是否为空，call stack 为空时将会由 Event Loop 推送 next tick 中的任务到 call stack 中。
-
-    - [浏览器与Node的事件循环(Event Loop)有何区别?](https://juejin.im/post/5c337ae06fb9a049bc4cd218)
-
-- Next Tick: 表示调用栈 call stack 在下一 tick 将要执行的任务。它由一个 Event queue 中的回调，全部的 job queue，部分或者全部 render queue 组成。注意 current tick 只会在 Job queue 为空时才会进入 next tick。这就涉及到 task 优先级了，可能大家对于 microtask 和 macrotask 更加熟悉，这里不再展开。
-
-有哪些线程
-
-- UI 线程
-- JavaScript 线程
-- 浏览器事件触发线程
-- 定时触发器线程
-- 异步 HTTP 请求线程
-- Code Parser Thead：代码编译线程
-- Statistic Collector Thead：统计收集线程
-- Optimistic Thread：优化线程
-- Garbage Collector Thread：垃圾回收线程
-- Rasterizer Thread：光栅线程
-
-总结：
-
-在浏览器主线程中，JavaScript 代码在调用栈 call stack 执行时，可能会调用浏览器的 API，对 DOM 进行操作。也可能执行一些异步任务：这些异步任务如果是以回调的方式处理，那么往往会被添加到 Event queue 当中；如果是以 promise 处理，就会先放到 Job queue 当中。这些异步任务和渲染任务将会在下一个时序当中由调用栈处理执行。具体参考测试示例 [browser-event-log](./examples/browser-event-log.html) 的浏览器事件日志。
-
-思考：
-
-如果调用栈 call stack 运行一个很耗时的脚本，比如解析一个图片，那么 call stack 会被这个复杂任务堵塞。主线程其他任务都要排队，进而阻塞 UI 响应。这时候用户点击、输入、页面动画等都没有了响应。我们一般有两种方案突破上文提到的瓶颈：
-
-1. 将耗时高、成本高、易阻塞的长任务切片，分成子任务，并异步执行
-
-    - [time-slicing](https://github.com/berwin/time-slicing)
-    - [Scheduling Tasks in JavaScript Using setTimeout & setInterval](https://alligator.io/js/settimeout-setinterval/)
-    - [Scheduling in React](https://philippspiess.com/scheduling-in-react/)
-    - https://github.com/bunkat/schedule
-    - [JavaScript Sleep: Scheduling Tasks Asynchronously](https://blog.udemy.com/sleep-javascript/)
-
-2. 另外一个创新性的做法：使用 HTML5 Web worker
-
-参考文献
-
-- [JavaScript 运行机制详解：再谈Event Loop](http://www.ruanyifeng.com/blog/2014/10/event-loop.html) / [什么是 Event Loop？](http://www.ruanyifeng.com/blog/2013/10/event_loop.html)
-- [Which code will run on the browser's main thread?](https://stackoverflow.com/questions/25755089/which-code-will-run-on-the-browsers-main-thread)
-- [How is Javascript single threaded](https://stackoverflow.com/questions/21718774/how-is-javascript-single-threaded)
-- [How JavaScript works: an overview of the engine, the runtime, and the call stack](https://blog.sessionstack.com/how-does-javascript-actually-work-part-1-b0bacc073cf)
-- [Basics of understanding Chrome’s V8 Engine](https://medium.com/@duartekevin91/basics-of-understanding-chromes-v8-engine-c5c8ec61fa6b)
-- [How is javascript asynchronous AND single threaded? ](https://www.sohamkamani.com/blog/2016/03/14/wrapping-your-head-around-async-programming/)
-- [Is JavaScript guaranteed to be single-threaded?](https://stackoverflow.com/questions/2734025/is-javascript-guaranteed-to-be-single-threaded)
-- [怎么看待朴灵评注阮一峰老师的最新文章这件事？](https://www.zhihu.com/question/26038323)
-
-    [【朴灵评注】JavaScript 运行机制详解：再谈Event Loop](https://blog.csdn.net/lin_credible/article/details/40143961)
-
-- [JavaScript main thread. Dissected. 🔬](https://medium.com/@francesco_rizzi/javascript-main-thread-dissected-43c85fce7e23)
-- [javascript 引擎](https://www.google.com/search?q=javascript+%E5%BC%95%E6%93%8E&oq=javascript+%E5%BC%95%E6%93%8E)
-- [主流浏览器内核及JS引擎](https://juejin.im/post/5ada727c518825670b33a584)
-- [javascript引擎工作原理的初步了解](https://segmentfault.com/a/1190000014242281)
-- [浅读V8——强大的JavaScript引擎](https://www.jianshu.com/p/332c15fd7c7d)
-- [浏览器内核和javascript引擎](https://www.jianshu.com/p/e22cbcc357c2)
-- [JavaScript引擎](https://zh.wikipedia.org/wiki/JavaScript%E5%BC%95%E6%93%8E)
-- [一篇给小白看的 JavaScript 引擎指南](http://web.jobbole.com/84351/)
-- [JavaScript引擎 V8 的前世今生](https://juejin.im/entry/5ba36c146fb9a05d1b2e507a)
-- [JavaScript引擎、虚拟机、运行时环境是一回事儿吗？](https://www.zhihu.com/question/39499036)
-- [Java​Script timers](https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Code_snippets/Timers)
-
-    - [window​.set​Timeout](https://developer.mozilla.org/ro/docs/Web/API/window.setTimeout)
-    - [window​.set​Interval](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval)
-    - [window.set​Immediate()](https://developer.mozilla.org/en-US/docs/Web/API/Window/setImmediate)
-    - [window​.request​Idle​Callback()](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback)
-    - [window.requestAnimationFrame()](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame)
-
-### 总结
-
-1. 为什么说 Web 应用的性能比原生应用的性能差？
+ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias/Front-End-Performance-Checklist) 基础上完善和实践前端性能优化。
 
 ## 加载优化
 
-- [HTML5 FEATURES PERFORMANCE](https://www.html5rocks.com/en/features/performance)
-- [Client side performance](http://taligarsiel.com/ClientSidePerformance.html)
+- [Load Performance](https://developers.google.com/web/fundamentals/performance/get-started/)
+- [Web Performance Best Practices](https://developers.google.com/speed/docs/best-practices/rules_intro)
+- [Web Performance Tutorials](https://developers.google.com/speed/articles/)
+- [Text Compression for Web Developers](https://www.html5rocks.com/en/tutorials/speed/txt-compression/)
+- [Faster Websites: Crash Course on Web Performance](http://www.igvita.com/2013/01/15/faster-websites-crash-course-on-web-performance/)
+- [Automating Performance Best Practices with PageSpeed](https://www.youtube.com/watch?v=uR5urTx8S4E)
+- [Network Performance](https://www.html5rocks.com/en/features/performance#NetworkPerformance)
+- [Page Weight Doesn't Matter](https://www.speedshop.co/2015/11/05/page-weight-doesnt-matter.html)
+- [Optimizing Application Delivery](https://hpbn.co/optimizing-application-delivery/)
+- [Ultimate Guide to Browser Hints: Preload, Prefetch, and Preconnect - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/guide-to-browser-hints-preload-preconnect-prefetch/)
+
+### HTML
+
+#### 压缩 HTML
+
+- 做什么：HTML代码压缩，将注释、空格和新行从生产文件中删除。
+- 为什么：删除所有不必要的空格、注释和中断行将减少HTML的大小，加快网站的页面加载时间，并显著减少用户的下载时间。
+- 怎么做：大多数框架都有插件用来压缩网页的体积。你可以使用一组可以自动完成工作的 NPM 模块。
+
+    - 在线工具：适合临时处理
+
+        - [HTML Minifier - kangax](https://kangax.github.io/html-minifier/)
+        - [HTML Minifier from Will Peavy](https://www.willpeavy.com/tools/minifier/)
+        - [HTML Minifier from Minify Code](http://minifycode.com/html-minifier/)
+        - [HTML Compressor](http://htmlcompressor.com/)
+
+        ps：推荐使用 Kangax 开发的 HTML Minifier，可以实现更加智能的压缩，压缩对比可以参考 [Minification Comparison](https://github.com/kangax/html-minifier#minification-comparison)。
+
+    - Webpack
+
+        - [html-webpack-plugin minify](https://github.com/jantimon/html-webpack-plugin#options)：单页应用项目通常使用 html-webpack-plugin 来生成包含打包资源的 HTML 文件，这里建议在生产环境开启 minify
+        - [html-minifier-webpack-plugin](https://www.npmjs.com/package/html-minifier-webpack-plugin)：使用
+        - [html-minifier-loader](https://www.npmjs.com/package/html-minifier-loader)：模块引用了 HTML 模块时可以使用加载器 html-minifier-loader 来压缩 HTML 模板
+
+- 参考文献
+
+    - [Optimizing HTML](http://perfectionkills.com/optimizing-html/)
+    - [Experimenting with HTML minifier](http://perfectionkills.com/experimenting-with-html-minifier)
+
+#### 删除不必要的属性
+
+- 做什么：像 `type="text/javascript"` or `type="text/css"` 这样的属性应该被移除。
+- 为什么：类型属性不是必需的，因为 HTML5 把 `text/css` 和 `text/javascript` 作为默认值。没用的代码应在网站或应用程序中删除，因为它们会使网页体积增大。
+- 怎么做：确保所有 `style` 和 `<script>` 标记都没有任何type属性。
+
+    ps：使用上面提到的压缩工具 [HTML Minifier - kangax](https://kangax.github.io/html-minifier/) 可以自动删除不必要的属性。
+
+- 参考文献
+
+    - [The Script Tag](https://css-tricks.com/the-script-tag/)
+
+#### 在 JavaScript 引用之前引用 CSS 标记
+
+- 做什么：确保在使用 JavaScript 代码之前加载 CSS。
+- 为什么：在引用 JavaScript 之前引用 CSS 可以实现更好地并行下载，从而加快浏览器的渲染速度。
+- 怎么做：
+
+    ```html
+    <!-- 不推荐 -->
+    <script src="jquery.js"></script>
+    <script src="foo.js"></script>
+    <link rel="stylesheet" href="foo.css"/>
+
+    <!-- 推荐 -->
+    <link rel="stylesheet" href="foo.css"/>
+    <script src="jquery.js"></script>
+    <script src="foo.js"></script>
+    ```
+
+    确保 `<link>` 和 `<style>` 始终位于 `<script>` 之前。
+
+- 参考文献
+
+    - [CSS and javascript order](https://varvy.com/pagespeed/style-script-order.html)
+
+#### 最小化 iframe 的数量
+
+仅在没有任何其他技术可行性时才使用 iframe，否则尽量避免使用 iframe。
+
+#### DNS 预解析
+
+一次 DNS 查询时间大概在 60-120ms 之间或者更长，提前解析网页中可能的网络连接域名。
+
+```html
+<meta http-equiv="x-dns-prefetch-control" content="on">
+<link rel="dns-prefetch" href="//example.com/">
+```
+
+参考文献
+
+- [Can I use... `dns-prefetch`](https://caniuse.com/#feat=link-rel-dns-prefetch)
+- [X-DNS-Prefetch-Control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control)
+- [DNS Prefetching](http://dev.chromium.org/developers/design-documents/dns-prefetching)
+- [DNS Prefetching for Firefox](http://bitsup.blogspot.com/2008/11/dns-prefetching-for-firefox.html)
+- [Prerender and prefetch support](https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/dev-guides/dn265039(v=vs.85))
+
+### CSS
+
+#### 压缩 CSS
+
+- 做什么：所有 CSS 文件都需要被压缩，从生产文件中删除注释，空格和空行。
+- 为什么：缩小 CSS 文件后，内容加载速度更快，并且将更少的数据发送到客户端，所以在生产中缩小 CSS 文件是非常重要，这对用户是有益的，就像任何企业想要降低带宽成本和降低资源。
+- 怎么做：使用工具在构建或部署之前自动压缩文件。
+
+    - [cssnano](https://cssnano.co/)：基于 PostCSS 生态系统的模块化压缩工具。
+    - [CSS minifier from Minify Code](http://minifycode.com/css-minifier/)
+    - [Online CSS Compressor](http://refresh-sf.com/)
+    - [Preload: What Is It Good For?](https://www.smashingmagazine.com/2016/02/preload-what-is-it-good-for/)
+
+#### 合并 CSS
+
+- 做什么：CSS 文件合并（对于 HTTP/2 效果不是很大）。
+- 为什么：如果你还在使用 HTTP/1，那么你就需要合并你的文件。不过在使用 HTTP/2 的情况下不用这样（效果待测试）。
+- 怎么做：在构建或部署之前使用在线工具或者其他插件来合并文件。当然，要确保合并文件后项目可以正常运行。
+
+#### 非阻塞
+
+- 做什么：非关键的 CSS 文件需要非阻塞引入，以防止 DOM 花费更多时间才能渲染完成。
+- 为什么：非关键的 CSS 文件会阻止页面加载并延迟页面呈现。使用了 preload，可以在浏览器开始显示页面内容之前加载 CSS 文件。
+- 怎么做：需要添加 `rel` 属性并赋值 `preload`，并在 `<link>` 元素上添加 `as=“style”`。
+
+    ```html
+    <link rel="preload" href="global.min.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="global.min.css"></noscript>
+    ```
+
+    ps：一定要是非关键的 CSS 文件（即不是首屏页面的样式）才可以这么做。
+
+- 参考文献：
+
+    - [loadCSS by filament group](https://github.com/filamentgroup/loadCSS)
+    - [Preload CSS - Not blocking CSS.html](https://gist.github.com/thedaviddias/c24763b82b9991e53928e66a0bafc9bf)
+    - [Preloading content with rel="preload"](https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content)
+    - [移除会阻止内容呈现的 JavaScript](https://developers.google.com/speed/docs/insights/BlockingJS)
+
+#### CSS 类名的长度
+
+- 做什么：class 的长度会对 HTML 和 CSS 文件产生（轻微）影响。
+- 为什么：更长的 CSS class 命名会导致 HTML 和 CSS 文件体积变得更大，如果使用BEM，在某些情况下可能会写出比所需要的类名更长的字符。
+- 怎么做：使用 [CSS Module](https://github.com/css-modules/css-modules) 来动态生成 CSS class 名称，既可以避免 CSS 全局命名空间的命名冲突问题，又可以在生产环境给每个类名生成五六个字符的 hash 值，缩减了不少 CSS 文件体积。
+
+#### 不用的 CSS
+
+- 做什么：删除未使用的 CSS 选择器。
+- 为什么：删除未使用的 CSS 选择器可以减小文件的大小，提高资源的加载速度。
+- 怎么做：借助一些工具来检测没有使用到的 CSS
+
+    - 在线工具
+
+        - [UnCSS Online](https://uncss-online.com/)
+
+    - 自动化工具
+
+        - [PurifyCSS](https://github.com/purifycss/purifycss) | [purifycss-webpack](https://github.com/webpack-contrib/purifycss-webpack)
+        - [purgecss](https://github.com/FullHuman/purgecss) | [purgecss-webpack-plugin](https://github.com/FullHuman/purgecss-webpack-plugin)
+
+    - 调试工具
+
+        - [Chrome DevTools Coverage](https://developers.google.com/web/updates/2017/04/devtools-release-notes#coverage)
+
+            [chrome-coverage.jpg](./assets/chrome-coverage.jpg)
+
+
+#### 关键 CSS
+
+- 做什么：将页面渲染时必备的 CSS 通过 `<style></style>` 的方式内联到页面中（尽可能压缩后引用）。
+- 为什么：内联关键CSS有助于加速网页的呈现，减少对服务器的请求数量。
+
+    ps：百度，谷歌等网站的首页都是这么做的！
+
+- 怎么做：使用在线工具或使用 Addy Osmani 开发的插件生成关键CSS。
+
+    - [addyosmani/critical](https://github.com/addyosmani/critical)
+    - [html-critical-webpack-plugin](https://github.com/anthonygore/html-critical-webpack-plugin)
+    - [webpack-plugin-critical](https://github.com/nrwl/webpack-plugin-critical)
+
+- 参考文献：
+
+    - [Understanding Critical CSS](https://www.smashingmagazine.com/2015/08/understanding-critical-css/)
+    - [Inlining critical CSS for better web performance | Go Make Things](https://gomakethings.com/inlining-critical-css-for-better-web-performance/)
+    - [Critical Path CSS Generator](https://www.sitelocity.com/critical-path-css-generator)
+    - [Reduce the size of the above-the-fold content](https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent)
+
+####  嵌入或内联 CSS
+
+- 做什么：避免在 `<body>` 中使用嵌入或内联CSS
+- 为什么：因为将内容与设计分开是一种很好的做法。它还可以提高代码的可维护性并使站点可访问性更强。对于性能来说，它只是减少了 HTML 页面的文件大小和加载时间。
+- 怎么做：始终使用外部样式表或在中嵌入 CSS（并遵循其他 CSS 性能规则）。
+- 参考文献：[Avoid Inline Styles for CSS Design](https://www.lifewire.com/avoid-inline-styles-for-css-3466846)
+
+#### 分析样式表的复杂性
+
+- 做什么：分析样式表有助于发现有问题的、冗余和重复的 CSS 选择器。
+- 为什么：有时在 CSS 中会出现冗余或错误代码，分析 CSS 文件并删除这些复杂性的代码可以加速 CSS 文件的读取和加载。
+- 怎么做：CSS 需要有编写规范，再通过 CSS 预处理器处理。
+
+    - [TestMyCSS](http://www.testmycss.com/) / [analyze-css](https://github.com/macbre/analyze-css)：优化和检查 CSS 性能
+    - [CSS Stats](https://cssstats.com/)
+    - [ Project Wallace](https://www.projectwallace.com/)
+
+### JavaScript
+
+#### 压缩 JS
+
+- 做什么：所有JavaScript文件都要被压缩，生产环境中删除注释、空格和空行。
+- 为什么：删除所有不必要的空格、注释和空行将减少JavaScript文件的大小，并加快网站的页面加载时间，提升用户体验。
+- 怎么做：建议使用下面的工具在构建或部署之前自动缩小文件。
+
+    - [UglifyJS 3](https://www.npmjs.com/package/uglify-js) | [uglifyjs-webpack-plugin](https://github.com/webpack-contrib/uglifyjs-webpack-plugin)
+    - [Online JavaScript Compressor](http://refresh-sf.com/)
+
+- 参考文献：
+
+    - [Short read: How is HTTP/2 different? Should we still minify and concatenate?](https://scaleyourcode.com/blog/article/28)
+
+#### 不内嵌 JavaScript
+
+- 做什么：避免在 body 中间嵌入多个 JavaScript 代码，将 JavaScript 代码重新集中到外部文件中，放在或页面末尾（之前）。
+- 为什么：将 JavaScript 嵌入代码直接放在中可能会降低页面速度，因为它在构建 DOM 时会加载。最好的选择是使用 async 或 defer 的外部文件来避免阻塞 DOM 渲染。另一种选择是在 `<head>` 中放置一些脚本，这些脚本大多数时候是需要在 DOM 进入主处理之前加载的分析代码或小脚本。
+- 怎么做：确保使用 `async` 或 `defer` 加载所有 JavaScript 文件，并准确地在中加载代码。
+- 参考文献：[11 Tips to Optimize JavaScript And Improve Website Loading and Rendering Speeds](https://www.upwork.com/hiring/development/11-tips-to-optimize-javascript-and-improve-website-loading-speeds/)
+
+#### 非阻塞 JavaScript
+
+- 做什么：使用 defer 属性或使用 async 来异步加载 JavaScript 文件。
+- 为什么：JavaScript 阻止 HTML 文档的正常解析，因此当解析器到达 `<script>` 标记时，它会停止解析并且执行脚本。如果您的脚本位于页面顶部，则强烈建议添加 `async` 和 `defer`，但如果在标记 `</body>` 之前加载，没有太大影响。但是，使用这些属性来避免性能问题是一种很好的做法。
+- 怎么做：添加 `async`（如果脚本不依赖于其他脚本）或 `defer`（如果脚本依赖或依赖于异步脚本）作为 `script` 脚本标记的属性。如果有小脚本，可以在异步脚本上方使用内联脚本。
+- 参考文献：
+
+    - [Remove Render-Blocking JavaScript](https://developers.google.com/speed/docs/insights/BlockingJS)
+    - [Defer loading JavaScript](https://varvy.com/pagespeed/defer-loading-javascript.html)
+
+#### 优化和更新的 JS 库
+
+- 做什么：保证项目中使用的所有 JavaScript 库都是有用到的(推荐使用原生 JS 的简单功能)并更新到最新版本
+- 为什么：大多数情况下，新版本都带有优化和安全性修复，所以应该使用最优化的代码来优化项目。
+- 怎么做：如果项目使用NPM管理依赖包，[npm-check](https://www.npmjs.com/package/npm-check) 是一个非常有用的库来升级/更新你的库。。
+- 参考文献：
+
+    - [You may not need jQuery](http://youmightnotneedjquery.com/)
+    - [Vanilla JavaScript for building powerful web applications](https://plainjs.com/)
+
+#### 检查依赖项大小限制
+
+- 做什么：确保使用最优的外部库，大多数情况下，可以使用更轻的库来实现相同的功能。
+- 为什么：你可能想使用 npm 中 745000 个包中的一个，但你需要选择最适合项目需求的包。例如，MomentJS 是一个很棒的库，但是你可能永远不会使用其中的很多方法，这就是为什么创建 Day.js 的原因。瞬间大小从 16.4kB 到 2kB。
+- 怎么做：
+
+    - 始终比较并选择最适合您需求的轻型库,可以使用 [npm trends](http://www.npmtrends.com/) 等工具来比较 NPM 包下载次数或 [Bundlephobia](https://bundlephobia.com/) 以了解依赖项的大小。
+
+        - [Moment](https://bundlephobia.com/result?p=moment)
+        - [date-fns vs dayjs vs luxon vs moment](https://www.npmtrends.com/date-fns-vs-dayjs-vs-luxon-vs-moment)
+    
+    - 使用自动化工具分析项目的依赖大小
+
+        - [ai/size-limit: Prevent JS libraries bloat. If you accidentally add a massive dependency, Size Limit will throw an error.](https://github.com/ai/size-limit)
+
+            [Size Limit: Make the Web lighter — Martian Chronicles, Evil Martians’ team blog](https://evilmartians.com/chronicles/size-limit-make-the-web-lighter)
+
+        - [webpack-bundle-analyzer - npm](https://www.npmjs.com/package/webpack-bundle-analyzer)
+
+#### Service Workers
+
+- 做什么：在 PWA 中使用 Service Workers 来缓存数据或执行可能繁重的任务，而不影响应用程序的用户体验。
+- 参考文献
+
+    - [Service Workers: an Introduction](https://developers.google.com/web/fundamentals/primers/service-workers/)
+    - [Measuring the Real-world Performance Impact of Service Workers](https://developers.google.com/web/showcase/2016/service-worker-perf)
+    - [book What Are Service Workers and How They Help Improve Performance](https://www.keycdn.com/blog/service-workers/)
+    - [book How does a service worker work? - YouTube](https://www.youtube.com/watch?v=__xAtWgfzvc)
+
+#### 使用 tree shaking 技术减少 js 大小
+
+- 做什么：通过构建工具分析 JavaScript 代码并移除生产环境中用不到的 js 模块或方法
+- 参考文献：
+
+    - [Reduce JavaScript Payloads with Tree Shaking](https://developers.google.com/web/fundamentals/performance/optimizing-javascript/tree-shaking/)
+
+#### 使用 code splitting 分包加载 js
+
+- 做什么：通过分包加载，减少首次加载所需时间
+- 怎么做：
+
+    - Vendor splitting：根据库文件拆分模块，例如 React 或 lodash 单独打包成一个文件
+    - Entry point splitting：根据入口拆分模块，例如通过多页应用入口或者单页应用路由进行拆分
+    - Dynamic splitting：根据动态加载拆分模块，使用动态加载语法 import() ，实现模块按需加载
+
+### 字体
+
+#### Webfont 格式
+
+- 做什么：在你的网站或者应用使用 WOFF2 格式字体。
+- 为什么：根据 Google 的说法，WOFF 2.0 Web 字体压缩格式平均比 WOFF 1.0 高 30％ 的增益。一个较好的做法是使用 WOFF 2.0 作为主要字体，WOFF 1.0 和 TTF 格式字体作为备选。
+
+    ps：可以查看 [Boottrap](https://unpkg.com/bootstrap@3.4.1/dist/fonts/) 的字体大小作为参考。
+
+- 怎么做：在购买新字体之前应先检查提供商是否提供了 WOFF2 格式。如果使用的是免费字体，则可以始终使用 [Font Squirrel](https://www.fontsquirrel.com) 生成所需格式的字体。
+- 参考文献：
+
+    - [WOFF 2.0 – Learn more about the next generation Web Font Format and convert TTF to WOFF2](https://gist.github.com/sergejmueller/cf6b4f2133bcb3e2f64a)
+    - [Can I use... WOFF2](https://caniuse.com/#feat=woff2)
+    - [IcoMoon App - Icon Font, SVG, PDF & PNG Generator](https://icomoon.io/app/)
+    - [Using @font-face | CSS-Tricks](https://css-tricks.com/snippets/css/using-font-face/?ref=frontendchecklist)
+
+#### 使用 preconnect 可以更快地加载字体
+
+- 做什么：
+
+    `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`
+
+- 为什么：当你浏览网站时，设备需要获取网站所在的位置以及需要连接的服务器。浏览器必须连接 DNS 服务器并等待查找完成后再获取资源（字体，CSS文件...），prefetche 和 preconnect 允许浏览器在空闲时进行上面的操作，在真实请求时就不需要再花时间去做一系列动作。这带来了性能的提升，因为当浏览器使用字体信息解析 CSS 文件并切从服务器请求字体文件时，它已经预先解析了 DNS 信息并且在其连接池中准备好与服务器的开放连接。
+- 参考文献：
+
+    - [Faster Google Fonts with Preconnect - CDN Planet](https://www.cdnplanet.com/blog/faster-google-webfonts-preconnect/)
+    - [Make Your Site Faster with Preconnect Hints | Viget](https://www.viget.com/articles/make-your-site-faster-with-preconnect-hints/)
+    - [Ultimate Guide to Browser Hints: Preload, Prefetch, and Preconnect - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/guide-to-browser-hints-preload-preconnect-prefetch/)
+    - [A Comprehensive Guide to Font Loading Strategies—zachleat.com](https://www.zachleat.com/web/comprehensive-webfonts/#font-face)
+    - [typekit/webfontloader: Web Font Loader gives you added control when using linked fonts via @font-face.](https://github.com/typekit/webfontloader)
+
+### 图片
+
 - [Image Compression for Web Developers](https://www.html5rocks.com/en/tutorials/speed/img-compression/)
-- [Best Practices for a Faster Web App with HTML5](https://www.html5rocks.com/en/tutorials/speed/quick/)
+
+#### 图像优化
+
+- 做什么：在保证压缩后的图片符合产品要求的情况下将图像进行优化。
+- 为什么：优化的图像在浏览器中加载速度更快，消耗的数据更少。
+- 怎么做：
+
+    - 尽可能尝试使用 CSS3 效果（而不是用小图像替代）；
+    - 尽可能使用字体图标；
+    - 使用 SVG；
+    - 使用编译工具并指定 85 以下的级别压缩。
+
+        - [TinyPNG – Compress PNG images intelligently](https://tinypng.com/)
+        - [TinyJPG – Compress JPEG images intelligently](https://tinyjpg.com/)
+        - [Kraken.io - Online Image Optimizer](https://kraken.io/web-interface)
+        - [Compressor.io - optimize and compress JPEG photos and PNG images](https://compressor.io/compress)
+        - [SVGOMG - Optimize SVG vector graphics files](https://jakearchibald.github.io/svgomg/)
+
+    - 使用测试工具自动化分析网站图片
+
+         - [Website Speed Test Image Analysis Tool](https://webspeedtest.cloudinary.com/)
+
+- 参考文献
+
+    - [Image Optimization | Web Fundamentals | Google Developers](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization)
+    - [Essential Image Optimization - An eBook by Addy Osmani](https://images.guide/)
+
+#### 图像格式
+
+- 做什么：适当选择图像格式。
+- 为什么：确保图片不会减慢网站速度
+- 怎么做：使用测试工具 [Lighthouse](https://developers.google.com/web/tools/lighthouse/) 或 [Website Speed Test Image Analysis Tool](https://webspeedtest.cloudinary.com/) 识别哪些图像可以使用下一代图片格式（如 WebP）。比较不同的格式，有时使用 PNG8 比 PNG16 好，有时候不是。
+- 参考文献：
+
+    - [Serve Images in Next-Gen Formats](https://developers.google.com/web/tools/lighthouse/audits/webp)
+    - [What Is the Right Image Format for Your Website? — SitePoint](https://www.sitepoint.com/what-is-the-right-image-format-for-your-website/)
+    - [PNG8 - The Clear Winner — SitePoint](https://www.sitepoint.com/png8-the-clear-winner/)
+    - [8-bit vs 16-bit - What Color Depth You Should Use And Why It Matters - DIY Photography](https://www.diyphotography.net/8-bit-vs-16-bit-color-depth-use-matters/)
+    - [Choosing the Best Image Format in 2019: WebP, SVG Vs. Everyone](https://spyrestudios.com/best-image-format-2019-webp-svg-vs-everyone/)
+    - [When to Use JPG, PNG, GIF, SVG or WebP as Your Image Format](https://techstacker.com/gif-jpg-gif-svg-webp-which-one-to-use/ZAwv8mukZPYP2waYm)
+
+#### 使用矢量图像 VS 栅格/位图
+
+- 做什么：可以的话，推荐使用矢量图像而不是位图图像
+- 为什么：矢量图像（SVG）往往比图像小，具有响应性和完美缩放功能。而且这些图像可以通过 CSS 进行动画和修改操作。
+- 参考文献：
+
+    - [Inline SVG vs Icon Fonts](https://css-tricks.com/icon-fonts-vs-svg/)
+    - [Death to Icon Fonts](https://speakerdeck.com/ninjanails/death-to-icon-fonts)
+    - [SVG vs Image, SVG vs Iconfont](https://aotu.io/notes/2018/11/23/SVG_vs_Image_vs_iconfont/index.html)
+    - [为什么使用 SVG 可以提升网页性能和体验](https://hacpai.com/article/1464879728790)
+    - [Web 设计新趋势: 使用 SVG 代替 Web Icon Font](https://io-meter.com/2014/07/20/replace-icon-fonts-with-svg/)
+    - [为什么这些大公司没有将SVG图标应用在移动端？（非icon-font）](https://www.zhihu.com/question/26865508)
+    - [基于svg-sprite的svg icon方案实践](http://tech.lede.com/2018/03/27/fe/svg-icon/)
+
+#### 图像尺寸
+
+- 做什么：如果已知最终渲染图像大小，请在上设置宽度和高度属性。
+- 为什么：如果设置了高度和宽度，则在加载页面时会保留图像所需的空间。如果没有这些属性，浏览器就不知道图像的大小，也无法为其保留适当的空间，导致页面布局在加载期间发生变化。
+
+#### 避免使用 Base64 图像
+
+- 做什么：你可以将微小图像转换为base64，但实际上并不是最佳实践。
+- 为什么：
+
+    - [Base64 Encoding & Performance, Part 1 and 2 by Harry Roberts](https://csswizardry.com/2017/02/base64-encoding-and-performance/)
+    - [A closer look at Base64 image performance – The Page Not Found Blog](http://www.andygup.net/a-closer-look-at-base64-image-performance/)
+    - [When to base64 encode images (and when not to) | David Calhoun](https://www.davidbcalhoun.com/2011/when-to-base64-encode-images-and-when-not-to/)
+    - [Base64 encoding images for faster pages | Performance and seo factors](https://varvy.com/pagespeed/base64-images.html)
+
+#### 懒加载
+
+- 做什么：图像懒加载
+- 为什么：它能改善当前页面的响应时间，避免加载一些用户可能不需要或不必要的图像。
+- 怎么做：
+
+    - 使用 Lighthouse 可以识别当前屏幕外的图像数量；
+    - 要确保图片懒加载时鼠标悬停或其他用户操作时显示的替代图像；
+    - 可以使用以下图像懒加载的JavaScript插件。
+
+        - [verlok/lazyload: Github](https://github.com/verlok/lazyload)
+        - [Lazy Loading Images and Video](https://developers.google.com/web/fundamentals/performance/lazy-loading-guidance/images-and-video/)
+        - [5 Brilliant Ways to Lazy Load Images For Faster Page Loads - Dynamic Drive Blog](http://blog.dynamicdrive.com/5-brilliant-ways-to-lazy-load-images-for-faster-page-loads/)
+
+#### 响应式图像
+
+- 做什么：确保提供接近设备显示尺寸的图像。
+- 为什么：小型设备不需要比视口大的图像。建议在不同尺寸上使用一个图像的多个版本。
+- 怎么做：为不同的设备设置不同大小的图像。 使用srcset和picture为每个图像提供多种变体（variants）。
+- 参考文献：[ Responsive images - Learn web development | MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)
+
+
+### 服务端
+
+#### 网站使用 HTTPS
+
+- 为什么：HTTPS 不仅适用于电子商务网站，也适用于所有存在数据传递的网站。如今的现代浏览器对于不安全的网站在许多功能上做了些限制。例如：如果网站未使用 HTTPS，则地理定位，推送通知和 Service Workers 等功能无法正常试用。相比以前，今天设置和使用 SSL 证书容易得多([Let's Encrypt](https://letsencrypt.org/)能提供免费的 HTTPS 服务).
+- 参考文献：
+
+    - [Why Use HTTPS? | Cloudflare](https://www.cloudflare.com/learning/security/why-use-https/)
+    - [Enabling HTTPS Without Sacrificing Your Web Performance - Moz](https://moz.com/blog/enabling-https-without-sacrificing-web-performance)
+    - [How HTTPS Affects Website Performance](https://wp-rocket.me/blog/https-affects-website-performance/)
+    - [HTTP versus HTTPS versus HTTP2 - The real story | Tune The Web](https://www.tunetheweb.com/blog/http-versus-https-versus-http2/)
+    - [HTTP vs HTTPS — Test them both yourself](https://www.httpvshttps.com/)
+
+#### 页面大小 < 1500 KB(理想 < 500 KB)
+
+- 做什么：尽可能减少页面和资源的大小；
+- 怎么做：按本篇前端性能优化指导去做，尽可能地减少资源和代码。
+- 参考文献：
+
+    - [Page Weight](https://httparchive.org/reports/page-weight#bytesTotal)
+    - [What Does My Site Cost?](https://whatdoesmysitecost.com/)
+
+#### 页面加载时间 < 3 秒
+
+- 做什么：尽可能减少页面加载时间，以便快速将内容传递给用户。
+- 为什么：网站或应用程序速度越快，反弹增加的可能性越小，换句话说，失去用户或未来客户的机会就越少。Google 对该主题的充分研究证明了这一点。
+- 怎么做：使用 Page Speed Insight 或 WebPageTest 等在线工具分析可能会降低速度的工具，并使用前端性能优化指南来缩短加载时间。
+
+    - [Compare your mobile site speed](https://www.thinkwithgoogle.com/feature/mobile/)
+    - [Test Your Mobile Website Speed and Performance - Think With Google](https://testmysite.thinkwithgoogle.com/?_ga=1.155316027.1489996091.1482187369)
+    - [Average Page Load Times for 2018 - How does yours compare? - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/average-page-load-times-websites-2018/)
+
+#### TTFB < 1.3 seconds
+
+- 做什么：尽可能减少浏览器在接收数据之前等待的时间。
+- 参考文献：
+
+    - [What is Waiting (TTFB) in DevTools, and what to do about it](https://scaleyourcode.com/blog/article/27)
+    - [Monitoring your servers with free tools is easy](https://scaleyourcode.com/blog/article/7)
+    - [Time to First Byte (TTFB)](https://varvy.com/pagespeed/ttfb.html)
+    - [Global latency testing tool](https://latency.apex.sh/)
+
+#### Cookie 大小
+
+- 做什么：如果您使用 cookie，请确保每个 cookie 不超过4096字节，并且一个域名下不超过 20 个 cookie。
+- 为什么：cookie 存在于 HTTP 头中，在 Web 服务器和浏览器之间交换。保持 cookie 的大小尽可能低是非常重要的，以尽量减少对用户响应时间的影响。
+- 怎么做：消除不必要的cookie
+- 参考文献：
+
+    - [Cookie specification: RFC 6265](https://tools.ietf.org/html/rfc6265)
+    - [Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
+    - [Browser Cookie Limits](http://browsercookielimits.squawky.net/)
+    - [Website Performance: Cookies Don't Taste So Good - Monitis Blog](http://www.monitis.com/blog/website-performance-cookies-dont-taste-so-good/)
+    - [Google's Web Performance Best Practices #3: Minimize Request Overhead - GlobalDots Blog](https://www.globaldots.com/googles-web-performance-best-practices-3-minimize-request-overhead/)
+
+#### 最小化 HTTP 请求
+
+- 做什么：始终确保所请求的每个文件对网站或应用程序至关重要，尽可能减少 http 请求。
+- 参考文献：
+
+    - [Combine external CSS](https://varvy.com/pagespeed/combine-external-css.html)
+    - [Combine external JavaScript](https://varvy.com/pagespeed/combine-external-javascript.html)
+
+#### 使用 CDN 提供静态文件
+
+- 为什么：使用 CDN 可以更快地在全球范围内获取到你的静态文件。
+- 参考文献
+
+    - [10 Tips to Optimize CDN Performance - CDN Planet](https://www.cdnplanet.com/blog/10-tips-optimize-cdn-performance/)
+    - [HTTP Caching  |  Web Fundamentals  |  Google Developers](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching)
+
+#### 提供来自相同协议的文件
+
+避免网站使用 HTTPS 同时使用 HTTP 来提供相同源地址的文件。
+
+#### 提供可访问的文件
+
+避免请求无法访问的文件（404）。
+
+#### 正确设置 HTTP 缓存标头
+
+合理设置 HTTP 缓存标头来减少 HTTP 请求次数。
+
+#### 启用 GZIP 压缩
+
+- 做什么：使用压缩方法（如 Gzip 或 Brotli）来减小 JavaScript 文件的大小。使用较小尺寸的文件，用户可以更快地下载资源，从而提高性能。
+- 参考文献
+
+    - [Check GZIP compression](https://checkgzipcompression.com/)
+    - [Check Brotli Compression](https://tools.keycdn.com/brotli-test)
+    - [Can I use... Brotli](https://caniuse.com/#feat=brotli)
+
+#### 分域存放资源
+
+由于浏览器同一域名并行下载数有限，利用多域名主机存放静态资源，增加并行下载数，缩短资源加载时间
+
+#### 减少页面重定向
+    
+## 计算优化
+
+- [Compute Performance](https://www.html5rocks.com/en/features/performance#ComputePerformance)
+- [Javascript Memory Management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management?redirectlocale=en-US&redirectslug=JavaScript%2FMemory_Management)
+- [Compute Performance Checklist for the mobile web](http://youtu.be/0UNWi7FA36M?t=27m46s)
+- [Writing Fast, Memory-efficient Javascript](http://coding.smashingmagazine.com/2012/11/05/writing-fast-memory-efficient-javascript/)
+- [Using Object Pools to reduce memory churn](http://beej.us/blog/data/object-pool/)
+- [High performance, garbage collector friendly code](http://buildnewgames.com/garbage-collector-friendly-code/)
+- [I-Want-To-Optimize-my-JS-application-for-chrome checklist](http://mrale.ph/blog/2011/12/18/v8-optimization-checklist.html)
+- [Breaking the javascript speed limit with v8](https://www.youtube.com/watch?v=UJPdhx5zTaw)
+- [From Console to Chrome : Making fast javascript](http://youtu.be/XAqIpGU8ZZk?t=8m19s)
+- [Perf the web forward](http://allyoucanleet.com/post/52667781698/jsconf-us-13-screencast)
+- [The Cost Of JavaScript - YouTube](https://www.youtube.com/watch?v=_bzqF05xsC4)
+
+#### JavaScript 分析
+
+- 做什么：检查 JavaScript 文件（以及 CSS）中的性能问题。
+- 为什么：JavaScript 复杂性可能会降低运行时性能。识别这些可能的问题对提供流畅的用户体验来说至关重要。
+- 怎么做：使用 Chrome 开发者工具中的时间轴工具来评估脚本事件，并找到可能需要花费太多时间的事件。
+- 参考文献：
+
+    - [Speed Up JavaScript Execution](https://developers.google.com/web/tools/chrome-devtools/rendering-tools/js-execution)
+    - [JavaScript Profiling With The Chrome Developer Tools — Smashing Magazine](https://www.smashingmagazine.com/2012/06/javascript-profiling-chrome-developer-tools/)
+    - [How to Record Heap Snapshots  |  Tools for Web Developers  |  Google Developers](https://developers.google.com/web/tools/chrome-devtools/memory-problems/heap-snapshots)
+    - [Chapter 22 - Profiling the Frontend - Blackfire](https://blackfire.io/docs/book/22-frontend-profiling)
+    - [30 Tips To Improve Javascript Performance](http://www.monitis.com/blog/30-tips-to-improve-javascript-performance/)
 
 ## 渲染优化
 
+- [Render Performance](https://www.html5rocks.com/en/features/performance#RenderPerformance)
+- [Rendering Performance](https://developers.google.com/web/fundamentals/performance/rendering/)
 - [High Performance Animations](https://www.html5rocks.com/en/tutorials/speed/high-performance-animations/)
 - [动画与性能](https://developers.google.com/web/fundamentals/design-and-ux/animations/animations-and-performance)
+- [Avoiding Unnecessary Paints](https://www.html5rocks.com/en/tutorials/speed/unnecessary-paints/)
+- [Avoiding Unnecessary Paints: Animated GIF Edition](https://www.html5rocks.com/en/tutorials/speed/animated-gifs/)
+- [Scrolling Performance](http://www.html5rocks.com/tutorials/speed/scrolling/)
+- [Parallaxin’](http://www.html5rocks.com/tutorials/speed/parallax/)
+- [High DPI Canvas](http://www.html5rocks.com/tutorials/canvas/hidpi/)
+- [Leaner, Meaner, Faster Animations with requestAnimationFrame](http://www.html5rocks.com/tutorials/speed/animations/)
+- [Jank Free: a curated list of rendering performance resources](http://www.jankfree.org/)
+- [Web page design with the GPU in mind](https://developers.google.com/events/io/sessions/325091862)
+- [Gone In 60 Frames Per Second: A Pinterest Paint Performance Case Study](http://www.smashingmagazine.com/2013/06/10/pinterest-paint-performance-case-study/)
+- [Using CSS to get faster, smoother animations](http://coding.smashingmagazine.com/2013/03/04/animating-web-gonna-need-bigger-api/)
+- [How Fast UX is all about performance.](http://alistapart.com/article/improving-ux-through-front-end-performance)
+- [On Layout and web performance](http://kellegous.com/j/2013/01/26/layout-performance/)
+- [How to debug painting performance issues](http://youtu.be/bMZZOzuJCgk)
+- [CSS Paint Times and Page Render Weight](https://www.html5rocks.com/en/tutorials/speed/css-paint-times/)
+- [Scrolling Performance](https://www.html5rocks.com/en/tutorials/speed/scrolling/)
+- [GPU Accelerated Compositing in Chrome](http://www.chromium.org/developers/design-documents/gpu-accelerated-compositing-in-chrome)
+- [Leaner, Meaner, Faster Animations with requestAnimationFrame](https://www.html5rocks.com/en/tutorials/speed/animations/)
+- [Jank Busting for Better Rendering Performance](https://www.html5rocks.com/en/tutorials/speed/rendering/)
+- [CSS Trigger](https://csstriggers.com/) / [CSS Triggers](https://css-tricks.com/css-triggers/)
+
+    - [Things nobody ever taught me about CSS.](https://medium.com/@devdevcharlie/things-nobody-ever-taught-me-about-css-5d16be8d5d0e)
+    - [What is the difference between layout, painting and compositing?](https://www.quora.com/What-is-the-difference-between-layout-painting-and-compositing)
+    - [What is reflow and repaint in these steps Styles -> Layout -> Paint -> Composite](https://stackoverflow.com/questions/39210858/what-is-reflow-and-repaint-in-these-steps-styles-layout-paint-composite)
+    - [Browser Rendering Optimization](https://github.com/vasanthk/browser-rendering-optimization/blob/master/README.md)
+    - [浏览器 渲染,绘制流程及性能优化](https://zhuanlan.zhihu.com/p/25279069)
+
+- [浏览器渲染详细过程：重绘、重排和 composite 只是冰山一角](https://juejin.im/entry/590801780ce46300617c89b8)
+- [无线性能优化：Composite](http://taobaofed.org/blog/2016/04/25/performance-composite/)
+- [网页性能管理详解](https://www.ruanyifeng.com/blog/2015/09/web-page-performance-in-depth.html)
+
+## 框架优化
+
+### Angular
+
+- [Angular Performance Checklist](https://github.com/mgechev/angular-performance-checklist)
+
+### React
+
+- [Optimizing Performance - React](https://reactjs.org/docs/optimizing-performance.html)
+- [React image manipulation | Cloudinary](https://cloudinary.com/documentation/react_image_manipulation)
+- [Debugging React performance with React 16 and Chrome Devtools.](https://building.calibreapp.com/debugging-react-performance-with-react-16-and-chrome-devtools-c90698a522ad)
 
 ## 参考文献
 
-- https://github.com/thedaviddias/Front-End-Performance-Checklist
-
-## 思考
-
-- 为什么 Web 应用没有原生应用流畅？
-
-    - [原生渲染为何比webview渲染快？](https://www.zhihu.com/question/264592475/answer/283852178)
-    - [Android 进程和线程](https://developer.android.com/guide/components/processes-and-threads?hl=zh-cn)
-
-        - [Android 绘制优化----系统显示原理](https://zhuanlan.zhihu.com/p/27344882)
-
-    - [why web app slower than native app](https://www.google.com/search?q=why+web+app+slower+than+native+app&oq=why+web+app+slower+than+native+app)
-
-        - [Why HTML/Web UI response slower than Native UI?](https://stackoverflow.com/questions/10731934/why-html-web-ui-response-slower-than-native-ui)
-        - [Web Application Performance: 7 Common Problems and How to Solve Them](https://stackify.com/web-application-problems/)
-        - [11 Reasons Why Your Web App is Slow](https://www.netguru.com/blog/11-reasons-why-your-web-app-is-slow)
-        - [What’s the Difference between Native vs. Web vs. Hybrid Apps?](https://getgist.com/difference-between-native-vs-web-vs-hybrid-apps/)
-        - [Web app vs. Native app](https://www.app-press.com/blog/web-app-vs-native-app)
-        - [Native Apps vs. Web Apps: What Is the Better Choice?](https://www.lifewire.com/native-apps-vs-web-apps-2373133)
-
-    - [微信小程序和网页版程序的区别在哪里？](https://www.zhihu.com/question/54148303)
-    - [What are the main differences between ReactJS and React-Native?](What are the main differences between ReactJS and React-Native?)
-    - [浏览器的渲染：过程与原理](https://www.cnblogs.com/dtdxrk/p/8299249.html)
-    - [也许，DOM 不是答案](http://www.ruanyifeng.com/blog/2015/02/future-of-dom.html)
-    - [Native apps vs Web apps: A designer’s perspective](https://medium.muz.li/native-apps-vs-web-apps-a-designers-perspective-f44429d53e06)
-    - [Should you build a native app or a web app?](https://medium.com/enabled-innovation/why-native-apps-are-better-than-web-apps-604867b20c50)
-
-- 微信小程序的工作原理
-- [WebAssembly](https://webassembly.org/)
-
-    - [javascript performance vs other languages](https://www.google.com/search?newwindow=1&safe=active&biw=1366&bih=664&ei=AAb-XNj8MYnrvgS0hZ34BA&q=javascript+performance+vs+other+languages)
-    - [Node js versus C++ g++ fastest programs](https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/node-gpp.html)
-    - [Node js versus Java fastest programs](https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/javascript.html)
-    - [Node js versus Python 3 fastest programs](https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/node-python3.html)
-    - [Node js versus Ruby fastest programs](https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/node-yarv.html)
+- [Front-End Performance Checklist](https://github.com/thedaviddias/Front-End-Performance-Checklist)
+- [HTML5 FEATURES PERFORMANCE](https://www.html5rocks.com/en/features/performance)
+- [Front-End Performance Checklist 2019 [PDF, Apple Pages, MS Word]](https://www.smashingmagazine.com/2019/01/front-end-performance-checklist-2019-pdf-pages/)
+- [Designing for Performance](http://designingforperformance.com/index.html)
+- [Page Speed Best Practices](https://www.checkbot.io/guide/speed/)
+- [Client side performance](http://taligarsiel.com/ClientSidePerformance.html)
+- [Image Compression for Web Developers](https://www.html5rocks.com/en/tutorials/speed/img-compression/)
+- [Best Practices for a Faster Web App with HTML5](https://www.html5rocks.com/en/tutorials/speed/quick/)
+- [Performance Best Practices in the HTTP/2 Era](https://deliciousbrains.com/performance-best-practices-http2/)
+- [Best Practices for Speeding Up Your Web Site](https://developer.yahoo.com/performance/rules.html)
+- [Web Performance Best Practices and Rules](http://yslow.org/)
+- [PageSpeed Insights 规则](https://developers.google.com/speed/docs/insights/rules)
