@@ -2,11 +2,13 @@
 ========
 
 - 性能衡量
+- 工作原理
 - 性能优化
 - 开发工具：测试，调试，监控
 
 ## 参考文献
 
+- [web-performance-resources](https://github.com/fabkrum/web-performance-resources)
 - [HTML5 Techniques for Optimizing Mobile Performance](https://www.html5rocks.com/en/mobile/optimization-and-performance/)
 - [网页性能管理详解](http://www.ruanyifeng.com/blog/2015/09/web-page-performance-in-depth.html)
 - [干货|移动端H5前端性能优化](https://www.jianshu.com/p/0a65c3d03591)
@@ -106,3 +108,25 @@
 ### 网络优化
 
 - [Network Issues Guide](https://developers.google.com/web/tools/chrome-devtools/network/issues)
+
+
+---
+
+- https://skia.org/
+- [How Blink Works](https://docs.google.com/document/d/1aitSOucL0VHZa9Z2vbRJSyAIsAz24kX8LFByQ5xQnUg/edit?pli=1#)
+- [How cc Works](https://docs.google.com/document/d/1yjzOWrPfFGviEd1nru3yzqxSHETC-zsEBSt9C8SvV-Q/edit#heading=h.gbxb964b3jon)
+- [How Blink Work 中文译文](https://www.zybuluo.com/rogeryi/note/1358865)
+- [Chrome 渲染流水线演化的未来](https://www.zybuluo.com/rogeryi/note/980090)
+- [浏览器渲染流水线解析与网页动画性能优化](https://www.zybuluo.com/rogeryi/note/834994)
+- [对页端开发高性能（交互/动画） Mobile WebApp 的一些思考](https://www.zybuluo.com/rogeryi/note/635323)
+- [Chromium 代码研究的一些感想](https://www.zybuluo.com/rogeryi/note/90632)
+- [Chromium 基础库使用说明](https://www.zybuluo.com/rogeryi/note/56894)
+- [Lighthouse 图层复杂度和稳定性测试用例说明文档](https://www.zybuluo.com/rogeryi/note/575383)
+- [Rendering of Chromium Android WebView](https://www.zybuluo.com/rogeryi/note/18161)
+- [skia](https://baike.baidu.com/item/skia/1287196?fr=aladdin)
+- [Skia GPU加速能使Android系统的Webkit渲染获得多少收益？](http://www.shumaduo.net/doc/20100003896.php)
+- [Chromium硬件加速渲染的OpenGL上下文绘图表面创建过程分析](https://blog.csdn.net/luoshengyang/article/details/48947685)
+- [Chromium硬件加速渲染的OpenGL命令执行过程分析](https://blog.csdn.net/luoshengyang/article/details/49531403)
+- [Android WebView执行GPU命令的过程分析](https://blog.csdn.net/luoshengyang/article/details/53296819)
+- [Android Graphic ： apk and Skia/OpenGL|ES](https://blog.csdn.net/mingli198611/article/details/7193495)
+- [微信小游戏 - Canvas/WebGL Demo 移植](https://www.zybuluo.com/rogeryi/note/1047887)
