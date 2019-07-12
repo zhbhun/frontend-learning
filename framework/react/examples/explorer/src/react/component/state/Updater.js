@@ -1,5 +1,7 @@
 /**
- * 测试 setState 的异步更新
+ * 测试 setState 的异步更新。
+ *
+ * 测试结果：setState 参数为对象且在事件处理函数中执行时是是异步的，其他情况都是同步的。
  */
 import React, { PureComponent } from 'react';
 import Logger from '../../../Logger';
