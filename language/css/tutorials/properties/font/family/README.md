@@ -112,3 +112,16 @@
 - [如何优雅的选择字体(font-family)](https://segmentfault.com/a/1190000006110417)
 - [如何保证网页的字体在各平台都尽量显示为最高质量的黑体？](https://www.zhihu.com/question/19911793)
 - [Web 中文字体应用指南](https://ruby-china.org/topics/14005)
+
+---
+
+- [A Book Apart, Webfont Handbook](https://abookapart.com/products/webfont-handbook)
+- [WOFF 2.0 – 了解有关下一代Web字体格式的更多信息，并将TTF转换为WOFF2](https://gist.github.com/sergejmueller/cf6b4f2133bcb3e2f64a)
+- [创建你自己的@ font-face Kits » Font Squirrel](https://www.fontsquirrel.com/tools/webfont-generator)
+- [ IcoMoon App - Icon Font, SVG, PDF & PNG Generator](https://icomoon.io/app/)
+- [Using @font-face | CSS-Tricks](https://css-tricks.com/snippets/css/using-font-face/?ref=frontendchecklist)
+- [Can I use... WOFF2](https://caniuse.com/#feat=woff2)
+- [Faster Google Fonts with Preconnect - CDN Planet](https://www.cdnplanet.com/blog/faster-google-webfonts-preconnect/)
+- [ Make Your Site Faster with Preconnect Hints | Viget](https://www.viget.com/articles/make-your-site-faster-with-preconnect-hints/)
+- [ A Comprehensive Guide to Font Loading Strategies—zachleat.com](https://www.zachleat.com/web/comprehensive-webfonts/#font-face)
+- [typekit/webfontloader: Web Font Loader gives you added control when using linked fonts via @font-face.](https://github.com/typekit/webfontloader)
