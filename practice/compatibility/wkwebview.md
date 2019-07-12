@@ -1,0 +1,3 @@
+- [How to detect via JavaScript when running in WKWebView?](https://github.com/Telerik-Verified-Plugins/WKWebView/issues/154)
+- [UIWebView-Detect](https://github.com/simpleweb/UIWebView-Detect)
+- [Detect if page is loaded inside WKWebView in JavaScript](https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript)
