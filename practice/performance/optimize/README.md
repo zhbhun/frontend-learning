@@ -515,7 +515,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 由于浏览器同一域名并行下载数有限，利用多域名主机存放静态资源，增加并行下载数，缩短资源加载时间
 
 #### 减少页面重定向
-    
+
 ## 计算优化
 
 - [Compute Performance](https://www.html5rocks.com/en/features/performance#ComputePerformance)
@@ -530,7 +530,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 - [Perf the web forward](http://allyoucanleet.com/post/52667781698/jsconf-us-13-screencast)
 - [The Cost Of JavaScript - YouTube](https://www.youtube.com/watch?v=_bzqF05xsC4)
 
-#### JavaScript 分析
+### 优化 JavaScript 执行
 
 - 做什么：检查 JavaScript 文件（以及 CSS）中的性能问题。
 - 为什么：JavaScript 复杂性可能会降低运行时性能。识别这些可能的问题对提供流畅的用户体验来说至关重要。
@@ -542,6 +542,10 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
     - [How to Record Heap Snapshots  |  Tools for Web Developers  |  Google Developers](https://developers.google.com/web/tools/chrome-devtools/memory-problems/heap-snapshots)
     - [Chapter 22 - Profiling the Frontend - Blackfire](https://blackfire.io/docs/book/22-frontend-profiling)
     - [30 Tips To Improve Javascript Performance](http://www.monitis.com/blog/30-tips-to-improve-javascript-performance/)
+
+### 使输入处理程序去除抖动
+
+TODO
 
 ## 渲染优化
 
@@ -578,6 +582,10 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 - [浏览器渲染详细过程：重绘、重排和 composite 只是冰山一角](https://juejin.im/entry/590801780ce46300617c89b8)
 - [无线性能优化：Composite](http://taobaofed.org/blog/2016/04/25/performance-composite/)
 - [网页性能管理详解](https://www.ruanyifeng.com/blog/2015/09/web-page-performance-in-depth.html)
+
+### 避免大型、复杂的布局和布局抖动
+
+TODO
 
 ## 框架优化
 
