@@ -10,6 +10,7 @@
 - [Waterfall](https://github.com/andydavies/waterfall)
 - [performance-bookmarklet](https://github.com/micmro/performance-bookmarklet)
 - [Website Speed Test Image Analysis Tool](https://webspeedtest.cloudinary.com)
+- [CheckBot](https://www.checkbot.io/)
 - https://speedcurve.com/
 - https://www.dareboost.com/
 - https://gtmetrix.com/
