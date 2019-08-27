@@ -408,6 +408,19 @@ class RenderObject{
 
 - [render-progressive.html](./examples/render-progressive.html)：测试渲染引擎的渐进式渲染和 JS 阻塞
 
+#### Firefox Quantum
+
+- [servo](https://github.com/servo/servo)
+- [webrender](https://github.com/servo/webrender)
+- [WebRender：让网页渲染如丝顺滑](https://www.zcfy.cc/article/the-whole-web-at-maximum-fps-how-webrender-gets-rid-of-jank-x2605-mozilla-hacks-8211-the-web-developer-blog-4386.html?t=new) / [The whole web at maximum FPS: How WebRender gets rid of jank](https://hacks.mozilla.org/2017/10/the-whole-web-at-maximum-fps-how-webrender-gets-rid-of-jank/)
+- [Inside a super fast CSS engine: Quantum CSS (aka Stylo)](https://hacks.mozilla.org/2017/08/inside-a-super-fast-css-engine-quantum-css-aka-stylo/)
+- [进入 Quantum 时代——Firefox 如何恢复快速，又将如何变得更快？](https://www.infoq.cn/article/how-firefox-got-fast-again-and-where-its-going-to-get-faster)
+- [Life is short , You never need Flutter](https://zhuanlan.zhihu.com/p/73792459)
+- [Firefox with WebRender vs Chrome scrolling](https://www.reddit.com/r/firefox/comments/afpxf4/firefox_with_webrender_vs_chrome_scrolling/)
+- [How much faster is WebRender?](https://www.reddit.com/r/firefox/comments/amnp7j/how_much_faster_is_webrender/)
+- [WebRender Status (nvidia)](https://metrics.mozilla.com/webrender/dashboard_nvidia.html)
+- [Firefox Quantum is super fast, while still conserving memory](https://blog.mozilla.org/firefox/quantum-performance-test/)
+
 ## JavaScript 引擎
 
 - [how javascript work](https://www.google.com/search?q=how+javascript+work&oq=how+javascript+work) / [javascript 是怎么工作的](https://www.google.com/search?q=javascript+%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84) / [JavaScript 工作原理](https://www.google.com/search?q=JavaScript+%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
