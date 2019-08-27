@@ -28,6 +28,7 @@
 
 - [react-native-elements](https://github.com/react-native-community/React-Native-Elements) - React Native Elements UI Toolkit. by [react-native-community](https://github.com/react-native-community)
 - [NativeBase](https://github.com/GeekyAnts/NativeBase) - ssential cross-platform UI components for React Native. 2598 ★
+- [rilyu/teaset](https://github.com/rilyu/teaset) - A UI library for react native, provides 20+ pure JS(ES6) components, focusing on content display and action control.
 
 ## 基础
 ### 按钮

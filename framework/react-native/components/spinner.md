@@ -1,0 +1,4 @@
+- [naoufal/react-native-progress-hud](https://github.com/naoufal/react-native-progress-hud)
+- [react-native-spinkit](https://github.com/maxs15/react-native-spinkit)
+- [react-native-loading-spinner-overlay](https://github.com/joinspontaneous/react-native-loading-spinner-overlay)
+- [react-native-loader](https://github.com/mohebifar/react-native-loader)
