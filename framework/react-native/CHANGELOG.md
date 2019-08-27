@@ -1,5 +1,50 @@
+# Changelog
 
 - https://github.com/react-native-community/react-native-releases/blob/master/CHANGELOG.md
+
+## 0.59
+
+- Deprecated MaskedViewIOS as it has now been moved to react-native-community/masked-view
+- Deprecated ViewPagerAndroid as it has now been moved to react-native-community/viewpager (77300ca by @ferrannp)
+- Deprecated AsyncStorage as it has now been moved to react-native-community/asyncstorage
+- Deprecated Slider as it has now been moved to react-native-community/slider
+- Deprecated NetInfo as it has now been moved to react-native-community/netinfo
+- Deprecated ImageStore and directed users to expo-file-system and react-native-fs
+- AlertIOS is now replaced with Alert
+- Remove the deprecated TabBarIOS 
+
+## 0.58
+
+...
+
+## 0.57
+
+- New features
+
+    - Android 支持 `overflow`
+    - iOS Webview 支持 `WKWebView`
+
+## 0.56
+
+- Breaking changes
+
+    - 使用了 babel7， 需要升级 babel-preset-react-native 至 5.0.2 以上版本
+
+        [babel-bridge](https://github.com/babel/babel-bridge) 可以用来兼容一些没有升级至 Babel 7 的第三方库
+
+    - 开发环境必须使用 Node 8 以上版本
+    - iOS 9 是最低的版本要求，同理 XCode 9 是最低的版本要求
+    - Android 26 SDK 是最低的版本要求
+    - WebView 默认只支持 http 或 https 地址（不支持 file://），并且默认禁用 Geolocation
+    - View 嵌套在 Text 内部会抛出错误
+    - 简化 requireNativeComponent 的用法
+    - Image 不再暴露 ImageResizeMode
+    - 一些未解决的问题
+
+        - https://github.com/facebook/react-native/issues/19827
+        - https://github.com/facebook/react-native/issues/19763
+        - https://github.com/facebook/react-native/issues/19859
+        - https://github.com/facebook/react-native/issues/19955
 
 ## 0.55
 
