@@ -1,1 +1,2 @@
-https://github.com/smooth-code/loadable-components
+- https://github.com/smooth-code/loadable-components
+- https://github.com/jamiebuilds/react-loadable
