@@ -308,6 +308,10 @@ ps：虽然现代浏览器为我们做了很多优化工作，但是我们可以
 
 微软意识到了这些性能问题，于是在 Internet Explorer 4 中引入了 “defer”。该属性被采纳到 HTML4 里并出现在了其他浏览器中。 —— [defer attribute for external scripts](https://caniuse.com/#feat=script-defer)
 
+下面是将上文测试示例中的 script 设置了 defer 属性后的 HTML 解析日志。可以发现 document.readyState 变为 interactive 的时间提前了，意味着 HTML 更快的完成了解析（好像也没什么用？对于旧浏览器 IE 来说，可以将脚本放在 head 部分让浏览器更早的解析到脚本并去下载，并且连续的多个脚本可以并发下载）。
+
+![html-script-defer-process.jpg](./assets/html-script-defer-process.jpg)
+
 ```html
 <head>
   <!-- ... -->
@@ -340,6 +344,12 @@ console.log('3');
 
 ![script-flow-async.jpg](./assets/script-flow-async.jpg)
 
+HTML5 提供了一个新属性，“async”，它会假设你并不准备使用 document.write，当也不需要等到文档解析完毕后才执行。浏览器会并行下载两个脚本并尽快执行它们。
+
+下面是将上文测试示例中的 script 设置了 async 属性后的 HTML 解析日志。可以发现 document.readyState 变为 interactive 和 DOMContentLoaded 的触发时间提前了，脚本需要等到下载结束后才能执行。
+
+![html-script-async-process.jpg](./assets/html-script-async-process.jpg)
+
 ```html
 <head>
   <!-- ... -->
@@ -347,8 +357,6 @@ console.log('3');
   <script async src="2.js"></script>
 </head>
 ```
-
-HTML5 提供了一个新属性，“async”，它会假设你并不准备使用 document.write，当也不需要等到文档解析完毕后才执行。浏览器会并行下载两个脚本并尽快执行它们。
 
 不过，因为它们会尽可能快的执行，“2.js” 就有可能先于 “1.js” 而执行。如果它们互不依赖倒还好，比如说 “1.js” 是一个用于记录访问的脚本，它不会影响 “2.js”。但要是 “1.js” 是 jQuery 的一个 CDN 拷贝，而 “2.js” 依赖于它，那你的页面就可能会被报错信息淹没。
 
