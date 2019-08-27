@@ -241,3 +241,13 @@ ps：以上支持情况都是按本文编写时间为准（201904）
 - [Resource Timing](https://caniuse.com/#feat=resource-timing)
 
 
+## 实际应用
+
+- [micmro/performance-bookmarklet](https://github.com/micmro/performance-bookmarklet)
+- [andydavies/waterfall](https://github.com/andydavies/waterfall) - Bookmarklet that produces Page Load Waterfalls using the Resource Timing API.
+- [RUM-SpeedIndex](https://github.com/WPO-Foundation/RUM-SpeedIndex) - Calculate SpeedIndex measurements from the field.
+- [kaaes/timing](https://github.com/kaaes/timing) - Visual presentation of Navigation Timing API performance object.
+
+## 参考文献
+
+- [Measuring Page Load Speed with Navigation Timing](https://www.html5rocks.com/en/tutorials/webperformance/basics/)
