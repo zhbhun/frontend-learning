@@ -10,3 +10,8 @@
 - [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 - [url-search-params](https://github.com/ungap/url-search-params)
 - [Easy URL Manipulation with URLSearchParams](https://developers.google.com/web/updates/2016/01/urlsearchparams?hl=en)
+
+## 第三方库
+
+- [querystring-es3](https://github.com/mike-spainhower/querystring)
+- [querystring](https://github.com/Gozala/querystring)
