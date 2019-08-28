@@ -1,0 +1,4 @@
+- [node-uuid](https://github.com/kelektiv/node-uuid)
+- [nanoid](https://github.com/ai/nanoid)
+- [shortid](https://github.com/dylang/shortid)
+- [cuid](https://github.com/ericelliott/cuid)
