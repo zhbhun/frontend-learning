@@ -180,3 +180,9 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 
 - [docker 配置时区](https://www.jianshu.com/p/f00c29bc6bb6)
 - [List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zoness)
+
+### 主机和容器的文件权限问题
+
+- [解决 Docker 数据卷挂载的文件权限问题](https://padeoe.com/docker-volume-file-permission-problem/)
+- [docker-compose volumes 容器内权限会变为root所有?](https://segmentfault.com/q/1010000010446328/a-1020000010446370)
+- [Mount container volume root folder?](https://forums.docker.com/t/mount-container-volume-root-folder/38265)
