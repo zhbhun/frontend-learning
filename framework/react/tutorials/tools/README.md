@@ -2,7 +2,8 @@
 
 ## 调试工具
 
-https://reactjs.org/community/debugging-tools.html
+- https://reactjs.org/community/debugging-tools.html
+- [Introducing the New React DevTools](https://reactjs.org/blog/2019/08/15/new-react-devtools.html)
 
 ## JSX 集成
 
