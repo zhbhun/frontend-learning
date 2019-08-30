@@ -90,6 +90,8 @@ Component 接受的输入都放在 `props` 内，而 `props` 是只读的，不�
 
 - [Does React keep the order for state updates?](https://stackoverflow.com/questions/48563650/does-react-keep-the-order-for-state-updates/48610973#48610973)
 - [why is `setState` asynchronous?](https://github.com/facebook/react/issues/11527#issuecomment-360199710)
+- [Update on Async Rendering](https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html)
+- [You Probably Don't Need Derived State](https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html)
 
 ### 生命周期
 
