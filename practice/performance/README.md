@@ -134,3 +134,7 @@
 ---
 
 - https://speedcurve.com/blog/
+
+---
+
+- [slickspeed](http://www.domassistant.com/slickspeed/)
