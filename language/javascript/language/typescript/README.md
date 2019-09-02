@@ -55,6 +55,44 @@
     x = ["hello", 10];
     ```
 
+- Enum
+
+    ```ts
+    enum Color {Red, Green, Blue}
+    let c: Color = Color.Green;
+    ```
+
+- Any
+
+    ```ts
+    let notSure: any = 4;
+    notSure = "maybe a string instead";
+    notSure = false; // okay, definitely a boolean
+    ```
+
+- Void
+
+    ```ts
+    function warnUser(): void {}
+    ```
+
+- Null / Undefined
+
+    ```ts
+    let u: undefined = undefined;
+    let n: null = null;
+    ```
+
+- Never
+- Object
+- Assertions
+
+    ```ts
+    let someValue: any = "this is a string";
+    let strLength: number = (<string>someValue).length;
+    ```
+
+
 
 ## 应用
 
