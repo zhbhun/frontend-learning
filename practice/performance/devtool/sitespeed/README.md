@@ -1,5 +1,119 @@
 # [Sitespeed](https://www.sitespeed.io)
 
+## 结果
+
+- 测试信息：域名、时间
+- 测试演示：HTML、CSS、JS、Font、Image 等
+- 汇总信息：browsertime.json、browsertime.har
+- 页面信息：
+
+    - 演示页面
+    - 原始数据：截图、视频
+
+SiteSpeed
+
+```
+.
+└── www.baidu.com
+    ├── 2019-09-03-06-28-14
+    │   ├── css
+    │   ├── font
+    │   ├── img
+    │   ├── js
+    │   ├── logs
+    │   │   └── sitespeed.io.log
+    │   ├── pages
+    │   │   └── www.baidu.com
+    │   │       ├── data
+    │   │       │   ├── screenshots
+    │   │       │   │   ├── 1.png
+    │   │       │   │   ├── 2.png
+    │   │       │   │   └── 3.png
+    │   │       │   ├── video
+    │   │       │   │   ├── images
+    │   │       │   │   │   ├── 1
+    │   │       │   │   │   │   ├── ms_000000.jpg
+    │   │       │   │   │   │   ├── ...
+    │   │       │   │   │   │   └── ms_005634.jpg
+    │   │       │   │   │   ├── 2
+    │   │       │   │   │   │   ├── ms_000000.jpg
+    │   │       │   │   │   │   ├── ...
+    │   │       │   │   │   │   └── ms_005600.jpg
+    │   │       │   │   │   └── 3
+    │   │       │   │   │       ├── ms_000000.jpg
+    │   │       │   │   │       ├── ...
+    │   │       │   │   │       └── ms_005600.jpg
+    │   │       │   │   ├── 1.mp4
+    │   │       │   │   ├── 2.mp4
+    │   │       │   │   └── 3.mp4
+    │   │       │   └── browsertime.har
+    │   │       ├── 1.html
+    │   │       ├── 2.html
+    │   │       ├── 3.html
+    │   │       └── index.html
+    │   ├── assets.html
+    │   ├── detailed.html
+    │   ├── domains.html
+    │   ├── help.html
+    │   ├── index.html
+    │   ├── pages.html
+    │   └── toplist.html
+    └── 2019-09-03-06-34-19
+```
+
+Browsertime
+
+```
+.
+└── www.baidu.com
+    └── 2019-09-03T094759+0000
+        ├── pages
+        │   └── www.baidu.com
+        │       └── data
+        │           └── video
+        │               ├── images
+        │               │   ├── 1
+        │               │   │   ├── ms_000000.jpg
+        │               │   │   ├── ...
+        │               │   │   └── ms_005633.jpg
+        │               │   ├── 2
+        │               │   │   ├── ms_000000.jpg
+        │               │   │   ├── ...
+        │               │   │   └── ms_005700.jpg
+        │               │   └── 3
+        │               │       ├── ms_000000.jpg
+        │               │       ├── ...
+        │               │       ├── ms_005067.jpg
+        │               │       └── ms_005667.jpg
+        │               ├── 1.mp4
+        │               ├── 2.mp4
+        │               └── 3.mp4
+        ├── browsertime.har
+        └── browsertime.json
+```
+
+```
+.
+├── screenshots
+│   └── 1.jpg
+├── video
+│   ├── images
+│   │   └── 1
+│   │       ├── ms_000000.jpg
+│   │       ├── ...
+│   │       └── ms_003466.jpg
+│   └── 1.mp4
+├── browsertime.har
+├── browsertime.json
+├── chromePerflog-1.json.gz
+├── info.json
+└── trace-1.json.gz
+```
+
+## 网络
+
+- [Throttle](https://www.sitespeed.io/documentation/throttle/)
+
 ## 监控
 
 - [示例网站](https://dashboard.sitespeed.io)
@@ -28,12 +142,16 @@
 - [Alerts](https://www.sitespeed.io/documentation/sitespeed.io/alerts/)
 - [Continuous Integration](https://www.sitespeed.io/documentation/sitespeed.io/continuous-integration/)
 
+## 录屏
+
+- [WebPageReplay](https://www.sitespeed.io/documentation/sitespeed.io/webpagereplay/)
+- [Web Page Replay](https://github.com/catapult-project/catapult/blob/master/web_page_replay_go/README.md)
+
 ## 插件
 
 - [I want a JSON from Browsertime/Coach other tools, how do I get that?](https://www.sitespeed.io/documentation/sitespeed.io/best-practice/)
 
 ### analysisstorer
-
 
 ## 问题
 
