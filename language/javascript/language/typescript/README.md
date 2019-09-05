@@ -115,6 +115,88 @@
 - 函数类型：类型化函数、函数类型
 - 函数参数：可选、默认、Rest
 
+### [泛型](http://www.typescriptlang.org/docs/handbook/generics.html)
+
+- 泛型函数
+
+    ```ts
+    function identity<T>(arg: T): T {
+      return arg;
+    }
+    ```
+
+- 泛型类型
+
+    ```ts
+    function identity<T>(arg: T): T {
+      return arg;
+    }
+    let myIdentity: <T>(arg: T) => T = identity;
+    ```
+
+    ```ts
+    interface GenericIdentityFn {
+      <T>(arg: T): T;
+    }
+    function identity<T>(arg: T): T {
+      return arg;
+    }
+    let myIdentity: GenericIdentityFn = identity;
+    ```
+
+    ```ts
+    interface GenericIdentityFn<T> {
+      (arg: T): T;
+    }
+    function identity<T>(arg: T): T {
+      return arg;
+    }
+    let myIdentity: GenericIdentityFn<number> = identity;
+    ```
+
+- 泛型类
+
+    ```ts
+    class GenericNumber<T> {
+      zeroValue: T;
+      add: (x: T, y: T) => T;
+    }
+    ```
+
+- 泛型约束
+
+    ```ts
+    interface Lengthwise {
+      length: number;
+    }
+    function loggingIdentity<T extends Lengthwise>(arg: T): T {
+      console.log(arg.length);
+      return arg;
+    }
+    ```
+
+    - 参数类型
+
+        ```ts
+        function getProperty<T, K extends keyof T>(obj: T, key: K) {
+          return obj[key];
+        }
+        ```
+
+    - Class 类型
+
+        ```ts
+        function create<T>(c: {new(): T; }): T {
+          return new c();
+        }
+        ```
+
+        ```ts
+        function create<T>(c: new () => T): T {
+          return new c();
+        }
+        ```
+
 ## 应用
 
 - [Quick Start](http://www.typescriptlang.org/samples/)
