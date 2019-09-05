@@ -92,7 +92,28 @@
     let strLength: number = (<string>someValue).length;
     ```
 
+### [变量声明](http://www.typescriptlang.org/docs/handbook/variable-declarations.html)
 
+...
+
+### [接口](http://www.typescriptlang.org/docs/handbook/interfaces.html)
+
+...
+
+### [类](http://www.typescriptlang.org/docs/handbook/classes.html)
+
+- 声明类
+- 继承
+- 修饰符：`public`、`private`、`protected` 和 `readonly`
+- 存储器和访问器
+- 静态属性
+- 抽象类
+
+### [函数](http://www.typescriptlang.org/docs/handbook/functions.html)
+
+- 声明函数：命名、匿名、作用域
+- 函数类型：类型化函数、函数类型
+- 函数参数：可选、默认、Rest
 
 ## 应用
 
