@@ -164,3 +164,18 @@ Browsertime
 ### 如何输出 JSON 格式的数据？
 
 - [I want a JSON from Browsertime/Coach other tools, how do I get that?](https://www.sitespeed.io/documentation/sitespeed.io/best-practice/#i-want-a-json-from-browsertimecoach-other-tools-how-do-i-get-that)
+
+### 模拟网络环境？
+
+- [Connectivity](https://www.sitespeed.io/documentation/sitespeed.io/connectivity/)
+- [sitespeedio/throttle](https://github.com/sitespeedio/throttle)
+- [tylertreat/comcast](https://github.com/tylertreat/Comcast)
+- [facebookarchive/augmented-traffic-control](https://github.com/facebookarchive/augmented-traffic-control)
+- [产品测试中，如何模拟网络不佳的情况？](https://www.zhihu.com/question/29128847)
+- [alexei-led/pumba](https://github.com/alexei-led/pumba)
+- [lukaszlach/docker-tc](https://github.com/lukaszlach/docker-tc)
+- [Chaos Testing for Docker Containers](https://codefresh.io/docker-tutorial/chaos_testing_docker/)
+
+---
+
+https://awesome-docker.netlify.com
