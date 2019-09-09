@@ -167,13 +167,34 @@ Browsertime
 
 ### 模拟网络环境？
 
+教程
+
 - [Connectivity](https://www.sitespeed.io/documentation/sitespeed.io/connectivity/)
+- [Throttle or not throttle your connection?](https://www.sitespeed.io/documentation/sitespeed.io/best-practice/#throttle-or-not-throttle-your-connection)
+- [Kubernetes](https://www.sitespeed.io/documentation/sitespeed.io/best-practice/#kubernetes)
+- [Revisit Chrome throttling support](https://github.com/sitespeedio/sitespeed.io/issues/2267)
+- [Throttle the connection](https://github.com/sitespeedio/sitespeed.io/issues/895)
+- [set connectivity by using TSProxy](https://www.sitespeed.io/documentation/sitespeed.io/mobile-phones/#tsproxy)
+
+工具
+
+- [tc](https://linux.die.net/man/8/tc)
 - [sitespeedio/throttle](https://github.com/sitespeedio/throttle)
 - [tylertreat/comcast](https://github.com/tylertreat/Comcast)
-- [facebookarchive/augmented-traffic-control](https://github.com/facebookarchive/augmented-traffic-control)
-- [产品测试中，如何模拟网络不佳的情况？](https://www.zhihu.com/question/29128847)
 - [alexei-led/pumba](https://github.com/alexei-led/pumba)
+- [facebookarchive/augmented-traffic-control](https://github.com/facebookarchive/augmented-traffic-control)
 - [lukaszlach/docker-tc](https://github.com/lukaszlach/docker-tc)
+- [tsproxy](https://github.com/WPO-Foundation/tsproxy)
+- [Dummynet](https://cs.baylor.edu/~donahoo/tools/dummy/)
+- [win-shaper](https://github.com/WPO-Foundation/win-shaper)
+- [clumsy](http://jagt.github.io/clumsy/)
+
+参考
+
+- [Network Throttling & Chrome - status](https://docs.google.com/document/d/1TwWLaLAfnBfbk5_ZzpGXegPapCIfyzT4MWuZgspKUAQ/edit#heading=h.buq49xxy577t)：网络限速工具对比
+- [connectivity.ini.sample](https://github.com/WPO-Foundation/webpagetest/blob/master/www/settings/connectivity.ini.sample)：WebPagetest 网络模拟配置
+- [Testing with Realistic Networking Conditions](https://calendar.perfplanet.com/2016/testing-with-realistic-networking-conditions/)
+- [产品测试中，如何模拟网络不佳的情况？](https://www.zhihu.com/question/29128847)
 - [Chaos Testing for Docker Containers](https://codefresh.io/docker-tutorial/chaos_testing_docker/)
 
 ---
