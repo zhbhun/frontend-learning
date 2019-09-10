@@ -1,5 +1,6 @@
 # [TypeScript](http://www.typescriptlang.org)
 
+- https://www.tslang.cn/
 - [GitHub](https://github.com/Microsoft/TypeScript)
 - [Twitter](https://twitter.com/typescript/)
 - [StackOverflow](https://stackoverflow.com/questions/tagged/typescript)
@@ -55,12 +56,20 @@
     x = ["hello", 10];
     ```
 
-- Enum
+- [Enum](http://www.typescriptlang.org/docs/handbook/enums.html)
 
     ```ts
     enum Color {Red, Green, Blue}
     let c: Color = Color.Green;
     ```
+
+    - 数值
+    - 字符串
+    - 混合
+    - 计算
+    - 类型
+    - 运行时
+    - 编译时
 
 - Any
 
@@ -91,6 +100,8 @@
     let someValue: any = "this is a string";
     let strLength: number = (<string>someValue).length;
     ```
+
+- [Symbol](https://www.tslang.cn/docs/handbook/symbols.html)
 
 ### [变量声明](http://www.typescriptlang.org/docs/handbook/variable-declarations.html)
 
@@ -196,6 +207,11 @@
           return new c();
         }
         ```
+
+### 其他
+
+- [类型推导](http://www.typescriptlang.org/docs/handbook/type-inference.html)
+- [类型兼容](http://www.typescriptlang.org/docs/handbook/type-compatibility.html)
 
 ## 应用
 
