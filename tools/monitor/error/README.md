@@ -107,3 +107,7 @@
 6. 监控日志预警
 
     [sentry](https://sentry.io/organizations/learning-w5/issues/)
+
+---
+
+- [一步一步搭建前端监控系统：JS错误监控篇](https://blog.fundebug.com/2019/07/06/how-to-monitor-javascript-error/)
