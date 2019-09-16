@@ -94,7 +94,7 @@
 
 - Never
 - Object
-- Assertions
+- Assertions：断言
 
     ```ts
     let someValue: any = "this is a string";
@@ -241,6 +241,12 @@
 ### Node
 
 - [TypeScript Node Starter](https://github.com/Microsoft/TypeScript-Node-Starter#typescript-node-starter)
+
+## 问题
+
+### Could not find a declaration file for module 'xxx'?
+
+- [Could not find a declaration file for module 'module-name'. '/path/to/module-name.js' implicitly has an 'any' type](https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam)
 
 ## TODO
 
