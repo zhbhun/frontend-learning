@@ -248,6 +248,11 @@
 
 - [Could not find a declaration file for module 'module-name'. '/path/to/module-name.js' implicitly has an 'any' type](https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam)
 
+### 如何声明方法可能抛出异常？
+
+- [How to declare a function that throws an error in Typescript](https://stackoverflow.com/questions/49434751/how-to-declare-a-function-that-throws-an-error-in-typescript)
+- [Suggestion: `throws` clause and typed catch clause](https://github.com/Microsoft/TypeScript/issues/13219)
+
 ## TODO
 
 - [TypeScript](http://www.typescriptlang.org)
