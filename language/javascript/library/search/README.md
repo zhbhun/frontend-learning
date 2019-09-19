@@ -10,3 +10,7 @@
 - [JavaScript之300行代码搞定汉字转拼音](https://github.com/creeperyang/blog/issues/31)
 - [JS获取中文拼音首字母，并通过拼音首字母快速查找页面内的中文内容](https://blog.csdn.net/testcs_dn/article/details/25116655)
 - [通过拼音模糊搜索汉字的功能实现](https://blog.csdn.net/c402820553/article/details/78707578)
+
+## 全文检索
+
+- [flexsearch](https://github.com/nextapps-de/flexsearch/) - Next-Generation full text search library for Browser and Node.js.
