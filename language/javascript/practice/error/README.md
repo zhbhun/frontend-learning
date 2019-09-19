@@ -359,26 +359,109 @@ class UserError extends Error {
 
 ### 抛出异常
 
+throw 语句用来抛出一个用户自定义的异常，当前函数的执行将被停止（throw 之后的语句将不会执行），并且控制将被传递到调用堆栈中的第一个 catch 块。如果调用者函数中没有catch块，程序将会终止。
+
+语法：
+
+```js
+throw expression;
+```
+
+expression 可以是任何类型的值，如下所示：
+
+```js
+throw "Error2"; // 抛出了一个值为字符串的异常
+throw 42;       // 抛出了一个值为整数42的异常
+throw true;     // 抛出了一个值为true的异常
+```
+
+虽然可以这么做，但通常建议这样，因为非错误对象示例是无法追踪异常调用栈的（要 Error 对象示例采用 stack 属性）。
+
 - [MDN throw](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw)
 - [throw 语句](https://javascript.ruanyifeng.com/grammar/error.html#toc9)
 
 ### 处理异常
 
+一旦发生错误，程序就中止执行了。JavaScript 提供了 try...catch 结构，允许对错误进行处理，选择是否往下执行。
+
 ```js
 try {
-  try_statements
+  try_statements // 需要被执行的语句。
 }
 [catch (exception_var_1 if condition_1) { // non-standard
   catch_statements_1
 }]
 ...
-[catch (exception_var_2) {
-  catch_statements_2
+[catch (exception_var_2) { // 用于保存关联catch子句的异常对象的标识符。
+  catch_statements_2 // 如果在try块里有异常被抛出时执行的语句。
 }]
 [finally {
-  finally_statements
+  finally_statements // 在try语句块之后执行的语句块。无论是否有异常抛出或捕获这些语句都将执行。
 }]
 ```
+
+要求：try 语句包含了由一个或者多个语句组成的 try 块, 和至少一个 catch 子句或者一个 finally 子句的其中一个，或者两个兼有， 下面是三种形式的 try 声明：
+
+1. `try...catch`
+2. `try...finally`
+3. `try...catch...finally`
+
+条件 catch 子句：JavaScript 标准不支持条件 catch 语法，但可以在 catch 子句内部自行判断处理，例如：
+
+```js
+try {
+    myroutine(); // may throw three types of exceptions
+} catch (e) {
+    if (e instanceof TypeError) {
+        // statements to handle TypeError exceptions
+    } else if (e instanceof RangeError) {
+        // statements to handle RangeError exceptions
+    } else if (e instanceof EvalError) {
+        // statements to handle EvalError exceptions
+    } else {
+       // statements to handle any unspecified exceptions
+       logMyErrors(e); // pass exception object to error handler
+    }
+}
+```
+
+finally 子句包含的语句，是在 try 块和 catch 子句之后，但在 try..catch..finally 块之后的语句之前执行。请注意，无论是否抛出异常finally 子句都会执行。此外，如果抛出异常，即使没有 catch 子句处理异常，finally 子句中的语句也会执行。finnaly 通常用来释放资源，例如：
+
+
+```js
+openMyFile()
+try {
+   // tie up a resource
+   writeMyFile(theData);
+}
+finally {
+   closeMyFile(); // always close the resource
+}
+```
+
+注意点：如果从 finally 块中返回一个值，那么这个值将会成为整个 try-catch-finally 的返回值，无论是否有 return 语句在 try 和 catch 中。这包括在catch块里抛出的异常。例如：
+
+```js
+function f() {
+  try {
+    throw '出错了！';
+  } catch(e) {
+    console.log('捕捉到内部错误');
+    throw e; // 这句原本会等到 finally 结束再执行
+  } finally {
+    return false; // 直接返回
+  }
+}
+
+try {
+  f();
+} catch(e) {
+  // 此处不会执行
+  console.log('caught outer "bogus"');
+}
+```
+
+TODO: 性能问题
 
 思考：捕获到错误时要做什么样的处理？
 
@@ -528,8 +611,6 @@ async function main() {
 
 更复杂的情形是，当你在做一个可能会产生多个错误或多个结果的复杂操作的时候，调用者需要监听这个对象的 error 事件。例如 [`<XMLHttpRequest>`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#Events) 在请求过程中可能触发各种事件：`abort`、`error` 和 `timeout` 等。
 
-在那些具有复杂状态机的对象上，这些对象往往伴随着大量的异步事件。例如，一个套接字是一个EventEmitter，它可能会触发“connect“，”end“，”timeout“，”drain“，”close“事件。这样，很自然地可以把”error“作为另外一种可以被触发的事件。在这种情况下，清楚知道”error“还有其它事件何时被触发很重要，同时被触发的还有什么事件（例如”close“），触发的顺序，还有套接字是否在结束的时候处于关闭状态。
-
 ## 特定运行环境下的异常处理经验
 
 我们知道 try...catch 不是万能的，它只能捕获到同步的运行时错误，对语法和异步错误却无能为力。除了支持 Promsie API，aync/await 语法外，JavaScript 的运行环境还提供了一些适用于自身使用场景的 API 来捕获异常。例如：浏览器端的 `onerror`。
@@ -548,9 +629,22 @@ async function main() {
 - [`Geolocation.getCurrentPosition()`](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition)
 - ...
 
-#### [`onerror`](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror)
+#### 容易忽略的 promise reject
 
-前面异步错误中有提到，在复杂的情形下做一个产生多个错误或多个结果的复杂操作的时候，调用者需要监听这个对象的 error 事件。浏览器运行前端代码就是一个很复杂的情形，在运行中可能会产生各种错误，而浏览器的全局对象 `window` 就提供了监听全局错误的方式。
+- [HTMLMediaElement.play()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play#Exceptions)
+
+#### 自定义错误事件
+
+前面异步错误中有提到，在复杂的情形下做一个产生多个错误或多个结果的复杂操作的时候，调用者需要监听这个对象的 error 事件（观察者模式）。
+
+实现思路：
+
+- 借助 DOM 事件处理模型来实现自定义错误事件 [创建和触发 events](https://developer.mozilla.org/zh-CN/docs/Web/Guide/Events/Creating_and_triggering_events)。
+- 使用自定义的事件处理模型，例如 [es-event-emitter](https://github.com/Zlobin/es-event-emitter)。
+
+#### 全局错误捕获 - [`onerror`](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror)
+
+浏览器运行前端代码就是一个很复杂的情形，在运行中可能会产生各种错误，例如：语法错误、未处理的异常和资源加载失败等。而浏览器的全局对象 `window` 就提供了监听全局错误的方式。
 
 作用机制：
 
@@ -643,6 +737,10 @@ TODO: unhandledrejection 的兼容性怎么样？如果不兼容要怎么处理�
 - [Error Handling in Node.js](https://www.joyent.com/node-js/production/design/errors)
 - [Node.js内部是如何捕获异步错误的？](https://zhuanlan.zhihu.com/p/62210238)
 
+#### 同步调用 IO 操作
+
+虽然可以避免回调地狱，并使用 try...catch 来捕获异常，但这么做会影响性能，不建议使用。
+
 #### Error First
 
 - [node-error-first-callback](https://github.com/30-seconds/30-seconds-of-interviews/blob/master/questions/node-error-first-callback.md)
@@ -651,19 +749,28 @@ TODO: unhandledrejection 的兼容性怎么样？如果不兼容要怎么处理�
 - [Node.js的Error-first回调模式](https://www.jdon.com/idea/nodejs/error-first-callbacks.html)
 - [Why does node prefer error-first callback?](https://stackoverflow.com/questions/40511513/why-does-node-prefer-error-first-callback)
 
+#### Promsie 化
+
+虽然 Node.js 规范了回调函数的参数格式，但是还是无法解决回调地狱问题，可以借助一些第三方库来封装 Node.js API 来实现 Promsie 话，例如：[Bluebird's promisification](http://bluebirdjs.com/docs/api/promisification.html)。
+
+#### EventEmitter
+
+Node.js 内置了 EventEmitter 模块，可以轻松的实现自定义的异步操作事件处理机制。
+
+- [Events](https://nodejs.org/api/events.html)
+- [Node.js EventEmitter](https://www.runoob.com/nodejs/nodejs-event.html)
+
+#### domain
+
+[域模块已死](https://nodejs.org/zh-cn/docs/guides/domain-postmortem/)，不再介绍。
+
 #### process
+
+类似浏览器端的全局对象 `window`，Node.js 环境也有自己的全局对象用来监听未处理的异常和 Promise rejection。
 
 - [uncaughtException](https://nodejs.org/api/process.html#process_event_uncaughtexception)
 - [unhandledRejection](https://nodejs.org/api/process.html#process_event_unhandledrejection)
 - [rejectionHandled](https://nodejs.org/api/process.html#process_event_rejectionhandled)
-
-#### EventEmitter
-
-- [Events](https://nodejs.org/api/events.html)
-
-#### domain
-
-- [域模块已死](https://nodejs.org/zh-cn/docs/guides/domain-postmortem/)
 
 ## 特定开发框架下的异常处理经验
 
@@ -700,25 +807,25 @@ app.use(function (err, req, res, next) {
 
 [Error Handling](https://expressjs.com/en/guide/error-handling.html)
 
-## 实际应用
-
-- 性能问题：TODO
-- 统一规范：采用一种统一的规范来处理异常，例如：Node.js 的 error-first
-
-    - callback
-    - promise
-    - try...catch by async/await
-
 ## 总结
 
 - 异常和异常处理是什么
 - 编程语言为什么需要异常处理机制
 - JavaScript 异常错误对象和怎么抛出、捕获和处理异常
 - 异步任务的异常处理机制
-- 特定运行环境的下异常处理
-- 实际应用要注意什么
+- 特定运行环境下的异常处理
+- 特定开发框架下的异常处理
 
-## TODO
+思考：知道了这些我要做什么？
+
+1. 注意查阅原生 API 和第三方库的接口文档：是否存在异常，以及异常的处理方式；
+
+  ps：避免忽略这些错误，例如：很容易忽略 JSON 解析和 URI 编码抛出的异常，不处理这些异常就是程序 bug，导致程序直接终止，用户得不到任何反馈。
+
+2. 统一接口规范，制定一致的异常处理方式（回调、Promise 或者 Async/Await）；
+3. 使用全局错误捕获机制来收集和上报日志（快速定位线上问题，完善前端方案，前端监控系统）。
+
+## 参考文献
 
 - [前端开发中的Error以及异常捕获](https://segmentfault.com/a/1190000017708563)
 - [Top 10 JavaScript errors from 1000+ projects (and how to avoid them)](https://codeburst.io/top-10-javascript-errors-from-1000-projects-and-how-to-avoid-them-2956ce008437) / https://rollbar.com/blog/top-10-javascript-errors/
