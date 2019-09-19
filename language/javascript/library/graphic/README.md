@@ -10,3 +10,7 @@
     - git
 
 - [flowchart.js](https://github.com/adrai/flowchart.js)
+
+## 人脸识别
+
+- [picojs](https://github.com/tehnokv/picojs)
