@@ -11,6 +11,10 @@
 - [Technical Overview](https://flutter.io/docs/resources/technical-overview)
 - [开发跨平台app推荐React Native还是flutter？](https://www.zhihu.com/question/307298908)
 
+## 变更
+
+- [Flutter 1.9正式发布！支持macOS Catalina，Flutter网页版并入主库](https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&mid=2247492470&idx=1&sn=6e5a7b3501efcca4f5f83a6dcfc5b4f6)
+
 ## 社区
 
 - [Flutter 中文网](https://flutterchina.club)
