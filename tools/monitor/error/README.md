@@ -9,6 +9,7 @@
 - [Fundebug](https://www.fundebug.com/)
 - [Frontjs](https://www.frontjs.com/)
 - [BugSnag](https://www.bugsnag.com/)
+- https://logrocket.com
 
 ## 参考文献
 
