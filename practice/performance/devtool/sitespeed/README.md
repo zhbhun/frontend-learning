@@ -197,6 +197,11 @@ Browsertime
 - [产品测试中，如何模拟网络不佳的情况？](https://www.zhihu.com/question/29128847)
 - [Chaos Testing for Docker Containers](https://codefresh.io/docker-tutorial/chaos_testing_docker/)
 
+### grafana Volume 读写权限问题
+
+- [New Docker Install with persistent storage, Permission problem](https://community.grafana.com/t/new-docker-install-with-persistent-storage-permission-problem/10896)
+- [Migration from a previous version of the docker container to 5.1 or later](https://grafana.com/docs/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later)
+
 ---
 
 https://awesome-docker.netlify.com
