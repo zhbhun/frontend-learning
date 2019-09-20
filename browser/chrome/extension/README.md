@@ -90,6 +90,10 @@ https://developer.chrome.com/apps/i18n
 - [chrome.tabs](https://developer.chrome.com/extensions/tabs)
 - [chrome.declarativeContent](https://developer.chrome.com/extensions/declarativeContent)
 
+## 推荐
+
+- [Top 10 Chrome Extensions Every Developer Likes](https://dev.to/shijiezhou/top-10-chrome-extensions-every-developer-likes-3ehk)
+
 ## 问题
 
 ### 如何下载扩展压缩包
