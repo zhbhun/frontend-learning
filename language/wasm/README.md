@@ -3,6 +3,7 @@
 - [WebAssembly 官网](http://webassembly.org)
 - [WebAssembly 中文网](http://webassembly.org.cn/)
 - [WebAssembly完全入门——了解wasm的前世今身](https://segmentfault.com/a/1190000016949129)
+- [WebAssembly Modules in Rust: An Introduction](https://medium.com/@rossbulat/webassembly-modules-an-introduction-5554b8982402)
 
 ## 框架
 
