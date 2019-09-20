@@ -807,6 +807,24 @@ app.use(function (err, req, res, next) {
 
 [Error Handling](https://expressjs.com/en/guide/error-handling.html)
 
+## 常见的异常
+
+[Rollbar](https://rollbar.com/) 是一个异常监控平台，Rollbar 于 2018 年基于数千个项目的错误日志数据统计了[前端项目中 Top10 的错误类型](https://rollbar.com/blog/top-10-javascript-errors/)。。
+
+![top-10-error.jpg](./assets/top-10-error.jpg)
+
+> 这个开源项目 —— [JavaScript 异常档案](https://saijs.github.io/wiki/wiki/index) 收集了前端的异常处理的相关敬仰。
+
+Rollbar 的统计中有 7 个是类型错误（TypeError），一个 ReferenceError，一个 RangeError，还有一个脚本跨域加载错误，怎么在开发中尽早发现这些问题？Rollbar 给的建议是 TypeScript 来避免这些问题，即使不用 TypeScript，也可以使用 lint 工具来提升代码质量。
+
+> A good static type checking system like Typescript could help you avoid them if you use the strict compiler option. It can warn you if a type is expected but has not been defined. Even without Typescript, it helps to use guard clauses to check whether objects are undefined before using them.
+
+- [对ESLint实际开发使用的疑问？](https://www.zhihu.com/question/52678389/answer/233388191)
+- [ESLint 在中大型团队的应用实践](https://zhuanlan.zhihu.com/p/76697446)
+- [TypeScript 解决了什么痛点？](https://www.zhihu.com/question/308844713)
+
+TODO: 即使是技术水平再高的开发团队，即使采用了最佳实践，生产中也会出现意外错误。了解影响用户的错误并获得快速解决问题的好工具非常重要（前端错误监控系统）。
+
 ## 总结
 
 - 异常和异常处理是什么
