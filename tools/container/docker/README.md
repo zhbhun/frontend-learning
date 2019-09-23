@@ -108,6 +108,23 @@ sudo systemctl start docker
 - [Docker 配置国内镜像](https://www.jianshu.com/p/05f1232bda9f)
 - [docker for mac更换国内镜像源](https://www.jianshu.com/p/419eaf4425a6)
 
+- ubuntu
+
+    1. `sudo vi /etc/docker/daemon.json`
+
+        ```
+        {
+          "registry-mirrors": [
+            "https://registry.docker-cn.com",
+            "https://hub-mirror.c.163.com",
+            "https://docker.mirrors.ustc.edu.cn"
+          ]
+        }
+        ```
+
+    2. `sudo systemctl daemon-reload`
+    3. `sudo systemctl restart docker`
+
 ### Container 管理
 
 #### Container 常用命令
@@ -186,3 +203,15 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 - [解决 Docker 数据卷挂载的文件权限问题](https://padeoe.com/docker-volume-file-permission-problem/)
 - [docker-compose volumes 容器内权限会变为root所有?](https://segmentfault.com/q/1010000010446328/a-1020000010446370)
 - [Mount container volume root folder?](https://forums.docker.com/t/mount-container-volume-root-folder/38265)
+
+### Error Connecting to Docker hub
+
+- 问题：
+
+    ```
+    Error response from daemon: Get https://registry-1.docker.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+    ```
+
+- 解决：修改 DNS 服务器为 8.8.8.8
+
+    [Error Connecting to Docker hub](https://stackoverflow.com/questions/41262622/error-connecting-to-docker-hub)
