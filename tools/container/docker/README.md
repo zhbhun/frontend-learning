@@ -222,3 +222,8 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 - [Docker pull: TLS handshake timeout](https://serverfault.com/questions/908141/docker-pull-tls-handshake-timeout)
 - [docker报错“net/http: TLS handshake timeout”的解决方法](https://www.cnblogs.com/kaishirenshi/p/10392559.html)
 - [使用docker时报错“net/http: TLS handshake timeout”的解决方案](https://www.jianshu.com/p/e9c6efd5e3e1)
+
+### uid 和 gid 工作原理
+
+- [Understanding how uid and gid work in Docker containers](https://medium.com/@mccode/understanding-how-uid-and-gid-work-in-docker-containers-c37a01d01cf)
+- [Running a Docker container as a non-root user](https://medium.com/redbubble/running-a-docker-container-as-a-non-root-user-7d2e00f8ee15)
