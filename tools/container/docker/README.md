@@ -191,6 +191,11 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 9. `docker image tag [imageName] [username]/[repository]:[tag]`
 10. `docker image push [username]/[repository]:[tag]`
 
+### 常用镜像
+
+- [MySQL](https://hub.docker.com/_/mysql)
+- [adminer](https://hub.docker.com/_/adminer) - Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP.
+
 ## 问题
 
 ### 如何配置时区？
