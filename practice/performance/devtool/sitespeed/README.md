@@ -147,7 +147,51 @@ Browsertime
 - [WebPageReplay](https://www.sitespeed.io/documentation/sitespeed.io/webpagereplay/)
 - [Web Page Replay](https://github.com/catapult-project/catapult/blob/master/web_page_replay_go/README.md)
 
-## 插件
+## [插件](https://www.sitespeed.io/documentation/sitespeed.io/plugins/)
+
+[源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins)
+
+- [analysisstorer](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/analysisstorer)
+- [axe](https://www.sitespeed.io/documentation/sitespeed.io/axe/) | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/axe)
+- assets | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/assets)
+
+    ![assets.jpg](./assets/assets.jpg)
+
+- [browsertime](https://www.sitespeed.io/documentation/browsertime/) | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/browsertime)
+
+    ![browsertime.jpg](./assets/browsertime.jpg)
+
+- [budget](https://www.sitespeed.io/documentation/sitespeed.io/performance-budget/) | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/budget)
+
+    ![budget.png](./assets/budget.png)
+
+- [coach](https://www.sitespeed.io/documentation/coach/) | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/coach)
+
+    ![coach.jpg](./assets/coach.jpg)
+
+- [crawler](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/crawler)
+- [domains](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/domains)
+
+    ![domain.jpg](./assets/domain.jpg)
+
+- [gcs](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/gcs)
+- [grafana](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/grafana)
+- [graphite](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/graphite)
+- [harstorer](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/harstorer)
+- [html](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/html)
+- [influxdb](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/influxdb)
+- [messagelogger](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/messagelogger)
+- [metrics](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/metrics)
+- [pagexray](https://www.sitespeed.io/documentation/pagexray/) | [源代码](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/pagexray)
+
+    ![pagexray.jpg](./assets/pagexray.jpg)
+
+- [s3](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/s3)
+- [slack](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/slack)
+- [text](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/text)
+- [thirdparty](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/thirdparty)
+- [tracestorer](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/tracestorer)
+- [webpagetest](https://github.com/sitespeedio/sitespeed.io/tree/master/lib/plugins/webpagetest)
 
 - [I want a JSON from Browsertime/Coach other tools, how do I get that?](https://www.sitespeed.io/documentation/sitespeed.io/best-practice/)
 
