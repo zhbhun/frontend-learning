@@ -1,0 +1,1 @@
+window.$=function(){function n(n){return n+n}function n(n){return n.a}document.body.innerHTML="temp two",document.body.innerHTML=n("pure function. "),console.log("effect1"),console.log("effect2"),console.log("effect3"),n({a:123})};
