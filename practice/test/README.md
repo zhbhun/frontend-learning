@@ -1,5 +1,4 @@
-测试
-========
+# 测试
 
 ## 测试范围
 
@@ -52,6 +51,9 @@
 ### 框架
 
 - [mocha](https://github.com/mochajs/mocha)：适用于 node.js 和浏览器、简易、灵活、有趣的 JavaScript 测试框架。
+
+    [如何实现一个简易版的Mocha](https://www.yuque.com/artist/aori6e/vt4171)
+
 - [jasmine](https://github.com/jasmine/jasmine)：简单无 DOM 的 JavaScript 测试框架。
 - [qunit](https://github.com/jquery/qunit)：一个易于使用的 JavaScript 单元测试框架。
 - [jest](https://github.com/facebook/jest)：简单的 JavaScript 单元测试框架。
@@ -76,6 +78,11 @@
 - [nightwatch](https://github.com/nightwatchjs/nightwatch)：基于 node.js 和 selenium webdriver 的图形界面自动化测试框架。
 - [intern](https://github.com/theintern/intern)：下一代 JavaScript 代码测试栈。
 - [yolpo](http://www.yolpo.com/)：在浏览器逐句执行的 JavaScript 解释器。
+- [Selenium](https://docs.seleniumhq.org/selenium-ide/)
+
+### 解决方案
+
+- [Macaca](https://macacajs.github.io/)
 
 ### 辅助
 

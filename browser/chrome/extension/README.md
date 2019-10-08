@@ -11,6 +11,7 @@
 
 - [How to Create and Publish a Chrome Extension in 20 minutes](https://medium.freecodecamp.org/how-to-create-and-publish-a-chrome-extension-in-20-minutes-6dc8395d7153)
 - [How to develop a chrome extension in 2018](https://usersnap.com/blog/develop-chrome-extension/)
+- [Chrome-plugin-develop](https://www.yuque.com/artist/aori6e/brhggm)
 
 ### 结构
 
