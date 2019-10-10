@@ -1,1 +1,2 @@
-[Web accessibility](https://github.com/showcases/web-accessibility)
+- [Web accessibility](https://github.com/showcases/web-accessibility)
+- [The web accessibility basics](https://marcozehe.wordpress.com/2015/12/14/the-web-accessibility-basics/)
