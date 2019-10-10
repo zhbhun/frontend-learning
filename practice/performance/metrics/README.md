@@ -282,3 +282,7 @@ FP 和 FCP 指标用于标记导航之后浏览器在屏幕上渲染像素的时
 - [Moving beyond window.onload()](https://www.stevesouders.com/blog/2013/05/13/moving-beyond-window-onload/)
 - [Apdex-G and Apdex-R Composite Sections 1-5](http://www.apdex.org/index.php/2010/09/apdex-g-and-apdex-r-composite-sections-1-5/) / [Apdex 应用性能指数](https://www.frontjs.com/doc/view/apdex)
 - [Start Performance Budgeting](https://addyosmani.com/blog/performance-budgets/)
+- [Measuring Site Performance— Part 1](https://medium.com/@keyurkshah/measuring-site-performance-part-1-280268ae0c2d)
+- [Measuring Site Performance — Part 2 — Introducing Sitespeed.io](https://medium.com/@keyurkshah/measuring-site-performance-part-2-introducing-sitespeed-io-76ef6a8d76e4)
+- https://github.com/paulirish/speedline - Calculate the speed index and visual performance metrics from chrome dev tool timeline (recently: pmdartus -> paulirish)
+- https://github.com/WPO-Foundation/visualmetrics
