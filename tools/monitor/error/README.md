@@ -10,6 +10,7 @@
 - [Frontjs](https://www.frontjs.com/)
 - [BugSnag](https://www.bugsnag.com/)
 - https://logrocket.com
+- https://www.bugsnag.com
 
 ## 参考文献
 
