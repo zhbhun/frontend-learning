@@ -6,6 +6,16 @@
 - https://www.sitepoint.com/sass-reference/
 - http://github.com/HugoGiraudel/awesome-sass
 
-# Rem
+## 用法
+
+### 模块化
+
+- [Introducing Sass Modules](https://css-tricks.com/introducing-sass-modules/)
+
+
+## 开源库
+
+### Rem
+
 - https://github.com/bitmanic/rem
 - https://github.com/pierreburel/sass-rem
