@@ -19,7 +19,7 @@
     - [nwb](https://github.com/insin/nwb)
     - [Parcel](https://parceljs.org/)
     - [Razzle](https://github.com/jaredpalmer/razzle)
-
+    - https://parcelapp.netlify.com
 
 ## 兼容性
 
