@@ -7,3 +7,4 @@
 - [JavaScript Scoping and Hoisting](https://segmentfault.com/a/1190000004345355)
 - [let 声明会提升（hoist）吗？](https://zhuanlan.zhihu.com/p/27558914?utm_source=com.ideashower.readitlater.pro)
 - https://gist.github.com/DmitrySoshnikov/b53e379f63f4cd841305
+- [Understanding This, Bind, Call, and Apply in JavaScript](https://www.digitalocean.com/community/conceptual_articles/understanding-this-bind-call-and-apply-in-javascript)
