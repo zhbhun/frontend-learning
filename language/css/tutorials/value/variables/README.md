@@ -28,6 +28,7 @@
 - [CSS 变量教程](https://www.ruanyifeng.com/blog/2017/05/css-variables.html)
 - [CSS Custom Properties in Microsoft Edge](https://blogs.windows.com/msedgedev/2017/03/24/css-custom-properties/)
 - [精读《使用 css 变量生成颜色主题》](https://segmentfault.com/a/1190000020256639?_ea=18131119#articleHeader1)
+- [Patterns for Practical CSS Custom Properties Use](https://css-tricks.com/patterns-for-practical-css-custom-properties-use/)
 
 ## 规范
 
