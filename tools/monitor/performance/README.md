@@ -111,3 +111,8 @@
 - 报表：？
 - 告警：？
 - 设置：？
+
+## 参考文献
+
+- [7 天打造前端性能监控系统](http://fex.baidu.com/blog/2014/05/build-performance-monitor-in-7-days/)
+- [百度前端性能监控与优化实践](https://www.slideshare.net/welefen/ss-13579027)
