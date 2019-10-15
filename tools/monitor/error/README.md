@@ -2,6 +2,7 @@
 
 ## 开源工具
 
+- [Sentry](https://sentry.io)
 - [badjs-report](https://github.com/BetterJS/badjs-report)
 
 ## 商业产品
@@ -11,6 +12,15 @@
 - [BugSnag](https://www.bugsnag.com/)
 - https://logrocket.com
 - https://www.bugsnag.com
+
+| 产品\特性 | 支持平台 | 功能特性 | 
+| --- | --- | --- |
+| [Bugsnag](https://www.bugsnag.com) | JavaScript | 错误监控 |
+| [FrontJS](https://www.frontjs.com/) | JavaScript、微信小程序 | 性能监控、错误监控 |
+| [FunDebug](https://www.fundebug.com) | JavaScript、Nodejs、RN、微信小程序、微信小游戏、支付宝小程序、Nodejs | 错误监控 |
+| [Sentry](https://sentry.io) | JavaScript | 错误监控 |
+| [听云](https://www.tingyun.com) | |
+| [OneAPM](https://www.oneapm.com/) | |
 
 ## 参考文献
 
