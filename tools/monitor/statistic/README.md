@@ -38,3 +38,7 @@
 - [Improved tracking with the `<a ping>` attribute - HTML5](https://deanhume.com/improved-tracking-with-the-a-ping-attribute-html5/)
 - [Some thoughts on anchor ping](https://lapcatsoftware.com/articles/Safari-link-tracking2.html)
 - https://caniuse.com/#feat=ping
+
+## TODO
+
+思考 SPA 等现代前端技术方案给数据统计带来的挑战
