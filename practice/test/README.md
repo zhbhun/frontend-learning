@@ -147,3 +147,4 @@
 - [7 天打造前端性能监控系统](http://fex.baidu.com/blog/2014/05/build-performance-monitor-in-7-days/)
 - [如何编写测试](http://growth.phodal.com/#如何编写测试)
 - [Coding-Guide](https://github.com/ecmadao/Coding-Guide/blob/master/Notes/UnitTest/%E5%89%8D%E7%AB%AF%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E6%8E%A2%E7%B4%A2.md)
+- [berserkJS](https://github.com/tapir-dream/berserkJS)
