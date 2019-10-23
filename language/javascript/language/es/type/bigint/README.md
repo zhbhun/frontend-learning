@@ -2,14 +2,14 @@
 
 ## 是什么
 
-BigInt 是 JavaScript 中一种可以用来表示任意精度整数的基本数据类型，使用 BigInt 可以安全的存储和操作任意大小的整数而不受 Number 类型的安全值范围的限制。
+BigInt 是 JavaScript 中一种可以用来表示**任意精度整数**的**基本数据类型**，使用 BigInt 可以安全的存储和操作任意大小的整数而不受 Number 类型的安全值范围的限制。
 
 - [Specification](https://tc39.es/proposal-bigint/) / https://tc39.es/proposal-bigint/
 - [BigInt: Arbitrary precision integers in JavaScript](https://github.com/tc39/proposal-bigint)
 
 ## 为什么
 
-JavaScript 中 Number 是以 64 位双精度浮点型存储，所以会有精度限制，JavaScript 中可以准确表示的最大整数是Number.MAXSAFEINTEGER 这个值是 2^53-1
+JavaScript 中 Number 是以 **64 位双精度浮点型存储**，所以会有精度限制，JavaScript 中可以准确表示的最大整数是Number.MAXSAFEINTEGER 这个值是 **2^53-1**
 
 ```js
 const x = Number.MAX_SAFE_INTEGER;
