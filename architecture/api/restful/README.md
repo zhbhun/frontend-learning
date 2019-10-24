@@ -1,3 +1,5 @@
 - [RESTful API 设计指南](http://www.ruanyifeng.com/blog/2014/05/restful_api.html)
 - [RESTful API 最佳实践](http://www.ruanyifeng.com/blog/2018/10/restful-api-best-practices.html)
 - [理解RESTful架构](http://www.ruanyifeng.com/blog/2011/09/restful.html)
+- [Best Practices for Designing a Pragmatic RESTful API](https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api#envelope)
+- [采取 RESTful 风格的 api 是否应该对结果包一层？](https://www.v2ex.com/t/611572?p=1)
