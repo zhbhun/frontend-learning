@@ -14,3 +14,7 @@
 ## 人脸识别
 
 - [picojs](https://github.com/tehnokv/picojs)
+
+## 地图
+
+- [Fantasy-Map-Generator](https://github.com/Azgaar/Fantasy-Map-Generator) - Web application generating interactive and customizable maps
