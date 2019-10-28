@@ -7,6 +7,7 @@
 
 ---
 
+- https://www.react-spring.io
 - [react-motion](https://github.com/chenglou/react-motion)
 - [velocity-react](https://github.com/google-fabric/velocity-react)
 - [react-animations](https://github.com/FormidableLabs/react-animations)
@@ -18,3 +19,7 @@
 
 - https://reactjs.org/docs/animation.html#high-level-api-reactcsstransitiongroup
 - https://reactcommunity.org/react-transition-group/
+
+---
+
+- [mobile-first-animation](https://github.com/aholachek/mobile-first-animation)
