@@ -3,7 +3,7 @@
 
 - [typo.css](https://github.com/sofish/typo.css)
 - [bulma](https://github.com/jgthms/bulma)
-
+- [tailwindcss](https://github.com/tailwindcss/tailwindcss) - A utility-first CSS framework for rapid UI development.
 
 # 教程
 
