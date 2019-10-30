@@ -22,3 +22,7 @@
 ## 代码
 
 - [carbon-app/carbon](https://github.com/carbon-app/carbon) - reate and share beautiful images of your source code
+
+## 裁剪
+
+- [fengyuanchen/cropperjs](https://github.com/fengyuanchen/cropperjs) - JavaScript image cropper.
