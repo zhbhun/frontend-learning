@@ -38,6 +38,28 @@ app.get('/promise', (req, res, next) => {
   res.send('success');
 })
 
+app.get('/promise-catched', (req, res, next) => {
+  Promise.reject(new Error('test'))
+    .then(() => {
+      res.send('success');
+    })
+    .catch((error) => {
+      next(error);
+    });
+})
+
+app.get('/custom', (req, res, next) => {
+  Promise.reject(new Error('test'))
+    .then(() => {
+      res.send('success');
+    })
+    .catch((error) => {
+      Sentry.captureException(error);
+      res.status(500);
+      res.send('fail')
+    });
+})
+
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler())
 
