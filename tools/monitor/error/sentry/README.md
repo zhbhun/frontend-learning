@@ -10,7 +10,9 @@
 - [正常加载](https://docs.sentry.io/platforms/javascript/#integrating-the-sdk)
 - [懒加载](https://docs.sentry.io/platforms/javascript/#lazy-loading-sentry)
 
-### 错误数据
+### [错误数据](http://getsentry.github.io/sentry-javascript/interfaces/types.event.html)
+
+错误数据对应 Sentry 的“事件对象”这个概念：
 
 - event_id：事件标识
 
@@ -78,6 +80,7 @@
     }
     ```
 
+- message：消息，来自 `Sentry.captureMessage()`
 - breadcrumbs：”面包屑“，产生事件的操作路径（包含 console 日志，DOM 交互事件和 history 记录等）
 - request：产生事件的页面信息
 
@@ -117,8 +120,100 @@
 
 ### 配置 SDK
 
-TODO
+- [`BrowserOptions.beforeSend(event: Event, hint?: EventHint): PromiseLike<Event | null> | Event | null`](http://getsentry.github.io/sentry-javascript/interfaces/browser.browseroptions.html#beforesend)：事件提交前的回调，可以在这里修改事件对象
 
+    参数
+
+    - [`event`](http://getsentry.github.io/sentry-javascript/interfaces/types.event.html#timestamp)：同上文提到的事件对象
+    - [`hint`](http://getsentry.github.io/sentry-javascript/interfaces/types.eventhint.html)：
+
+         event_id, originalException, syntheticException
+    
+        ps：在调用 `Sentry.captureMessage` 时没有原生的错误对象，Sentry 会自己创建一个合成对象 `syntheticException`。
+
+- [`BrowserOptions.beforeBreadcrumb(breadcrumb: Breadcrumb, hint?: BreadcrumbHint): Breadcrumb | null`](http://getsentry.github.io/sentry-javascript/interfaces/browser.browseroptions.html#beforebreadcrumb)：“面包屑”添加前的回调，而已在这里修改相关对象的数据
+
+    参数
+
+    - [`breadcrumb`](http://getsentry.github.io/sentry-javascript/interfaces/types.breadcrumb.html)：“面包屑”对象
+    
+        不同类型的操作包含的信息不一样，大致包含以下字段：category、data、event_id、level、message、timestamp、type、Properties
+    
+
+    - [`hint`](http://getsentry.github.io/sentry-javascript/interfaces/types.breadcrumbhint.html)：包含涉及操作的原始数据信息，例如 Ajax 请求有 xhr 对象
+
+        - xhr
+
+            - breadcrumb：
+
+                ```js
+                { 
+                  category: "xhr",
+                  data: {
+                    method: "GET"
+                    status_code: 200
+                    url: "http://www.mocky.io/v2/5db9070130000064005ee042"
+                  }
+                  timestamp: 1572407522.805
+                  type: "http"
+                }    
+                ```
+            
+            - hint: `{ xhr: XMLHTTPRequest }`
+
+        - console
+
+            - breadcrumb：
+
+                ```ts
+                {
+                  category: "console",
+                  data: {
+                    extra: {
+                      arguments: any[],
+                    },
+                    logger: "console",
+                  }
+                  level: "debug",
+                  message: "loaded"
+                  timestamp: 1572407522.808
+                }
+                ```
+
+            - hint:
+
+                ```ts
+                {
+                  input: any[]
+                  level: "debug"
+                }
+                ```
+
+        - sentry
+
+            - breadcrump
+
+                ```ts
+                object
+                ```
+
+            - hint: `undefiend`
+
+        - navigation
+
+            - breadcrump
+
+                ```ts
+                {
+                  category: "navigation",
+                  data: {
+                    from: string,
+                    to: string
+                  },
+                  timestamp: 1572407522.813
+                }
+                ```
+        
 ### 错误捕获
 
 - 自动捕获
