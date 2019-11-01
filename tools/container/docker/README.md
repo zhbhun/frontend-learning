@@ -240,3 +240,7 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 
 - [Understanding how uid and gid work in Docker containers](https://medium.com/@mccode/understanding-how-uid-and-gid-work-in-docker-containers-c37a01d01cf)
 - [Running a Docker container as a non-root user](https://medium.com/redbubble/running-a-docker-container-as-a-non-root-user-7d2e00f8ee15)
+
+### MYSQL `mbind: Operation not permitted`
+
+- [docker logs mbind: Operation not permitted](https://github.com/docker-library/mysql/issues/303)
