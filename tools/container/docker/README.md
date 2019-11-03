@@ -24,6 +24,10 @@
     - 资源占用少
     - 体积小
 
+参考文献
+
+- [当Node.js遇见Docker](https://blog.fundebug.com/2017/03/27/nodejs-docker/)
+
 ### Docker 是什么？
 
 Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。它是目前最流行的 Linux 容器解决方案。
