@@ -31,3 +31,7 @@
 ## 动图
 
 - [xtyxtyx/sorry](https://github.com/xtyxtyx/sorry) - 在线制作`sorry 为所欲为`的gif developers.
+
+## 截图
+
+- [jscapture](https://github.com/mgechev/jscapture)
