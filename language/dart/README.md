@@ -1,6 +1,7 @@
 # [Dart](https://dart.dev)
 
 - [Document](https://dart.dev/guides)
+- [Blog](https://medium.com/dartlang)
 - APIs
 
     - [2.1.0](https://api.dartlang.org/stable/2.1.0/index.html)
@@ -9,6 +10,8 @@
 - [Community](https://dart.dev/community)
 
     - [Dart China](https://www.dart-china.org/)
+
+- [语言设计](https://github.com/dart-lang/language)
 
 语言特性
 
@@ -39,9 +42,13 @@
 - [Try Dart](https://dart.dev/#try-dart)
 - [Bootstrap into Dart](https://flutter.dev/docs/resources/bootstrap-into-dart)
 
-## 语法详解
+## 语言详解
 
 - [A tour of the Dart language](https://dart.dev/guides/language/language-tour)
+- [Language samples](https://dart.dev/samples)
+- [Codelabs](https://dart.dev/codelabs)
+- [Dart cheatsheet codelab](https://dart.dev/codelabs/dart-cheatsheet)
+- [Dart language specification](https://dart.dev/guides/language/spec)
 
 ### 关键字
 
@@ -55,6 +62,7 @@
 
 - [Built-in types](https://www.dartlang.org/guides/language/language-tour#built-in-types)
 - [Dart's Type System](https://www.dartlang.org/guides/language/sound-dart)
+- [Typedefs](https://dart.dev/guides/language/language-tour#typedefs)
 
 ### 操作符 & 表达式
 
@@ -70,20 +78,111 @@
 
 ### 函数
 
-[Functions](https://www.dartlang.org/guides/language/language-tour#functions)
+- [Functions](https://www.dartlang.org/guides/language/language-tour#functions)
+- [Typedefs](https://dart.dev/guides/language/language-tour#typedefs)
 
 ### 类
 
-[Classes](https://www.dartlang.org/guides/language/language-tour#classes)
+- [Classes](https://www.dartlang.org/guides/language/language-tour#classes)
+- [Callable classes](https://dart.dev/guides/language/language-tour#callable-classes)
 
 ### 泛型
 
 [Generics](https://www.dartlang.org/guides/language/language-tour#generics)
 
-### [模块](https://dart.dev/guides/language/language-tour#libraries-and-visibility)
+### 注解
+
+- [Metadata](https://dart.dev/guides/language/language-tour#metadata)
 
 ### 注释
+
+- [Comments](https://dart.dev/guides/language/language-tour#comments)
+
+### [模块](https://dart.dev/guides/language/language-tour#libraries-and-visibility)
+
+- [How to use packages](https://dart.dev/guides/packages)
+- [Commonly used packages](https://dart.dev/guides/libraries/useful-libraries)
+- [Creating packages](https://dart.dev/guides/libraries/create-library-packages)
+- [Publishing packages](https://dart.dev/tools/pub/publishing)
+
+## 工作机制
+
+- [Isolates](https://dart.dev/guides/language/language-tour#isolates)
+
+## 使用教程
+
+- [Tutorials](https://dart.dev/tutorials)
+
+### 异步编程
+
+- [Asynchronous programming: futures, async, await](https://dart.dev/codelabs/async-await)
+- [Asynchronous programming: streams](https://dart.dev/tutorials/language/streams)
+
+### 引用公共库
+
+
+#### 核心库
+
+- [Core libraries](https://dart.dev/guides/libraries)
+- [A tour of the core libraries](https://dart.dev/guides/libraries/library-tour)
+
+#### 第三方库
+
+- [Install shared packages](https://dart.dev/tutorials/libraries/shared-pkgs)
+
+#### 自定义
+
+TODO
 
 ### 开发工具
 
 - https://dartpad.dartlang.org/
+- [IDEs and editors](https://dart.dev/tools#ides-and-editors)
+- https://github.com/dart-lang/dartdoc#dartdoc
+- https://github.com/dart-lang/linter
+- [The pub tool](https://dart.dev/tools/pub/cmd)
+
+---
+
+- [Customizing static analysis](https://dart.dev/guides/language/analysis-options)
+
+### 应用开发
+
+#### 客户端应用
+
+- Web 应用
+
+    - [Web apps tutorial](https://dart.dev/tutorials#web-apps)
+    - [Web apps overview](https://dart.dev/web)
+    - [Tools for developing web apps](https://dart.dev/tools#web)
+
+- 移动端应用
+- 说明应用
+
+##### 状态管理
+
+- [flutter_redux](https://github.com/brianegan/flutter_redux)
+- [flutter-provide](https://github.com/google/flutter-provide)
+- [scoped_model](https://github.com/brianegan/scoped_model)
+
+---
+
+- [Flutter | 状态管理探索篇——Scoped Model（一）](https://juejin.im/post/5b97fa0d5188255c5546dcf8)
+- [Flutter | 状态管理探索篇——Redux（二）](https://www.jianshu.com/p/5d7e2dbdaea5)
+- [八种 Flutter 状态管理-深入评论](https://zhuanlan.zhihu.com/p/65395502)
+- [Flutter状态管理 - 初探与总结](https://juejin.im/post/5cd91bb0f265da034e7eaca3)
+
+#### 命令行程序
+
+- [Write command-line apps](https://dart.dev/tutorials/server/cmdline)
+
+#### 服务端应用
+
+- [Server-side Dart tutorials](https://dart.dev/tutorials#server-side-dart-tutorials)
+- [Write HTTP clients & servers](https://dart.dev/tutorials/server/httpserver)
+- [Tools for developing command-line apps and servers](https://dart.dev/tools#server)
+
+### 编码规范
+
+- [Effective Dart](https://dart.dev/guides/language/effective-dart)
+
