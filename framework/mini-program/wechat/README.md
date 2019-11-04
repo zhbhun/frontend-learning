@@ -25,6 +25,12 @@
 - [taro](https://github.com/NervJS/taro)
 - [wepy](https://github.com/Tencent/wepy)
 
+---
+
+同构
+
+- [【第1765期】微信官方小程序同构新方案Kbone全解析](https://mp.weixin.qq.com/s/47UmvrNVFdXWo6YpXE_G9A)
+
 ## 类似框架
 
 - http://ued.qunar.com/yis/index.html
