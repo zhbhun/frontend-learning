@@ -307,10 +307,6 @@ ps：下图为腾讯 BetterJS 的架构图
 
 ## 解决方案
 
-- [logrocket](https://logrocket.com)
-- [badjs-report](https://github.com/BetterJS/badjs-report)
-- https://trackjs.com
-
 | 产品\特性 | 支持平台 | 是否开源 |
 | --- | --- | --- |
 | [Sentry](https://sentry.io) | JavaScript、Node.js、Java、PHP、GO。。。 | 是 |
@@ -319,6 +315,11 @@ ps：下图为腾讯 BetterJS 的架构图
 | [logrocket](https://logrocket.com) | JavaScript | 否 |
 | [FrontJS](https://www.frontjs.com/) | JavaScript、小程序 | 否 |
 | [FunDebug](https://www.fundebug.com) | JavaScript、Nodejs、RN、小程序 | 否 |
+
+其他
+
+- [badjs-report](https://github.com/BetterJS/badjs-report)
+- https://trackjs.com
 
 ## 应用案例
 
