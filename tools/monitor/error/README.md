@@ -185,13 +185,33 @@ ps：下图为腾讯 BetterJS 的架构图
 
 正常操作是“打包构建代码时生成 source map，然后上传到错误监控平台”。但是不一定不适用于所有的开发团队，这个方案侵入性太强，部门多，没人用，严重影响性能和效率，增加代码质量。其实解决办法我们换一个思路就好了，我们手上的条件，有报错的压缩的js文件，有错误行和列，有错误信息。那么我们是否可以在可视化平台的后台增加这样一个功能：先定位这个错误是否是一个压缩后的报错，再看这个报错能否根据报错信息快速定位问题，如果都不行。那么你作为开发者，你一定拥有这个压缩后的js的源代码，然后这个js肯定也是你压缩的，对应你肯定也有他的sourceMap文件。通过在后台上传你的sourceMap，甚至上传你的源代码，选择压缩方式，平台本身就可以帮你产生对应的sourceMap，再通过转换，把单行的行和列转换成源码的行和列就可以了。而这些都可以做成全自动的，你只需要把源代码文件拖进web界面即可~！ —— 总结就是再需要的时候可以通过 source map 排查问题。
 
-### TODO
 
-- 性能监控
-- 数据脱敏
-- 自动产生 bug 工单 
+## 解决方案
 
-### 参考文献
+| 产品\特性 | 支持平台 | 是否开源 |
+| --- | --- | --- |
+| [Sentry](https://sentry.io) | JavaScript、Node.js、Java、PHP、GO。。。 | 是 |
+| [Rollbar](https://rollbar.com) | JavaScript、Node.js、Java、PHP | 否 |
+| [Bugsnag](https://www.bugsnag.com) | JavaScript | 否 |
+| [logrocket](https://logrocket.com) | JavaScript | 否 |
+| [FrontJS](https://www.frontjs.com/) | JavaScript、小程序 | 否 |
+| [FunDebug](https://www.fundebug.com) | JavaScript、Nodejs、RN、小程序 | 否 |
+
+其他
+
+- [badjs-report](https://github.com/BetterJS/badjs-report)
+- https://trackjs.com
+
+## 应用案例
+
+- [Fundebug抓到了这个Bug](https://blog.fundebug.com/2016/12/07/fundebug-catch-the-bug/)
+- [我是这样发现ISP劫持HTTP请求的](https://blog.fundebug.com/2017/05/10/isp-hijack-http/)
+- [我是这样搞懂一个神奇的BUG](https://blog.fundebug.com/2017/09/06/fundebug-user-behavior-help-debug/)
+- [10个JavaScript常见BUG及修复方法](https://blog.fundebug.com/2017/11/15/top_10_bugs_and_fixing_method/)
+- [详解1000+项目数据分析出来的10大JavaScript错误](https://blog.fundebug.com/2018/03/12/top-10-javascript-errors-from-1000-projects/)
+- [窥视各大网站到底有没有的BUG？](https://blog.fundebug.com/2018/07/16/inspect_website_bugs/)
+
+## 参考文献
 
 参考文献
 
@@ -305,27 +325,9 @@ ps：下图为腾讯 BetterJS 的架构图
 
     [sentry](https://sentry.io/organizations/learning-w5/issues/)
 
-## 解决方案
+## TODO
 
-| 产品\特性 | 支持平台 | 是否开源 |
-| --- | --- | --- |
-| [Sentry](https://sentry.io) | JavaScript、Node.js、Java、PHP、GO。。。 | 是 |
-| [Rollbar](https://rollbar.com) | JavaScript、Node.js、Java、PHP | 否 |
-| [Bugsnag](https://www.bugsnag.com) | JavaScript | 否 |
-| [logrocket](https://logrocket.com) | JavaScript | 否 |
-| [FrontJS](https://www.frontjs.com/) | JavaScript、小程序 | 否 |
-| [FunDebug](https://www.fundebug.com) | JavaScript、Nodejs、RN、小程序 | 否 |
+- 性能监控
+- 数据脱敏
+- 自动产生 bug 工单 
 
-其他
-
-- [badjs-report](https://github.com/BetterJS/badjs-report)
-- https://trackjs.com
-
-## 应用案例
-
-- [Fundebug抓到了这个Bug](https://blog.fundebug.com/2016/12/07/fundebug-catch-the-bug/)
-- [我是这样发现ISP劫持HTTP请求的](https://blog.fundebug.com/2017/05/10/isp-hijack-http/)
-- [我是这样搞懂一个神奇的BUG](https://blog.fundebug.com/2017/09/06/fundebug-user-behavior-help-debug/)
-- [10个JavaScript常见BUG及修复方法](https://blog.fundebug.com/2017/11/15/top_10_bugs_and_fixing_method/)
-- [详解1000+项目数据分析出来的10大JavaScript错误](https://blog.fundebug.com/2018/03/12/top-10-javascript-errors-from-1000-projects/)
-- [窥视各大网站到底有没有的BUG？](https://blog.fundebug.com/2018/07/16/inspect_website_bugs/)
