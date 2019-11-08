@@ -250,3 +250,11 @@
 - [用 Docker 部署 Sentry Bug 日志收集服务](https://thinkhard.tech/2019/05/25/docker-sentry-deploy/)
 - [docker本地搭建Sentry](https://www.jianshu.com/p/cea2d22fbb32)
 - [前端异常监控之 Sentry的部署和使用](https://juejin.im/post/5b55c33ae51d45198f5c7a91)
+
+## 常见问题
+
+### Missing support for SMTP with SSL
+
+- [Missing support for SMTP with SSL](https://github.com/getsentry/sentry/issues/4252)
+- [sentry发送邮件问题](http://lagel.me/server/sentry-mail.html#%E6%8E%92%E6%9F%A5%E6%88%91%E4%BB%AC%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E5%92%8C%E7%AB%AF%E5%8F%A3%E9%97%AE%E9%A2%98)
+- [Sentry 之部署到生产环境](https://learnku.com/articles/9405/the-deployment-of-sentry-into-the-production-environment)

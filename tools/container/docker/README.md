@@ -106,6 +106,7 @@ sudo systemctl start docker
 
 #### 配置仓库镜像
 
+- [9102 年在国内如何快速的下载 Docker 镜像, 现存 Docker 镜像源横评](https://tomwei7.com/docker/2019/07/12/how-to-pull-docker-image-fast-in-china.html)
 - [国内 docker 仓库镜像对比](https://ieevee.com/tech/2016/09/28/docker-mirror.html)
 - [docker改国内官方镜像](https://www.cnblogs.com/coolwinds/p/7465475.html)
 - [Docker 国内仓库和镜像](https://www.cnblogs.com/wushuaishuai/p/9984228.html)
