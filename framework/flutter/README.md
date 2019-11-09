@@ -1,32 +1,50 @@
 # Flutter
 
-- https://flutter.io/
-- https://flutter-io.cn/
-- https://github.com/flutter/flutter
-- https://pub.dartlang.org/flutter
-- [Document](https://docs.flutter.io/)
+Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库高效构建多平台精美应用，支持移动、Web、桌面和嵌入式平台。
 
-## 介绍
+常用地址
+
+- 官网
+
+    - https://flutter.dev/
+    - https://flutter.cn/
+
+- 社区
+
+    - [Flutter 中文网](https://flutterchina.club)
+    - [Flutter 知乎](https://www.zhihu.com/topic/20172123/hot)
+
+
+更新日志
+
+- [Flutter 1.9正式发布！支持macOS Catalina，Flutter网页版并入主库](https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&mid=2247492470&idx=1&sn=6e5a7b3501efcca4f5f83a6dcfc5b4f6)
+
+参考文献
 
 - [Technical Overview](https://flutter.io/docs/resources/technical-overview)
 - [开发跨平台app推荐React Native还是flutter？](https://www.zhihu.com/question/307298908)
 
-## 变更
+## 安装使用
 
-- [Flutter 1.9正式发布！支持macOS Catalina，Flutter网页版并入主库](https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&mid=2247492470&idx=1&sn=6e5a7b3501efcca4f5f83a6dcfc5b4f6)
+- [安装教程](https://flutter.dev/docs/get-started/install)
 
-## 社区
+    1. 下载 flutter + 配置环境变量
+    2. 安装 Android Studio + Android SDK + Android Simulator
 
-- [Flutter 中文网](https://flutterchina.club)
-- [Flutter 知乎](https://www.zhihu.com/topic/20172123/hot)
+- [国内镜像](https://flutter.dev/community/china)
+- [升级版本](https://flutter.dev/docs/development/tools/sdk/upgrading#upgrading-the-flutter-sdk-and-packages)
+- [切换渠道](https://flutter.dev/docs/development/tools/sdk/upgrading#switching-flutter-channels)
 
-## 博客
+    flutter 可以选择不同的渠道下载，目前支持：master、master、beta 和 stable。
 
-- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
-- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
+    https://github.com/flutter/flutter/wiki/Flutter-build-release-channels
+
+- [切换版本](https://flutter.dev/docs/development/tools/sdk/upgrading#selecting-a-specific-version)
 
 ## 教程
 
+- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
+- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
 - [Cookbook](https://flutter.io/docs/cookbook)
 - [Flutter for React Native developers](https://flutter.io/docs/get-started/flutter-for/react-native-devs)
 - [Flutter for web developers](https://flutter.io/docs/get-started/flutter-for/web-devs)
