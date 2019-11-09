@@ -1,4 +1,4 @@
-# Flutter
+Flutter
 
 Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库高效构建多平台精美应用，支持移动、Web、桌面和嵌入式平台。
 
@@ -9,6 +9,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
     - https://flutter.dev/
     - https://flutter.cn/
 
+- [API](https://api.flutter.dev/)
 - 社区
 
     - [Flutter 中文网](https://flutterchina.club)
@@ -26,54 +27,56 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 ## 安装使用
 
-- [安装教程](https://flutter.dev/docs/get-started/install)
+1. [安装教程](https://flutter.dev/docs/get-started/install)
 
-    1. 下载 flutter + 配置环境变量
-    2. 安装 Android Studio + Android SDK + Android Simulator
+    - [国内镜像](https://flutter.dev/community/china)
+    - [升级版本](https://flutter.dev/docs/development/tools/sdk/upgrading#upgrading-the-flutter-sdk-and-packages)
+    - [切换渠道](https://flutter.dev/docs/development/tools/sdk/upgrading#switching-flutter-channels)
 
-- [国内镜像](https://flutter.dev/community/china)
-- [升级版本](https://flutter.dev/docs/development/tools/sdk/upgrading#upgrading-the-flutter-sdk-and-packages)
-- [切换渠道](https://flutter.dev/docs/development/tools/sdk/upgrading#switching-flutter-channels)
+        flutter 可以选择不同的渠道下载，目前支持：master、master、beta 和 stable。
 
-    flutter 可以选择不同的渠道下载，目前支持：master、master、beta 和 stable。
+        https://github.com/flutter/flutter/wiki/Flutter-build-release-channels
 
-    https://github.com/flutter/flutter/wiki/Flutter-build-release-channels
+    - [切换版本](https://flutter.dev/docs/development/tools/sdk/upgrading#selecting-a-specific-version)
 
-- [切换版本](https://flutter.dev/docs/development/tools/sdk/upgrading#selecting-a-specific-version)
+2. [配置编辑器](https://flutter.dev/docs/get-started/editor)
+3. [初始化项目](https://flutter.dev/docs/get-started/test-drive?tab=terminal)
 
-## 教程
+## 开发教程
 
-- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
-- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
-- [Cookbook](https://flutter.io/docs/cookbook)
-- [Flutter for React Native developers](https://flutter.io/docs/get-started/flutter-for/react-native-devs)
-- [Flutter for web developers](https://flutter.io/docs/get-started/flutter-for/web-devs)
-- [Build Native Mobile Apps with Flutter by Google](https://cn.udacity.com/course/build-native-mobile-apps-with-flutter--ud905)
-- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
-- https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0
+- Migration
+    - [Flutter for React Native developers](https://flutter.dev/docs/get-started/flutter-for/react-native-devs)
+    - [Flutter for web developers](https://flutter.dev/docs/get-started/flutter-for/web-devs)
+    - [Flutter for Android developers](https://flutter.dev/docs/get-started/flutter-for/android-devs)
+    - [Flutter for iOS developers](https://flutter.dev/docs/get-started/flutter-for/ios-devs)
+    - [Flutter for Xamarin.Forms developers](https://flutter.dev/docs/get-started/flutter-for/xamarin-forms-devs)
+    - [Introduction to declarative UI](https://flutter.dev/docs/get-started/flutter-for/declarative)
+- Examples
+    - [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
+    - [Cookbook](https://flutter.dev/docs/cookbook)
+    - [Codelabs](https://flutter.dev/docs/codelabs)
+    - [Tutorials](https://flutter.dev/docs/reference/tutorials)
+    - [Write your first Flutter app, part 1](https://flutter.dev/docs/get-started/codelab) / [Write Your First Flutter App, part 2](https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0)
+- 专栏 & 博客
 
-### 部件
+	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
+	- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
 
-- 部件属性
+### UI 界面
 
-    - [Props](https://flutter.io/docs/get-started/flutter-for/react-native-devs#props)
+#### 布局
 
-- 状态管理
+#### 事件
 
-    - [State Management](https://flutter.io/docs/get-started/flutter-for/react-native-devs#state-management)
+#### 资源
 
-- 事件处理
+#### 路由
 
-    - [Gesture detection and touch event handling](https://flutter.io/docs/get-started/flutter-for/react-native-devs#gesture-detection-and-touch-event-handling)
+#### 动画
 
-- 动画
+### 状态管理
 
-    - [Animation](https://flutter.io/docs/get-started/flutter-for/react-native-devs#animation)
-
-- 部件库
-
-    - [Widget catalog](https://flutter.io/docs/development/ui/widgets)
-    - [Flutter widget index](https://flutter.io/docs/reference/widgets)
+---
 
 ### 路由
 
@@ -103,16 +106,20 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Developing packages & plugins](https://flutter.io/docs/development/packages-and-plugins/developing-packages)
 - [flutter/plugins](https://github.com/flutter/plugins)
 
-### 调试
+### 开发示例
+
+- [flutter-go](https://github.com/alibaba/flutter-go)
+
+## 开发工具
 
 - [Debugging](https://flutter.io/docs/get-started/flutter-for/react-native-devs#debugging)
 - [Debugging Flutter apps](https://flutter.io/docs/testing/debugging)
 
-## 示例
+## 工作原理
 
-- [flutter-go](https://github.com/alibaba/flutter-go)
+- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
 
-## 问题
+## 常见问题
 
 - 热更新
 
