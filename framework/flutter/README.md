@@ -14,6 +14,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
     - [Flutter 中文网](https://flutterchina.club)
     - [Flutter 知乎](https://www.zhihu.com/topic/20172123/hot)
+- [awesome-flutter](https://github.com/Solido/awesome-flutter)
 
 
 更新日志
@@ -51,12 +52,6 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
     - [Flutter for iOS developers](https://flutter.dev/docs/get-started/flutter-for/ios-devs)
     - [Flutter for Xamarin.Forms developers](https://flutter.dev/docs/get-started/flutter-for/xamarin-forms-devs)
     - [Introduction to declarative UI](https://flutter.dev/docs/get-started/flutter-for/declarative)
-- Examples
-    - [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
-    - [Cookbook](https://flutter.dev/docs/cookbook)
-    - [Codelabs](https://flutter.dev/docs/codelabs)
-    - [Tutorials](https://flutter.dev/docs/reference/tutorials)
-    - [Write your first Flutter app, part 1](https://flutter.dev/docs/get-started/codelab) / [Write Your First Flutter App, part 2](https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0)
 - 专栏 & 博客
 
 	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
@@ -76,38 +71,13 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 ### 状态管理
 
----
+## 开发示例
 
-### 路由
-
-- [Routing](https://flutter.io/docs/get-started/flutter-for/react-native-devs#routing)
-
-### 静态资源
-
-- [Adding assets and images](https://flutter.io/docs/development/ui/assets-and-images)
-- [Where do I put my resources and assets and how do I use them?](https://flutter.io/docs/get-started/flutter-for/react-native-devs#asynchronous-programming)
-
-### 本地存储
-
-- [Local storage](https://flutter.io/docs/get-started/flutter-for/react-native-devs#local-storage)
-
-### 网络通信
-
-- [Making HTTP network requests](https://flutter.io/docs/get-started/flutter-for/react-native-devs#making-http-network-requests)
-
-### 兼容性处理
-
-- [Platform-specific code](https://flutter.io/docs/get-started/flutter-for/react-native-devs#platform-specific-code)
-
-### 第三方库
-
-- [Using packages](https://flutter.io/docs/development/packages-and-plugins/using-packages)
-- [How do I install packages and package plugins?](https://flutter.io/docs/get-started/flutter-for/react-native-devs#asynchronous-programming)
-- [Developing packages & plugins](https://flutter.io/docs/development/packages-and-plugins/developing-packages)
-- [flutter/plugins](https://github.com/flutter/plugins)
-
-### 开发示例
-
+- [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
+- [Cookbook](https://flutter.dev/docs/cookbook)
+- [Codelabs](https://flutter.dev/docs/codelabs)
+- [Tutorials](https://flutter.dev/docs/reference/tutorials)
+- [Write your first Flutter app, part 1](https://flutter.dev/docs/get-started/codelab) / [Write Your First Flutter App, part 2](https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0)
 - [flutter-go](https://github.com/alibaba/flutter-go)
 
 ## 开发工具
@@ -132,3 +102,4 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [演讲：基于Google Flutter的移动端跨平台应用实践](https://gmtc.geekbang.org/presentation/617)
 - [Hummingbird: Building Flutter for the Web](https://medium.com/flutter-io/hummingbird-building-flutter-for-the-web-e687c2a023a8)
 - [如何评价 Google 发布 Flutter 1.0 正式版？](https://www.zhihu.com/question/304696967/answer/550278042)
+- https://mailchi.mp/5db146a7468b/flutter-weekly-11
