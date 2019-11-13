@@ -42,11 +42,16 @@ Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接
 
 - [Mac](https://docs.docker.com/docker-for-mac/install/)
 - [Windows](https://docs.docker.com/docker-for-windows/install/)
+
+    要求 Win10 专业版或者企业版
+
 - [Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 - [Debian](https://docs.docker.com/install/linux/docker-ce/debian/)
 - [CentOS](https://docs.docker.com/install/linux/docker-ce/centos/)
 - [Fedora](https://docs.docker.com/install/linux/docker-ce/fedora/)
 - [Others](https://docs.docker.com/install/linux/docker-ce/binaries/)
+
+旧版本的 window 和 mac 需要使用 [Docker Toolbox](https://docs.docker.com/toolbox/overview/) 来安装。 —— [Issues while installing Docker on Windows 10 home edition](https://stackoverflow.com/questions/49677610/issues-while-installing-docker-on-windows-10-home-edition#:~:targetText=As%20the%20error%20says%2C%20you,or%20Windows%20server%202016%20RTM.%22&targetText=The%20current%20version%20of%20Docker,%2C%20Build%2014393%20or%20later)
 
 ### 企业版
 
