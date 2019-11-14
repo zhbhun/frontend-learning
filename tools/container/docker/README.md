@@ -118,6 +118,7 @@ sudo systemctl start docker
 - [docker_mirror](https://github.com/silenceshell/docker_mirror)
 - [Docker 配置国内镜像](https://www.jianshu.com/p/05f1232bda9f)
 - [docker for mac更换国内镜像源](https://www.jianshu.com/p/419eaf4425a6)
+- [Docker Toolbox下配置国内镜像源-阿里云加速器](https://www.jianshu.com/p/b59c1be8db87)
 
 - ubuntu
 
@@ -135,6 +136,26 @@ sudo systemctl start docker
 
     2. `sudo systemctl daemon-reload`
     3. `sudo systemctl restart docker`
+
+- window docker toolbox
+
+    ```bash
+    # 创建default虚拟机
+    $ docker-machine create --driver virtualbox default
+    # 删除default虚拟机
+    $ docker-machine rm default
+    # 创建 default 虚拟机,并配置阿里云加速器
+    docker-machine create --engine-registry-mirror=加速地址 -d virtualbox default
+    # 配置已经创建的 default 虚拟机
+    $ docker-machine ssh default 
+    $ sudo sed -i "s|EXTRA_ARGS='|EXTRA_ARGS='--registry-mirror=加速地址 |g" /var/lib/boot2docker/profile
+    $ exit 
+    $ docker-machine restart default
+    ```
+
+- docker desktop
+
+    在配置界面里设置
 
 ### Container 管理
 
