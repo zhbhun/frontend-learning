@@ -101,6 +101,8 @@ Vagrant.configure("2") do |config|
 end
 ```
 
+- [How can Vagrant forward multiple ports on the same machine?](https://stackoverflow.com/questions/17623528/how-can-vagrant-forward-multiple-ports-on-the-same-machine)
+
 ### 分享
 
 https://www.vagrantup.com/intro/getting-started/share.html
