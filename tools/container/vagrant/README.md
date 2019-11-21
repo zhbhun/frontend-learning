@@ -9,6 +9,12 @@
 
 2. 在命令行运行 `vagrant` 验证是否安装成功。
 
+---
+
+- [在Windows下如何修改Vagrant和VirtualBox的路径](https://github.com/uolcano/blog/issues/7)
+- [在Windows上更改VAGRANT_HOME目录](https://harvsworld.com/2014/change-vagrant_home-directory-windows/)
+- [在Windows下如何修改Vagrant和VirtualBox的路径 ](https://github.com/uolcano/blog/issues/7)
+
 ## 教程
 
 - [教程](https://www.vagrantup.com/intro/index.html)
