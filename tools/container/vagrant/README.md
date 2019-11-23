@@ -172,3 +172,7 @@ VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component Consol
 ## 衍生
 
 - https://github.com/jedi4ever/veewee
+
+## 应用
+
+- [vscode + vagrant + frp 远程开发环境](https://segmentfault.com/a/1190000020219041)
