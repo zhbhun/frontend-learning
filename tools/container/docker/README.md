@@ -228,6 +228,9 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 - [MySQL](https://hub.docker.com/_/mysql)
 - [adminer](https://hub.docker.com/_/adminer) - Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP.
 - [poste](https://hub.docker.com/r/analogic/poste.io) - complete mailserver built in one container.
+- android
+
+    - [thyrlian/AndroidSDK](https://github.com/thyrlian/AndroidSDK)
 
 ### Network
 
@@ -248,6 +251,10 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 - [解决 Docker 数据卷挂载的文件权限问题](https://padeoe.com/docker-volume-file-permission-problem/)
 - [docker-compose volumes 容器内权限会变为root所有?](https://segmentfault.com/q/1010000010446328/a-1020000010446370)
 - [Mount container volume root folder?](https://forums.docker.com/t/mount-container-volume-root-folder/38265)
+
+### Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
+
+- [Permission denied when running Docker after installing it as a Snap](https://askubuntu.com/questions/941816/permission-denied-when-running-docker-after-installing-it-as-a-snap)
 
 ### Error Connecting to Docker hub
 
