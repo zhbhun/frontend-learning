@@ -239,6 +239,10 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 - [Docker 网络之进阶篇](https://www.cnblogs.com/sparkdev/p/9198109.html)
 - [如何让在不同network中的两个docker容器互通](https://www.wencst.com/archives/787)
 
+### Compose
+
+- [Install Docker Compose](https://docs.docker.com/compose/install/)
+
 ## 问题
 
 ### 如何配置时区？
