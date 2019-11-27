@@ -169,6 +169,11 @@ VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component Consol
 - [How do I install Guest Additions in a VirtualBox VM?](https://askubuntu.com/questions/22743/how-do-i-install-guest-additions-in-a-virtualbox-vm)
 - https://download.virtualbox.org/virtualbox/
 
+### 怎么扩容虚拟机磁盘容量
+
+- [【vagrant】硬盘扩容]( https://www.cnblogs.com/HansBug/p/9447020.html)
+- [Vagrant虚拟机硬盘扩容]( http://www.voycn.com/article/vagrantxunijiyingpankuorong )
+
 ## 衍生
 
 - https://github.com/jedi4ever/veewee
