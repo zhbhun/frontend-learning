@@ -43,7 +43,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 2. [配置编辑器](https://flutter.dev/docs/get-started/editor)
 3. [初始化项目](https://flutter.dev/docs/get-started/test-drive?tab=terminal)
 
-## 开发教程
+## 开发入门
 
 - Migration
     - [Flutter for React Native developers](https://flutter.dev/docs/get-started/flutter-for/react-native-devs)
@@ -57,35 +57,64 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
 	- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
 
-### UI 界面
+### 组件开发
 
 #### 基础组件
 
 - [Text]( https://api.flutter.dev/flutter/widgets/Text-class.html)
+- Image
+- [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
+
+#### 布局组件
+
 - [Row](https://api.flutter.dev/flutter/widgets/Row-class.html)
 - [Column](https://api.flutter.dev/flutter/widgets/Column-class.html)
-- [Stack](https://api.flutter.dev/flutter/widgets/Stack-class.html)
-- [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
+- Stack
 
 #### 自定义组件
 
-##### 无状态
+- 有状态 vs 无状态
+- 生命周期
 
-##### 有状态
+#### 路由组件
 
-#### 布局
+#### 事件处理
 
-#### 事件
+#### 容器组件
 
-#### 资源
+- listview
 
-#### 路由
+参考文献
 
-#### 动画
+- [Basic Flutter layout concepts](https://flutter.dev/docs/codelabs/layout-basics)
+- [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
+
+#### 动画组件
+
+### 资源管理
+
+### 网络连接
+
+### 本地存储
+
+## 进阶开发
+
+### 调试工具
+
+- [Debugging](https://flutter.io/docs/get-started/flutter-for/react-native-devs#debugging)
+- [Debugging Flutter apps](https://flutter.io/docs/testing/debugging)
 
 ### 状态管理
 
-## 开发示例
+### 屏幕适配
+
+### 国际化
+
+### 工作原理
+
+- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
+
+## 应用案例
 
 - [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
 - [Cookbook](https://flutter.dev/docs/cookbook)
@@ -93,15 +122,6 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Tutorials](https://flutter.dev/docs/reference/tutorials)
 - [Write your first Flutter app, part 1](https://flutter.dev/docs/get-started/codelab) / [Write Your First Flutter App, part 2](https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0)
 - [flutter-go](https://github.com/alibaba/flutter-go)
-
-## 开发工具
-
-- [Debugging](https://flutter.io/docs/get-started/flutter-for/react-native-devs#debugging)
-- [Debugging Flutter apps](https://flutter.io/docs/testing/debugging)
-
-## 工作原理
-
-- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
 
 ## 常见问题
 
