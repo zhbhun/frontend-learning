@@ -8,13 +8,13 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
     - https://flutter.dev/
     - https://flutter.cn/
-
 - [API](https://api.flutter.dev/)
 - 社区
 
     - [Flutter 中文网](https://flutterchina.club)
     - [Flutter 知乎](https://www.zhihu.com/topic/20172123/hot)
 - [awesome-flutter](https://github.com/Solido/awesome-flutter)
+-  https://medium.com/flutter
 
 
 更新日志
@@ -56,6 +56,13 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
 	- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
+- 视频
+    - [Flutter  Channel on YouTube](https://www.youtube.com/channel/UCwXdFgeE9KYzlDdR7TG9cMw)
+    - [Flutter in Focus](https://www.youtube.com/playlist?list=PLjxrf2q8roU2HdJQDjJzOeO6J3FoFLWr2)
+    - [Flutter Widget of the Week](https://www.youtube.com/playlist?list=PLjxrf2q8roU23XGwz3Km7sQZFTdB996iG)
+- 教程
+    - [Zero to One with Flutter](https://medium.com/flutter/zero-to-one-with-flutter-43b13fd7b354)
+    - [Zero to One with Flutter, Part Two](https://medium.com/flutter/zero-to-one-with-flutter-part-two-5aa2f06655cb)
 
 ### 组件开发
 
@@ -64,58 +71,213 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Text]( https://api.flutter.dev/flutter/widgets/Text-class.html)
 - Image
 - [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
+  - [Container in Layout](https://flutter.dev/docs/development/ui/layout#container)
+
+参考文献
+
+- [Basic widgets](https://flutter.dev/docs/development/ui/widgets/basics)
+- [Styling widgets](https://flutter.cn/docs/development/ui/widgets/styling)
+- [Text widgets](https://flutter.cn/docs/development/ui/widgets/text)
 
 #### 布局组件
 
+- [Layout widgets](https://flutter.dev/docs/development/ui/widgets/layout)
 - [Row](https://api.flutter.dev/flutter/widgets/Row-class.html)
 - [Column](https://api.flutter.dev/flutter/widgets/Column-class.html)
 - Stack
+  - [Stack in Layout](https://flutter.dev/docs/development/ui/layout#stack)
+- GridView
+  - [GridView in Layout](https://flutter.dev/docs/development/ui/layout#gridview)
+
+参考文献
+
+- [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
+- [Tutorial](https://flutter.dev/docs/development/ui/layout/tutorial)
+- [Dealing with box constraints](https://flutter.dev/docs/development/ui/layout/box-constraints)
 
 #### 自定义组件
 
 - 有状态 vs 无状态
 - 生命周期
 
+参考文献
+
+- [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
+
 #### 路由组件
 
-#### 事件处理
+- [Navigation and routing](https://flutter.dev/docs/development/ui/navigation)
 
-#### 容器组件
+第三方
 
-- listview
+- [theyakka/fluro](https://pub.flutter-io.cn/packages/fluro)
+
+#### 表单组件
+
+- Form
+- FormField
+- CheckBox
+- Radio
+- Slider
+- Switch
+- TextField
+
+参考文献
+
+- [Input widgets](https://flutter.cn/docs/development/ui/widgets/input)
+
+#### 交互手势
+
+- [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
+- [Taps, drags, and other gestures](https://flutter.dev/docs/development/ui/advanced/gestures)
+- [Interaction model widgets](https://flutter.cn/docs/development/ui/widgets/interaction)
+
+#### 滚动组件
+
+- ListView
+  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
 
 参考文献
 
 - [Basic Flutter layout concepts](https://flutter.dev/docs/codelabs/layout-basics)
 - [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
+- [Scrolling widgets](https://flutter.cn/docs/development/ui/widgets/scrolling)
 
 #### 动画组件
 
+- [Introduction to animations](https://flutter.dev/docs/development/ui/animations)
+- [Animation and motion widgets](https://flutter.dev/docs/development/ui/widgets/animation)
+
+#### 平台组件
+
+Material
+
+- Card
+  - [Card in Layout](https://flutter.dev/docs/development/ui/layout#card)
+- ListTitle
+  - [ListTitle in Layout](https://flutter.dev/docs/development/ui/layout#listtile)
+
+Cupertino
+
+- [Cupertino (iOS-style) widgets](https://flutter.dev/docs/development/ui/widgets/cupertino)
+- [Material Components widgets](https://flutter.dev/docs/development/ui/widgets/material)
+
 ### 资源管理
 
+- [Adding assets and images](https://flutter.dev/docs/development/ui/assets-and-images)
+- [Assets, images, and icon widgets](https://flutter.cn/docs/development/ui/widgets/assets)
+
 ### 网络连接
+
+参考文献
+
+- [JSON 和序列化数据](https://flutter.cn/docs/development/data-and-backend/json)
+- 
 
 ### 本地存储
 
 ## 进阶开发
+
+### 组件通信
+
+### 状态管理
+
+[State management](https://flutter.dev/docs/development/data-and-backend/state-mgmt/intro)
+
+setState
+
+- [Flutter Architecture Samples](http://fluttersamples.com/)
+-  https://medium.com/flutter/build-reactive-mobile-apps-in-flutter-companion-article-13950959e381
+
+-  https://medium.com/@agungsurya/basic-state-management-in-google-flutter-6ee73608f96d
+
+InheritedWidget & InheritedModel
+
+- [Managing Flutter Application State With InheritedWidgets](https://medium.com/flutter/managing-flutter-application-state-with-inheritedwidgets-1140452befe1)
+- [Inheriting Widgets](https://medium.com/@mehmetf_71205/inheriting-widgets-b7ac56dbbeb1)
+- [Using Flutter Inherited Widgets Effectively](https://ericwindmill.com/articles/inherited_widget/)
+- [Widget - State - Context - InheritedWidget](https://www.didierboelens.com/2018/06/widget---state---context---inheritedwidget/)
+
+Provider & Scoped Model
+
+- [You Might Not Need Redux: The Flutter Edition](https://proandroiddev.com/you-might-not-need-redux-the-flutter-edition-9c11eba006d7)
+- [Managing State with the Scoped Model Pattern in Dart's Flutter Framework](https://www.youtube.com/watch?v=-MCeWP3rgI0)
+- [Flutter: Inherited Widget & Scoped Model Explained | Part - 1](https://www.youtube.com/watch?v=j-27MZwRbFw)
+- [Flutter State Management | Scoped Model](https://www.youtube.com/watch?v=Oql5bU-Uvso)
+- [Flutter State Management | Scoped Model](https://www.youtube.com/watch?v=Oql5bU-Uvso)
+
+Redux
+
+- ...
+
+BLoC / Rx
+
+- ...
+
+MobX
+
+- ...
+
+### 主题定制
+
+TODO
+
+### 跨平台开发
+
+- [Binding to native code using dart:ffi](https://flutter.dev/docs/development/platform-integration/c-interop)
+- [Web FAQ](https://flutter.dev/docs/development/platform-integration/web)
+- [Writing custom platform-specific code](https://flutter.dev/docs/development/platform-integration/platform-channels)
+- [Platform specific behaviors and adaptations](https://flutter.dev/docs/resources/platform-adaptations)
+### 屏幕适配 / 响应式设计
+
+- [Creating responsive apps](https://flutter.dev/docs/development/ui/layout/responsive)
+
+### 公共包开发
+
+- [Using packages](https://flutter.dev/docs/development/packages-and-plugins/using-packages)
+
+### 常用插件
+
+- [flutter/plugins](https://github.com/flutter/plugins/tree/master/packages/url_launcher/url_launcher)
+
+### 单元测试
+
+### 国际化
+
+- [Internation­alizing Flutter apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+
+### 无障碍
+
+- [Accessibility](https://flutter.dev/docs/development/accessibility-and-localization/accessibility)
+
+### 工作原理
+
+- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
+- [Background processes](https://flutter.dev/docs/development/packages-and-plugins/background-processes)
+
+## 开发工具
+
+### 格式化工具
+
+- [Code formatting]( https://flutter.dev/docs/development/tools/formatting )
 
 ### 调试工具
 
 - [Debugging](https://flutter.io/docs/get-started/flutter-for/react-native-devs#debugging)
 - [Debugging Flutter apps](https://flutter.io/docs/testing/debugging)
 
-### 状态管理
+参考文献
 
-### 屏幕适配
+- [Debugging layout issues visually](https://flutter.dev/docs/development/tools/devtools/inspector#debugging-layout-issues-visually)
+- [Using the Flutter inspector](https://flutter.dev/docs/development/tools/devtools/inspector)
 
-### 国际化
+### 热加载
 
-### 工作原理
-
-- [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
+- [Hot reload](https://flutter.dev/docs/development/tools/hot-reload)
 
 ## 应用案例
 
+- [Flutter gallery](https://github.com/flutter/flutter/tree/master/examples/flutter_gallery)
 - [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
 - [Cookbook](https://flutter.dev/docs/cookbook)
 - [Codelabs](https://flutter.dev/docs/codelabs)
