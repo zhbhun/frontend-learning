@@ -71,6 +71,8 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Text]( https://api.flutter.dev/flutter/widgets/Text-class.html)
 - Image
 - [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
+  - [Flutter — Container Cheat Sheet](https://medium.com/jlouage/container-de5b0d3ad184)
+  - [Flutter之Container用法详解](https://juejin.im/post/5c661d3ef265da2d943f4e5d)
   - [Container in Layout](https://flutter.dev/docs/development/ui/layout#container)
 
 参考文献
@@ -103,6 +105,19 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 参考文献
 
 - [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
+
+##### 生命周期
+
+- 初始化：constructor >> initState >> didChangeDependencies \>> build
+- 属性变化：didUpdateWidget >> build
+- 依赖变化：didChangeDependencies >> build
+- 状态变化：setState >> build
+- 销毁：deactivate >> dispose
+
+生命周期
+
+- [详解 Flutter 生命周期](https://zhuanlan.zhihu.com/p/55969418)
+- [Stateful Widget Lifecycle](https://flutterbyexample.com/stateful-widget-lifecycle/)
 
 #### 路由组件
 
@@ -222,6 +237,12 @@ MobX
 
 TODO
 
+### 原生能力
+
+#### 应用状态
+
+- [Flutter App Lifecycle](https://medium.com/pharos-production/flutter-app-lifecycle-4b0ab4a4211a)
+
 ### 跨平台开发
 
 - [Binding to native code using dart:ffi](https://flutter.dev/docs/development/platform-integration/c-interop)
@@ -277,8 +298,8 @@ TODO
 
 ## 应用案例
 
-- [Flutter gallery](https://github.com/flutter/flutter/tree/master/examples/flutter_gallery)
-- [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md)
+- [Flutter Examples](https://github.com/flutter/flutter/blob/master/examples/README.md) - 官方源码示例
+- [flutter/samples](https://github.com/flutter/samples/blob/master/INDEX.md) - 官方收集的社区示例
 - [Cookbook](https://flutter.dev/docs/cookbook)
 - [Codelabs](https://flutter.dev/docs/codelabs)
 - [Tutorials](https://flutter.dev/docs/reference/tutorials)
