@@ -56,6 +56,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
 	- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
+	- [Flutter 实战](https://book.flutterchina.club/)
 - 视频
     - [Flutter  Channel on YouTube](https://www.youtube.com/channel/UCwXdFgeE9KYzlDdR7TG9cMw)
     - [Flutter in Focus](https://www.youtube.com/playlist?list=PLjxrf2q8roU2HdJQDjJzOeO6J3FoFLWr2)
@@ -76,10 +77,14 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
   - [A Guide to Text Styling in Flutter](https://owenhalliday.co.uk/text-styling-flutter/)
   - [What is the StrutStyle in the Flutter Text widget](https://stackoverflow.com/questions/56799068/what-is-the-strutstyle-in-the-flutter-text-widget)
   - [Flutter: Text Widget](https://nicksnettravels.builttoroam.com/flutter-text-widget/)
-- [Image](https://api.flutter.dev/flutter/dart-ui/Image-class.html)
+  - [Flutter widgets 02 | Text](https://medium.com/flutteropen/flutter-widgets-02-text-6a7007d14798) / [Flutter widgets 02 | Text](https://medium.com/@niebin312/flutter-widgets-02-text-fd3cb43b2767)
+- [Image](https://api.flutter.dev/flutter/widgets/Image-class.html)
   - [Display images from the internet](https://flutter.dev/docs/cookbook#images)
   - [Fade in images with a placeholder](https://flutter.dev/docs/cookbook/images/fading-in-images.html)
   - [Work with cached images](https://flutter.dev/docs/cookbook/images/cached-images.html)
+  - [Loading images](https://flutter.dev/docs/development/ui/assets-and-images#loading-images)
+  - [Flutter widgets 03 | Image](https://medium.com/flutteropen/flutter-widgets-03-image-558e2b24059e)
+  - [Flutter widgets 03 | Image](https://medium.com/flutteropen/flutter-widgets-03-image-558e2b24059e)
 - [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
   - [Flutter — Container Cheat Sheet](https://medium.com/jlouage/container-de5b0d3ad184)
   - [Flutter — BoxDecoration Cheat Sheet](https://medium.com/jlouage/flutter-boxdecoration-cheat-sheet-72cedaa1ba20)
@@ -87,6 +92,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
   - [Container in Layout](https://flutter.dev/docs/development/ui/layout#container)
   - [Adding a border to a widget in Flutter](https://medium.com/@suragch/adding-a-border-to-a-widget-in-flutter-d387bc5d7cff)
   - [KNOW YOUR WIDGETS: CONTAINER IN FLUTTER](http://flutterdevs.com/blog/know-your-widgets-container-in-flutter/)
+  - [Flutter Widgets 01 | Container](https://medium.com/flutteropen/flutter-widgets-01-container-cc76a2bfef11) / [Flutter Widgets 01 | Container](https://medium.com/@niebin312/flutter-widgets-01-container-42220b8e3463)
 
 参考文献
 
@@ -96,21 +102,26 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 #### 布局组件
 
-- [Layout widgets](https://flutter.dev/docs/development/ui/widgets/layout)
-- [Row](https://api.flutter.dev/flutter/widgets/Row-class.html)
-- [Column](https://api.flutter.dev/flutter/widgets/Column-class.html)
-- Stack
+- [Row](https://api.flutter.dev/flutter/widgets/Row-class.html) / [Column](https://api.flutter.dev/flutter/widgets/Column-class.html) / [Flexible](https://api.flutter.dev/flutter/widgets/Flexible-class.html) / [Expanded](https://api.flutter.dev/flutter/widgets/Expanded-class.html) / [SizedBox](https://api.flutter.dev/flutter/widgets/SizedBox-class.html) / [Spacer](https://api.flutter.dev/flutter/widgets/Spacer-class.html)
+  - [Flutter — Row/Column Cheat Sheet](https://medium.com/jlouage/flutter-row-column-cheat-sheet-78c38d242041)
+  - [Flutter Widgets 04 | Row & Column](https://medium.com/flutteropen/flutter-widgets-04-row-column-7a9d8062b472)
+- [Stack](https://api.flutter.dev/flutter/widgets/Stack-class.html)  / [IndexedStack](https://api.flutter.dev/flutter/widgets/IndexedStack-class.html) / [Positioned](https://api.flutter.dev/flutter/widgets/Positioned-class.html)
   - [Stack in Layout](https://flutter.dev/docs/development/ui/layout#stack)
-- GridView
+  - [Flutter Widgets 15 | Stack](https://medium.com/flutteropen/flutter-widgets-15-stack-9637858f7c62)
+- [GridView](https://api.flutter.dev/flutter/widgets/GridView-class.html)
   - [GridView in Layout](https://flutter.dev/docs/development/ui/layout#gridview)
 - [Wrap](https://api.flutter-io.cn/flutter/widgets/Wrap-class.html)
+- [Align](https://api.flutter.dev/flutter/widgets/Align-class.html) / [Center](https://api.flutter.dev/flutter/widgets/Center-class.html) / [Baseline](https://api.flutter.dev/flutter/widgets/Baseline-class.html)
+- [ConstrainedBox](https://api.flutter.dev/flutter/widgets/ConstrainedBox-class.html) / [CustomSingleChildLayout](https://api.flutter.dev/flutter/widgets/CustomSingleChildLayout-class.html) / [FittedBox](https://api.flutter.dev/flutter/widgets/FittedBox-class.html) / [FractionallySizedBox](https://api.flutter.dev/flutter/widgets/FractionallySizedBox-class.html) / [IntrinsicHeight](https://api.flutter.dev/flutter/widgets/IntrinsicHeight-class.html) / [OverflowBox](https://api.flutter.dev/flutter/widgets/OverflowBox-class.html) / [SizedOverflowBox](https://api.flutter.dev/flutter/widgets/SizedOverflowBox-class.html)
+- [Padding](https://api.flutter.dev/flutter/widgets/Padding-class.html) / [Transform](https://api.flutter.dev/flutter/widgets/Transform-class.html)
 
 参考文献
 
+- [Layout widgets](https://flutter.dev/docs/development/ui/widgets/layout)
+- [Basic Flutter layout concepts](https://flutter.dev/docs/codelabs/layout-basics)
 - [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
 - [Tutorial](https://flutter.dev/docs/development/ui/layout/tutorial)
 - [Dealing with box constraints](https://flutter.dev/docs/development/ui/layout/box-constraints)
-- [Flutter — Row/Column Cheat Sheet](https://medium.com/jlouage/flutter-row-column-cheat-sheet-78c38d242041)
 
 #### 自定义组件
 
@@ -129,10 +140,17 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - 状态变化：setState >> build
 - 销毁：deactivate >> dispose
 
-生命周期
+参考文献
 
 - [详解 Flutter 生命周期](https://zhuanlan.zhihu.com/p/55969418)
 - [Stateful Widget Lifecycle](https://flutterbyexample.com/stateful-widget-lifecycle/)
+- [How to check if Widget has mounted in flutter](https://stackoverflow.com/questions/54501245/how-to-check-if-widget-has-mounted-in-flutter)
+
+问题思考
+
+- 为什么没有挂载回调
+
+  例如 RefreshIndicator 需要再挂载后调用 show 方法来显示初始化的加载动画
 
 #### 路由组件
 
@@ -141,6 +159,11 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 第三方
 
 - [theyakka/fluro](https://pub.flutter-io.cn/packages/fluro)
+
+参考文献
+
+- [Flutter Widgets 12 | TabBarView&TabBar](https://medium.com/flutteropen/flutter-widgets-12-tabbarview-tabbar-4cdc2112991a)
+- [Flutter Widgets 11 | BottomNavigationBar](https://medium.com/flutteropen/flutter-widgets-11-bottomnavigationbar-3531d625fa0c)
 
 #### 表单组件
 
@@ -161,23 +184,36 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
 - [Taps, drags, and other gestures](https://flutter.dev/docs/development/ui/advanced/gestures)
 - [Interaction model widgets](https://flutter.cn/docs/development/ui/widgets/interaction)
+- [Fluter Canvas tutorial 05 | Gesture with the custom painter?](https://medium.com/flutteropen/canvas-tutorial-05-how-to-use-the-gesture-with-the-custom-painter-in-the-flutter-3fc4c2deca06)
 
 #### 滚动组件
 
 - ListView
   - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
-- [SingleChildScrollView](https://api.flutter-io.cn/flutter/widgets/SingleChildScrollView-class.html)
+- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
+- [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
+  - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
+  - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
 
 参考文献
 
-- [Basic Flutter layout concepts](https://flutter.dev/docs/codelabs/layout-basics)
-- [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
 - [Scrolling widgets](https://flutter.cn/docs/development/ui/widgets/scrolling)
+- [Create a grid list](https://flutter.dev/docs/cookbook/lists/grid-lists)
+- [Create a horizontal list](https://flutter.dev/docs/cookbook/lists/horizontal-list.html)
+- [Create lists with different types of items](https://flutter.dev/docs/cookbook/lists/mixed-list.html)
+- [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar.html)
+- [Use lists](https://flutter.dev/docs/cookbook/lists/basic-list)
+- [Work with long lists](https://flutter.dev/docs/cookbook/lists/long-lists)
 
 #### 动画组件
 
 - [Introduction to animations](https://flutter.dev/docs/development/ui/animations)
 - [Animation and motion widgets](https://flutter.dev/docs/development/ui/widgets/animation)
+
+参考文献
+
+- [Animation 02 | Use the flare 2dimesion animation in the flutter?](https://medium.com/flutteropen/animation-02-use-the-flare-animation-in-the-flutter-5fa89dd74c54)
+- [Animation 01 | How to use the animation in the flutter?](https://medium.com/flutteropen/animation-01-how-to-use-the-animation-in-the-flutter-e3ef7043f940) / [Animation 01 | How to use the animation in the flutter?](https://medium.com/@niebin312/animation-01-how-to-use-the-animation-in-the-flutter-4aded89396f9)
 
 #### 平台组件
 
@@ -192,6 +228,37 @@ Cupertino
 
 - [Cupertino (iOS-style) widgets](https://flutter.dev/docs/development/ui/widgets/cupertino)
 - [Material Components widgets](https://flutter.dev/docs/development/ui/widgets/material)
+
+---
+
+交互反馈
+
+- [Flutter Widgets 18 | SnackBar](https://medium.com/flutteropen/flutter-widgets-18-snackbar-91972fe4d2ea)
+- [Flutter Widgets 17 | SimpleDialog&AlertDialog](https://medium.com/flutteropen/flutter-widgets-17-simpledialog-1cf5bfd83f5f)
+
+进度
+
+- [https://medium.com/flutteropen/flutter-widgets-17-simpledialog-1cf5bfd83f5f](https://medium.com/flutteropen/flutter-widgets-16-stepper-485ad8d1a248)
+
+---
+
+- [Widgets 14 | PopupMenuButton](https://medium.com/flutteropen/widgets-14-popupmenubutton-1f1437bbdce2)
+- [Flutter Widgets 13 | DropdownButton](https://medium.com/flutteropen/flutter-widgets-13-dropdownbutton-d21e9c226f04)
+- [Flutter Widgets 10 | Placeholder](https://medium.com/flutteropen/flutter-widgets-10-placeholder-f8949a7dc273)
+- [Flutter widgets 09 | FlutterLogo](https://medium.com/flutteropen/flutter-widgets-09-flutterlogo-5552b9021f8b)
+- [Flutter Widgets 08 | Scaffold](https://medium.com/flutteropen/flutter-widgets-scaffold-8673c0630ed4)
+- [Flutter Widgets 07 | AppBar](https://medium.com/flutteropen/flutter-widgets-07-appbar-86cae58244cd)
+- [Flutter Widgets 06 | RaiseButton](https://medium.com/flutteropen/widgets-06-raisebutton-6322e0bb2a95)
+- [Flutter Widgets 05 | Icon](https://medium.com/flutteropen/flutter-widgets-05-icon-7952665ecad)
+
+### TODO
+
+canvas
+
+- [Canvas tutorial 04 | How to draw a pie chart and with a round angle in the flutter?](https://medium.com/flutteropen/canvas-tutorial-04-how-to-draw-a-pie-chart-and-with-a-round-angle-in-the-flutter-8a22126704f4)
+- [Canvas tutorial 03 | How to draw a regular round angle polygon in the flutter?](https://medium.com/flutteropen/canvas-tutorial-03-how-to-draw-a-regular-round-angle-polygon-83b055b7af6c)
+- [Canvas tutorial 02 | How to draw round angle polygon in the flutter?](https://medium.com/flutteropen/canvas-tutorial-02-how-to-draw-round-angle-polygon-in-the-flutter-7890e933cfb1)
+- [Canvas tutorial 01 | How to use the canvas in the flutter?](https://medium.com/flutteropen/canvas-tutorial-01-how-to-use-the-canvas-in-the-flutter-8aade29ddc9)
 
 ### 资源管理
 
@@ -250,9 +317,29 @@ MobX
 
 - ...
 
+### 代码复用
+
+hook
+
+-  https://pub.dev/packages/flhooks 
+- https://pub.dev/packages/flutter_hooks
+- [flutter-hooks](https://zhuanlan.zhihu.com/p/58175634)
+
 ### 主题定制
 
-TODO
+- [ThemeData](https://api.flutter.dev/flutter/material/ThemeData/ThemeData.html)
+
+---
+
+- [Use themes to share colors and font styles](https://flutter.dev/docs/cookbook/design/themes)
+- [Using Themes in Flutter](https://alligator.io/flutter/themes/)
+- [Flutter Theme Class](https://flutterbyexample.com/flutter-theme-class/)
+- [Flutter: Themes](https://medium.com/@mx_tino/flutter-themes-9cebc0fecd1d)
+- [Flutter 样式基础之 Theme 主题](https://juejin.im/post/5d751714f265da03ad14765c)
+- [Build a Theme Manager in Flutter](https://medium.com/flutter-community/build-a-theme-manager-in-flutter-3faeed26b8b3)
+- [MDC-103 Flutter: Material Theming with Color, Shape, Elevation, and Type (Flutter)](https://codelabs.developers.google.com/codelabs/mdc-103-flutter/#0)
+- [How to dynamically change the theme in Flutter ](https://proandroiddev.com/how-to-dynamically-change-the-theme-in-flutter-698bd022d0f0)
+- [Flutter: Custom theme data](https://gist.github.com/mikemimik/5ac2fa98fe6d132098603c1bd40263d5)
 
 ### 原生能力
 
