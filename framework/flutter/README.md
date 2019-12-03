@@ -69,11 +69,24 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 #### 基础组件
 
 - [Text]( https://api.flutter.dev/flutter/widgets/Text-class.html)
-- Image
+  - [MASTERING STYLED TEXT IN FLUTTER](https://pusher.com/tutorials/styled-text-flutter)
+  - [Flutter widgets 02 | Text](https://medium.com/flutteropen/flutter-widgets-02-text-6a7007d14798)
+  - [Flutter Text Rendering](https://www.raywenderlich.com/4562681-flutter-text-rendering)
+  - [Beginners Guide To Text Styling in Flutter](https://medium.com/flutter-community/beginners-guide-to-text-styling-in-flutter-3939085d6607)
+  - [A Guide to Text Styling in Flutter](https://owenhalliday.co.uk/text-styling-flutter/)
+  - [What is the StrutStyle in the Flutter Text widget](https://stackoverflow.com/questions/56799068/what-is-the-strutstyle-in-the-flutter-text-widget)
+  - [Flutter: Text Widget](https://nicksnettravels.builttoroam.com/flutter-text-widget/)
+- [Image](https://api.flutter.dev/flutter/dart-ui/Image-class.html)
+  - [Display images from the internet](https://flutter.dev/docs/cookbook#images)
+  - [Fade in images with a placeholder](https://flutter.dev/docs/cookbook/images/fading-in-images.html)
+  - [Work with cached images](https://flutter.dev/docs/cookbook/images/cached-images.html)
 - [Container](https://api.flutter.dev/flutter/widgets/Container-class.html)
   - [Flutter — Container Cheat Sheet](https://medium.com/jlouage/container-de5b0d3ad184)
+  - [Flutter — BoxDecoration Cheat Sheet](https://medium.com/jlouage/flutter-boxdecoration-cheat-sheet-72cedaa1ba20)
   - [Flutter之Container用法详解](https://juejin.im/post/5c661d3ef265da2d943f4e5d)
   - [Container in Layout](https://flutter.dev/docs/development/ui/layout#container)
+  - [Adding a border to a widget in Flutter](https://medium.com/@suragch/adding-a-border-to-a-widget-in-flutter-d387bc5d7cff)
+  - [KNOW YOUR WIDGETS: CONTAINER IN FLUTTER](http://flutterdevs.com/blog/know-your-widgets-container-in-flutter/)
 
 参考文献
 
@@ -90,12 +103,14 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
   - [Stack in Layout](https://flutter.dev/docs/development/ui/layout#stack)
 - GridView
   - [GridView in Layout](https://flutter.dev/docs/development/ui/layout#gridview)
+- [Wrap](https://api.flutter-io.cn/flutter/widgets/Wrap-class.html)
 
 参考文献
 
 - [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
 - [Tutorial](https://flutter.dev/docs/development/ui/layout/tutorial)
 - [Dealing with box constraints](https://flutter.dev/docs/development/ui/layout/box-constraints)
+- [Flutter — Row/Column Cheat Sheet](https://medium.com/jlouage/flutter-row-column-cheat-sheet-78c38d242041)
 
 #### 自定义组件
 
@@ -151,6 +166,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 - ListView
   - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
+- [SingleChildScrollView](https://api.flutter-io.cn/flutter/widgets/SingleChildScrollView-class.html)
 
 参考文献
 
@@ -187,7 +203,8 @@ Cupertino
 参考文献
 
 - [JSON 和序列化数据](https://flutter.cn/docs/development/data-and-backend/json)
-- 
+- [GraphQL with Flutter](https://medium.com/flutter-community/graphql-with-flutter-d974abcd2ccc)
+- [Organizing a Token Authentication with a Splash using Flutter](https://medium.com/flutterpub/organizing-a-token-authentication-with-a-splash-using-flutter-dd6a510338dc)
 
 ### 本地存储
 
@@ -227,7 +244,7 @@ Redux
 
 BLoC / Rx
 
-- ...
+- [Why use RxDart and how we can use with BLoC Pattern in Flutter?](https://medium.com/flutter-community/why-use-rxdart-and-how-we-can-use-with-bloc-pattern-in-flutter-a64ca2c7c52d)
 
 MobX
 
@@ -291,6 +308,7 @@ TODO
 
 - [Debugging layout issues visually](https://flutter.dev/docs/development/tools/devtools/inspector#debugging-layout-issues-visually)
 - [Using the Flutter inspector](https://flutter.dev/docs/development/tools/devtools/inspector)
+- [Flutter — Debugging UI Cheat Sheet](https://medium.com/@louagejulien/flutter-debugging-ui-cheat-sheet-18a7b09dd468)
 
 ### 热加载
 
@@ -305,6 +323,10 @@ TODO
 - [Tutorials](https://flutter.dev/docs/reference/tutorials)
 - [Write your first Flutter app, part 1](https://flutter.dev/docs/get-started/codelab) / [Write Your First Flutter App, part 2](https://codelabs.developers.google.com/codelabs/first-flutter-app-pt2/#0)
 - [flutter-go](https://github.com/alibaba/flutter-go)
+
+### 启动界面
+
+- [Flutter — Creating App Icons and Launch Screens for iOS](https://medium.com/jlouage/flutter-creating-app-icons-and-launch-screens-for-ios-df5fb98bd681)
 
 ## 常见问题
 
