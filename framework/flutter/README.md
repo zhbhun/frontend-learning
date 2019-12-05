@@ -103,8 +103,8 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 #### 布局组件
 
 - [Row](https://api.flutter.dev/flutter/widgets/Row-class.html) / [Column](https://api.flutter.dev/flutter/widgets/Column-class.html) / [Flexible](https://api.flutter.dev/flutter/widgets/Flexible-class.html) / [Expanded](https://api.flutter.dev/flutter/widgets/Expanded-class.html) / [SizedBox](https://api.flutter.dev/flutter/widgets/SizedBox-class.html) / [Spacer](https://api.flutter.dev/flutter/widgets/Spacer-class.html)
-  - [Flutter — Row/Column Cheat Sheet](https://medium.com/jlouage/flutter-row-column-cheat-sheet-78c38d242041)
-  - [Flutter Widgets 04 | Row & Column](https://medium.com/flutteropen/flutter-widgets-04-row-column-7a9d8062b472)
+    - [Flutter — Row/Column Cheat Sheet](https://medium.com/jlouage/flutter-row-column-cheat-sheet-78c38d242041)
+    - [Flutter Widgets 04 | Row & Column](https://medium.com/flutteropen/flutter-widgets-04-row-column-7a9d8062b472)
 - [Stack](https://api.flutter.dev/flutter/widgets/Stack-class.html)  / [IndexedStack](https://api.flutter.dev/flutter/widgets/IndexedStack-class.html) / [Positioned](https://api.flutter.dev/flutter/widgets/Positioned-class.html)
   - [Stack in Layout](https://flutter.dev/docs/development/ui/layout#stack)
   - [Flutter Widgets 15 | Stack](https://medium.com/flutteropen/flutter-widgets-15-stack-9637858f7c62)
@@ -150,7 +150,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 - 为什么没有挂载回调
 
-  例如 RefreshIndicator 需要再挂载后调用 show 方法来显示初始化的加载动画
+    例如 RefreshIndicator 需要再挂载后调用 show 方法来显示初始化的加载动画
 
 #### 路由组件
 
@@ -192,8 +192,8 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
   - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
 - [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
 - [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
-  - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
-  - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
+    - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
+    - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
 
 参考文献
 
@@ -278,6 +278,8 @@ canvas
 ## 进阶开发
 
 ### 组件通信
+
+- [[译] Flutter 核心概念详解： Widget、State、Context 及 InheritedWidget](https://juejin.im/post/5c768ad2f265da2dce1f535c#heading-17)
 
 ### 状态管理
 
