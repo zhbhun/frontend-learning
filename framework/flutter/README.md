@@ -57,6 +57,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 	- [闲鱼技术](https://www.zhihu.com/org/xian-yu-ji-zhu/activities)
 	- [Flutter干货学堂](https://zhuanlan.zhihu.com/p/51750415)
 	- [Flutter 实战](https://book.flutterchina.club/)
+	- [Vadaski](https://juejin.im/user/5b5d45f4e51d453526175c06/posts)
 - 视频
     - [Flutter  Channel on YouTube](https://www.youtube.com/channel/UCwXdFgeE9KYzlDdR7TG9cMw)
     - [Flutter in Focus](https://www.youtube.com/playlist?list=PLjxrf2q8roU2HdJQDjJzOeO6J3FoFLWr2)
@@ -131,6 +132,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 参考文献
 
 - [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
+- [Flutter | 深入浅出Key](https://juejin.im/post/5ca2152f6fb9a05e1a7a9a26)
 
 ##### 生命周期
 
@@ -319,6 +321,14 @@ MobX
 
 - ...
 
+参考文献
+
+- [Flutter | 状态管理指南篇——Provider](https://juejin.im/post/5d00a84fe51d455a2f22023f)
+- [Flutter | 状态管理拓展篇——RxDart(四)](https://juejin.im/post/5bcea438e51d4536c65d2232)
+- [Flutter | 状态管理探索篇——BLoC(三)](https://juejin.im/post/5bb6f344f265da0aa664d68a)
+- [Flutter | 状态管理探索篇——Redux（二）](https://juejin.im/post/5ba26c086fb9a05ce57697da)
+- [Flutter | 状态管理探索篇——Scoped Model（一）](https://juejin.im/post/5b97fa0d5188255c5546dcf8)
+
 ### 代码复用
 
 hook
@@ -381,6 +391,10 @@ hook
 
 - [深入理解flutter的编译原理与优化](https://mp.weixin.qq.com/s/vlHt8jxbdzBqJZDobpsFVw)
 - [Background processes](https://flutter.dev/docs/development/packages-and-plugins/background-processes)
+
+### 性能优化
+
+- [Flutter | 性能优化——如何避免应用 jank](https://juejin.im/post/5da521426fb9a04e19505a08)
 
 ## 开发工具
 
