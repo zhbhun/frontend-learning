@@ -86,6 +86,10 @@
 - [Classes](https://www.dartlang.org/guides/language/language-tour#classes)
 - [Callable classes](https://dart.dev/guides/language/language-tour#callable-classes)
 
+参考文献
+
+- [【译】Dart | 什么是Mixin](https://juejin.im/post/5bb204d3e51d450e4f38e2f6)
+
 ### 泛型
 
 [Generics](https://www.dartlang.org/guides/language/language-tour#generics)
