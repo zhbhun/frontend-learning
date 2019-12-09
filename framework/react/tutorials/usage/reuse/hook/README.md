@@ -3,6 +3,11 @@
 - [Hooks Documents](https://reactjs.org/docs/hooks-intro.html)
 - [useHooks](https://usehooks.com/useEventListener/)
 
+## 第三方库
+
+- [react-use](https://github.com/streamich/react-use)
+- [umijs/hooks](https://github.com/umijs/hooks)
+
 ## 常见问题
 
 - [Preventing rerenders with React.memo and useContext hook.](https://github.com/facebook/react/issues/15156)
@@ -36,3 +41,4 @@
 
 - [Making Sense of React Hooks](https://medium.com/@dan_abramov/making-sense-of-react-hooks-fdbde8803889)
 - [React Hooks 深入不浅出](https://segmentfault.com/a/1190000017182184#articleHeader3)
+- [React Hooks 在蚂蚁金服的实践](https://zhuanlan.zhihu.com/p/94030173)
