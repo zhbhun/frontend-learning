@@ -1,26 +1,5 @@
-# Flutter 组件化开发
+# 组件化开发
 
-- 介绍组件
-  - 声明式编程 VS 命令式编程
-  - 有状态 VS 无状态
-  - 短时状态 VS 应用状态
-  - 组件生命周期
-  - 一个示例
-- 代码复用
-  - 高阶组件
-  - hook
-- 组件通信
-- 状态管理
-  - provide
-  - redux
-  - mbox
-  - rx
-- 实践优化
-  - 所有代码都参杂在一起的命令式编程
-  - 所有代码都参杂在一起的声明式编程
-  - 组件划分：有状态 VS 无状态、局部状态 VS 应用状态
-  - 代码复用
-  - 状态管理：实现组件通信
 
 ## 介绍组件
 
@@ -68,12 +47,6 @@ return ViewB(
 
 ---
 
-**工作原理**
-
-TODO
-
----
-
 参考文献**
 
 - [Introduction to declarative UI](https://flutter.dev/docs/get-started/flutter-for/declarative)
@@ -111,12 +84,76 @@ TODO
 
 ![ephemeral-vs-app-state.png](./assets/ephemeral-vs-app-state.png)
 
+思考：避免维护衍生状态？
+
 参考文献
 
 - [Differentiate between ephemeral state and app state](https://flutter.dev/docs/development/data-and-backend/state-mgmt/ephemeral-vs-app)
+- [[译] 你可能不需要 Derived State](https://zhuanlan.zhihu.com/p/38090110)
 
 ### 组件生命周期
 
-TODO
+![lifecycle.jpg](./assets/lifecycle.jpg)
 
-### 一个示例
+- 初始化：constructor >> initState >> didChangeDependencies \>> build
+- 属性变化：didUpdateWidget >> build
+- 依赖变化：didChangeDependencies >> build
+- 状态变化：setState >> build
+- 销毁：deactivate >> dispose
+
+问题1：没有 shouldComponentUpdate？
+
+flutter 没有类似 react shouldComponentUpdate 这样的方法来避免重新 rebuild，issue 里讨论来看 flutter 开发团队认为 flutter 已经够快了，再 element 方面已经做了 diff 等优化，而 widget 只是配置实例，就像执行了一段 dart 代码，没涉及到 ui 曾面的修改。 [flutter防止widget rebuild终极解决办法](https://juejin.im/post/5d6e4bd45188253603468568)
+
+- const
+- 使用 Provider Comsumer
+
+问题2：没有 componentDidMount？
+
+Future.delay?
+
+参考文献
+
+- [Flutter | 深入浅出Key](https://juejin.im/post/5ca2152f6fb9a05e1a7a9a26)
+- [Difference Between Deactivate and Dispose?](https://stackoverflow.com/questions/56387243/difference-between-deactivate-and-dispose)
+
+## 代码复用
+
+**多用组合少用继承**
+
+- 高阶组件
+- hook
+
+参考文献
+
+- [组合 vs 继承](https://zh-hans.reactjs.org/docs/composition-vs-inheritance.html)
+
+## 组件通信
+
+- 父子组件通信通信：回调函数
+
+- ##### 兄弟组件或祖先与后代组件通信：一层层传递属性和回调函数 —— InheritedWidget
+
+参考文献
+
+[[译] Flutter 核心概念详解： Widget、State、Context 及 InheritedWidget](https://juejin.im/post/5c768ad2f265da2dce1f535c#heading-17)
+
+## 状态管理
+
+![state-structure-simple.jpg](./assets/state-structure-simple.jpg)
+
+![state-structure-fz.jpg](./assets/state-structure-fz.jpg)
+
+- provide
+- redux
+- mbox
+- rx
+
+- 实践优化
+  - 所有代码都参杂在一起的命令式编程
+  - 所有代码都参杂在一起的声明式编程
+  - 组件划分：有状态 VS 无状态、局部状态 VS 应用状态
+  - 代码复用
+  - 状态管理：实现组件通信
+
+## 状态管理
