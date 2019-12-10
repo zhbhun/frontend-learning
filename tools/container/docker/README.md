@@ -112,12 +112,19 @@ sudo systemctl start docker
 #### 配置仓库镜像
 
 - [9102 年在国内如何快速的下载 Docker 镜像, 现存 Docker 镜像源横评](https://tomwei7.com/docker/2019/07/12/how-to-pull-docker-image-fast-in-china.html)
+
 - [国内 docker 仓库镜像对比](https://ieevee.com/tech/2016/09/28/docker-mirror.html)
+
 - [docker改国内官方镜像](https://www.cnblogs.com/coolwinds/p/7465475.html)
+
 - [Docker 国内仓库和镜像](https://www.cnblogs.com/wushuaishuai/p/9984228.html)
+
 - [docker_mirror](https://github.com/silenceshell/docker_mirror)
+
 - [Docker 配置国内镜像](https://www.jianshu.com/p/05f1232bda9f)
+
 - [docker for mac更换国内镜像源](https://www.jianshu.com/p/419eaf4425a6)
+
 - [Docker Toolbox下配置国内镜像源-阿里云加速器](https://www.jianshu.com/p/b59c1be8db87)
 
 - ubuntu
@@ -156,6 +163,12 @@ sudo systemctl start docker
 - docker desktop
 
     在配置界面里设置
+
+#### 发布个人镜像
+
+- [发布你的个人docker镜像](https://yancai.github.io/doc/docker/publish-your-image/)
+- [发布镜像](https://github.com/zhangpeihao/LearningDocker/blob/master/manuscript/03-PublishImage.md)
+- [Set up automated builds](https://docs.docker.com/docker-hub/builds/)
 
 ### Container 管理
 
