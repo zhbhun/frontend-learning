@@ -190,15 +190,6 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 #### 滚动组件
 
-- ListView
-  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
-- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
-- [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
-    - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
-    - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
-
-参考文献
-
 - [Scrolling widgets](https://flutter.cn/docs/development/ui/widgets/scrolling)
 - [Create a grid list](https://flutter.dev/docs/cookbook/lists/grid-lists)
 - [Create a horizontal list](https://flutter.dev/docs/cookbook/lists/horizontal-list.html)
@@ -206,6 +197,25 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar.html)
 - [Use lists](https://flutter.dev/docs/cookbook/lists/basic-list)
 - [Work with long lists](https://flutter.dev/docs/cookbook/lists/long-lists)
+
+##### API
+
+- ListView
+  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
+- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
+- [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
+    - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
+    - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
+
+##### 实现无限滚动
+
+1. `ListView.builder` 不指定 itemCount，在 itemBuilder 的 index 接近当前数据集合尾部时，发起数据请求；
+2. 使用 ScrollController 监听滚动位置来发起数据请求。
+
+参考文献
+
+- [Infinite List in Flutter Application](https://stackoverflow.com/questions/53114867/infinite-list-in-flutter-application)
+- [Implement Infinite Scrolling in a ListView - Flutter](https://codinglatte.com/posts/flutter/listview-infinite-scrolling-in-flutter/)
 
 #### 动画组件
 
