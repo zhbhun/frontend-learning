@@ -41,7 +41,13 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
     - [切换版本](https://flutter.dev/docs/development/tools/sdk/upgrading#selecting-a-specific-version)
 
 2. [配置编辑器](https://flutter.dev/docs/get-started/editor)
+
 3. [初始化项目](https://flutter.dev/docs/get-started/test-drive?tab=terminal)
+
+参考链接
+
+- [Flutter SDK releases](https://flutter.dev/docs/development/tools/sdk/releases?tab=windows)
+- [Flutter release notes](https://flutter.dev/docs/development/tools/sdk/release-notes)
 
 ## 开发入门
 
@@ -181,10 +187,18 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - Slider
 - Switch
 - TextField
+- [CupertinoPicker](https://api.flutter.dev/flutter/cupertino/CupertinoPicker-class.html)
+- [CupertinoDatePicker](https://api.flutter.dev/flutter/cupertino/CupertinoDatePicker-class.html) / [CupertinoTimerPicker](https://api.flutter.dev/flutter/cupertino/CupertinoTimerPicker-class.html)
 
 参考文献
 
 - [Input widgets](https://flutter.cn/docs/development/ui/widgets/input)
+
+#### 反馈提示
+
+##### API
+
+- [showCupertinoModalPopup](https://api.flutter.dev/flutter/cupertino/showCupertinoModalPopup.html)
 
 #### 交互手势
 
@@ -202,6 +216,7 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar.html)
 - [Use lists](https://flutter.dev/docs/cookbook/lists/basic-list)
 - [Work with long lists](https://flutter.dev/docs/cookbook/lists/long-lists)
+- [Flutter 滚动控件篇-->GridView、CustomScrollView](https://juejin.im/post/5d981209e51d457838128c68)
 
 ##### API
 
@@ -211,6 +226,13 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
     - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
     - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
+- [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html) / [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html)
+    - [CustomScrollView in Flutter 实战](https://book.flutterchina.club/chapter6/custom_scrollview.html)
+    - [Flutter：Slivers大家族，让滑动视图的组合变得很简单！](https://juejin.im/post/5bceb534e51d457aa4596f9a#heading-5)
+    - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
+    - [Decode CustomScrollView](https://medium.com/@greg.perry/decode-customscrollview-d5a60fcfb9fb)
+- [NestedScrollView](https://juejin.im/post/5beb91275188251d9e0c1d73)
+    - [Flutter 扩展NestedScrollView （三）下拉刷新的解决](https://juejin.im/post/5beb91275188251d9e0c1d73)
 
 ##### 实现无限滚动
 
@@ -383,6 +405,7 @@ hook
 ### 屏幕适配 / 响应式设计
 
 - [Creating responsive apps](https://flutter.dev/docs/development/ui/layout/responsive)
+- [flutter_screenutil](https://github.com/OpenFlutter/flutter_screenutil)
 
 ### 公共包开发
 
