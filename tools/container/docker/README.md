@@ -134,7 +134,7 @@ sudo systemctl start docker
         ```
         {
           "registry-mirrors": [
-            "https://registry.docker-cn.com",
+            "https://dockerhub.azk8s.cn",
             "https://hub-mirror.c.163.com",
             "https://docker.mirrors.ustc.edu.cn"
           ]
