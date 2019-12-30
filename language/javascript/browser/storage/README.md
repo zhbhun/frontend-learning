@@ -1,3 +1,14 @@
+# 存储
+
+## 常见问题
+
+### 存储空间限制大小？
+
+- [What is the max size of localStorage values?](https://stackoverflow.com/questions/2989284/what-is-the-max-size-of-localstorage-values)
+- [chrome cookie size limit](https://stackoverflow.com/questions/2543851/chrome-cookie-size-limit)
+
+---
+
 - [Store.js](https://github.com/marcuswestin/store.js)
 
 # 常见问题
@@ -56,3 +67,5 @@
 - https://www.html5rocks.com/en/tutorials/offline/quota-research/
 - https://arty.name/localstorage.html
 - https://www.html5rocks.com/en/tutorials/offline/quota-research/
+- [新一代的前端存储方案--indexedDB](https://juejin.im/post/5b09a641f265da0dcd0b674f)
+- [深入了解浏览器存储：对比Cookie、LocalStorage、sessionStorage与IndexedDB](https://yq.aliyun.com/articles/697120)

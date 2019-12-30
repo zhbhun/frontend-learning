@@ -134,7 +134,7 @@ sudo systemctl start docker
         ```
         {
           "registry-mirrors": [
-            "https://registry.docker-cn.com",
+            "https://dockerhub.azk8s.cn",
             "https://hub-mirror.c.163.com",
             "https://docker.mirrors.ustc.edu.cn"
           ]
@@ -272,6 +272,7 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 ### Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:
 
 - [Permission denied when running Docker after installing it as a Snap](https://askubuntu.com/questions/941816/permission-denied-when-running-docker-after-installing-it-as-a-snap)
+- [How to fix docker: Got permission denied while trying to connect to the Docker daemon socket](https://www.digitalocean.com/community/questions/how-to-fix-docker-got-permission-denied-while-trying-to-connect-to-the-docker-daemon-socket)
 
 ### Error Connecting to Docker hub
 
