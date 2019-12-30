@@ -74,6 +74,36 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 ### 组件开发
 
+#### 认识组件
+
+- 有状态 vs 无状态
+- 生命周期
+
+参考文献
+
+- [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
+- [Flutter | 深入浅出Key](https://juejin.im/post/5ca2152f6fb9a05e1a7a9a26)
+
+##### 生命周期
+
+- 初始化：constructor >> initState >> didChangeDependencies \>> build
+- 属性变化：didUpdateWidget >> build
+- 依赖变化：didChangeDependencies >> build
+- 状态变化：setState >> build
+- 销毁：deactivate >> dispose
+
+参考文献
+
+- [详解 Flutter 生命周期](https://zhuanlan.zhihu.com/p/55969418)
+- [Stateful Widget Lifecycle](https://flutterbyexample.com/stateful-widget-lifecycle/)
+- [How to check if Widget has mounted in flutter](https://stackoverflow.com/questions/54501245/how-to-check-if-widget-has-mounted-in-flutter)
+
+问题思考
+
+- 为什么没有挂载回调
+
+    例如 RefreshIndicator 需要再挂载后调用 show 方法来显示初始化的加载动画
+
 #### 基础组件
 
 - [Text]( https://api.flutter.dev/flutter/widgets/Text-class.html)
@@ -129,36 +159,75 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Layouts in Flutter](https://flutter.dev/docs/development/ui/layout)
 - [Tutorial](https://flutter.dev/docs/development/ui/layout/tutorial)
 - [Dealing with box constraints](https://flutter.dev/docs/development/ui/layout/box-constraints)
+- [Flutter 布局（五）- LimitedBox、Offstage、OverflowBox、SizedBox详解](https://juejin.im/post/5b52784ef265da0f521defa2)
+- [Flutter 布局（六）- SizedOverflowBox、Transform、CustomSingleChildLayout详解](https://juejin.im/post/5b5927fee51d4517c564aaed)
 
-#### 自定义组件
+#### 容器组件
 
-- 有状态 vs 无状态
-- 生命周期
+##### 裁剪
 
-参考文献
-
-- [Adding interactivity to your Flutter app](https://flutter.dev/docs/development/ui/interactive)
-- [Flutter | 深入浅出Key](https://juejin.im/post/5ca2152f6fb9a05e1a7a9a26)
-
-##### 生命周期
-
-- 初始化：constructor >> initState >> didChangeDependencies \>> build
-- 属性变化：didUpdateWidget >> build
-- 依赖变化：didChangeDependencies >> build
-- 状态变化：setState >> build
-- 销毁：deactivate >> dispose
+- [ClipRect](https://api.flutter.dev/flutter/widgets/ClipRect-class.html)：剪裁子组件到实际占用的矩形大小（溢出部分剪裁）
+- [ClipRRect](https://api.flutter.dev/flutter/widgets/ClipRRect-class.html)：将子组件剪裁为圆角矩形
+- [ClipOval](https://api.flutter.dev/flutter/widgets/ClipOval-class.html)：子组件为正方形时剪裁为内贴圆形，为矩形时，剪裁为内贴椭圆
+- [ClipPath](https://api.flutter.dev/flutter/widgets/ClipPath-class.html)：按路径裁剪子组件
+    - [Clipping widgets with bezier curves in Flutter](https://iirokrankka.com/2017/09/04/clipping-widgets-with-bezier-curves-in-flutter/)
+- [Flutter——路径裁剪](https://juejin.im/post/5d837928518825546f69f106)
+    
+- [Clip]( https://api.flutter.dev/flutter/dart-ui/Clip-class.html) / [CustomClipper](https://api.flutter.dev/flutter/rendering/CustomClipper-class.html)
 
 参考文献
 
-- [详解 Flutter 生命周期](https://zhuanlan.zhihu.com/p/55969418)
-- [Stateful Widget Lifecycle](https://flutterbyexample.com/stateful-widget-lifecycle/)
-- [How to check if Widget has mounted in flutter](https://stackoverflow.com/questions/54501245/how-to-check-if-widget-has-mounted-in-flutter)
+- [Flutter 实践 — 裁剪]( https://book.flutterchina.club/chapter5/clip.html )
+- [Clipping in Flutter](https://medium.com/flutter-community/clipping-in-flutter-e9eaa6b1721a)
+- [Flutter Clippers](https://medium.com/@mg55851/flutter-clippers-1fa3666f2bef)
 
-问题思考
+#### 滚动组件
 
-- 为什么没有挂载回调
+- [Scrolling widgets](https://flutter.cn/docs/development/ui/widgets/scrolling)
+- [Create a grid list](https://flutter.dev/docs/cookbook/lists/grid-lists)
+- [Create a horizontal list](https://flutter.dev/docs/cookbook/lists/horizontal-list.html)
+- [Create lists with different types of items](https://flutter.dev/docs/cookbook/lists/mixed-list.html)
+- [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar.html)
+- [Use lists](https://flutter.dev/docs/cookbook/lists/basic-list)
+- [Work with long lists](https://flutter.dev/docs/cookbook/lists/long-lists)
+- [Flutter 滚动控件篇-->GridView、CustomScrollView](https://juejin.im/post/5d981209e51d457838128c68)
 
-    例如 RefreshIndicator 需要再挂载后调用 show 方法来显示初始化的加载动画
+##### API
+
+- ListView
+  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
+- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
+- [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
+    - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
+    - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
+- [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html) / [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html)
+    - [CustomScrollView in Flutter 实战](https://book.flutterchina.club/chapter6/custom_scrollview.html)
+    - [Flutter：Slivers大家族，让滑动视图的组合变得很简单！](https://juejin.im/post/5bceb534e51d457aa4596f9a#heading-5)
+    - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
+    - [Decode CustomScrollView](https://medium.com/@greg.perry/decode-customscrollview-d5a60fcfb9fb)
+- [NestedScrollView](https://juejin.im/post/5beb91275188251d9e0c1d73)
+    - [Flutter 扩展NestedScrollView （三）下拉刷新的解决](https://juejin.im/post/5beb91275188251d9e0c1d73)
+    - [Flutter TabBar吸顶效果](https://www.jianshu.com/p/d96508c9d174)
+
+##### 实现无限滚动
+
+1. `ListView.builder` 不指定 itemCount，在 itemBuilder 的 index 接近当前数据集合尾部时，发起数据请求；
+2. 使用 ScrollController 监听滚动位置来发起数据请求。
+
+参考文献
+
+- [Infinite List in Flutter Application](https://stackoverflow.com/questions/53114867/infinite-list-in-flutter-application)
+- [Implement Infinite Scrolling in a ListView - Flutter](https://codinglatte.com/posts/flutter/listview-infinite-scrolling-in-flutter/)
+
+#### 动画组件
+
+- [Introduction to animations](https://flutter.dev/docs/development/ui/animations)
+- [Animation and motion widgets](https://flutter.dev/docs/development/ui/widgets/animation)
+
+参考文献
+
+- [Animation 02 | Use the flare 2dimesion animation in the flutter?](https://medium.com/flutteropen/animation-02-use-the-flare-animation-in-the-flutter-5fa89dd74c54)
+- [Animation 01 | How to use the animation in the flutter?](https://medium.com/flutteropen/animation-01-how-to-use-the-animation-in-the-flutter-e3ef7043f940) / [Animation 01 | How to use the animation in the flutter?](https://medium.com/@niebin312/animation-01-how-to-use-the-animation-in-the-flutter-4aded89396f9)
 
 #### 路由组件
 
@@ -206,53 +275,6 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 - [Taps, drags, and other gestures](https://flutter.dev/docs/development/ui/advanced/gestures)
 - [Interaction model widgets](https://flutter.cn/docs/development/ui/widgets/interaction)
 - [Fluter Canvas tutorial 05 | Gesture with the custom painter?](https://medium.com/flutteropen/canvas-tutorial-05-how-to-use-the-gesture-with-the-custom-painter-in-the-flutter-3fc4c2deca06)
-
-#### 滚动组件
-
-- [Scrolling widgets](https://flutter.cn/docs/development/ui/widgets/scrolling)
-- [Create a grid list](https://flutter.dev/docs/cookbook/lists/grid-lists)
-- [Create a horizontal list](https://flutter.dev/docs/cookbook/lists/horizontal-list.html)
-- [Create lists with different types of items](https://flutter.dev/docs/cookbook/lists/mixed-list.html)
-- [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar.html)
-- [Use lists](https://flutter.dev/docs/cookbook/lists/basic-list)
-- [Work with long lists](https://flutter.dev/docs/cookbook/lists/long-lists)
-- [Flutter 滚动控件篇-->GridView、CustomScrollView](https://juejin.im/post/5d981209e51d457838128c68)
-
-##### API
-
-- ListView
-  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
-- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
-- [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html)
-    - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
-    - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
-- [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html) / [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html)
-    - [CustomScrollView in Flutter 实战](https://book.flutterchina.club/chapter6/custom_scrollview.html)
-    - [Flutter：Slivers大家族，让滑动视图的组合变得很简单！](https://juejin.im/post/5bceb534e51d457aa4596f9a#heading-5)
-    - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
-    - [Decode CustomScrollView](https://medium.com/@greg.perry/decode-customscrollview-d5a60fcfb9fb)
-- [NestedScrollView](https://juejin.im/post/5beb91275188251d9e0c1d73)
-    - [Flutter 扩展NestedScrollView （三）下拉刷新的解决](https://juejin.im/post/5beb91275188251d9e0c1d73)
-
-##### 实现无限滚动
-
-1. `ListView.builder` 不指定 itemCount，在 itemBuilder 的 index 接近当前数据集合尾部时，发起数据请求；
-2. 使用 ScrollController 监听滚动位置来发起数据请求。
-
-参考文献
-
-- [Infinite List in Flutter Application](https://stackoverflow.com/questions/53114867/infinite-list-in-flutter-application)
-- [Implement Infinite Scrolling in a ListView - Flutter](https://codinglatte.com/posts/flutter/listview-infinite-scrolling-in-flutter/)
-
-#### 动画组件
-
-- [Introduction to animations](https://flutter.dev/docs/development/ui/animations)
-- [Animation and motion widgets](https://flutter.dev/docs/development/ui/widgets/animation)
-
-参考文献
-
-- [Animation 02 | Use the flare 2dimesion animation in the flutter?](https://medium.com/flutteropen/animation-02-use-the-flare-animation-in-the-flutter-5fa89dd74c54)
-- [Animation 01 | How to use the animation in the flutter?](https://medium.com/flutteropen/animation-01-how-to-use-the-animation-in-the-flutter-e3ef7043f940) / [Animation 01 | How to use the animation in the flutter?](https://medium.com/@niebin312/animation-01-how-to-use-the-animation-in-the-flutter-4aded89396f9)
 
 #### 平台组件
 
