@@ -35,6 +35,9 @@
 - https://github.com/reactjs/rfcs
 - https://github.com/reactjs/reactjs.org
 
+## 前瞻
+
+- [关于 React ：你不可不知的 19 件事儿](https://mp.weixin.qq.com/s/kKJEsaqXo0pqe9wvqnxQlg)
 
 - https://react.amsterdam/#talks
 - [React Enlightenment](https://www.reactenlightenment.com/)
