@@ -19,3 +19,7 @@
 
 - [Bolero](https://github.com/fsbolero/Bolero)
 - [Ooui](https://github.com/praeclarum/Ooui)
+
+## 参考文献
+
+- [​2019 年 WebAssembly 盘点：跟 Javascript 的相爱相杀](https://mp.weixin.qq.com/s/C6Zhs0mMs9oAJN889pG6rQ)
