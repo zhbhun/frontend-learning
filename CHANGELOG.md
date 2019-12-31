@@ -6,6 +6,7 @@
 
 ## 2019
 
+- https://2019.stateofjs.com/
 - [State of CSS 2019](https://2019.stateofcss.com/)
 - [2019 年 JavaScript 生态圈调查报告出炉！](https://mp.weixin.qq.com/s/TPfSXJX8Ml4xCCbjehX5Wg)
 - [2019 前端技术规划该包含什么？](https://www.zhihu.com/question/308348507/answer/571204744)
