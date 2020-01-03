@@ -256,6 +256,15 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
+## 示例
+
+### Sitespeed
+
+- [sitespeedio/browsertime](https://github.com/sitespeedio/browsertime/blob/master/Dockerfile)
+- [sitespeedio/docker-browsers](https://github.com/sitespeedio/docker-browsers/blob/master/Dockerfile)
+- [sitespeedio/docker-visualmetrics-deps](https://github.com/sitespeedio/docker-visualmetrics-deps/blob/master/Dockerfile)
+- [sitespeedio/docker-node](https://github.com/sitespeedio/docker-node/blob/master/Dockerfile)
+
 ## 问题
 
 ### 如何配置时区？
