@@ -62,16 +62,75 @@ Box 是指 Vagrant 的基础镜像，使用基础镜像可以快速克隆创建�
 
 - 创建
 
-    - [Creating a Base Box](https://www.vagrantup.com/docs/boxes/base.html)
-    - [Creating a Base Box of VirtualBox](https://www.vagrantup.com/docs/virtualbox/boxes.html)
-    - [制作自己第一个 vagrant box](https://unifreak.github.io/tutorial/Making-my-first-vagrant-box)
-    - [Vagrant创建自定义的BOX](http://www.winseliu.com/blog/2017/08/23/vagrant-create-your-own-box/)
-    - [制作自己的Vagrant Box](https://segmentfault.com/a/1190000002507999)
+#### VirtualBox
 
-    - [用packer做vagrant的box](http://www.jiangjiang.space/2017/09/17/%E7%94%A8packer%E5%81%9Avagrant%E7%9A%84box/)
-    - [使用Packer制作vagrant box](https://blog.csdn.net/lingxuan630/article/details/47836105)
-    - [boxcutter](https://github.com/boxcutter/centos)
-    - [chef/bento](https://github.com/chef/bento)
+- [Creating a Base Box](https://www.vagrantup.com/docs/boxes/base.html)
+- [Creating a Base Box of VirtualBox](https://www.vagrantup.com/docs/virtualbox/boxes.html)
+- [制作自己第一个 vagrant box](https://unifreak.github.io/tutorial/Making-my-first-vagrant-box)
+- [Vagrant创建自定义的BOX](http://www.winseliu.com/blog/2017/08/23/vagrant-create-your-own-box/)
+- [制作自己的Vagrant Box](https://segmentfault.com/a/1190000002507999)
+- [用packer做vagrant的box](http://www.jiangjiang.space/2017/09/17/%E7%94%A8packer%E5%81%9Avagrant%E7%9A%84box/)
+- [使用Packer制作vagrant box](https://blog.csdn.net/lingxuan630/article/details/47836105)
+- [boxcutter](https://github.com/boxcutter/centos)
+- [chef/bento](https://github.com/chef/bento)
+- [【译】从头制作 Vagrant Box](http://blog.levi-g.info/building-a-vagrant-box.html)
+
+#### VMWare
+
+创建 VMWare Vagrant Box
+
+```bash
+$ choco install packer
+$ packer buil ./package.json
+$ vagrant box add --name xxx/xxx ./xxx.box
+```
+
+package.json:
+
+```
+{
+  "builders": [{
+    "type": "vmware-vmx",
+    "source_path": "/path/to/a/vm.vmx", // vmware 虚拟机的 vmx 路径
+    "ssh_username": "root", // 虚拟机需要开启 ssh
+    "ssh_password": "root",
+    "ssh_wait_timeout": "30s",
+    "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": ["echo 'my additional provisioning steps'"]
+  }],
+  "post-processors": [{
+    "type": "vagrant",
+    "keep_input_artifact": true,
+    "output": "mycentos.box" // vagrant box 名称
+  }]
+}
+```
+
+- [VMware Builder (from VMX)](https://www.packer.io/docs/builders/vmware-vmx.html)
+- [how to create a vagrant box from vmware image with packer](https://stackoverflow.com/questions/31262833/how-to-create-a-vagrant-box-from-vmware-image-with-packer)
+
+启动 Vagrant Box
+
+```bash
+$ vagrant init xxx/xxx
+$ vagrant plugin install vagrant-vmware-desktop
+$ vagrant up --provider vmware_desktop
+```
+
+启动 vmware 的 varant box 需要安装插件 vagrant-vmware-desktop，但该插件要求付费，相关参考文献如下所示：
+
+- https://www.vagrantup.com/docs/vmware/installation.html
+- [The provider 'vmware_workstation' could not be found, but was requested to back the machine 'devmachine2'. Please use a provider that exists.](https://github.com/hashicorp/vagrant/issues/2342)
+- [Is there a cheaper VMWare provider for Vagrant available?](https://www.quora.com/Is-there-a-cheaper-VMWare-provider-for-Vagrant-available)
+- [Why isn't there an Open Source Vmware Vagrant Plugin?](https://stackoverflow.com/questions/43468927/why-isnt-there-an-open-source-vmware-vagrant-plugin)
+- [vagrant-vmware-esxi](https://github.com/josenk/vagrant-vmware-esxi)
+- [vagrant-vmware-free](https://github.com/orishavit/vagrant-vmware-free)
+- [@vianaweb vianaweb/gist:5164544](https://gist.github.com/vianaweb/5164544)
+
+
 
 ### 启动和 SSH
 
