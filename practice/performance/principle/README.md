@@ -59,13 +59,18 @@
         - [CSS 2 Box model](https://www.w3.org/TR/CSS2/box.html)
         - [Elaborate description of Stacking Contexts](https://www.w3.org/TR/CSS2/zindex.html)
         - [Grammar of CSS 2.1](https://www.w3.org/TR/CSS2/grammar.html)
-
 - [Notes on “How Browsers Work” ](https://codeburst.io/how-browsers-work-6350a4234634)
 - [聊聊 JavaScript 与浏览器的那些事 - 引擎与线程](https://hijiangtao.github.io/2018/01/08/JavaScript-and-Browser-Engines-with-Threads/)
 - [JavaScript是如何工作的：渲染引擎和优化其性能的技巧](https://blog.fundebug.com/2019/01/14/browser-rendering-and-optimizaiton/)
 - [浏览器的渲染原理简介](https://coolshell.cn/articles/9666.html)
 - [Multi-process Architecture](https://www.chromium.org/developers/design-documents/multi-process-architecture)
 - [Mobile Browser Internal (Blink Rendering Engine)](https://www.slideshare.net/HyungwookLee/mobilebrowserinternal-20140122)
+- [从浏览器多进程到JS单线程，JS运行机制最全面的一次梳理](https://juejin.im/post/5a6547d0f265da3e283a1df7)
+- [从 8 道面试题看浏览器渲染过程与性能优化](https://juejin.im/post/5e143104e51d45414a4715f7)
+- [无线性能优化：Composite](https://fed.taobao.org/blog/taofed/do71ct/performance-composite/?spm=taofed.blogs.blog-list.10.67bd5ac8fHy0LS)
+-  https://csstriggers.com/
+- [GPU Accelerated Compositing in Chrome](http://www.chromium.org/developers/design-documents/gpu-accelerated-compositing-in-chrome)
+- [史上最全！图解浏览器的工作原理](https://www.infoq.cn/article/CS9-WZQlNR5h05HHDo1b)
 
 ### 功能特性
 
