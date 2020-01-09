@@ -190,3 +190,23 @@ TODO
 
 - [Effective Dart](https://dart.dev/guides/language/effective-dart)
 
+## 常见问题
+
+### 如何将 Map 对象传给函数的命名参数
+
+```dart
+main() {
+  print('Hello, World!');
+  final a = new Map<Symbol, dynamic>();
+  a[const Symbol('m')] = 'string';
+  a[const Symbol('n')] = 1;
+  Function.apply(slave, [], a);
+}
+
+void slave({String m, int n}) {
+  print(m);
+  print(n);
+}
+```
+
+- [Dart - named parameters using a Map](https://stackoverflow.com/questions/16688054/dart-named-parameters-using-a-map)
