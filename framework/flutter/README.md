@@ -250,6 +250,8 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 
 - [Navigator](https://api.flutter.dev/flutter/widgets/Navigator-class.html)
 - [Route](https://api.flutter.dev/flutter/widgets/Route-class.html) / [OverlayRoute](https://api.flutter.dev/flutter/widgets/OverlayRoute-class.html) / [TransitionRoute](https://api.flutter.dev/flutter/widgets/TransitionRoute-class.html)/ [ModalRoute](https://api.flutter.dev/flutter/widgets/ModalRoute-class.html) / [PageRoute](https://api.flutter.dev/flutter/widgets/PageRoute-class.html) / [PopupRoute](https://api.flutter.dev/flutter/widgets/PopupRoute-class.html) / [CupertinoPageRoute](https://api.flutter.dev/flutter/cupertino/CupertinoPageRoute-class.html) / [MaterialPageRoute](https://api.flutter.dev/flutter/material/MaterialPageRoute-class.html) / [PageRouteBuilder](https://api.flutter.dev/flutter/widgets/PageRouteBuilder-class.html)
+- [Drawer](https://api.flutter.dev/flutter/material/Drawer-class.html)
+    - [Add a Drawer to a screen](https://flutter.dev/docs/cookbook/design/drawer)
 - [RouteSettings](https://api.flutter.dev/flutter/widgets/RouteSettings-class.html)
 - [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp-class.html) / [CupertinoApp](https://api.flutter.dev/flutter/cupertino/CupertinoApp-class.html)
 
