@@ -517,3 +517,4 @@ hook
 - [Hummingbird: Building Flutter for the Web](https://medium.com/flutter-io/hummingbird-building-flutter-for-the-web-e687c2a023a8)
 - [如何评价 Google 发布 Flutter 1.0 正式版？](https://www.zhihu.com/question/304696967/answer/550278042)
 - https://mailchi.mp/5db146a7468b/flutter-weekly-11
+- [字节跳动Flutter架构实践](https://mp.weixin.qq.com/s/7Ap-9MyhkveqGPRsRZWvyw)
