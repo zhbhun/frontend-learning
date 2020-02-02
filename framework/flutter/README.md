@@ -197,21 +197,12 @@ Flutter 是 Google 开源的 UI 工具包，帮助开发者通过一套代码库
 ##### API
 
 - ListView
-  - [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
+- [ListView in Layout](https://flutter.dev/docs/development/ui/layout#listview)
 - [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
 - [RefreshIndicator](https://api.flutter.dev/flutter/material/RefreshIndicator-class.html) / [flutter_pulltorefresh](https://github.com/peng8350/flutter_pulltorefresh)
     - [RefreshIndicator, show without launch onRefresh](https://github.com/flutter/flutter/issues/40235)
     - [How to show RefreshIndicator intially while waiting data from backend API?](https://stackoverflow.com/questions/44031454/how-to-show-refreshindicator-intially-while-waiting-data-from-backend-api)
     - [Flutter 下拉刷新花式玩法](https://juejin.im/post/5bebcc44f265da61682aedb8)
-- [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html) / [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html) / [SliverList](https://api.flutter.dev/flutter/widgets/SliverList-class.html) / [SliverGrid](https://api.flutter.dev/flutter/widgets/SliverGrid-class.html) / [SliverAppBar](https://api.flutter.dev/flutter/material/SliverAppBar-class.html)
-    - [Slivers](https://flutter.dev/docs/development/ui/advanced/slivers)
-    - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
-    - [Slivers Explained - Making Dynamic Layouts (The Boring Flutter Development Show, Ep. 12)](https://www.youtube.com/watch?v=Mz3kHQxBjGg)
-    - [CustomScrollView in Flutter 实战](https://book.flutterchina.club/chapter6/custom_scrollview.html)
-    - [Flutter：Slivers大家族，让滑动视图的组合变得很简单！](https://juejin.im/post/5bceb534e51d457aa4596f9a#heading-5)
-    - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
-    - [Decode CustomScrollView](https://medium.com/@greg.perry/decode-customscrollview-d5a60fcfb9fb)
-    - [Place a floating app bar above a list](https://flutter.dev/docs/cookbook/lists/floating-app-bar)
 - [NestedScrollView](https://juejin.im/post/5beb91275188251d9e0c1d73) / [extended_nested_scroll_view](https://github.com/fluttercandies/extended_nested_scroll_view/blob/master/README-ZH.md)
     - [Flutter嵌套刷新填坑](http://blog.hacktons.cn/2019/11/25/refresh-with-nestscrollview/)
     - [Flutter 扩展NestedScrollView （一）Pinned头引起的bug解决](https://juejin.im/post/5bea43ade51d45544844010a)
