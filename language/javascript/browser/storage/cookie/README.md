@@ -14,3 +14,4 @@
 - [HTTP cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
 - [Document.cookie](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie)
 - [A little framework: a complete cookies reader/writer with full Unicode support](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie/Simple_document.cookie_framework)
+- [即将到来的Chrome新的Cookie策略](https://zhuanlan.zhihu.com/p/103420328)
