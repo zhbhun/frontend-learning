@@ -1,10 +1,18 @@
 # JavaScript 代码压缩优化
 
-![bottleneck-after-optimize.png](./assets/bottleneck-after-optimize.png)
-
-![bottleneck-after-optimize.png](./assets/bottleneck-after-optimize.png)
-
 ![mindmap.jpg](./assets/mindmap.jpg)
+
+
+<div style="display: flex; justify-content: space-around;">
+  <div style="text-align: center;">
+    <div style="margin-bottom: 30px">瓶颈</div>
+    <img alt="bottleneck" src="./assets/bottleneck.png" style="width: 300px" />
+  </div>
+  <div style="text-align: center;">
+    <div style="margin-bottom: 30px">优化后</div>
+    <img alt="bottleneck" src="./assets/bottleneck-after-optimize.png" style="width: 300px" />
+  </div>
+</div>
 
 ## Minifier
 
