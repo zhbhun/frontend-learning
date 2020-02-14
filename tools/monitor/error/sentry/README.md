@@ -240,6 +240,81 @@
 - 评论
 - 标签
 
+### 通知
+
+- [Notifications](https://docs.sentry.io/workflow/notifications/)
+- [Alerts](https://docs.sentry.io/workflow/notifications/alerts/)
+- [Workflow](https://docs.sentry.io/workflow/notifications/workflow/)
+
+#### 通知渠道
+
+- Email
+- PagerDuty
+- Slack
+- 钉钉
+
+#### 通知类型
+
+- 警报通知：项目的错误警报
+- 工作流通知：问题状态变化通知
+
+    处理状态
+
+    - Unresolved：未解决
+    - Resolved：已解决
+    - Regressions：回归
+    - Ignored：忽略
+
+    分配状态
+
+    - Assigned：已分配
+    - Unassigned：未分配
+
+- 周报通知：报告组织每周问题统计情况
+- 部署通知：版本、环境等部署通知
+
+
+#### 通知配置
+
+##### 开关
+
+在[个人账号的通知设置](https://sentry.io/settings/account/notifications/)页面，可以统一设置不同类型通知的启用状态，或者按项目设置。
+
+##### 责任人
+
+[Issue Owners](https://docs.sentry.io/workflow/issue-owners/)
+
+- 默认：警报默认发送给项目关联团队的所有成员
+- 定制：根据路径或者 URL 指定给指定小组或者成员
+
+ps：在项目的责任人设置页面里可以设置自动将问题分配给责任人的功能。
+
+##### 规则
+
+- 名称
+- 条件：所有、任一、非
+
+    - 收到事件
+    - 第一次收到问题
+    - 问题从已处理变为未处理
+    - 问题从忽略变为未处理
+    - 事件匹配某个标签
+    - 问题在多长时间内触发多少次
+    - 事件级别
+    - 事件信息包含
+
+- 环境
+- 动作
+- 频率
+
+参考文献
+
+- [Proactively Wrangle Events Using Sentry’s Alert Rules](https://blog.sentry.io/2017/10/12/proactive-alert-rules)
+
+##### 其他
+
+- [Unsubscribe](https://docs.sentry.io/workflow/notifications/#unsubscribe)
+
 ## 本地服务
 
 下载 [getsentry/onpremise](https://github.com/getsentry/onpremise)，然后按照 [Setup](https://github.com/getsentry/onpremise#setup) 和 [.travis.yml](https://github.com/getsentry/onpremise/blob/master/.travis.yml) 的操作步骤操作。
