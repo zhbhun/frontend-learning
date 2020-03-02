@@ -10,3 +10,4 @@
 - [Mobile Speed Matters](https://www.doubleclickbygoogle.com/articles/mobile-speed-matters/)
 - [WPO Stats](https://wpostats.com/)
 - [PWA Stats](https://www.pwastats.com/)
+- [Mobile Load Time and User Abandonment](https://developer.akamai.com/blog/2016/09/14/mobile-load-time-user-abandonment)
