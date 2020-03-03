@@ -43,6 +43,8 @@
 
 - [Measure Performance with the RAIL Model](https://developers.google.com/web/fundamentals/performance/rail)
 - [User-centric Performance Metrics](https://developers.google.com/web/fundamentals/performance/user-centric-performance-metrics)
+- [User-centric performance metrics](https://web.dev/user-centric-performance-metrics/)
+- [Assessing Loading Performance in Real Life with Navigation and Resource Timing](https://developers.google.com/web/fundamentals/performance/navigation-and-resource-timing#phoning_home)
 
 ## [响应](https://developers.google.com/web/fundamentals/performance/rail#response)
 
