@@ -34,6 +34,8 @@
 - [Use forensics and detective work to solve JavaScript performance mysteries](https://www.html5rocks.com/en/tutorials/performance/mystery/)
 - [Static Memory Javascript with Object Pools](https://www.html5rocks.com/en/tutorials/speed/static-mem-pools/)
 - [性能测试工具](https://github.com/JohnsenZhou/Front-End-Performance-Checklist#%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7)
+- [Measuring Performance](https://developers.google.com/web/fundamentals/performance/get-started/measuringperf-2)
+- [How To Think About Speed Tools](https://developers.google.com/web/fundamentals/performance/speed-tools#lighthouse)
 
 ---
 
