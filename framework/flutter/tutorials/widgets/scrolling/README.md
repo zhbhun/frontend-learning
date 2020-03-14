@@ -56,11 +56,6 @@ Scrollable 实现了核心的滚动交互模型，例如手势识别，但它不
 
 ![custom_scroll_view.mindmap.jpg](./custom_scroll_view.mindmap.jpg)
 
-API
-
-- [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html)：滚动容器组件
-- [SliverAppBar](https://api.flutter.dev/flutter/material/SliverAppBar-class.html)：导航栏
-- [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html)
 - [SliverList](https://api.flutter.dev/flutter/widgets/SliverList-class.html)：列表
 - [SliverFixedExtentList](https://api.flutter.dev/flutter/widgets/SliverFixedExtentList-class.html)：固定高度的列表
 - [SliverGrid](https://api.flutter.dev/flutter/widgets/SliverGrid-class.html)：网格
@@ -80,7 +75,13 @@ API
 - [Slivers, Demystified](https://medium.com/flutter/slivers-demystified-6ff68ab0296f)
 - [Decode CustomScrollView](https://medium.com/@greg.perry/decode-customscrollview-d5a60fcfb9fb)
 
+### [CustomScrollView](https://api.flutter-io.cn/flutter/widgets/CustomScrollView-class.html)
+
+滚动容器组件
+
 #### [SliverAppBar](https://api.flutter.dev/flutter/material/SliverAppBar-class.html)
+
+SliverAppBar 是导航栏组件的 Sliver 版本。
 
 - `floating` + `pinned` + `snap`：滚动联动效果
 
@@ -103,13 +104,33 @@ API
 
 - `bottom`：底栏，通常配合 Tabbar
 
+### [SliverToBoxAdapter](https://api.flutter.dev/flutter/widgets/SliverToBoxAdapter-class.html)
+
+SliverToBoxAdapter 是一个基础 Sliver 组件，用于容纳一个组件，可以是一个普通的组件。
+
+```dart
+SliverToBoxAdapter(
+  child: Image.asset(
+   "assets/images/lake.jpg",
+   fit: BoxFit.cover,
+  ),
+),
+```
+
+### [SliverList](https://api.flutter.dev/flutter/widgets/SliverList-class.html)
+
+- [SliverList](https://api.flutter.dev/flutter/widgets/SliverList-class.html)
+- [SliverChildDelegate](https://api.flutter.dev/flutter/widgets/SliverChildDelegate-class.html)
+- [SliverChildListDelegate](https://api.flutter.dev/flutter/widgets/SliverChildListDelegate-class.html)
+- [SliverChildBuilderDelegate](https://api.flutter.dev/flutter/widgets/SliverChildBuilderDelegate-class.html)
+
 ### TODO
 
 - [可滚动组件简介](https://book.flutterchina.club/chapter6/intro.html)
 - [ListView](https://book.flutterchina.club/chapter6/listview.html)
 - [GridView](https://book.flutterchina.club/chapter6/gridview.html)
 
-## 滚动监听
+## ScrollController
 
 - [滚动监听及控制](https://book.flutterchina.club/chapter6/scroll_controller.html)
 
