@@ -25,3 +25,28 @@ Object 内部属性 [[class]]
 - 显示数据类型转换
 - 隐式数据类型转换
 - 宽松相等和严格相等
+
+### 第五章 语法
+
+- 区分语句（statement）和表达式（expression）：语句相当于句子，表达式相当于短语，运算符则相当于标点符号和连接词。
+- 语句都有一个结果值：statement completion value，undefined 也算。通过 eval 或 ES7 提案的“do 表达式”可以获取语句的结果值
+
+    ```js
+    var a, b;
+    a = eval( "if (true) { b = 4 + 38; }" );
+    a; //
+    ```
+
+    ```js
+    var a, b;
+    a = do {
+      if (true) {
+        b = 4 + 38;
+      }
+    };
+    a;
+    ```
+
+    ps：do 似乎没有被浏览器支持
+
+- ...
