@@ -49,4 +49,4 @@ Object 内部属性 [[class]]
 
     ps：do 似乎没有被浏览器支持
 
-- ...
+- 运算符优先级参考 MDN 的[“优先级列表”](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
