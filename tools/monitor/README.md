@@ -22,3 +22,4 @@
 - [支持多种小程序！阿里云 ARMS 推出小程序监控](https://www.infoq.cn/article/3QHswJd*3g5Q0t1GdmCP)
 - [The Google Analytics Setup I Use on Every Site I Build](https://philipwalton.com/articles/the-google-analytics-setup-i-use-on-every-site-i-build/)
 - [监控平台前端SDK开发实践](https://tech.meituan.com/2017/09/07/hunt-sdk-practice.html)
+- [前端监控和前端埋点方案设计](https://github.com/forthealllight/blog/issues/23)

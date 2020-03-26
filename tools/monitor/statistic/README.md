@@ -38,6 +38,9 @@
 - [Improved tracking with the `<a ping>` attribute - HTML5](https://deanhume.com/improved-tracking-with-the-a-ping-attribute-html5/)
 - [Some thoughts on anchor ping](https://lapcatsoftware.com/articles/Safari-link-tracking2.html)
 - https://caniuse.com/#feat=ping
+- [前端监控 - 你的PV统计可能是错的](https://zhuanlan.zhihu.com/p/44933114)
+- [从一个埋点日志上报脚本说起](https://juejin.im/post/5c711089518825620b45271a)
+- [专业术语](https://tongji.baidu.com/web/help/article?id=253&type=0)
 
 ## TODO
 
