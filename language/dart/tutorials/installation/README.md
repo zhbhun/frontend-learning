@@ -1,6 +1,6 @@
 # 安装
 
-Dart SDK 提供了基本的库和命令行工具，用于开发 Web 应用、命令行工具和服务端应用。如果只是开发移动端应用，那么你只需要按照 Flutter SDK，而不需要再安装 Dart SDK（Flutter SDK 内置了 Dart SDK）。Dart SDK 的安装方式有三种：
+Dart SDK 提供了基本的库和命令行工具，**用于开发 Web 应用、命令行工具和服务端应用**。如果只是开发移动端应用，那么你只需要按照 Flutter SDK，而不需要再安装 Dart SDK（Flutter SDK 内置了 Dart SDK）。Dart SDK 的安装方式有三种：
 
 1. 包管理工具（推荐）
 2. [自行构建源码](https://github.com/dart-lang/sdk/wiki/Building)
