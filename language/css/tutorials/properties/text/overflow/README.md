@@ -170,3 +170,7 @@ white-space 属性定义了如何处理文本中的空白，主要决定决定�
 ### 常见问题
 
 - [White-space:pre-wrap causes extra spacing](https://stackoverflow.com/questions/36783662/white-spacepre-wrap-causes-extra-spacing)
+- 表格单元格截断问题
+
+    - [Why doesn't CSS ellipsis work in table cell?](https://stackoverflow.com/questions/10372369/why-doesnt-css-ellipsis-work-in-table-cell)
+    - [CSS text-overflow in a table cell?](https://stackoverflow.com/questions/9789723/css-text-overflow-in-a-table-cell)
