@@ -240,6 +240,12 @@ ps：以上支持情况都是按本文编写时间为准（201904）
 
 - [Resource Timing](https://caniuse.com/#feat=resource-timing)
 
+## 常见问题
+
+- 在 iOS Safari 上很多 H5 应用会通过 Deep Links 唤起应用，但这会导致 window 不会触发 load 事件，performance 上的 loadEventStart/loadEventEnd 均为 0
+
+    参见测试实例 [loadendiszero.html](./examples/loadendiszero.html)
+
 
 ## 实际应用
 
