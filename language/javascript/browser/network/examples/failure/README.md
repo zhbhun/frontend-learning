@@ -1,5 +1,7 @@
 测试 Ajax 由于网络问题请求失败的特征。
 
+![interface-errors.svg](./interface-errors.svg)
+
 ## XMLHttpRequest
 
 - 请求取消
@@ -14,6 +16,8 @@
     response: 
     abort: ProgressEvent - type: abort, lengthComputable: false, loaded: 0, total: 0
     ```
+
+    备注：请求取消会正常触发状态完成事件，响应状态为 0。此外，可以通过 abort 事件判断出网络问题。
 
 - 网络异常
 
