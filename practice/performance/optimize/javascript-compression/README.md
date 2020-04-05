@@ -25,7 +25,7 @@ Minifier 的历史进程
 
 1. 2001年： Douglas Crockford 介绍了 [JSMin](https://web.archive.org/web/20020405140416/https://www.crockford.com/javascript/jsmin.html)，可以删除 JavaScript 代码中的注释和空格；
 2. 2007年：雅虎团队推出了 [YUI Compressor](https://yui.github.io/yuicompressor/)（基于 Java 实现）
-3. 2019年：Goole 开源了 [Closure Compiler](https://github.com/google/closure-compiler)，实现了 source map 功能
+3. 2009年：Goole 开源了 [Closure Compiler](https://github.com/google/closure-compiler)，实现了 source map 功能
 4. 2010年：Mihai Bazon 介绍了 [UglifyJS](https://github.com/mishoo/UglifyJS)
 5. 2012年：[UglifyJS](https://github.com/mishoo/UglifyJS) 被 [UglifyJS2+](https://github.com/mishoo/UglifyJS2) 取代，支持了 source map
 6. 后面随着浏览器对 ES6/ES2015 的支持度越来越高，[UglifyJS](https://github.com/mishoo/UglifyJS) 并不支持 ES6+ 语法，而 Babel 本身就有解析器可以支持新的语法，所以 Babel 基于自身的工具链开发了 [babel-minify](https://github.com/babel/minify)。但截止到本文编写时间，babel-minify 还处于实验中，不建议在生产环境中使用。
