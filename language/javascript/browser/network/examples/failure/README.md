@@ -242,3 +242,7 @@
 - XMLHttpRequst 是最原始的 Ajax 请求方式，能够区分出各种接口异常；
 - Fetch 不支持配置超时时间、不支持取消请求，且无法区分网络异常和请求超时；
 - Axios 封装简化了 XMLHttpRequest 的用法，但需要注意 Axios 默认采用 json 作为响应内容类型，需要跟进自身需求进行调整。
+
+---
+
+- [What does status=canceled for a resource mean in Chrome Developer Tools?](https://stackoverflow.com/questions/12009423/what-does-status-canceled-for-a-resource-mean-in-chrome-developer-tools#13459106)
