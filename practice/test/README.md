@@ -28,6 +28,8 @@
 - Phantomjs + CasperJS
 - PhantomFlow
 - https://www.selenium.dev/selenium-ide/
+- https://macacajs.github.io/zh/
+- https://github.com/alibaba/uirecorder
 - https://github.com/karma-runner/karma
 - https://github.com/cypress-io/cypress
 - https://github.com/nightwatchjs/nightwatch
@@ -44,7 +46,10 @@
 
 参考文献
 
-[前端E2E测试略解](https://blog.csdn.net/qq_39300332/article/details/81197503)
+- [前端E2E测试略解](https://blog.csdn.net/qq_39300332/article/details/81197503)
+- [UI测试：从WebdriverIO and Selenium 转 Puppeteer (译)](https://github.com/aermin/blog/issues/49)
+- [基于Node.js的UI自动化主流框架横向测评](https://zhuanlan.zhihu.com/p/27585412)
+
 
 ### 性能测试
 
