@@ -75,6 +75,7 @@ Node.js 封装版本
 
 ## 衍生框架
 
+- https://github.com/webdriverio/webdriverio
 - [Selenium](https://www.selenium.dev)
 - [PhantomJS](https://phantomjs.org/)
 - [Puppeteer](https://github.com/puppeteer/puppeteer) / [Puppeteer for Firefox](https://github.com/puppeteer/puppeteer/tree/1ce4fe7169ef0b0b1f6d771a99d783dbbb62941f/experimental/puppeteer-firefox)
