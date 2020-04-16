@@ -2,12 +2,15 @@
 
 - [TesterHome 社区](https://testerhome.com/)
 
+参考文献
+
+- [2018 年 JavaScript 测试概观](https://zhuanlan.zhihu.com/p/32702421)
+
 ## 测试范围
 
 - 单元测试：测试逻辑性强的代码
 - 集成测试
-- 界面测试：测试界面是否正常
-- 功能测试：测试功能操作是否正常，利用测试运行器来模拟用户操作
+- 端到端测试/UI 测试/功能测试
 - 性能测试
 - 兼容性测试
 - 自动化测试
@@ -16,27 +19,41 @@
 
 ## 测试方案
 
-- 单元测试：测试框架 + 断言库
+### 单元测试：测试框架 + 断言库
 
-    - mocha + chai
+- mocha + chai
 
-- 界面测试：常见的做法有像素对比和dom结构对比两个方向
+### 端到端测试：
 
-    - PhantomCSS
-    - page-monitor
-    - [Airtest](https://github.com/AirtestProject/Airtest)
+- Phantomjs + CasperJS
+- PhantomFlow
+- https://www.selenium.dev/selenium-ide/
+- https://github.com/karma-runner/karma
+- https://github.com/cypress-io/cypress
+- https://github.com/nightwatchjs/nightwatch
+- https://devexpress.github.io/testcafe/
+- https://www.katalon.com/
+- https://endtest.io/
 
-- 功能测试：
+界面测试：常见的做法有像素对比和dom结构对比两个方向
 
-    - Phantomjs + CasperJS
-    - PhantomFlow
+- PhantomCSS
+- page-monitor
+- http://garris.github.io/BackstopJS/
+- [Airtest](https://github.com/AirtestProject/Airtest)
 
-- 性能测试
+参考文献
 
-    - Phantomas
-    - LightHouse
+[前端E2E测试略解](https://blog.csdn.net/qq_39300332/article/details/81197503)
 
-- 兼容性测试：dalekjs, triflejs
+### 性能测试
+
+- Phantomas
+- LightHouse
+
+### 兼容性测试
+
+dalekjs, triflejs
 
 
 ## 测试工具
