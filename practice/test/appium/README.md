@@ -158,13 +158,6 @@ Appium 是一个整合了 Appium Server 和 Inspector 工具的桌面软件，�
 
     Recorder 可以记录查找和操作元素的行为，并输出 Appium 客户端不同语言的代码示例
 
-## 常见问题
-
-- 如何设置每轮测试不要清除 appium 数据
-
-    - [Reset Strategies](https://appium.io/docs/en/writing-running-appium/other/reset-strategies/)
-    - [How to stop appium from clearing the Android app data?](https://stackoverflow.com/questions/42246622/how-to-stop-appium-from-clearing-the-android-app-data)
-
 ### 测试 API
 
 - [服务器装填](https://appium.io/docs/en/commands/status/)：查询服务器当前状态
@@ -175,4 +168,39 @@ Appium 是一个整合了 Appium Server 和 Inspector 工具的桌面软件，�
 - [上下文管理](https://appium.io/docs/en/commands/context/get-context/)
 - [交互操作](https://appium.io/docs/en/commands/interactions/mouse/moveto/)
 - [Web 相关](https://appium.io/docs/en/commands/web/window/set-window/)
+
+## 常见问题
+
+- 如何设置每轮测试不要清除 appium 数据
+
+    - [Reset Strategies](https://appium.io/docs/en/writing-running-appium/other/reset-strategies/)
+    - [How to stop appium from clearing the Android app data?](https://stackoverflow.com/questions/42246622/how-to-stop-appium-from-clearing-the-android-app-data)
+
+- 如何查找 Android appPackage 和 appActivity
+
+    传给 Appium 的 appActivity 是以点好开头，去掉了 appPackage 部分的前缀。
+
+    ```bash
+    adb devices
+    adb shell
+    # 必须在应用启动的同时输入下面的命令，以便于获取到启动 Activity
+    dumpsys window windows | grep -E mCurrentFocus
+    ```
+
+    备注：使用非启动 Activity 会报错 —— [Cannot run Android app through adb or Appium because of SecurityException: Permission Denial](https://appium.io/docs/en/writing-running-appium/web/hybrid/)。
+
+- 如何查找 Android 应用元素
+
+    在使用 Appium 进行自动化测试时，遇到的一个问题时我要怎么查找应用中的元素？
+
+    - [UI Automator](https://developer.android.com/training/testing/ui-automator#ui-automator-viewer)
+    - [Appium Desktop](https://developer.android.com/training/testing/ui-automator#ui-automator-viewer)
+    
+    参考文献
+
+    [Finding Android components with Appium](https://medium.com/@iiroalhonen/finding-android-components-with-appium-107d3ce2e344)
+
+- 如何调试基于腾讯 X5 内核的 Webview
+
+    https://zhuanlan.zhihu.com/p/81588023
 
