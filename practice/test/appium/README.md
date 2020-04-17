@@ -141,6 +141,30 @@ $ npm run test
 - https://github.com/appium/appium/tree/master/sample-code
 - [使用 Appium 对移动终端上 Hybrid 应用进行自动化测试](https://www.ibm.com/developerworks/cn/mobile/mo-cn-appium/index.html)
 
+### [Appium Desktop](https://github.com/appium/appium-desktop)
+
+Appium 是一个整合了 Appium Server 和 Inspector 工具的桌面软件，支持 Mac、Windows 和 Linux。
+
+- 图形化的配置和启动 Appium Server
+- 图形化的配置和启动 Appium Session
+
+    支持本地、远程和云服务器
+
+- 图形化的 Inspector 工具
+
+    类似 Chrome 开发者调试工具的网页审查，可以实时观看应用截图、查找应用元素、查看元素属性，以及触发元素的交互行为。
+
+- 图形化的 Recorder 工具
+
+    Recorder 可以记录查找和操作元素的行为，并输出 Appium 客户端不同语言的代码示例
+
+## 常见问题
+
+- 如何设置每轮测试不要清除 appium 数据
+
+    - [Reset Strategies](https://appium.io/docs/en/writing-running-appium/other/reset-strategies/)
+    - [How to stop appium from clearing the Android app data?](https://stackoverflow.com/questions/42246622/how-to-stop-appium-from-clearing-the-android-app-data)
+
 ### 测试 API
 
 - [服务器装填](https://appium.io/docs/en/commands/status/)：查询服务器当前状态
