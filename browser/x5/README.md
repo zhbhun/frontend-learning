@@ -8,6 +8,11 @@
 - [解读微信全面升级X5 Blink内核，H5游戏行业重大利好](https://zhuanlan.zhihu.com/p/20799653)
 - [X5WebEngineDemo](https://github.com/baishixian/X5WebEngineDemo)
 
+## 开发调试
+
+- [调试指南](https://x5.tencent.com/tbs/guide/debug/season1.html)
+- [基于X5内核的UI自动化方案](https://zhuanlan.zhihu.com/p/81588023)
+
 ## 常见问题
 
 - [X5内核视频之问答汇总](https://open.imtt.qq.com/thread-1945347-1-1.html)
