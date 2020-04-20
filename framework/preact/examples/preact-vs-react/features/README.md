@@ -1,68 +1,94 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 功能对比
 
-## Available Scripts
+## 开发工具
 
-In the project directory, you can run:
+| 特性| react | preact |
+| --- | --- | --- |
+| Inspector | ✔ | ✔ |
+| Profiler | ✔ | ✔ |
 
-### `npm start`
+备注：preact 有自己的开发者调试工具， 参见[Debugging Preact Apps](https://preactjs.com/guide/v10/debugging/)。
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## APIS
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+| api | react | preact/compact
+| --- | --- | --- |
+| Children | ✔ | ✔ |
+| Component | ✔ | ✔ |
+| Fragment | ✔ | ✔ |
+| Profiler | ✔ | ✘ |
+| PureComponent | ✔ | ✔ |
+| StrictMode | ✔ | ✘ |
+| Suspense | ✔ | ✔ |
+| SuspenseList | ✘ | ✔ |
+| cloneElement | ✔ | ✔ |
+| createContext | ✔ | ✔ |
+| createElement | ✔ | ✔ |
+| createFactory | ✔ | ✔ |
+| createPortal | ✔ | ✔ |
+| createRef | ✔ | ✔ |
+| findDOMNode | ✔ | ✔ |
+| flushSync | ✔ | ✘ |
+| forwardRef | ✔ | ✔ |
+| hydrate | ✔ | ✔ |
+| isValidElement | ✔ | ✔ |
+| lazy | ✔ | ✔ |
+| memo | ✔ | ✔ |
+| render | ✔ | ✔ |
+| unmountComponentAtNode | ✔ | ✔ |
+| useCallback | ✔ | ✔ |
+| useContext | ✔ | ✔ |
+| useDebugValue | ✔ | ✔ |
+| useEffect | ✔ | ✔ |
+| useImperativeHandle | ✔ | ✔ |
+| useLayoutEffect | ✔ | ✔ |
+| useMemo | ✔ | ✔ |
+| useReducer | ✔ | ✔ |
+| useRef | ✔ | ✔ |
+| useState | ✔ | ✔ |
 
-### `npm test`
+总结：Preact 不支持 StricMode 和 Profiler
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## PropTypes
 
-### `npm run build`
+Preact 需要在项目的最开始引入 `preact/debug`，才能正常使用 PropTypes，参考 [PropTypes for Preact](https://github.com/preactjs/preact/issues/902#issuecomment-469626883)。
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- react：✔
+- preact：✔
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+问题：Preact 目前的版本（10.x）虽然支持了 PropTypes，但是校验的输出信息无法定位到具体是哪个组件验证不通过。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Children
 
-### `npm run eject`
+Preact 不支持 null 类型的 children，子组件实际拿到的是 undefined。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+| child | react | preact/compact
+| --- | --- | --- |
+| undefined | ✔ | ✔ |
+| null | ✔ | ✘ |
+| null | ✔ | ✔ |
+| bool | ✔ | ✔ |
+| number | ✔ | ✔ |
+| string | ✔ | ✔ |
+| object | ✔ | ✔ |
+| array | ✔ | ✔ |
+| function | ✔ | ✔ |
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Render
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+React 的 rendder 函数不支持返回 undefined，preact 返回 undefine 相等于返回 null。react 和 preact 的 render 函数返回布尔值时，渲染内容都为空。
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+| child | react | preact/compact
+| --- | --- | --- |
+| undefined | ✘ | ✔ |
+| null | ✔ | ✔ |
+| bool | ✔ | ✔ |
+| number | ✔ | ✔ |
+| string | ✔ | ✔ |
+| object | ✔ | ✔ |
+| array | ✔ | ✔ |
+| function | ✔（警告） | ✘ |
 
-## Learn More
+# Event
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+React 的事件处理函数获取到的事件是合成事件，真正的原生事件在 nativeEvent 属性上，而 preact 的事件处理程序获取到的直接就是合成事件，并且绑定了一个 nativeEvent 属性，并且指向自己。

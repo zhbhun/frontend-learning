@@ -20,6 +20,13 @@
     - [preact-context](https://github.com/valotas/preact-context/issues/30)
     - [Is there any way to have access to this.context in component code?](https://github.com/valotas/preact-context/issues/30)
 
+参考文献
+
+- [搜狗社区搜索Preact迁移指南](https://github.com/mopduan/team/issues/2)
+- [记一次preact迁移到react16.6.7的经历](https://imweb.io/topic/5c55136fbaf81d795209492d)
+- [Moving From React to Preact: A Developer’s Story](https://medium.com/bitcraft/moving-from-react-to-preact-a-developers-story-49994cfc56dc)
+- [Preact：一个备胎的自我修养](https://juejin.im/post/5a0191f25188254de1699b0b)
+
 ## 工具
 
 - [preact-cli](https://github.com/preactjs/preact-cli)

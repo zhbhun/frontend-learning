@@ -1,24 +1,31 @@
 import React from 'react';
-import logo from './logo.svg';
+import ApisTester from './tester/ApisTester';
+import PropTypesTester from './tester/PropTypesTester';
+import ChildrenTester from './tester/ChildrenTester';
+import RenderTester from './tester/RenderTester';
+import EventTester from './tester/EventTester';
 import './App.css';
 
 function App() {
+  const testers = [
+    ApisTester,
+    PropTypesTester,
+    ChildrenTester,
+    RenderTester,
+    EventTester,
+  ];
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {testers.map((Tester, index) => {
+        return (
+          <div key={index} className="Collapse">
+            <h3>{Tester.title || ''}</h3>
+            <Tester />
+            <hr />
+          </div>
+        );
+      })}
     </div>
   );
 }
