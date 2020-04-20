@@ -9,6 +9,15 @@
 
 备注：preact 有自己的开发者调试工具， 参见[Debugging Preact Apps](https://preactjs.com/guide/v10/debugging/)。
 
+## PropTypes
+
+Preact 需要在项目的最开始引入 `preact/debug`，才能正常使用 PropTypes，参考 [PropTypes for Preact](https://github.com/preactjs/preact/issues/902#issuecomment-469626883)。
+
+- react：✔
+- preact：✔
+
+问题：Preact 目前的版本（10.x）虽然支持了 PropTypes，但是校验的输出信息无法定位到具体是哪个组件验证不通过。
+
 ## APIS
 
 | api | react | preact/compact
@@ -48,15 +57,6 @@
 | useState | ✔ | ✔ |
 
 总结：Preact 不支持 StricMode 和 Profiler
-
-## PropTypes
-
-Preact 需要在项目的最开始引入 `preact/debug`，才能正常使用 PropTypes，参考 [PropTypes for Preact](https://github.com/preactjs/preact/issues/902#issuecomment-469626883)。
-
-- react：✔
-- preact：✔
-
-问题：Preact 目前的版本（10.x）虽然支持了 PropTypes，但是校验的输出信息无法定位到具体是哪个组件验证不通过。
 
 ## Children
 
