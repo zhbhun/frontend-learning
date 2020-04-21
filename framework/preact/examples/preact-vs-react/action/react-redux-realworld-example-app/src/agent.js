@@ -1,5 +1,6 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
+import { tags, articles } from './mock';
 
 const superagent = superagentPromise(_superagent, global.Promise);
 
@@ -38,14 +39,14 @@ const Auth = {
 };
 
 const Tags = {
-  getAll: () => requests.get('/tags')
+  getAll: () => tags || requests.get('/tags')
 };
 
 const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
 const omitSlug = article => Object.assign({}, article, { slug: undefined })
 const Articles = {
   all: page =>
-    requests.get(`/articles?${limit(10, page)}`),
+    articles || requests.get(`/articles?${limit(10, page)}`),
   byAuthor: (author, page) =>
     requests.get(`/articles?author=${encode(author)}&${limit(5, page)}`),
   byTag: (tag, page) =>

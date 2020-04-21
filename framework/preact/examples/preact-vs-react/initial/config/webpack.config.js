@@ -290,7 +290,7 @@ module.exports = function(webpackEnv) {
         .map(ext => `.${ext}`)
         .filter(ext => useTypeScript || !ext.includes('ts')),
       alias: {
-        ...(process.env.PREACT === 'true' ? {
+        ...(process.env.REACT_APP_PREACT === 'true' ? {
           'react': 'preact/compat',
           'react-dom/test-utils': 'preact/test-utils',
           'react-dom': 'preact/compat',
@@ -655,7 +655,7 @@ module.exports = function(webpackEnv) {
           // The formatter is invoked directly in WebpackDevServerUtils during development
           formatter: isEnvProduction ? typescriptFormatter : undefined,
         }),
-      new BundleAnalyzerPlugin({
+      isEnvProduction && new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         defaultSizes: 'gzip',
         openAnalyzer: false,
