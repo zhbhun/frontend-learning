@@ -21,6 +21,10 @@ Redux
 - [Redux进阶系列3：如何设计action、reducer、selector](http://www.jianshu.com/p/7de6ccb7b76d)
 - [React-redux "connect" explained](https://www.sohamkamani.com/blog/2017/03/31/react-redux-connect-explained/)
 
+### 状态持久化
+
+- https://github.com/rt2zz/redux-persist
+
 ## 异步相关
 
 - [Alternative Approach To Async Actions ](https://github.com/reactjs/redux/issues/1182)
