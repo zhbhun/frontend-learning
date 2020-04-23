@@ -5,6 +5,93 @@ https://nextjs.org
 - https://nextjs.org/docs/
 - https://nextjs.org/learn/
 
+## 源码
+
+https://github.com/zeit/next.js/tree/7.0.3
+
+服务端渲染数据：`__NEXT_DATA__`
+
+```js
+{
+  assetPrefix: string, // 资源前缀
+  buildId: string, // 打包 ID
+  page: string, // 当前路由
+  query: object, // 路由参数
+  err: object, // 错误对象
+  props: string, // 服务端调用 App.getInitialProps -> Page.getInitialProps 返回的结果
+}
+
+```
+
+客户端首屏
+
+- [初始化](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L69)
+
+    1. [加载 `'/_error'` 和 `'/_app'` 路由页面组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L76)
+    2. [加载当前路由页面组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L76)
+    3. [创建路由器](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L94)
+    4. [注册路由器更新监听函数（更新后重新渲染）](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L103)
+    5. [渲染应用](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L107)
+
+        - App：应用组件
+        - Component：路由组件
+        - props: getInitialProps 返回值（首屏从服务端预渲染读取，二级页面再客户端调用返回后获取）
+        - err：路由加载失败错误对象
+        - 
+
+- [渲染应用](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L112)
+
+    1. [判断是否出错，出错的话渲染错误页面组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L113)
+    2. [渲染路由组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L119)
+
+- [渲染组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L159)
+
+    1. [热加载刷新替换错误组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L162)
+    2. [渲染 App 组件](https://github.com/zeit/next.js/blob/7.0.3/client/index.js#L179)
+
+        - Component
+        - err
+        - router
+        - headManager
+        - ...props(getInitialProps)
+
+客户端二级页面
+
+- [路由切换](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L10)
+
+    - back
+    - push
+    - replace
+    - reload
+    - prefetch
+
+- [修改路由](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L143)
+
+    1. [取消正在加载的路由](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L155)
+    2. [加载目标路由](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L190)
+
+        https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L231
+
+        1. [加载路由组件](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L234)
+        2. [调用路由初始化(getInitialProps)](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L247)
+        
+        如果路由加载失败
+
+        - [脚本加载失败](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L251)：强制刷新
+        - [组件初始化失败](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L270)：返回错误路由组件
+
+    3. [event#beforeHistoryChange](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L199)
+    4. [更新路由状态](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L200)
+
+        调用 window.history 方法
+
+    5. [event#routeChangeError](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L205)
+
+        如果目标目标路由加载失败的话，触发路由错误信息
+
+    6. [event#routeChangeComplete](https://github.com/zeit/next.js/blob/7.0.3/lib/router/router.js#L210)
+
+
 ## 问题
 
 - https://stackoverflow.com/questions/tagged/next.js?sort=votes&pageSize=15
