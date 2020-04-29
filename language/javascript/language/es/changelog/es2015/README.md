@@ -9,3 +9,7 @@
 - [ES6 Overview in 350 Bullet Points](https://ponyfoo.com/articles/es6)
 - [Regular Expressions in a post-ES6 world](https://ponyfoo.com/articles/regular-expressions-post-es6)
 - [es6-all-the-things](https://github.com/melanieseltzer/es6-all-the-things)
+
+---
+
+- [Proxy](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
