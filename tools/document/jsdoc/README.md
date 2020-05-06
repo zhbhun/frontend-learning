@@ -24,3 +24,7 @@ JSDOC
 - [Feature: Documenting Promises](https://github.com/jsdoc3/jsdoc/issues/509)
 - [What is the status of documenting Promise](https://github.com/jsdoc3/jsdoc/issues/1197)
 - [How to specify resolution and rejection type of the promise in JSDoc?](https://stackoverflow.com/questions/13104411/how-to-specify-resolution-and-rejection-type-of-the-promise-in-jsdoc)
+
+### 如何定义方法
+
+- [Best way to document anonymous objects and functions with jsdoc [closed]](https://stackoverflow.com/questions/3171454/best-way-to-document-anonymous-objects-and-functions-with-jsdoc)
