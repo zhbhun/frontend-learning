@@ -28,3 +28,7 @@ JSDOC
 ### 如何定义方法
 
 - [Best way to document anonymous objects and functions with jsdoc [closed]](https://stackoverflow.com/questions/3171454/best-way-to-document-anonymous-objects-and-functions-with-jsdoc)
+
+## 参考文献
+
+- [Type Safe JavaScript with JSDoc](https://medium.com/@trukrs/type-safe-javascript-with-jsdoc-7a2a63209b76)
