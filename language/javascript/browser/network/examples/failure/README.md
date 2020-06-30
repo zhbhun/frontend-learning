@@ -182,13 +182,15 @@
     error: code: undefined, name: undefined, message: Operation canceled by the user., isAxiosError: undefined
     ```
 
+    备注：请求取消会立刻抛出一个 axios.Cancel 实例，包含属性 message，对应取消时传入的参数
+
 - 网络异常
 
     ```
     error:  code: undefined, name: Error, message: Network Error, isAxiosError: true
     ```
 
-    备注：网络异常会立刻抛出一个 Error，其 message 为 "Network Error"。
+    备注：网络异常会立刻抛出一个 AxiosError 实例，其 message 为 "Network Error"。
 
 - 请求超时
 
@@ -196,7 +198,7 @@
     error: code: ECONNABORTED, name: Error, message: timeout of 3000ms exceeded, isAxiosError: true
     ```
 
-    备注：支持设置超时事件，请求超时会立刻抛出一个 Error，其 message 为 "timeout of xxxms exceeded"，且带有 code 值为 ECONNABORTED。
+    备注：支持设置超时事件，请求超时会立刻抛出一个 AxiosError 实例，其 message 为 "timeout of xxxms exceeded"，且带有 code 值为 ECONNABORTED。
 
 - 服务器异常
 
