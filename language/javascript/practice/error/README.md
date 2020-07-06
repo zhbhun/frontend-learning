@@ -42,7 +42,7 @@ ps：可以这么认为，现代编程语言的异常处理机制提供了 try..
 
 示例：下面是一个新增用户的示例，在新建用户时需要检查用户名是否已经存在，如果不存在则可以创建该用户。注意示例中 `getUserByName` 的参数和返回值，`createUser` 内的实现逻辑。
 
-- 错误标识：使用错误标识需要回调返回值里携带错误代码，调用函数的业务逻辑需要加上对错误代码的处理，这样的实现业务逻辑与异常处理缠绕在一起，降低了代码可读性。
+- 错误标识：使用错误标识需要回调返回值里携带错误代码，调用函数的业务逻辑需要加上对错误代码的处理，这样的实现**业务逻辑与异常处理缠绕在一起，降低了代码可读性**。
 
     ```ts
     // 错误标识
@@ -852,3 +852,4 @@ TODO: 即使是技术水平再高的开发团队，即使采用了最佳实践�
 - [Debugging Asynchronous JavaScript with Chrome DevTools](https://www.html5rocks.com/en/tutorials/developertools/async-call-stack/)
 - [异常处理，"try..catch"](https://zh.javascript.info/try-catch)
 - [JavaScript 错误处理权威指南](https://www.infoq.cn/article/cQQKlPyjLsLwv_BQt9y0)
+- [如何优雅处理前端异常？](https://zhuanlan.zhihu.com/p/154327816)
