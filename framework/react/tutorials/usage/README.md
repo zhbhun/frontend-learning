@@ -206,6 +206,12 @@ Component 接受的输入都放在 `props` 内，而 `props` 是只读的，不�
 
 [Fragments](https://reactjs.org/docs/fragments.html
 
+### Hook
+
+- [useMemo](https://reactjs.org/docs/hooks-reference.html#usememo)
+
+    - [React.memo 与 useMemo](https://zhuanlan.zhihu.com/p/105940433)
+
 ### 最佳实践
 
 - 通关将状态提升到父级组件管理来实现组件之间的通信
