@@ -15,3 +15,7 @@
 
 - [querystring-es3](https://github.com/mike-spainhower/querystring)
 - [querystring](https://github.com/Gozala/querystring)
+
+## 参考文献
+
+- [解析URI中的query string](https://betgar.github.io/2018/03/24/parse-uri-string-into-key-value-collection-in-java/)
