@@ -21,3 +21,11 @@ npm install expo-cli --global --no-optional
 - [installing Expo-cli using npm hangs](https://github.com/expo/expo-cli/issues/440)
 - [Can’t install expo-cli, hangs on installing @expo/traveling-fastlane-linux@1.9.9](https://forums.expo.io/t/cant-install-expo-cli-hangs-on-installing-expo-traveling-fastlane-linux-1-9-9/24981)
 - [Can`t run “npm install expo-cli --global”](https://stackoverflow.com/questions/53361026/cant-run-npm-install-expo-cli-global)
+
+## 设置 IP
+
+```bash
+EXPO_DEVTOOLS_LISTEN_ADDRESS=xxx.xxx.xxx.xxx REACT_NATIVE_PACKAGER_HOSTNAME = xxx.xxx.xxx.xxx
+```
+
+- [React Native Expo change default LAN IP](https://stackoverflow.com/questions/43696813/react-native-expo-change-default-lan-ip)
