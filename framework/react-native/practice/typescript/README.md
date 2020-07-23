@@ -1,0 +1,2 @@
+- [RN 集成 TypeScript方案](https://juejin.im/post/5ceea3e96fb9a07eb74b1f7b)
+- [[翻译] TypeScript 和 JSX 搞基的事](https://github.com/techird/blog/issues/3)
