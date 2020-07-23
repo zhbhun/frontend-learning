@@ -70,6 +70,7 @@
 - https://github.com/developit/preact
 - https://github.com/infernojs/inferno
 - https://nerv.aotu.io/
+- https://github.com/NervJS/nerv - A blazing fast React alternative, compatible with IE8 and React 16.
 
 # 问题
 
