@@ -1,26 +1,11 @@
+# CSS IN JS
 
+- https://speakerdeck.com/vjeux/react-css-in-js
 - https://speakerdeck.com/vjeux/react-css-in-js-react-france-meetup
 - [CSS Modules](https://glenmaddern.com/articles/css-modules)
 - https://www.w3cplus.com/css/postcss-modules-make-css-great-again.html
 
-## CSS IN JS
-
-- https://speakerdeck.com/vjeux/react-css-in-js
-- http://cssinjs.org
-- [React: CSS in JS techniques comparison.](https://github.com/MicheleBertoli/css-in-js)
-- https://github.com/callstack/linaria
-- [CSS-IN-JS-Benchmarks](https://github.com/A-gambit/CSS-IN-JS-Benchmarks/blob/master/RESULT.md)
-
-### 博客
-
-- [All You Need To Know About CSS-in-JS](https://hackernoon.com/all-you-need-to-know-about-css-in-js-984a72d48ebc)
-- [CSS in JS: The Argument Refined](https://medium.com/@steida/css-in-js-the-argument-refined-471c7eb83955)
-- [CSS in JS: Style as a Function of State](https://medium.com/@rofrischmann/styles-as-functions-of-state-1885627a63f7#.6k6i4kdch)
-- [CSS in JavaScript: The future of component-based styling](https://medium.freecodecamp.org/css-in-javascript-the-future-of-component-based-styling-70b161a79a32)
-- [CSS in JavaScript with JSS and React](https://medium.com/jobsity/css-in-javascript-with-jss-and-react-54cdd2720222)
-- [CSS-in-JS，向Web组件化再迈一大步](https://zhuanlan.zhihu.com/p/35282727)
-
-### 讨论
+## 讨论
 
 - [React.js inline style best practices](https://stackoverflow.com/questions/26882177/react-js-inline-style-best-practices)
 - [CSS in JavaScript: The future of component-based styling](https://medium.freecodecamp.com/css-in-javascript-the-future-of-component-based-styling-70b161a79a32) 
@@ -38,14 +23,22 @@
 - [css in js趋势有哪些比较明朗的方案？](https://www.zhihu.com/question/38388076/answer/76802538)
 - [如何看待《React: CSS in JS》？ ](https://github.com/hax/hax.github.com/issues/22)
 
-### 实现
+## 博客
 
-#### CSS Module
+- [All You Need To Know About CSS-in-JS](https://hackernoon.com/all-you-need-to-know-about-css-in-js-984a72d48ebc)
+- [CSS in JS: The Argument Refined](https://medium.com/@steida/css-in-js-the-argument-refined-471c7eb83955)
+- [CSS in JS: Style as a Function of State](https://medium.com/@rofrischmann/styles-as-functions-of-state-1885627a63f7#.6k6i4kdch)
+- [CSS in JavaScript: The future of component-based styling](https://medium.freecodecamp.org/css-in-javascript-the-future-of-component-based-styling-70b161a79a32)
+- [CSS in JavaScript with JSS and React](https://medium.com/jobsity/css-in-javascript-with-jss-and-react-54cdd2720222)
+- [CSS-in-JS，向Web组件化再迈一大步](https://zhuanlan.zhihu.com/p/35282727)
 
-- https://github.com/css-modules/css-modules
-- https://github.com/webpack-contrib/css-loader#modules
+## 实现
 
-#### Others
+- http://cssinjs.org
+- CSS Module
+
+    - https://github.com/css-modules/css-modules
+    - https://github.com/webpack-contrib/css-loader#modules
 
 - [Styled Components](https://www.styled-components.com/)
 - [radium](https://github.com/FormidableLabs/radium)
@@ -62,4 +55,11 @@
 ### 样式值设置浏览器前缀
 
 - [How do I apply vendor prefixes to inline styles in reactjs?](https://stackoverflow.com/questions/32100495/how-do-i-apply-vendor-prefixes-to-inline-styles-in-reactjs)
+
+## 参考文献
+
+- [React: CSS in JS techniques comparison.](https://github.com/MicheleBertoli/css-in-js)
+- https://github.com/callstack/linaria
+- [CSS-IN-JS-Benchmarks](https://github.com/A-gambit/CSS-IN-JS-Benchmarks/blob/master/RESULT.md)
+
 
