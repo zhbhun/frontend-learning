@@ -1,0 +1,7 @@
+- [Dealing with global errors in React-Native Expo as simple as possible](https://medium.com/@benhurott/dealing-with-global-errors-in-react-native-expo-as-simple-as-possible-bc8e440caeae)
+- [Handling Errors in React Native: A Complete Guide](https://elazizi.com/handling-errors-in-react-native-a-complete-guide)
+- [how to catch uncaught exception (globally) in react native](https://stackoverflow.com/questions/30918349/how-to-catch-uncaught-exception-globally-in-react-native)
+- [How to Detect Crashes in a React Native App](https://www.reactnativeschool.com/how-to-detect-crashes-in-a-react-native-app)
+- [react-native-exception-handler](https://github.com/a7ul/react-native-exception-handler)
+- [react-native-error-reporter](https://github.com/VansonLeung/react-native-error-reporter)
+- https://github.com/facebook/react-native/blob/522fd33d6f3c8fb339b0dde35b05df34c1233306/Libraries/JavaScriptAppEngine/Initialization/InitializeJavaScriptAppEngine.js#L46
