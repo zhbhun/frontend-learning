@@ -1,0 +1,2 @@
+- [Constructable Stylesheet Objects](https://wicg.github.io/construct-stylesheets/)
+- [Constructable Stylesheets: seamless reusable styles](https://developers.google.com/web/updates/2019/02/constructable-stylesheets)
