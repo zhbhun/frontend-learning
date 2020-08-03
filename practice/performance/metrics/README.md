@@ -252,6 +252,11 @@ FP 和 FCP 指标用于标记导航之后浏览器在屏幕上渲染像素的时
 - [Tracking FMP using hero elements](https://developers.google.com/web/fundamentals/performance/user-centric-performance-metrics#tracking_fmp_using_hero_elements)
 - [Time to First Meaningful Paint](https://docs.google.com/document/d/1BR94tJdZLsin5poeet0XoTW60M0SjvOJQttKT-JK8HI/view#heading=h.13w16xsxh9u9)
 
+FMP 已经被 Google 废弃，参考下列文献
+
+- [First Meaningful Paint](https://web.dev/first-meaningful-paint/)
+- [Issue 1096008: Remove FMP](https://bugs.chromium.org/p/chromium/issues/detail?id=1096008)
+
 ### Speed Index
 
 - [Speed Index By WebPageTest](https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/metrics/speed-index)
