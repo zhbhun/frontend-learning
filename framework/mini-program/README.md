@@ -9,3 +9,7 @@
 - [MiniApp Standardization White Paper](https://w3c.github.io/mini-app-white-paper/)
 - [mini-app-white-paper](https://github.com/w3c/mini-app-white-paper)
 - [重磅！W3C首次发布小程序标准化白皮书，小程序要实现统一了吗？](https://mp.weixin.qq.com/s?__biz=MzUxMzcxMzE5Ng==&mid=2247492505&idx=1&sn=92399386a4c338b8d825b4c1012c0d75)
+
+## 参考文献
+
+- [跨端开发框架深度横评之2020版](https://juejin.im/post/5e8e8d5a6fb9a03c6d3d9f42)
