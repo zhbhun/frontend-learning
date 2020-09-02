@@ -49,6 +49,7 @@
 - [react-style](https://github.com/js-next/react-style)
 - [fela](https://github.com/rofrischmann/fela)
 - [polished](https://github.com/styled-components/)
+- [linaria](https://github.com/callstack/linaria) - Zero-runtime CSS in JS library
 
 ## 常见问题
 
@@ -59,7 +60,6 @@
 ## 参考文献
 
 - [React: CSS in JS techniques comparison.](https://github.com/MicheleBertoli/css-in-js)
-- https://github.com/callstack/linaria
 - [CSS-IN-JS-Benchmarks](https://github.com/A-gambit/CSS-IN-JS-Benchmarks/blob/master/RESULT.md)
 
 
