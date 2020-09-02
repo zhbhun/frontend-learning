@@ -1,3 +1,16 @@
+# [微信小程序](https://developers.weixin.qq.com/miniprogram/dev/framework/)
+
+## 教程
+
+- [快速上手](https://developers.weixin.qq.com/miniprogram/dev/framework/quickstart/)
+- [小程序开发指南](https://developers.weixin.qq.com/ebook?action=get_post_info&docid=0008aeea9a8978ab0086a685851c0a)
+- [目录结构](https://developers.weixin.qq.com/miniprogram/dev/framework/structure.html)
+- [配置小程序](https://developers.weixin.qq.com/miniprogram/dev/framework/config.html)
+- ...
+
+---
+
+
 - [微信小程序](https://mp.weixin.qq.com/cgi-bin/wx)
 - [wepy](https://github.com/Tencent/wepy)
 - https://github.com/Meituan-Dianping/mpvue
@@ -47,3 +60,4 @@
 ---
 
 - [近两万字小程序攻略发布了](https://juejin.im/post/5b8fd1416fb9a05cf3710690)
+- [vue和微信小程序的区别、比较](https://segmentfault.com/a/1190000015684864)
