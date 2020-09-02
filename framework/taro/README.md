@@ -1,4 +1,6 @@
-# Taro
+# [Taro](https://taro-docs.jd.com)
+
+- [awesome-taro](https://github.com/NervJS/awesome-taro)
 
 ## 示例
 
