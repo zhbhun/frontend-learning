@@ -4,15 +4,22 @@
 
 总几个：font-family 应该优先指定英文字体，然后再指定中文字体。否则，中文字体所包含的英文字母，会取代英文字体。
 
-# 衬线体 | 无衬线体 | 等宽字体
+## 字体格式
+
+- [Web字体格式介绍及浏览器兼容性一览](https://www.cnblogs.com/lhb25/archive/2011/02/10/1950473.html)
+
+## 字体类型
+
 - Serif：衬线体，笔画的末端带有衬线的字体；
 - Sans-Serif：无衬线体，笔画的末端没有衬线的字体；
 - Monospaced：等宽字体
 
 总结：一般来说，衬线体装饰性强，往往用于标题；无衬线体清晰度好，往往用于正文。
 
-# 系统预装字体
-## Windows
+## 系统预装字体
+
+### Windows
+
 - 黑体：SimHei，无衬线体
 
     Windows XP 没有预装 “微软雅黑”，这时可以选择黑体（Simhei）替代。不过，黑体比较粗，不应用于字号较小的文字。
@@ -38,7 +45,8 @@
 - Tahoma：十分常见的无衬线字体，被采用为Windows 2000、Windows XP、Windows Server 2003及Sega游戏主机Dreamcast等系统的预设字型，显示效果比Arial要好。
 - Verdana：无衬线字体，优点在于它在小字上仍结构清晰端整、阅读辨识容易。
 
-## OS X
+### OS X
+
 - 华文细黑：STHeiti Light （又名STXihei）
 
     OS X 10.6 之前的简体中文系统界面默认字体，也是目前Chrome游览器下的默认字体，有 Regular 和 Bold 两个字重。
@@ -71,7 +79,7 @@
     
     同样是 Mac OS X EL Capitan 上最新发布的西文字体，感觉和Helvetica看上去差别不大，目前已经应用在Mac OS 10.11+、iOS 9.0+、watch OS等最新系统上。
 
-## MicroSoft Office
+### MicroSoft Office
 
 - 隶书：LiSu
 - 幼圆：YouYuan
@@ -88,32 +96,35 @@
 - 华文行楷：STXingkai
 - 华文新魏：STXinwei
 
-## Android
+### Android
 
 - Droid Sans：卓系统中默认的西文字体，是一款人文主义无衬线字体
 - Droid Sans Fallback：包含汉字、日文假名、韩文的文字扩展支持
 
-## Linux
+### Linux
 
 - 文泉驿点阵宋体：类似宋体的衬线字体，一般不推荐使用。
 - 文泉驿微米黑：几乎是 Linux 社区现有的最佳简体中文字体。
 
-# 实际应用
+## 实际应用
+
 - font-family: "San Francisco", "Helvetica Neue", Helvetica, "Droid Sans", Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", STXihei, "Droid Sans Fallback", "Microsoft YaHei", SimHei, "WenQuanYi Micro Hei", sans-serif;
 
-# 其他
+## 其他
+
 - https://github.com/aui/font-spider
 - https://github.com/zenozeng/fonts.css
 - https://github.com/sofish/typo.css
 
-# 参考文献
+## 参考文献
+
 - [中文字体网页开发指南](http://www.ruanyifeng.com/blog/2014/07/chinese_fonts.html)
 - [Chinese Standard Web Fonts: A Guide to CSS Font Family Declarations for Web Design in Simplified Chinese](http://www.kendraschaefer.com/2012/06/chinese-standard-web-fonts-the-ultimate-guide-to-css-font-family-declarations-for-web-design-in-simplified-chinese/)
 - [如何优雅的选择字体(font-family)](https://segmentfault.com/a/1190000006110417)
 - [如何保证网页的字体在各平台都尽量显示为最高质量的黑体？](https://www.zhihu.com/question/19911793)
 - [Web 中文字体应用指南](https://ruby-china.org/topics/14005)
 
----
+## TODO
 
 - [A Book Apart, Webfont Handbook](https://abookapart.com/products/webfont-handbook)
 - [WOFF 2.0 – 了解有关下一代Web字体格式的更多信息，并将TTF转换为WOFF2](https://gist.github.com/sergejmueller/cf6b4f2133bcb3e2f64a)
