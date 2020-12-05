@@ -1,0 +1,3 @@
+- [Print.js](https://github.com/crabbly/Print.js/)
+- [jQuery.print](https://github.com/DoersGuild/jQuery.print)
+- [js打印局部页面](https://juejin.cn/post/6844903808682704903#heading-3)
