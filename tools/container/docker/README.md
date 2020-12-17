@@ -250,6 +250,11 @@ Dockerfile 是一个文本文件，用来配置 image。Docker 根据该文件�
 
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
+### Docker in Docker
+
+- [如何在 Docker 中使用 Docker](https://www.chenshaowen.com/blog/how-to-use-docker-in-docker.html)
+- [如何制作和使用DinD的Docker镜像](http://ghoulich.xninja.org/2018/03/19/how-to-build-and-use-docker-image-for-docker-in-docker/)
+
 ## 示例
 
 ### Sitespeed
