@@ -90,6 +90,20 @@ URI 编码将 URI 非法字符转化成合法字符，转换后形式类似 `%**
 - [encodeURIComponent()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)
 - [UTF-8 编码查询工具](http://www.mytju.com/classCode/tools/encode_gb2312.asp)
 
+### URL 编码中的空格问题
+
+- [空格URL编码的正确使用姿势](https://cloud.tencent.com/developer/article/1127853)
+- [URL编码中的空格(编码以后变为+)](https://blog.bihe0832.com/url_space.html)
+- [qs](https://github.com/ljharb/qs) 用法
+
+    - 编码时默认遵循 RFC3986 规范，将空格编码为 %20
+    - 解码时会兼容 RFC1738 规范，将符号 `+` 解码为空格
+
+    参考
+
+    - [Parsing error， the plus sign is replaced by a blank space. + place space ](https://github.com/ljharb/qs/issues/277)
+    - [How to exclude a specific character from being encoded?](https://github.com/ljharb/qs/issues/221)
+
 ## Base64 编码
 
 - [WindowOrWorkerGlobalScope.btoa()](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa)
