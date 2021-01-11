@@ -105,6 +105,16 @@ ps：有时候需要在构建完成后，对远程仓库进行变更提交，这
     - [Use git in jenkins pipeline with docker agent](https://stackoverflow.com/questions/42426325/use-git-in-jenkins-pipeline-with-docker-agent)
     - [Docker Plugin for Jenkins Pipeline - No user exists for uid 1005](https://stackoverflow.com/questions/42404473/docker-plugin-for-jenkins-pipeline-no-user-exists-for-uid-1005)
 
+### MultiPipelne
+
+- 如何限制分支
+
+    - [How to disable some branches in Multibranch Jenkins Builds?](https://devops.stackexchange.com/questions/3400/how-to-disable-some-branches-in-multibranch-jenkins-builds)
+    - [Limit which branch is built by Jenkins pipeline?](https://stackoverflow.com/questions/52821516/limit-which-branch-is-built-by-jenkins-pipeline)
+
+- webhook 触发
+
+    [Multibranch Scan Webhook Trigger](https://plugins.jenkins.io/multibranch-scan-webhook-trigger/)
 
 ## 常见问题
 
