@@ -30,3 +30,15 @@
 - [Making-a-custom-React-renderer](https://github.com/nitin42/Making-a-custom-React-renderer)
 - [React的新引擎—React Fiber是什么？](http://www.infoq.com/cn/articles/what-the-new-engine-of-react)
 - [react-fiber-implement](https://github.com/tranbathanhtung/react-fiber-implement)
+
+---
+
+- [React 源码剖析系列 － 不可思议的 react diff](https://zhuanlan.zhihu.com/p/20346379)
+
+    ```
+    1. React 底层执行过程：初始化、更新状态？
+    2. React Diff 算法做了哪些优化？ —— https://zhuanlan.zhihu.com/p/20346379 
+    3. 通过分析 React 源码，你最大的收获是什么？—— 性能优化（在开发组件时，保持稳定的 DOM 结构会有助于性能的提升。例如，可以通过 CSS 隐藏或显示节点，而不是真的移除或添加 DOM 节点。）
+    ```
+
+- [preact源码解析，从preact中理解react原理](https://zhuanlan.zhihu.com/p/100076938)
