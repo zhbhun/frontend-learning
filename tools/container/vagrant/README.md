@@ -172,6 +172,15 @@ https://www.vagrantup.com/intro/getting-started/share.html
 
 https://www.vagrantup.com/intro/getting-started/provisioning.html
 
+### 快照备份
+
+- [使用vagrant snapshot创建快照备份](http://blog.huatai.me/2015/12/03/use-vagrant-snapshot-create-backup/)
+
+### 备份迁移
+
+- [Vagrant之工作环境的迁移（box的导入与导出）](https://blog.csdn.net/bluehawksky/article/details/93720933)
+- [How to export a Vagrant virtual machine to transfer it](https://stackoverflow.com/questions/20679054/how-to-export-a-vagrant-virtual-machine-to-transfer-it)
+
 ## 示例
 
 - https://github.com/search?o=desc&q=vagrant&s=stars&type=Repositories
