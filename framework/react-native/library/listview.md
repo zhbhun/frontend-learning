@@ -27,6 +27,13 @@
 - [React Native FlatList shows some blank in the quickly sliding. What is the solution? ](https://github.com/facebook/react-native/issues/17547)
 - [React Native FlatList shows some blank in the quickly sliding. What is the solution? ](https://github.com/facebook/react-native/issues/17548)
 
+## Flatlist
+
+1. ListEmptyComponent 无法自适应容器
+2. onEndReached 触发存
+3. 没有加载更多
+4. onViewableItemsChanged 不能变化 https://github.com/garrettmac/react-native-pagination/issues/5
+
 ---
 
 - https://blog.ymfe.org/React-Native-ListView%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/
