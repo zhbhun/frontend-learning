@@ -233,6 +233,16 @@ VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component Consol
 - [【vagrant】硬盘扩容]( https://www.cnblogs.com/HansBug/p/9447020.html)
 - [Vagrant虚拟机硬盘扩容]( http://www.voycn.com/article/vagrantxunijiyingpankuorong )
 
+### vagrant root 用户
+
+使用 root 用户需要设置 root 用户密码。
+
+```
+sudo passwd root
+```
+
+-[vagrant login as root by default](https://stackoverflow.com/questions/25758737/vagrant-login-as-root-by-default)
+
 ## 衍生
 
 - https://github.com/jedi4ever/veewee
