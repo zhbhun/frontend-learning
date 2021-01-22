@@ -191,6 +191,20 @@ $ touch id && echo {id} > 'id'
 
 - [How do I associate a Vagrant project directory with an existing VirtualBox VM?](https://stackoverflow.com/questions/9434313/how-do-i-associate-a-vagrant-project-directory-with-an-existing-virtualbox-vm)
 
+### 压缩虚拟磁盘文件
+
+- vhd
+
+    ```bash
+    $ diskpart
+    $ select vdisk file="c:\test.vhd"
+    $ compact vdisk
+    ```
+
+参考文献
+
+- [虚拟磁盘VHD文件压缩方法](https://www.cnblogs.com/azureology/p/12342507.html)
+
 ## 示例
 
 - https://github.com/search?o=desc&q=vagrant&s=stars&type=Repositories
