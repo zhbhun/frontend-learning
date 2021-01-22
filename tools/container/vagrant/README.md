@@ -181,6 +181,16 @@ https://www.vagrantup.com/intro/getting-started/provisioning.html
 - [Vagrant之工作环境的迁移（box的导入与导出）](https://blog.csdn.net/bluehawksky/article/details/93720933)
 - [How to export a Vagrant virtual machine to transfer it](https://stackoverflow.com/questions/20679054/how-to-export-a-vagrant-virtual-machine-to-transfer-it)
 
+### 关联现有的虚拟机
+
+```shell
+$ VBoxManage list vms # "virtualMachine" {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+$ cd .vagrant/machines/default/virtualbox
+$ touch id && echo {id} > 'id'
+```
+
+- [How do I associate a Vagrant project directory with an existing VirtualBox VM?](https://stackoverflow.com/questions/9434313/how-do-i-associate-a-vagrant-project-directory-with-an-existing-virtualbox-vm)
+
 ## 示例
 
 - https://github.com/search?o=desc&q=vagrant&s=stars&type=Repositories
