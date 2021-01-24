@@ -1,0 +1,311 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title>WASM Performance</title>
+	<meta name="description" content="WASM performance example">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script type="text/javascript" src="d3.min.js"></script>
+	<script type="text/javascript" src="graph.js"></script>
+	<script async type="text/javascript" src="mmm3.js"></script>
+	<style>
+		.line {
+			fill: none;
+			stroke: #FFF;
+			stroke-width: 2;
+		}
+		.xaxis, .yaxis {
+			font-size: 12px;
+		}
+		.axisLabel {
+			font-size:18px;
+		}
+		.legend{
+			font-size: 28px;
+		}
+		#ijkjs {
+			/*fill: #ffa500;*/
+			stroke: #ffa500;
+		}
+		#kjijs {
+			/*fill: #66cccc;*/
+			stroke: #66cccc;
+		}
+		#bmmjs {
+			/*fill: #008000;*/
+			stroke: #008000;
+		}
+		#ijkc {
+			/*fill: #000000;*/
+			stroke:	#000000;
+		}
+		#kjic {
+			/*fill: #8a2be2;*/
+			stroke: #8a2be2;
+		}
+		#bmmc {
+			/*fill: #ff4040;*/
+			stroke: #ff4040;
+		}
+		.grid line {
+		  stroke: lightgrey;
+		  stroke-opacity: 0.7;
+		  shape-rendering: crispEdges;
+		}
+	</style>
+</head>
+<body>
+	<p id="progress">Running...</p>
+<script>
+	/**
+	 * Initializes Web Assembly environment and load the .wasm file
+	 *
+	 */
+	async function createWebAssembly(path, importObject) {
+    const bytes = await window.fetch(path).then(x => x.arrayBuffer());
+    return WebAssembly.instantiate(bytes, importObject);
+  }
+
+  /**
+   * intializes matrices with random values
+   * clearBit == 0 -> creates a zero matrix
+   *
+   */
+	function initialize(matrix, clearBit, length) {
+		for(let i = 0; i < length; i++){
+			for (let j = 0; j < length; j++) {
+				matrix[i * length + j] = (Math.floor(Math.random() * (1001 - 1)) + 1001) * clearBit;
+			}
+		}
+	}
+
+	/**
+	 * clears cache by loading a new matrix into memory
+	 *
+	 */
+	function flush(matrix) {
+		let sum = 0;
+		for(let i = 0; i < length; i++){
+			for (let j = 0; j < length; j++) {
+				sum += matrix[i * length + j];
+				//console.log(matrix[i * length + j]);
+			}
+		}
+	}
+
+	/**
+	 * Baseline matrix mulitplication
+	 *
+	 */
+	function mmmijk(matrixA, matrixB, matrixC, length) {
+		for(let i = 0; i < length; i++){
+			for(let j = 0; j < length; j++) {
+				for(let k = 0; k < length; k++) {
+					matrixC[i * length + j] += (matrixA[i * length + k] * matrixB[j * length + k]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Matrix multiplication with high cache misses
+	 *
+	 */
+	function mmmkji(matrixA, matrixB, matrixC, length) {
+		for(let k = 0; k < length; k++) {
+			for(let j = 0; j < length; j++) {
+				for(let i = 0; i < length; i++){
+					matrixC[i * length + j] += (matrixA[i * length + k] * matrixB[j * length + k]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Matrix Multiplication with less cache misses
+	 *
+	 */
+	function bmm(matrixA, matrixB, matrixC, length, blockSize) {
+		let block = blockSize * (length/blockSize);
+		let sum;
+		for(let kk = 0; kk < block; kk += blockSize) {
+			for(let jj = 0; jj < block; jj += blockSize) {
+				for(let i = 0; i < length; i++) {
+					for(let j = jj; j < jj + blockSize; j++) {
+						sum = matrixC[i * length + j];
+						for(let k = kk; k < kk + blockSize; k++) {
+							sum += matrixA[i * length + j] * matrixB[i * length + j];
+						}
+						matrixC[i * length + j] = sum;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * computes avg
+	 *
+	 */
+	function getAvg(array, x){
+		let len = array.length;
+		for (let i = 0; i < len; i++){
+			array[i] /= x;
+		}
+	}
+
+	function main(){
+		let progress = document.getElementById("progress");
+		const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
+	  const env = {
+	    'abortStackOverflow': _ => { throw new Error('overflow'); },
+	    'table': new WebAssembly.Table({initial: 0, maximum: 0, element: 'anyfunc'}),
+	    'tableBase': 0,
+	    'memory': memory,
+	    'memoryBase': 1024,
+	    'STACKTOP': 0,
+	    'STACK_MAX': memory.buffer.byteLength,
+	  };
+	  const importObject = {env};
+		createWebAssembly('mmm3.wasm', importObject).then(wasm => {
+			// some constants used through out
+			const ghz = 2.8;  		  // GHZ - adjust to your cpu
+			const msToS = 1000;	 	  // ms n 1 sec
+			// experiement to figure out best blocking size for higher cache hits
+			const blockSize = 32;
+			const maxLength = (1024 * 1024);
+			const arrayLen = 3;
+			const runs = 1;						// controls how many run for averging out noise
+			const exports = wasm.instance.exports;
+			// array size 1 to get rid of noise
+			const length = [128, 256, 512, 1024];	// matrix sizes: n x n
+			const totalSize = 100 * 100;
+			// set up all the matrices
+			let bufferA = new ArrayBuffer(maxLength);
+			let bufferB = new ArrayBuffer(maxLength);
+			let bufferC = new ArrayBuffer(maxLength);
+			let bufferFlush = new ArrayBuffer(maxLength);
+			let matrixA = new Float64Array(bufferA);
+			let matrixB = new Float64Array(bufferB);
+			let matrixC = new Float64Array(bufferC);
+			let cache = new Float64Array(bufferFlush);
+
+			let mmmijkResult = [0,0,0,0,0,0];
+			let mmmkjiResult = [0,0,0,0,0,0];
+			let bmmResult = [0,0,0,0,0,0];
+			let cmmmijkResult = [0,0,0,0,0,0];
+			let cmmmkjiResult = [0,0,0,0,0,0];
+			let cbmmResult = [0,0,0,0,0,0];
+			let yaxisarray = []; 				// used to find max to both cpi and time
+			initialize(cache, 1, 512);
+			for (let j = 0; j < runs; j++){
+				for (let i = 2; i < arrayLen; i++) {
+					console.log(length[i]);
+					initialize(matrixA, 1, length[i]);
+					initialize(matrixB, 1, length[i]);
+					initialize(matrixC, 0, length[i]);
+
+					flush(cache);
+					let start = window.performance.now();
+					mmmijk(matrixA, matrixB, matrixC, length[i]);
+					let end = window.performance.now();
+					let mmmijkcpi = (ghz  * (end - start)) / (length[i] ^ 3);
+					yaxisarray.push(mmmijkcpi);
+					if(i !== 0) mmmijkResult[i] += (mmmijkcpi);
+					console.log( "cpi " + (mmmijkcpi).toString());
+					console.log(end-start);
+
+					flush(cache);
+					initialize(matrixC, 0);
+					start = window.performance.now();
+					mmmkji(matrixA, matrixB, matrixC, length[i]);
+					end = window.performance.now();
+					let mmmkjicpi = (ghz  * (end - start)) / (length[i] ^ 3);
+					yaxisarray.push(mmmkjicpi);
+					if(i !== 0) mmmkjiResult[i] += (mmmkjicpi);
+					console.log( "cpi " + ((ghz  * (end - start)) / (length[i] ^ 3)).toString());
+					console.log(end-start);
+
+					flush(cache);
+					initialize(matrixC, 0);
+					start = window.performance.now();
+					bmm(matrixA, matrixB, matrixC, length[i], blockSize);
+					end = window.performance.now();
+					let bmmcpi = (ghz  * (end - start)) / (length[i] ^ 3);
+					yaxisarray.push(bmmcpi);
+					if(i !== 0) bmmResult[i] += (bmmcpi);
+					console.log( "cpi " + ((ghz  * (end - start)) / (length[i] ^ 3)).toString());
+					console.log(end-start);
+
+					flush(cache);
+					// WASM code
+			    console.info('got exports', exports);
+			    start = window.performance.now();
+			    exports._bmm(matrixA, matrixB, matrixC, length[i], blockSize);
+			    end = window.performance.now();
+			    let cbmmcpi = (ghz  * (end - start)) / (length[i] ^ 3);
+			    yaxisarray.push(cbmmcpi);
+			    if(i !== 0) cbmmResult[i] += (cbmmcpi);
+			    console.log( "cpi " + ((ghz  * (end - start)) / (length[i] ^ 3)).toString());
+			    console.log("bmm " + (end - start).toString());
+
+			    flush(cache);
+			    start = window.performance.now();
+			    exports._mmmijk(matrixA, matrixB, matrixC, length[i]);
+			    end = window.performance.now();
+			    let cmmmijkcpi = (ghz  * (end - start)) / (length[i] ^ 3);
+			    yaxisarray.push(cmmmijkcpi);
+			    if(i !== 0) cmmmijkResult[i] += (cmmmijkcpi);
+			    console.log( "cpi " + ((ghz  * (end - start)) / (length[i] ^ 3)).toString());
+			    console.log("ijk " + (end - start).toString());
+
+			    flush(cache);
+			    start = window.performance.now();
+			    exports._mmmkji(matrixA, matrixB, matrixC, length[i]);
+			    end = window.performance.now();
+			    let cmmmkjicpi = (ghz  * (end - start)) / (length[i] ^ 3);
+			    yaxisarray.push(cmmmkjicpi);
+			    if(i !== 0) cmmmkjiResult[i] += (cmmmkjicpi);
+			    console.log( "cpi " + ((ghz  * (end - start)) / (length[i] ^ 3)).toString());
+			    console.log("kji " + (end - start).toString());
+				}
+			}
+			getAvg(mmmijkResult, runs);
+			getAvg(mmmkjiResult, runs);
+			getAvg(bmmResult, runs);
+			getAvg(cmmmijkResult, runs);
+			getAvg(cmmmkjiResult, runs);
+			getAvg(cbmmResult, runs);
+
+			let mmmijkFinalResult = [];
+			let mmmkjiFinalResult = [];
+			let bmmFinalResult = [];
+			let cmmmijkFinalResult = [];
+			let cmmmkjiFinalResult = [];
+			let cbmmFinalResult = [];
+			for (let i = 0; i < arrayLen; i++) {
+				mmmijkFinalResult.push([length[i], mmmijkResult[i]]);
+				mmmkjiFinalResult.push([length[i], mmmkjiResult[i]]);
+				bmmFinalResult.push([length[i], bmmResult[i]]);
+				cmmmijkFinalResult.push([length[i], cmmmijkResult[i]]);
+				cmmmkjiFinalResult.push([length[i], cmmmkjiResult[i]]);
+				cbmmFinalResult.push([length[i], cbmmResult[i]]);
+			}
+
+			let results = {
+				"ijkJS" : mmmijkFinalResult,
+				"kjiJS" : mmmkjiFinalResult,
+				"bmmJS" : bmmFinalResult,
+				"ijkC" : cmmmijkFinalResult,
+				"kjiC" : cmmmkjiFinalResult,
+				"bmmC" : cbmmFinalResult
+			};
+			yaxisarray.sort(function(a,b){return a - b});
+			let maxY = yaxisarray[yaxisarray.length - 1];
+			graph(results, arrayLen, length, maxY);
+			progress.style.display = "none";
+		}).catch(err => console.warn('err loading wasm', err));
+	}
+	main();
+</script>
+</body></html>
