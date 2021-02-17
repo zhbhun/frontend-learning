@@ -12,6 +12,7 @@
 ## 数值
 
 - numeral
+- [accounting.js](https://github.com/openexchangerates/accounting.js)
 
 ## JSON
 
