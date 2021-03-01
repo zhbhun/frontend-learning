@@ -1,4 +1,5 @@
-# vue3-tsx
+# TypeScript 集成
+
 
 vue3 + TSX + Composition API
 
@@ -6,7 +7,14 @@ vue3 + TSX + Composition API
 - vue Proptype + vuetype
 - setup + tsx
 
-## 问题
+---
+
+- [TypeScript Support](https://v3.vuejs.org/guide/typescript-support.html)
+- [Render Functions](https://v3.vuejs.org/guide/render-function.html)
+- [Composition API](https://v3.vuejs.org/api/composition-api.html)
+- [vue-types](https://github.com/dwightjack/vue-types)
+
+## 常见问题
 
 ### Scoped Style
 
@@ -53,12 +61,6 @@ Template 的优点
 - [为什么我推荐使用JSX开发Vue3](https://zhuanlan.zhihu.com/p/340424163)
 
 ## 参考文献
-
-- [TypeScript Support](https://v3.vuejs.org/guide/typescript-support.html)
-- [Render Functions](https://v3.vuejs.org/guide/render-function.html)
-- [Composition API](https://v3.vuejs.org/api/composition-api.html)
-- [vue-types](https://github.com/dwightjack/vue-types)
-
 
 - [Vue3.0实践：使用Vue3.0做JSX(TSX)风格的组件开发](https://www.ctolib.com/topics-143214.html)
 - [拥抱 Vue 3 系列之 JSX 语法](https://www.zoo.team/article/vue3-jsx)
