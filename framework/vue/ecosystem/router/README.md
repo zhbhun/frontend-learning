@@ -58,10 +58,19 @@ new Vue({
 
 VueRouter =>[routes] router => route
 
+- [VueRouter](https://router.vuejs.org/api/#router-construction-options)
+- [routes](https://router.vuejs.org/api/#routes)
+- [router](https://router.vuejs.org/api/#router-instance-properties)
+- [route](https://router.vuejs.org/api/#route-object-properties)
+
 ### [动态路由匹配](https://router.vuejs.org/guide/essentials/dynamic-matching.html#reacting-to-params-changes)
 
 - 路径参数和多路径参数
 - 路由参数变化监听
+
+    - `{ watch: { $route(to, from) { /* ... */ } } }`
+    - `beforeRouteEnter`、`beforeRouteUpdate`、`beforeRouteLeave`
+
 - 404
 
 ps：vue-router 按 route 定义顺序来判定优先级。
@@ -78,6 +87,9 @@ ps：vue-router 按 route 定义顺序来判定优先级。
 其他更多路由对象信息参考 [The Route Object](https://router.vuejs.org/api/#the-route-object)
 
 ### [嵌套路由](https://router.vuejs.org/guide/essentials/nested-routes.html)
+
+- 嵌套路由的 path 以 `/` 开头表示根路径，否则表示嵌套路径
+- 嵌套父组件即使有 redirect，component 也不能为空，否则子组件无法渲染
 
 > https://codesandbox.io/s/vue-router-nested-routes-stmfh
 
