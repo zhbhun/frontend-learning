@@ -1,5 +1,38 @@
-源码分析
-=======
+# 源码分析
+
+## Fiber
+
+- [react-fiber-architecture](https://github.com/acdlite/react-fiber-architecture)
+- [React Fiber 原理介绍](https://segmentfault.com/a/1190000018250127)
+- [React Fiber知识点学习笔记](https://segmentfault.com/a/1190000017784309)
+- [React Fiber是什么](https://zhuanlan.zhihu.com/p/26027085)
+- [React Fiber](https://juejin.cn/post/6844903582622285831)
+- [A look inside React Fiber](https://makersden.io/blog/look-inside-fiber)
+- [To Understand React Fiber, You Need to Know About Threads](https://dev.to/afairlie/to-understand-react-fiber-you-need-to-know-about-threads-3dof)
+- [A Beginner's Guide to React Fiber](https://morioh.com/p/808b67dca7b5)
+- [A deep dive into React Fiber internals](https://blog.logrocket.com/deep-dive-into-react-fiber-internals/)
+- [完全理解React Fiber](http://www.ayqy.net/blog/dive-into-react-fiber/)
+- [React 源码深度解读（一）：首次DOM元素渲染 - Part 1](https://segmentfault.com/a/1190000016741764)
+- [Making-a-custom-React-renderer](https://github.com/nitin42/Making-a-custom-React-renderer)
+- [React的新引擎—React Fiber是什么？](http://www.infoq.com/cn/articles/what-the-new-engine-of-react)
+- [react-fiber-implement](https://github.com/tranbathanhtung/react-fiber-implement)
+
+## setState
+
+- [浅入深出setState（下篇）](https://segmentfault.com/a/1190000015821018)
+
+## Hook
+
+- [react hooks源码深入浅出（一）](https://segmentfault.com/a/1190000038431635)
+- [React Hooks 解析（上）：基础](https://segmentfault.com/a/1190000018928587)
+
+## Changelog
+
+- [React 16 升级总结](https://segmentfault.com/a/1190000017540511)
+
+
+---
+
 
 - https://github.com/Bogdan-Lyashenko/Under-the-hood-ReactJS
 - [janryWang/react-study](https://github.com/janryWang/react-study)
@@ -23,13 +56,6 @@
 - [深入理解react（源码分析）](https://github.com/lanjingling0510/blog/issues/1)
 - [React 源码解析](https://zhuanlan.zhihu.com/p/28697362)
 - [React 源码分析](https://www.gitbook.com/book/icepy/react/details)
-
-## Fiber
-
-- [react-fiber-architecture](https://github.com/acdlite/react-fiber-architecture)
-- [Making-a-custom-React-renderer](https://github.com/nitin42/Making-a-custom-React-renderer)
-- [React的新引擎—React Fiber是什么？](http://www.infoq.com/cn/articles/what-the-new-engine-of-react)
-- [react-fiber-implement](https://github.com/tranbathanhtung/react-fiber-implement)
 
 ---
 
