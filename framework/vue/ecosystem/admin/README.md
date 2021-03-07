@@ -7,3 +7,15 @@
 - [D2 Admin](https://github.com/d2-projects/d2-admin) - An elegant backstage template build by vue Online Demo
 Shards Dashboard Lite Vue - ✨ Modern admin template featuring dozens of custom components and templates.Online Demo
 - [Vue Material Admin](https://github.com/tookit/vue-material-admin) - A vue material design admin template Online Demo
+
+| 特性/框架 | vue-element-admin | ant-design-vue-pro | vue-antd-admin |
+| --- | --- | --- | --- |
+| Mock | ✓ | x | x |
+| 响应式 | | ✓ | ✓ |
+| 国际化 | | ✓ | ✓ |
+| 主题定制 | ✓ | ✓ | ✓ |
+| 路由菜单 | ✓ | ✓ | ✓ |
+| 登录认证 | ✓ | ✓ | ✓ |
+| 权限管理 | ✓ | ✓ | ✓ |
+| 布局组件 | ✓ | ✓ | ✓ |
+| 网络请求 | ✓ | ✓ | ✓ |
