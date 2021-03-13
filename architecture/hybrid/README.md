@@ -7,6 +7,12 @@
 - [wkwebview离线化加载h5资源解决方案](https://juejin.im/post/5adac2766fb9a07a9a106c0b)
 - [一种使用 WKURLSchemeHandler 实现的 WKWebView 离线资源加载方案](https://zhuanlan.zhihu.com/p/56965133)
 
+## JS Bridge
+
+- [JSBridge 通信原理](https://sevody.github.io/2019/11/10/jsbridge-mechanisms/)
+- [小白必看，JSBridge 初探](https://www.zoo.team/article/jsbridge)
+- [JSBridge的原理](https://juejin.cn/post/6844903585268891662)
+
 ## 框架
 
 - BlendUI
