@@ -209,9 +209,13 @@ POST 请求常用于向服务器发送应该被保存的数据。POST 请求把�
 
 ### fetch
 
-- [Aborting a fetch ](https://github.com/whatwg/fetch/issues/27)
-- [How do I cancel an HTTP fetch() request?](https://stackoverflow.com/questions/31061838/how-do-i-cancel-an-http-fetch-request)
-- [Fetch不能中断的话 那如何在组件移除之前 移除掉这个异步请求？](http://react-china.org/t/fetch/7482)
+取消请求
+
+- ~~[Aborting a fetch ](https://github.com/whatwg/fetch/issues/27)~~
+- ~~[How do I cancel an HTTP fetch() request?](https://stackoverflow.com/questions/31061838/how-do-i-cancel-an-http-fetch-request)~~
+- ~~[Fetch不能中断的话 那如何在组件移除之前 移除掉这个异步请求？](http://react-china.org/t/fetch/7482)~~
+- [Abortable fetch](https://developers.google.com/web/updates/2017/09/abortable-fetch)
+- [AbortController](https://developer.mozilla.org/zh-CN/docs/Web/API/AbortController)
 
 ### 相关资源
 
