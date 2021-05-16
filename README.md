@@ -20,24 +20,48 @@
 
 - 博文汇总
 
-    - [Front-End Developer Handbook](https://www.frontendhandbook.com/)
-
-        - [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
-        - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017)
-        - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
-        - [Front-end Developer Handbook 2019](https://frontendmasters.com/books/front-end-handbook/2019/)
-
     - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
     - [Web-Series](https://github.com/wxyyxc1992/Web-Series)
     - [JavaScript The Right Way](http://jstherightway.org/)
     - https://www.awesomes.cn/
-    - [2014 年末有哪些比较火的 Web 开发技术？](https://www.zhihu.com/question/26644904/answer/33634518)
-    - [2015前端框架何去何从](http://www.cnblogs.com/sskyy/p/4264371.html)
+
 
 - 推荐列表
 
     - [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
     - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
+
+## 历史
+
+- 2014
+
+    - [2014 年末有哪些比较火的 Web 开发技术？](https://www.zhihu.com/question/26644904/answer/33634518)
+
+- 2015
+
+    - [2015前端框架何去何从](http://www.cnblogs.com/sskyy/p/4264371.html)
+
+- 2016
+
+    - [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
+
+- 2017
+
+    - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017)
+
+- 2018
+
+    - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
+
+- 2019
+
+    - [Front-end Developer Handbook 2019](https://frontendmasters.com/books/front-end-handbook/2019/)
+
+- 2021
+
+    - [2021前端会有什么新的变化？](https://www.zhihu.com/question/428128531)
+    - [从2020看2021前端发展趋势](https://zhuanlan.zhihu.com/p/340761777)
+    - [2021 年度规划](https://zhuanlan.zhihu.com/p/341167909)
 
 ## 规范/标准
 
