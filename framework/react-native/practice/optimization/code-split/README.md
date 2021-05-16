@@ -1,3 +1,20 @@
+# 拆包
+
+## 开源项目
+
+- [react-native-multibundler](https://github.com/smallnew/react-native-multibundler)
+
+## 参考微信
+
+- [React Native JSBundle拆包之原理篇](https://segmentfault.com/a/1190000017373976)
+- [云音乐 React Native 优化实践之拆包与预热](https://segmentfault.com/a/1190000038141601)
+- [低版本react-native bundle拆包---jsbundle的拆解实践(一)](https://geocld.github.io/2019/07/16/react-native-bundle-split/)
+- [React Native 拆包原理和实践](https://www.jianshu.com/p/b3ea76c7510f)
+- [React Native 拆包及实践「iOS&Android」](https://juejin.cn/post/6844903855805693965)
+- [一种强大、可靠的React Native拆包以及热更新方案，基于CodePush，Metro](https://juejin.cn/post/6844903955705643016)
+
+---
+
 - [[Packager] Add bundle-splitting support by dep/modules info output and reference in build bundle](https://github.com/facebook/react-native/pull/10804)
 - [How to separate js bundle](https://github.com/facebook/react-native/issues/5399)
 - [Add support for multiple JS contexts](https://github.com/facebook/react-native/issues/6854)
