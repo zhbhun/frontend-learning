@@ -81,6 +81,13 @@ visual viewport 是当前显示在屏幕上的部分页面。用户会滚动页�
 - [500.html](./examples/500.html)：设置 layout viewport 宽度为 500px
 - [1000.html](./examples/1000.html)：设置 layout viewport 宽度为 1000px
 
+## 最佳实践
+
+- [Vant 屏幕适配](https://youzan.github.io/vant/v3/#/zh-CN/advanced-usage#liu-lan-qi-gua-pei)
+- [evrone/postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport)
+- [cuth/postcss-pxtorem](https://github.com/cuth/postcss-pxtorem)
+- [amfe/lib-flexible](https://github.com/amfe/lib-flexible)
+
 ## 参考文献
 
 - [使用Flexible实现手淘H5页面的终端适配 ](https://github.com/amfe/article/issues/17)
