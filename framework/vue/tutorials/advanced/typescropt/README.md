@@ -34,6 +34,12 @@ ts 不支持 vue 文件，需要全局添加 `shims-vue.d.ts` 声明 vue 文件�
 - [vuetype](https://github.com/ktsn/vuetype)
 - [vue + typescript 项目起手式](https://segmentfault.com/a/1190000011744210)
 
+### vue emit 事件不支持 ts 类型
+
+- [[Bug Report] tsx下，组件缺少事件的typescript定义](https://github.com/youzan/vant/issues/8302)
+- [[TypeScript / TSX] Make component events type safe, both emitting and listening](https://github.com/vuejs/vue-next/issues/1553)
+- [Vue v-on:click.native in JSX?](https://stackoverflow.com/questions/51198226/vue-v-onclick-native-in-jsx)
+
 ### JSX VS Template
 
 JSX 的优点
