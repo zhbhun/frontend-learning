@@ -58,7 +58,22 @@ Template 的优点
 - [为什么我推荐使用JSX开发Vue3](https://juejin.cn/post/6911175470255964174)
 - [为什么 Vue3 的组件库都在使用 jsx/tsx？](https://www.zhihu.com/question/436260027)
 - [Vue 支持 jsx 语法和模版语法，为什么很少人用第一种，Vue3.0 后你更倾向于哪种？为什么？](https://www.zhihu.com/question/414874762)
-- [为什么我推荐使用JSX开发Vue3](https://zhuanlan.zhihu.com/p/340424163)
+
+> 说下为什么选择 vue + composition api + tsx 
+>
+> 1、vue + composition api + tsx 有点类似与 react + rebox，如果你使用过 react 和它的 hook，会觉得 vue + composition + tsx 就是自己想要的理想开发方案，这主要是个人经验影响哈。实际上大家熟悉了这一套，以后切到 react，对 react hook + rebox 也不会陌生。
+>
+> 2、对比 template，tsx 会更加的灵活，这在一些复杂的业务场景特别有用，当然我们平时写的业务会比较简单，一些大佬会说我简单的业务用 template，复杂了再用 tsx，但是在不熟悉 tsx 的情况下，开发人员遇到复杂业务也只会用 template 去各种绕的方式写。为什么说 tsx 灵活，可以参考 https://juejin.cn/post/6911175470255964174
+>
+> 3、很多大佬说 jsx 没有 template 的编译优化，更加灵活容易写出各种各样风格的代码，但实际上 template 编译优化在我们目前的业务中提升不大，而且我们用的 vant 、ant-design 组件库本身就是 tsx 开发的。
+>
+> 4、对比 tempate，tsx 基本上支持 TypeScript 类型推导，在后期维护和重构上开发效率更高，而且能够完整的使用到 vant、ant-design 这些库提供的 ts 类型推导和编译校验。
+>
+> 5、后面我们要开发各个端的公共库，封装各种抽象业务组件，用来提升开发效率和用户体验，这里 tsx 的类型推导很重要，目前后台开发框架已经开发了类似 AdminSearch，已经后续规划的 JSON Schema 表单，都需要有类型推导的支撑。
+>
+> 6、jsx 不是 jsp，jsx 是一种 js 语法糖，编译后就是函数调用，目前这种直接声明式的在代码里构建 ui 的方式已经被很多新框架借鉴，包括原生的开发框架 flutter、swiftui 等，而且对比这些框架，jsx 更加的容易理解。
+>
+> 我自己对 template 是由偏见的，借用社区大佬的话说：JSX 的表达能力比 template 更强，JSX 表达能力的上限是 JS 语言本身，而 template 表达能力的上限是 Vue 的各种指令如 v-if v-for v-bind ...。面试过很多只会 vue template 的人，对应的开发很多都是围绕着 vue template 去研究各种指令、插槽等语法，而对 JS 本身掌握不够，所以我更希望大家去研究 JS 函数式编程方式，理解闭包的应用和响应式原理，而不是在 vue template 做“配置化”的工程师。
 
 ## 参考文献
 
