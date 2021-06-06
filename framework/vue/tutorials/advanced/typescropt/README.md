@@ -28,13 +28,71 @@ vue3 + TSX + Composition API
 
 ### vue 文件 ts 类型丢失
 
-ts 不支持 vue 文件，需要全局添加 `shims-vue.d.ts` 声明 vue 文件的输出模块类型，但是会丢失 props 类型推导
+ts 不支持 vue 文件，需要全局添加 `shims-vue.d.ts` 声明 vue 文件的输出模块类型，但是会丢失 props 类型推导。
+
+```ts
+/* eslint-disable */
+
+declare module '*.less';
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
+```
 
 - [Cannot import from a typescript Vue component into another typescript Vue component](https://github.com/vuejs/vue/issues/5298)
 - [vuetype](https://github.com/ktsn/vuetype)
 - [vue + typescript 项目起手式](https://segmentfault.com/a/1190000011744210)
 
 ### vue emit 事件不支持 ts 类型
+
+```ts
+// vue-tsx-shim.d.ts
+import 'vue'
+
+type EventHandler = (...args: any[]) => void
+
+declare module 'vue' {
+  interface ComponentCustomProps {
+    role?: string
+    tabindex?: number
+    // should be removed after Vue supported component events typing
+    // see: https://github.com/vuejs/vue-next/issues/1553
+    //      https://github.com/vuejs/vue-next/issues/3029
+    onBlur?: EventHandler
+    onOpen?: EventHandler
+    onEdit?: EventHandler
+    onLoad?: EventHandler
+    onClose?: EventHandler
+    onFocus?: EventHandler
+    onInput?: EventHandler
+    onClick?: EventHandler
+    onPress?: EventHandler
+    onScale?: EventHandler
+    onCancel?: EventHandler
+    onClosed?: EventHandler
+    onChange?: EventHandler
+    onDelete?: EventHandler
+    onOpened?: EventHandler
+    onScroll?: EventHandler
+    onSubmit?: EventHandler
+    onSelect?: EventHandler
+    onToggle?: EventHandler
+    onConfirm?: EventHandler
+    onPreview?: EventHandler
+    onKeypress?: EventHandler
+    onTouchend?: EventHandler
+    onClickStep?: EventHandler
+    onTouchmove?: EventHandler
+    onTouchstart?: EventHandler
+    onTouchcancel?: EventHandler
+    onSelectSearch?: EventHandler
+    [key: string]: any
+  }
+}
+```
 
 - [[Bug Report] tsx下，组件缺少事件的typescript定义](https://github.com/youzan/vant/issues/8302)
 - [[TypeScript / TSX] Make component events type safe, both emitting and listening](https://github.com/vuejs/vue-next/issues/1553)
@@ -81,7 +139,7 @@ Template 的优点
 >
 > 我自己对 template 是由偏见的，借用社区大佬的话说：JSX 的表达能力比 template 更强，JSX 表达能力的上限是 JS 语言本身，而 template 表达能力的上限是 Vue 的各种指令如 v-if v-for v-bind ...。面试过很多只会 vue template 的人，对应的开发很多都是围绕着 vue template 去研究各种指令、插槽等语法，而对 JS 本身掌握不够，所以我更希望大家去研究 JS 函数式编程方式，理解闭包的应用和响应式原理，而不是在 vue template 做“配置化”的工程师。
 
-## 参考文献
+---
 
 - [Vue3.0实践：使用Vue3.0做JSX(TSX)风格的组件开发](https://www.ctolib.com/topics-143214.html)
 - [拥抱 Vue 3 系列之 JSX 语法](https://www.zoo.team/article/vue3-jsx)
@@ -93,3 +151,10 @@ Template 的优点
 - [Vue3 模板编译优化](https://segmentfault.com/a/1190000037800237)
 - [拥抱 Vue3 系列之 JSX 语法 - 知乎](https://my.oschina.net/u/4351216/blog/4338778)
 - [使用Vue 3.0做JSX(TSX)风格的组件开发](https://zhuanlan.zhihu.com/p/102668383)
+
+### 热加载
+
+- [vueComponent/vue-jsx-hot-loader](https://github.com/vueComponent/vue-jsx-hot-loader)
+- [skyrpex/vue-jsx-hot-loader](https://github.com/skyrpex/vue-jsx-hot-loader)
+- [使用Vue 3.0做JSX(TSX)风格的组件开发](https://github.com/hujiulong/blog/issues/11#issuecomment-759313229)
+- [How to enable hot reload for `.tsx` files in Vue 3?](https://stackoverflow.com/questions/67597975/how-to-enable-hot-reload-for-tsx-files-in-vue-3)
