@@ -14,6 +14,10 @@ TODO
 - [vuepress-plugin-demo-code](https://github.com/BuptStEve/vuepress-plugin-demo-code)
 - [用 VuePress 开发组件库文档踩坑总结](https://hooray.github.io/posts/b7ab07d3/)
 
+### 集成 typedoc
+
+- [typedoc-plugin-markdown](https://github.com/tgreyuk/typedoc-plugin-markdown/tree/master/packages/vuepress-plugin-typedoc)
+
 ### 全局 TOC
 
 - [vuepress-plugin-global-toc](https://github.com/sylvainpolletvillard/vuepress-plugin-global-toc#readme)
