@@ -8,6 +8,12 @@ TODO
 
 ## 进阶
 
+### 集成 Vue 组件文档
+
+- [vuepress-jsdoc](https://github.com/ph1p/vuepress-jsdoc)
+- [vue-docgen-cli](https://github.com/vue-styleguidist/vue-styleguidist/tree/dev/packages/vue-docgen-cli)
+- [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown)
+
 ### 集成 Vue 组件示例
 
 - [vuepress-plugin-demo-container](https://github.com/calebman/vuepress-plugin-demo-container)
