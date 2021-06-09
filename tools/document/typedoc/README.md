@@ -1,5 +1,11 @@
 # [TypeDoc](https://github.com/TypeStrong/typedoc)
 
+## 进阶
+
+### Markdown
+
+- [typedoc-plugin-markdown](https://github.com/tgreyuk/typedoc-plugin-markdown)
+
 ## 参考文献
 
 - [TypeScript 文档化工具: typedoc](https://www.xdnote.com/typedoc/)
