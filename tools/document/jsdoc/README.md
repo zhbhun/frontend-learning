@@ -1,23 +1,33 @@
-JSDOC
+# JSDOC
 ========
 
 - [官网](http://usejsdoc.org/)
 - [仓库](https://github.com/jsdoc3/jsdoc)
 - [JSDoc 中文文档](http://www.css88.com/doc/jsdoc/index.html)
 
-## 主题
+## 入门
 
+...
+
+
+## 进阶
+
+### 主题
 - [docstrap](https://github.com/docstrap/docstrap)
 
-## Markdown
+### Markdown
 
 - [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown)
 
-## 集成
+### 集成 GitBook
 
 - [GitBook](https://medium.com/@kevinast/integrate-gitbook-jsdoc-974be8df6fb3)
 
-## 常见问题
+### 集成 TypeScript
+
+- [better-docs](https://github.com/SoftwareBrothers/better-docs) / [TypeScript + JSDoc = better-docs](https://wojciechkrysiak.medium.com/typescript-jsdoc-better-docs-7c03b6ea04df)
+
+## 问题
 
 ### 如何定义 Promise
 
