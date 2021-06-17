@@ -12,3 +12,4 @@
 - [每日优鲜供应链前端团队微前端改造](https://juejin.cn/post/6844903943873675271)
 - [微前端入门](https://juejin.cn/post/6844903953734336525#heading-13)
 - [探索微前端的场景极限](https://www.yuque.com/kuitos/gky7yw/uyp6wi)
+- [美业微前端的落地](https://segmentfault.com/a/1190000040106401?_ea=136216131)
