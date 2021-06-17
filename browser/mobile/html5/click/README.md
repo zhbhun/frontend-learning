@@ -36,3 +36,9 @@
     - [Fix negative event.timeStamp values on iOS 11.3](https://github.com/ftlabs/fastclick/pull/550)
     - [Update fastclick.js for iOS/Safari timestamp bug](https://github.com/ftlabs/fastclick/pull/554)
     - [Try to fix negative event.timeStamp values on iOS 11.3/4](https://github.com/ftlabs/fastclick/pull/564)
+
+---
+
+- [2019 再聊移动端 300ms 延迟及 fastClick 原理解析](https://segmentfault.com/a/1190000019281808)
+- [现在的wap项目还有必要引入fastclick吗?](https://www.zhihu.com/question/290218841)
+- [mint-ui loadmore 上拉刷新的问题](https://github.com/ElemeFE/mint-ui/issues/120)
