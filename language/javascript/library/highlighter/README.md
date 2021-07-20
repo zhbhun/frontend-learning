@@ -1,2 +1,3 @@
 - [highlight.js](https://github.com/highlightjs/highlight.js)
 - [highlighter](https://prismjs.com/)
+- https://github.com/shikijs/shiki
