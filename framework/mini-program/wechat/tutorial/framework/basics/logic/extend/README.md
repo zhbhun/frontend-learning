@@ -1,0 +1,2 @@
+- [wechat-miniprogram/computed](https://github.com/wechat-miniprogram/computed)
+- [wechat-miniprogram/mobx](https://github.com/wechat-miniprogram/mobx)
