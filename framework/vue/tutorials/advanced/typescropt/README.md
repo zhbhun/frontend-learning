@@ -16,6 +16,11 @@ vue3 + TSX + Composition API
 
 ## 常见问题
 
+### @vue/babel-plugin-jsx vs @vue/babel-preset-jsx
+
+- [@vue/babel-plugin-jsx](https://github.com/vuejs/jsx-next)：适用于 vue3 版本
+- [@vue/babel-preset-jsx](https://github.com/vuejs/jsx/tree/master/packages/babel-preset-jsx)：适用于 vue2 版本
+
 ### Scoped Style
 
 使用了 jsx 之后，无法在使用 vue 自带的 scoped style，备选方案是 css module
