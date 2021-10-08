@@ -1,1 +1,8 @@
-https://github.com/fengyuanchen/viewerjs
+- https://github.com/fengyuanchen/viewerjs
+- https://github.com/dimsemenov/PhotoSwipe
+- https://github.com/fancyapps/fancybox
+- https://github.com/sachinchoolur/lightgallery.js
+- https://github.com/blueimp/Gallery
+- https://github.com/GalleriaJS/galleria
+- https://github.com/mirari/v-viewer
+- https://github.com/blueimp/Gallery
