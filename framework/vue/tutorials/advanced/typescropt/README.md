@@ -163,3 +163,12 @@ Template 的优点
 - [skyrpex/vue-jsx-hot-loader](https://github.com/skyrpex/vue-jsx-hot-loader)
 - [使用Vue 3.0做JSX(TSX)风格的组件开发](https://github.com/hujiulong/blog/issues/11#issuecomment-759313229)
 - [How to enable hot reload for `.tsx` files in Vue 3?](https://stackoverflow.com/questions/67597975/how-to-enable-hot-reload-for-tsx-files-in-vue-3)
+
+### 其他
+
+- [为什么我感觉 Vue 3 TypeScript 还是不行？](https://www.zhihu.com/question/453332049)
+
+    - props 不支持直接使用 TypeScript 类型声明
+    - 难以定义不同组件的共有 props
+    - defineComponent 不支持泛型
+    - emit、slots 不支持 TypeScript 类型推导
