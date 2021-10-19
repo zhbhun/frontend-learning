@@ -1,6 +1,8 @@
 # 页面
 
-## 生命周期
+## 基础
+
+### 生命周期
 
 onLoad =》 onShow =》onReady =》 onHide =》 onShow => onUnload
 
@@ -15,3 +17,7 @@ onLoad =》 onShow =》onReady =》 onHide =》 onShow => onUnload
 参考文献
 
 - [生命周期](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/page-life-cycle.html)
+
+### 退出状态保存
+
+https://developers.weixin.qq.com/miniprogram/dev/framework/runtime/operating-mechanism.html#_4-%E9%80%80%E5%87%BA%E7%8A%B6%E6%80%81

@@ -39,3 +39,4 @@
 ## 参考文献
 
 - [npm 支持](https://developers.weixin.qq.com/miniprogram/dev/devtools/npm.html)
+- [模块化](https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/module.html)
