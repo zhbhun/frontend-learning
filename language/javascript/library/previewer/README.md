@@ -6,3 +6,5 @@
 - https://github.com/GalleriaJS/galleria
 - https://github.com/mirari/v-viewer
 - https://github.com/blueimp/Gallery
+- https://github.com/nextapps-de/spotlight
+- https://github.com/biati-digital/glightbox
