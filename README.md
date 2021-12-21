@@ -62,6 +62,7 @@
     - [2021前端会有什么新的变化？](https://www.zhihu.com/question/428128531)
     - [从2020看2021前端发展趋势](https://zhuanlan.zhihu.com/p/340761777)
     - [2021 年度规划](https://zhuanlan.zhihu.com/p/341167909)
+    - [2021年推荐学习的前端框架和工具库](https://www.cnblogs.com/cczlovexw/p/14505135.html)
 
 ## 规范/标准
 
