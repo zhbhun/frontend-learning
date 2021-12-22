@@ -22,3 +22,4 @@
 - [微前端连载 5/7：微前端主子应用路由调度](https://juejin.cn/post/6847902217945481224)
 - [微前端连载 6/7：微前端框架 - qiankun 大法好](https://juejin.cn/post/6846687602439897101)
 - [微前端“容器”——microcosmos实现](https://segmentfault.com/a/1190000023850793)
+- [How We Build Micro Frontends With Lattice](https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea)
