@@ -726,3 +726,7 @@ console.log(a)
     - [optimization.usedExports](https://webpack.js.org/configuration/optimization/)
 
 - Pure Module / Side Effects
+
+---
+
+- [lodash在webpack中的各项优化的尝试](https://zhuanlan.zhihu.com/p/36280323)
