@@ -121,3 +121,4 @@ URI 编码将 URI 非法字符转化成合法字符，转换后形式类似 `%**
 - [node-html-entities](https://www.npmjs.com/package/html-entities)
 - [mathiasbynens/he](https://github.com/mathiasbynens/he)
 - [Character encodings in HTML](https://en.wikipedia.org/wiki/Character_encodings_in_HTML)
+
