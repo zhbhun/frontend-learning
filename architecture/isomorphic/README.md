@@ -129,3 +129,11 @@
 - [Webpack实战-构建同构应用](https://juejin.im/post/5a38763af265da430a50b0d0)
 - [聊一聊前端「同构」](https://webfe.kujiale.com/liao-yi-liao-qian-duan-tong-gou/)
 
+---
+
+## CSR/SSR/SSG/ISR/DPR
+
+- [新一代Web技术栈的演进：SSR/SSG/ISR/DPR都在做什么？](https://cloud.tencent.com/developer/article/1819396)
+- [服务端渲染到前端渲染，再到“服务端渲染](https://segmentfault.com/a/1190000015862685)
+- [一体化 SSR/SPR](https://modernjs.dev/docs/guides/features/server-side/web/ssr-and-spr)
+- [SSR VS CSR ,一次讲个通透](https://zhuanlan.zhihu.com/p/60975107)
