@@ -1,5 +1,11 @@
 # Declaration
 
+## DefinitelyTyped
+
+- https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/README.zh.md
+- [[翻译] DefinitelyTyped 的自动化管理改造](https://juejin.cn/post/6977281038263255054)
+- https://jkchao.github.io/typescript-book-chinese/typings/types.html#%E4%BD%BF%E7%94%A8-types
+
 ## 常见问题
 
 ### Babel 7 + Typescript 怎么提取 d.ts 文件
