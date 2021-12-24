@@ -106,6 +106,8 @@ URI 编码将 URI 非法字符转化成合法字符，转换后形式类似 `%**
 
 ## Base64 编码
 
+- [Base64笔记](https://www.ruanyifeng.com/blog/2008/06/base64.html)
+- [一份简明的 Base64 原理解析](https://zhuanlan.zhihu.com/p/111700349)
 - [WindowOrWorkerGlobalScope.btoa()](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa)
 - [Base64 encoding and decoding](https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding)
 - [原来浏览器原生支持JS Base64编码解码](https://www.zhangxinxu.com/wordpress/2018/08/js-base64-atob-btoa-encode-decode/)
