@@ -7,6 +7,12 @@
 - [mp4box.js](https://github.com/gpac/mp4box.js): JavaScript library to process MP4 files in the browser (and in NodeJS), with support for progressive parsing.
 - [video-dev/hls.js](https://github.com/video-dev/hls.js/)
 
+## 视频处理
+
+- [FFmpeg 视频处理入门教程](https://www.ruanyifeng.com/blog/2020/01/ffmpeg.html)
+- [借助ffmpeg.wasm纯前端实现多音频和视频的合成](https://www.zhangxinxu.com/wordpress/2021/03/ffmpeg-wasm-audio-video-merge/)
+- [ffmpegwasm/ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
+
 ## 参考文献
 
 - [使用canvas快速实现视频截图功能](https://juejin.cn/post/6844904089281789966)
