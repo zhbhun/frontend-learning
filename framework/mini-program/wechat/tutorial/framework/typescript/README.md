@@ -1,1 +1,4 @@
-[wechat-miniprogram/api-typings](https://github.com/wechat-miniprogram/api-typings)
+- [wechat-miniprogram/api-typings](https://github.com/wechat-miniprogram/api-typings)
+- [小程序上Typescript啦](https://developers.weixin.qq.com/community/develop/article/doc/00062e88fe4c68c921f7e967656013)
+- [Typescript接入小程序 - 用更标准的TS来写小程序](https://juejin.cn/post/6844903976404516878)
+- [使用 TypeScript 开发小程序最佳实践](https://heavenru.com/post/%E7%94%A8-Typescript-%E7%BC%96%E5%86%99%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F)
