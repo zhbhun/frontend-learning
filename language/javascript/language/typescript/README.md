@@ -268,3 +268,4 @@
 - [TypeScript 入门教程](https://ts.xcatliu.com/introduction/hello-typescript.html)
 - [来玩TypeScript啊，机都给你开好了！](https://zhuanlan.zhihu.com/c_206498766)
 - [使用TypeScript开发Web应用的最佳实践](https://yrq110.me/post/front-end/best-practice-of-typescript-in-webapp-developing/)
+- [1.8W字|了不起的 TypeScript 入门教程（第二版）](http://semlinker.com/ts-comprehensive-tutorial/)
