@@ -1,1 +1,3 @@
 - https://github.com/adobe/spectrum-css
+- [冷门又好用的 CSS 特性](https://segmentfault.com/a/1190000041209570?utm_source=weekly&utm_medium=email&utm_campaign=SegmentFault%20%E7%B2%BE%E9%80%89%E6%AF%8F%E5%91%A8%E7%B2%BE%E9%80%89%E4%B8%A8%E9%9A%BE%E6%90%9E%E7%9A%84%E5%81%8F%E5%90%91%E9%94%81%E7%BB%88%E4%BA%8E%E8%A2%AB%20Java%20%E7%A7%BB%E9%99%A4%E4%BA%86%E4%B8%A8%E5%86%B7%E9%97%A8%E5%8F%88%E5%A5%BD%E7%94%A8%E7%9A%84%20CSS%20%E7%89%B9%E6%80%A7)
+- [7 amazing CSS properties you may not know (yet)](https://medium.com/@theAngularGuy/7-amazing-css-properties-you-may-not-know-yet-4f7b67f80644)
