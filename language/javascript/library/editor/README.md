@@ -64,6 +64,7 @@
 - [slate](https://github.com/ianstormtaylor/slate)
 - [draft-js](https://github.com/facebook/draft-js)
 - [tinymce](https://github.com/tinymce/tinymce)
+- [prosemirror](https://github.com/ProseMirror/prosemirror)
 - ckeditor
 
     - [ckeditor/ckeditor4](https://github.com/ckeditor/ckeditor4)
