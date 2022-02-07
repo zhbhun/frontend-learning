@@ -14,6 +14,10 @@
 - [Reddit’s React community](https://www.reddit.com/r/reactjs/)
 - [Spectrum’s React community](https://spectrum.chat/react)
 
+## 周刊
+
+- [React Status](https://react.statuscode.com/issues)
+
 ## 教程
 
 - [Tutorial: Intro to React](https://reactjs.org/tutorial/tutorial.html#before-we-start-the-tutorial)：React 官方入门教程
