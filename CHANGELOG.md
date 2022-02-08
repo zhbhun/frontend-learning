@@ -1,6 +1,10 @@
 # Changelog
 
-## 2010
+## 2022
+
+- [从2021看2022前端发展趋势](https://segmentfault.com/a/1190000041211795)
+
+## 2020
 
 - [20 个 2020 年软件开发趋势预测](https://mp.weixin.qq.com/s/y5EiuEEUkmegrjoWipcqCQ)
 
