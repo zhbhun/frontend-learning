@@ -10,3 +10,4 @@ DOM
 - [snabbdom/snabbdom](https://github.com/snabbdom/snabbdom)
 - [tsayen/dom-to-image](https://github.com/tsayen/dom-to-image)
 - [react-bootstrap/dom-helpers](https://github.com/react-bootstrap/dom-helpers)
+- https://github.com/franciscop/umbrella - Lightweight javascript library for DOM manipulation and events
