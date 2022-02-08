@@ -27,6 +27,7 @@
 - [react-web](https://github.com/taobaofed/react-web) - A framework for building web apps with React Native compatible API. 3183 ★
 - [react-widgets](https://github.com/jquense/react-widgets) - An à la carte set of polished, extensible, and accessible inputs built for React. 1218 ★
 - [dumb-react](https://github.com/bradfrost/dumb-react) - Dumb React is a collection of React components used to create a static (dumb) website screen.
+- https://github.com/nextui-org/nextui - Beautiful, fast and modern React UI library.
 
 ## Drawers
 
