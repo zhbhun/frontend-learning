@@ -102,6 +102,10 @@ dalekjs, triflejs
 - [yolpo](http://www.yolpo.com/)：在浏览器逐句执行的 JavaScript 解释器。
 - [Selenium](https://docs.seleniumhq.org/selenium-ide/)
 
+### E2E
+
+- [nightwatch](https://github.com/nightwatchjs/nightwatch) - End-to-end testing framework written in Node.js and using the Webdriver API
+
 ### 解决方案
 
 - [Macaca](https://macacajs.github.io/)
