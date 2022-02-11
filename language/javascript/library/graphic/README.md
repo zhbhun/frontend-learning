@@ -11,6 +11,8 @@
 
 - [flowchart.js](https://github.com/adrai/flowchart.js)
 - https://github.com/d3/d3
+- [pintora](https://github.com/hikerpig/pintora)
+- [plantuml](https://github.com/plantuml/plantuml)
 
 ## 人脸识别
 
