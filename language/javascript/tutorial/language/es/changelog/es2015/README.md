@@ -1,5 +1,13 @@
 # ES2015
 
+## API
+
+### Object
+
+- Object.isExtensible()
+
+---
+
 - http://es6-features.org/
 - https://exploringjs.com/es6/index.html
 - [ECMAScript® 2015 Language Specification](http://www.ecma-international.org/ecma-262/6.0/)
@@ -13,3 +21,4 @@
 ---
 
 - [Proxy](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+
