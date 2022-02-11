@@ -1,10 +1,7 @@
-# 对象
 
-## 字面量
+# getter
 
-### getter
-
-**用法**
+## 用法
 
 - 基础
 
@@ -61,14 +58,14 @@
     console.log(MyConstants.foo); // 'foo', a static getter's value cannot be changed
     ```
 
-**get vs defineProperty**
+## get vs defineProperty
 
 - Object.defineProperty() 定义对象自身的属性
 - class get 属性会定义在原型上
 
 参见实例 [get-vs-defineProperty](./examples/getter/get-vs-defineProperty.js)
 
-**懒加载应用**
+## 懒加载应用
 
 getter 可以延迟一些属性的计算初始化，直到属性值被访问。并且在首次访问后可以删除 getter，将计算后的属性值赋给对象属性，从而避免重复计算。对于满足以下条件的场景，可以使用该方案：
 
@@ -88,7 +85,6 @@ get notifier() {
 ps：这里可以作为一个知识考点
 
 
-参考文献
+## 参考文献
 
 - [getter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get1)
-
