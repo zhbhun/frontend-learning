@@ -62,6 +62,10 @@ ps：
 - [JS的Reflect学习和应用](https://zhuanlan.zhihu.com/p/92700557)
 - [ES6设计反射Reflect的意义是什么？(除了把key in obj、delete这些方式函数化)?](https://www.zhihu.com/question/276403215)
 
+### 代理
+
+参见 [proxy](./proxy/README.md)
+
 ## 实践
 
 ### has/in vs getOwnPropertyNames() vs keys()
