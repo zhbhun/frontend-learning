@@ -1,0 +1,1 @@
+- [Make a beating heart using CSS: beginner-friendly tutorial](https://dev.to/larainnepasion/make-a-beating-heart-using-css-beginner-friendly-tutorial-25ff)
