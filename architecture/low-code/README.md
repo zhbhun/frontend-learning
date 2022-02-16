@@ -6,6 +6,9 @@
 - [node-red](https://github.com/node-red/node-red) - Low-code programming for event-driven applications
 - [erupts/erupt](https://github.com/erupts/erupt) - 纯 Java 注解，单个类文件，快速开发 Admin 管理后台。不生成任何代码、零前端代码、零 CURD、自动建表、注解式API、自定义服务逻辑，支持所有主流数据库，支持自定义页面，支持多数据源，提供二十几类业务组件，十几种展示形式，支持逻辑删除，动态定时任务，前端后端分离等。
 - https://github.com/imcuttle/mometa
+- [amplication](https://github.com/amplication/amplication) - Amplication is an open‑source development tool. It helps you develop quality Node.js applications without spending time on repetitive coding tasks.
+
+    - https://medium.com/@itsrakesh/auto-generate-your-nodejs-app-admin-ui-1e0aeaf92cd7
 
 ## 可视化搭建
 
