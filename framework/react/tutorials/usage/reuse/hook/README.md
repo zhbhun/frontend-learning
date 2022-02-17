@@ -11,6 +11,7 @@
 ## 常见问题
 
 - [Preventing rerenders with React.memo and useContext hook.](https://github.com/facebook/react/issues/15156)
+- [Some reasons for disliking React hooks](https://blog.bitsrc.io/some-reasons-for-disliking-react-hooks-80f1e18eb9b3)
 
 ### 取代 Redux
 
