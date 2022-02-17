@@ -28,6 +28,7 @@
 - [react-widgets](https://github.com/jquense/react-widgets) - An à la carte set of polished, extensible, and accessible inputs built for React. 1218 ★
 - [dumb-react](https://github.com/bradfrost/dumb-react) - Dumb React is a collection of React components used to create a static (dumb) website screen.
 - https://github.com/nextui-org/nextui - Beautiful, fast and modern React UI library.
+- https://github.com/arturbien/React95 - Refreshed Windows 95 style UI components for your React app
 
 ## Drawers
 
