@@ -12,3 +12,7 @@
 - https://github.com/mirrorjs/mirror
 - https://github.com/jumpsuit/jumpstate
 - https://github.com/wooline/react-coat
+
+## 参考文献
+
+- [Lightweight Alternatives to Redux](https://medium.com/stackanatomy/lightweight-alternatives-to-redux-eef4d4eb387c)
