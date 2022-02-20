@@ -8,10 +8,12 @@
 
 ## 2021
 
+- [The State of JS 2021 Results](https://2021.stateofjs.com/zh-Hans/)
 - [从2020看2021前端发展趋势](https://segmentfault.com/a/1190000038768154)
 
 ## 2020
 
+- [The State of JS 2020 Results](https://2020.stateofjs.com/zh-Hans/)
 - [20 个 2020 年软件开发趋势预测](https://mp.weixin.qq.com/s/y5EiuEEUkmegrjoWipcqCQ)
 
 ## 2019
