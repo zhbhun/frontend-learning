@@ -81,6 +81,7 @@ dalekjs, triflejs
 - [jest](https://github.com/facebook/jest)：简单的 JavaScript 单元测试框架。
 - [prova](https://github.com/azer/prova)：基于 Tape 和 Browserify 的测试运行器，它适用于 Node & 浏览器。
 - [DalekJS](https://github.com/dalekjs/dalek)：自动化且跨浏览器的 JavaScript 功能测试框架。
+- [cypress](https://github.com/cypress-io/cypress) - Fast, easy and reliable testing for anything that runs in a browser.
 - https://github.com/avajs/ava
 
 ### 覆盖率
