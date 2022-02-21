@@ -2,7 +2,17 @@
 ========
 
 - [前端技能汇总](https://github.com/JacksonTian/fks)
+- https://www.awesomes.cn/
+
+
+## 教程
+
 - [网道](https://wangdoc.com/)
+- [Web Development for Beginners](https://microsoft.github.io/Web-Dev-For-Beginners/#/)
+- [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
+- [Web-Series](https://github.com/wxyyxc1992/Web-Series)
+- [JavaScript The Right Way](http://jstherightway.org/)
+
 
 ## 书籍
 
@@ -18,192 +28,153 @@
     - 《高性能 JavaScript》
     - 《你不知道的 JavaScript》
 
-- 博文汇总
-
-    - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
-    - [Web-Series](https://github.com/wxyyxc1992/Web-Series)
-    - [JavaScript The Right Way](http://jstherightway.org/)
-    - https://www.awesomes.cn/
-
-
 - 推荐列表
 
     - [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
     - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
 
-## 历史
+## 汇总
 
-- 2014
+- 规范/标准
 
-    - [2014 年末有哪些比较火的 Web 开发技术？](https://www.zhihu.com/question/26644904/answer/33634518)
+    - 网络
 
-- 2015
-
-    - [2015前端框架何去何从](http://www.cnblogs.com/sskyy/p/4264371.html)
-
-- 2016
-
-    - [Front-End Developer Handbook 2016](https://frontendmasters.com/books/front-end-handbook/2016/)
-
-- 2017
-
-    - [front-end-handbook-2017](https://github.com/xitu/front-end-handbook-2017)
-
-- 2018
-
-    - [Front-End Developer Handbook 2018](https://frontendmasters.com/books/front-end-handbook/2018/)
-
-- 2019
-
-    - [Front-end Developer Handbook 2019](https://frontendmasters.com/books/front-end-handbook/2019/)
-
-- 2021
-
-    - [2021前端会有什么新的变化？](https://www.zhihu.com/question/428128531)
-    - [从2020看2021前端发展趋势](https://zhuanlan.zhihu.com/p/340761777)
-    - [2021 年度规划](https://zhuanlan.zhihu.com/p/341167909)
-    - [2021年推荐学习的前端框架和工具库](https://www.cnblogs.com/cczlovexw/p/14505135.html)
-
-## 规范/标准
-
-- 网络
-
-    - HTTP
-    - HTTPS
-    - Websocket
-
-- ECMAScript
-- W3C
-
-    - BOM
-    - CSS
-    - DOM
-    - HTML5
-    - JSON
-    - SVG
-    - XML
-    - XHTML
-
-## 编程语言
-
-- HTML
-- CSS
-- JavaScript
+        - HTTP
+        - HTTPS
+        - Websocket
 
     - ECMAScript
-    - Flow
-    - TypeScript
+    - W3C
 
-## 开发工具
+        - BOM
+        - CSS
+        - DOM
+        - HTML5
+        - JSON
+        - SVG
+        - XML
+        - XHTML
 
-- 编辑器
+- 编程语言
 
-    - Visual Studio Code
-    - Sublime
-    - Atom
-    - Webstorm
+    - HTML
+    - CSS
+    - JavaScript
 
-- 调试器
+        - ECMAScript
+        - Flow
+        - TypeScript
 
-    - Chrome Dev Tools
+- 开发工具
 
-- 代理服务器
+    - 编辑器
 
-    - Charles
-    - Fiddler
-    - Whistle
-    
-- 版本管理
+        - Visual Studio Code
+        - Sublime
+        - Atom
+        - Webstorm
 
-    - Git
-    - SVN
+    - 调试器
 
-- 开源项目
+        - Chrome Dev Tools
 
-    - Github
-    - Gitlab
-    - Bitbucket
+    - 代理服务器
 
-## 开发框架
+        - Charles
+        - Fiddler
+        - Whistle
+        
+    - 版本管理
 
-- HTML 模板
+        - Git
+        - SVN
 
-    - EJS
-    - Pug
+    - 开源项目
 
-- CSS 预处理器
+        - Github
+        - Gitlab
+        - Bitbucket
 
-    - Sass
-    - Less
-    - Stylus
+- 开发框架
 
-- JS 库
+    - HTML 模板
 
-    - jQuery
-    - Backbone
+        - EJS
+        - Pug
 
-- JS 框架
+    - CSS 预处理器
 
-    - Angular
-    - React
-    - Vue
-    - Polymer
-    - Ember
+        - Sass
+        - Less
+        - Stylus
 
-- UI 库
+    - JS 库
 
-    - Ant Design
-    - Bootstrap
-    - Material Design
-    - Semantic UI
+        - jQuery
+        - Backbone
 
-- 工具库
+    - JS 框架
 
-    - underscore
-    - lodash
+        - Angular
+        - React
+        - Vue
+        - Polymer
+        - Ember
 
-- 技术选型
+    - UI 库
 
-    - [Choosing a frontend framework in 2017](https://medium.com/this-dot-labs/building-modern-web-applications-in-2017-791d2ef2e341)
+        - Ant Design
+        - Bootstrap
+        - Material Design
+        - Semantic UI
 
-## 工程化
+    - 工具库
 
-- 编译器
+        - underscore
+        - lodash
 
-    - Babel
+    - 技术选型
 
-- 打包器
+        - [Choosing a frontend framework in 2017](https://medium.com/this-dot-labs/building-modern-web-applications-in-2017-791d2ef2e341)
 
-    - Grunt
-    - Gulp
-    - Parcel
-    - Webpack
+- 工程化
 
-- 代码规范/代码检查
+    - 编译器
 
-    - ESLint
+        - Babel
 
-- 单元测试
-- E2E 测试
+    - 打包器
 
-- 持续集成/持续交付/持续部署
+        - Grunt
+        - Gulp
+        - Parcel
+        - Webpack
 
-    - GitLab Continuous Integration (GitLab CI)
+    - 代码规范/代码检查
 
-- 监控系统
+        - ESLint
 
-    - [Sentry](https://github.com/getsentry/sentry)
+    - 单元测试
+    - E2E 测试
 
-## 性能优化
+    - 持续集成/持续交付/持续部署
 
-- YSlow
-- Lighthouse
+        - GitLab Continuous Integration (GitLab CI)
 
-## 职业规划
+    - 监控系统
 
-- [前端工程师职业规划](https://github.com/xiaojue/careerLive/blob/master/data/Transcript.md)
+        - [Sentry](https://github.com/getsentry/sentry)
 
-## 参考文献
+- 性能优化
+
+    - YSlow
+    - Lighthouse
+
+- 职业规划
+
+    - [前端工程师职业规划](https://github.com/xiaojue/careerLive/blob/master/data/Transcript.md)
+
+## 参考
 
 - [developer-roadmap](https://github.com/kamranahmedse/developer-roadmap)
 - [前端开发漫游指南](https://www.yuque.com/fe9/basic/iwtzab)
