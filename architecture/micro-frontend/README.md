@@ -2,6 +2,10 @@
 
 - https://micro-frontends.org/
 
+## 原理
+
+- [tab、iframe 进程隔离](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/219.%E7%B2%BE%E8%AF%BB%E3%80%8A%E6%B7%B1%E5%85%A5%E4%BA%86%E8%A7%A3%E7%8E%B0%E4%BB%A3%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%80%E3%80%8B.md#tabiframe-%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB)
+
 ## 开源库
 
 - [qiankun](https://github.com/umijs/qiankun) - Blazing fast, simple and completed solution for micro frontends.
