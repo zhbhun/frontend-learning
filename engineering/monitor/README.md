@@ -1,2 +1,0 @@
-- https://rollbar.com/
-- https://sentry.io/welcome/
