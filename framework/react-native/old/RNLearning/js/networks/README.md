@@ -1,3 +1,0 @@
-- XMLHttpRequest
-- Fetch
-- WebSocket
