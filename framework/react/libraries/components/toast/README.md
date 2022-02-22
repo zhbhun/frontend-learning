@@ -1,0 +1,1 @@
+- [react-hot-toast](https://github.com/timolins/react-hot-toast) - Smoking hot React Notifications

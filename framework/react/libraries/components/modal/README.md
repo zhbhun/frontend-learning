@@ -1,0 +1,1 @@
+- [eBay/nice-modal-react](https://github.com/eBay/nice-modal-react) - A nice modal manager for React.
