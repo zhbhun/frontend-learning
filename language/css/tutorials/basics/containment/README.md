@@ -1,0 +1,3 @@
+- [contain](https://css-tricks.com/almanac/properties/c/contain/)
+- [CSS新特性contain，控制页面的重绘与重排](https://www.cnblogs.com/coco1s/p/14733974.html)
+- [初探CSS的容器模块](https://www.w3cplus.com/css/deep-dive-into-css-contain.html)
