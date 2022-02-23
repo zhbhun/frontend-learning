@@ -295,3 +295,7 @@ H5 Geolocation API 只返回了经纬度信息，无法获得具体的位置信�
 ![best-practice.svg](./.assets/best-practice.png)
 
 [定位流程示例](https://mermaidjs.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZ3JhcGggVERcblN0YXJ0IC0tPiBBXG5Be-aYr-WQpuWIh-aNoui_h-WfjuW4gn1cbkEgLS0-fFwi5pivKOS4iuasoeWIh-aNouWfjuW4gilcInxCXG5BIC0tPnzlkKZ8QUJcbkFCe0lQIOWcsOWdgOaYr-WQpuacieaViH1cbkFCIC0tPnxcIuaYryhJUCDln47luIIpXCJ8QlxuQUIgLS0-fFwi5ZCmKOm7mOiupOWfjuW4gilcInxCXG5CKOWvueW6lOWfjuW4guaVsOaNrikgLS0-Q1xuQ3vmmK_lkKbmlK_mjIHljp_nlJ_lrprkvY19XG5DIC0tPnzmmK98Q0Eo5a6i5oi356uv5a6a5L2NKVxuQyAtLT585ZCmfENCKEg1IOWumuS9jSlcbkNBIC0tPkRcbkNCIC0tPkRcbkR75a6a5L2N5oiQ5YqffVxuRCAtLT585pivfEVcbkQgLS0-fOWQpnxEQijmoLnmja7plJnor6_noIHmj5DnpLrlvIDlkK_lrprkvY3mnYPpmZDmiJblrprkvY3lpLHotKUpXG5Fe-WumuS9jeWfjuW4guaYr-WQpuS4juW9k-WJjemAieaLqeWfjuW4guS4gOiHtH1cbkUgLS0-fOaYr3xFQSjmj5DnpLrliIfmjaLln47luIIpXG5FIC0tPnzlkKZ8RUIo5LiN5YGa5Lu75L2V5aSE55CGKSIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In19)
+
+## 参考文献
+
+- [GPS 工作原理](https://pages.longtian.info/gps)
