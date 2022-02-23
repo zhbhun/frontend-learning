@@ -19,6 +19,7 @@
 - [云凤蝶](https://www.yunfengdie.com/intro)
 - [flutterflow](https://app.flutterflow.io/create-account)
 - [DhiWise](https://www.dhiwise.com/) - Next-gen visual programming platform to develop enterprise-grade applications in low-code and pro-code simultaneously. All in hours, not weeks. Eliminate pain of mundane and repetitive tasks of your developers so your team can focus on things that matter.
+- [softr](https://www.softr.io/)
 
 ## 参考文献
 
