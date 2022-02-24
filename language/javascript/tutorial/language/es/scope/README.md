@@ -1,3 +1,13 @@
+# 作用域
+
+## API
+
+- [with](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/with)
+
+    https://tc39.es/ecma262/#sec-with-statement
+
+## 参考
+
 - [JavaScript variables lifecycle: why let is not hoisted](https://rainsoft.io/variables-lifecycle-and-why-let-is-not-hoisted/)
 - [`let` hoisting?](https://github.com/getify/You-Dont-Know-JS/issues/767)
 - [TEMPORAL DEAD ZONE (TDZ) DEMYSTIFIED](http://jsrocks.org/2015/01/temporal-dead-zone-tdz-demystified)
