@@ -28,5 +28,9 @@
 - https://github.com/arturbien/React95 - Refreshed Windows 95 style UI components for your React app
 - [Chakra UI](https://chakra-ui.com/) - Simple, Modular & Accessible React UI Components for your React Applications
 - [Blueprint](https://blueprintjs.com/) - A React-based UI toolkit for the web
-- [Grommet](https://v2.grommet.io/) - Focus on the essential experience
-- [Evergreen](https://evergreen.segment.com/) 
+- [Grommet](https://v2.grommet.io/) - Grommet is a React-based framework that provides accessibility, modularity, responsiveness, and theming in a tidy package. It has 60-plus components. It also provides Sketch, Figma, AdobeXd files, and 600 plus SVG icons. Grommet is used by Netflix, Samsung, Uber, Boeing, IBM, and more organizations.
+- [Evergreen](https://evergreen.segment.com/) - Evergreen is the UI framework upon is build product experiences at Segment. It serves as a flexible framework, and a lot of its visual design is informed through plenty of iteration with the segment design team and external contributors. Evergreen has 30-plus components and the documentation also seems good.
+- [Fluent UI](https://www.microsoft.com/design/fluent/#/) - Fluent is an open-source, cross-platform design system that gives designers and developers the frameworks they need to create engaging product experiences — accessibility, internationalization, and performance included.
+- [Reactstrap](https://github.com/reactstrap/reactstrap) - Reactstrap helps to use Bootstrap 4 Components with React. This is simple to configure and use. It has good documentation for using components.
+- [Reakit](https://github.com/reakit/reakit) - Reakit is a lower-level component library for building accessible high-level UI libraries, design systems, and applications with React. Reakit is tiny and fast.
+
