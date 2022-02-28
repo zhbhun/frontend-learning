@@ -10,6 +10,21 @@
 - [react-infinite-scroll](https://github.com/guillaumervls/react-infinite-scroll)
 - [react-chatview](github.com/dustingetz/react-chatview)
 
+
+- https://github.com/orgsync/react-list
+- https://github.com/nmn/react-infinity
+
+无限滚动列表
+
+- https://github.com/search?o=desc&q=react+infinite&s=stars&type=Repositories&utf8=%E2%9C%93
+- [react-infinite](https://github.com/seatgeek/react-infinite)：A browser-ready efficient scrolling container based on UITableView —— 需要计算列表项高度
+- [react-list](https://github.com/orgsync/react-list)： A versatile infinite scroll React component. —— 需要提供列表项数
+- [react-infinite-scroll](https://github.com/guillaumervls/react-infinite-scroll)：An infinite scroll component for React
+- [react-infinite-grid](https://github.com/ggordan/react-infinite-grid)：A React component which renders a grid of elements.
+- [react-infinite-list](https://github.com/jankopriva/react-infinite-list)：A component that display large list of data efficiently.
+- [react-iscroll](https://github.com/schovi/react-iscroll)
+
+
 ## 测试示例
 
 - https://react.rocks/tag/InfiniteScroll
