@@ -92,6 +92,7 @@
 - [summernote](https://github.com/summernote/summernote)
 - [Squire](https://github.com/neilj/Squire)
 - [wangEditor](https://github.com/wangeditor-team/wangEditor)
+- https://github.com/papyrs/stylo
 
 ## 参考文献
 
