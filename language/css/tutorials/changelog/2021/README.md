@@ -3,3 +3,4 @@
 - [2021年你可能不知道的 CSS 特性（上篇）](https://juejin.cn/post/6971617175886888997)
 - [2021年你可能不知道的 CSS 特性（下篇）](https://juejin.cn/post/6974239153269506084#heading-16)
 - [LONDON CSS EVENT 6:CREATIVE CSS](https://www.londoncss.dev/events/event6/)
+- [扫盲贴：2021 CSS 最冷门特性都是些啥？](https://segmentfault.com/a/1190000041452414)
