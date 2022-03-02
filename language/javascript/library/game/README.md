@@ -30,3 +30,4 @@
 * https://github.com/google/boardgame.io
 * https://github.com/rwv/chinese-dos-games
 * [HTML5游戏引擎深度测评](https://www.jianshu.com/p/0469cd7b1711)
+- [basic-computer-games](https://github.com/coding-horror/basic-computer-games) - An updated version of the classic "Basic Computer Games" book, with well-written examples in a variety of common programming languages
