@@ -69,3 +69,4 @@ Gitlab flow 的最大原则叫做"上游优先"（upsteam first），即只存�
 
 - [Git分支管理策略](https://www.ruanyifeng.com/blog/2012/07/git.html)
 - [Git 工作流程](https://www.ruanyifeng.com/blog/2015/12/git-workflow.html)
+- https://www.git-tower.com/learn/git/ebook/cn/command-line/advanced-topics/git-flow
