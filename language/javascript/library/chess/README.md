@@ -1,0 +1,1 @@
+- [stockfish.js](https://github.com/nmrugg/stockfish.js)
