@@ -1,9 +1,14 @@
 # ECMAScript
 
 - https://tc39.es
-- [Ecma International](https://www.ecma-international.org/)
-- [Ecma TC39](https://github.com/tc39)
+- https://github.com/tc39
+- https://www.ecma-international.org
 - [JavaScript language resources](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Language_Resources)
+
+---
+
+- https://github.com/tc39/ecma262 / https://tc39.es/ecma262/
+- https://github.com/tc39/proposals / https://tc39.es/process-document/
 
 ## 检测
 
@@ -19,4 +24,5 @@
 ## 参考文献
 
 - [读懂 ECMAScript 规格](http://www.ruanyifeng.com/blog/2015/11/ecmascript-specification.html)
+- [How to Read the ECMAScript Specification](https://timothygu.me/es-howto/) - https://github.com/TimothyGu/es-howto
 - [Practical Modern JavaScript](https://ponyfoo.com/books/practical-modern-javascript/chapters)
