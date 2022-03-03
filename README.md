@@ -10,9 +10,15 @@
 - [网道](https://wangdoc.com/)
 - [Web Development for Beginners](https://microsoft.github.io/Web-Dev-For-Beginners/#/)
 - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
-- [Web-Series](https://github.com/wxyyxc1992/Web-Series)
-- [JavaScript The Right Way](http://jstherightway.org/)
-
+- [JavaScript The Right Way](http://jstherightway.org/) - This is a guide intended to introduce new developers to JavaScript and help experienced developers learn more about its best practices.
+- [how-web-works](https://github.com/vasanthk/how-web-works) - What happens behind the scenes when we type www.google.com in a browser?
+- [developer-roadmap](https://github.com/kamranahmedse/developer-roadmap) - Roadmap to becoming a developer in 2022
+- [JavaScript30](https://github.com/wesbos/JavaScript30) - 30 Day Vanilla JS Challenge
+- [developer-handbook](https://github.com/apptension/developer-handbook) - An opinionated guide on how to become a professional Web/Mobile App Developer.
+- [spellbook-of-modern-webdev](https://github.com/dexteryy/spellbook-of-modern-webdev) - A Big Picture, Thesaurus, and Taxonomy of Modern JavaScript Web Development
+- [WebFundamentals](https://github.com/google/WebFundamentals) - Best practices for modern web development
+- [clean-code-javascript](https://github.com/ryanmcdermott/clean-code-javascript) - Clean Code concepts adapted for JavaScript
+- [system-design-primer](https://github.com/donnemartin/system-design-primer) - Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
 
 ## 书籍
 
@@ -176,7 +182,6 @@
 
 ## 参考
 
-- [developer-roadmap](https://github.com/kamranahmedse/developer-roadmap)
 - [前端开发漫游指南](https://www.yuque.com/fe9/basic/iwtzab)
 - [从前端到全端：JavaScript逆袭之路](https://techblog.toutiao.com/2018/05/25/cong-qian-duan-dao-quan-duan-javascriptni-xi-zhi-lu/)
 - [谁能介绍下web前端工程化？](https://www.zhihu.com/question/24558375/answer/139490316)
