@@ -1,10 +1,21 @@
 # 作用域
 
-## API
+## 基础
+
+...
+
+## 进阶
+
+### 改变上下文
 
 - [with](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/with)
 
-    https://tc39.es/ecma262/#sec-with-statement
+    - https://tc39.es/ecma262/#sec-with-statement
+
+- [精读《JS with 语法》](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/205.%E7%B2%BE%E8%AF%BB%E3%80%8AJS%20with%20%E8%AF%AD%E6%B3%95%E3%80%8B.md)
+
+
+
 
 ## 参考
 
