@@ -75,3 +75,7 @@ TODO: ...
 ### 检测全局变量污染
 
 - [Track down the JavaScript code responsible for polluting the global scope](https://mmazzarolo.com/blog/2022-02-16-track-down-the-javascript-code-responsible-for-polluting-the-global-scope/)
+
+## TODO
+
+- [12 Essential Object Manipulation Methods for JavaScript Devs in 2022](https://javascript.plainenglish.io/12-essential-object-manipulation-methods-for-javascript-devs-in-2022-f8e66e1b0e9)
