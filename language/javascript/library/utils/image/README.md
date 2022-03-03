@@ -1,0 +1,1 @@
+- [Resemble.js](https://github.com/rsmbl/Resemble.js) - Image analysis and comparison
