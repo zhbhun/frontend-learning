@@ -1,0 +1,2 @@
+- [remix-run/history](https://github.com/remix-run/history) - Manage session history with JavaScript
+- [browserstate/history.js](https://github.com/browserstate/history.js/) - History.js gracefully supports the HTML5 History/State APIs (pushState, replaceState, onPopState) in all browsers. Including continued support for data, titles, replaceState. Supports jQuery, MooTools and Prototype. For HTML5 browsers this means that you can modify the URL directly, without needing to use hashes anymore. 
