@@ -19,6 +19,7 @@
 - [WebFundamentals](https://github.com/google/WebFundamentals) - Best practices for modern web development
 - [clean-code-javascript](https://github.com/ryanmcdermott/clean-code-javascript) - Clean Code concepts adapted for JavaScript
 - [system-design-primer](https://github.com/donnemartin/system-design-primer) - Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
+- [FrontEndCollection](https://github.com/cheatsheet1999/FrontEndCollection)
 
 ## 书籍
 
@@ -38,6 +39,8 @@
 
     - [前端开发-豆瓣](https://book.douban.com/tag/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91?type=S)
     - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
+    - [design-resources-for-developers](https://github.com/bradtraversy/design-resources-for-developers)
+    - [free-programming-books](https://github.com/EbookFoundation/free-programming-books)
 
 ## 汇总
 
