@@ -6,6 +6,8 @@
     - [L7](https://antv.alipay.com/zh-cn/l7/1.x/index.html)：地理空间数据可视化
 
 - [kepler.gl](https://kepler.gl/) - Kepler.gl is a powerful open source geospatial analysis tool for large-scale data sets.
+- https://github.com/antvis/f2
+- echarts
 
 ## 参考文献
 
