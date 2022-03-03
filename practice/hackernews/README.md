@@ -1,0 +1,5 @@
+- [hackernews-remix-react](https://github.com/clintonwoo/hackernews-remix-react) - Hacker News clone written with universal TypeScript, using React and Remix.
+- [vue-hackernews-2.0](https://github.com/vuejs/vue-hackernews-2.0)
+- [vue-hackernews](https://github.com/vuejs/vue-hackernews)
+- [hackernews-react-graphql](https://github.com/clintonwoo/hackernews-react-graphql)
+- [HackerNews-React-Native](https://github.com/iSimar/HackerNews-React-Native)
