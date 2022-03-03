@@ -1,1 +1,2 @@
 - [Optimizing Performance](https://reactjs.org/docs/react-component.html)
+- [Improving Web Performance with React Hydration Strategies](https://medium.com/cdiscount-engineering/improving-web-performance-with-react-hydration-strategies-3117f71a1695)
