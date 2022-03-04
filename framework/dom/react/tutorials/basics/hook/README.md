@@ -53,3 +53,4 @@
 - [React Hooks 你真的用对了吗？](https://zhuanlan.zhihu.com/p/85969406)
 - [深入React: hooks useCallback 问题](https://blog.staleclosure.com/react-hooks-useCallback/)
 - [How to escape React Hooks Hell](https://blog.battlefy.com/how-to-escape-react-hooks-hell-a66c0d142c9e)
+- [React.memo VS useMemo](https://medium.com/@anantsharma1310/react-memo-vs-usememo-9da3477646dc)
