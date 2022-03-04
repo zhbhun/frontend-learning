@@ -288,6 +288,9 @@ err.stack // 错误发生时的堆栈
 
 
 - fileName、lineNumber 和 columnNumber 是非标准属性，参考[浏览器的兼容性](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#Browser_compatibility)，只有 Firefox 支持。
+- cause
+
+    [Power up your Node.js debugging and error handling with the new Error cause feature](https://medium.com/ovrsea/power-up-your-node-js-debugging-and-error-handling-with-the-new-error-cause-feature-4136c563126a)
 
 参考文献
 
