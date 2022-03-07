@@ -4,7 +4,6 @@
 - [前端技能汇总](https://github.com/JacksonTian/fks)
 - https://www.awesomes.cn/
 
-
 ## 教程
 
 - [网道](https://wangdoc.com/)
@@ -20,6 +19,10 @@
 - [clean-code-javascript](https://github.com/ryanmcdermott/clean-code-javascript) - Clean Code concepts adapted for JavaScript
 - [system-design-primer](https://github.com/donnemartin/system-design-primer) - Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
 - [FrontEndCollection](https://github.com/cheatsheet1999/FrontEndCollection)
+
+## 会议
+
+- [DevOps.js](https://devopsjsconf.com/) -  DevOps.js is a virtual conference on building, deploying, and monitoring JS apps taking place in just three weeks.
 
 ## 书籍
 
