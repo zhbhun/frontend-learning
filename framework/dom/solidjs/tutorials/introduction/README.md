@@ -1,0 +1,5 @@
+- [如何评价前端框架 Solid?](https://www.zhihu.com/question/460278146)
+- [JavaScript Frameworks, Performance Comparison 2020](https://javascript.plainenglish.io/javascript-frameworks-performance-comparison-2020-cd881ac21fce)
+- [SolidJS硬气的说：我比React还react](https://zhuanlan.zhihu.com/p/385841019)
+- [比React还Vue3的框架SolidJS，为什么性能可以Number 1？](https://juejin.cn/post/7018846783203704863)
+- [最近发现了个宝藏 Web 框架 SolidJS，有种未来的感觉](https://www.v2ex.com/t/802787)

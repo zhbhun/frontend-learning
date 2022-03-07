@@ -1,0 +1,2 @@
+- [Visualization/Dev Tools](https://github.com/solidjs/solid/issues/153)
+- [Building a Simple JavaScript App with Solid — The Best JavaScript UI Library You’ve Never Heard Of](https://levelup.gitconnected.com/building-a-simple-javascript-app-with-solid-ff17c8836409)
