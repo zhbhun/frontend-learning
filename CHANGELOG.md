@@ -2,6 +2,10 @@
 
 ## 2022
 
+- [Working together on Interop 2022](https://webkit.org/blog/12288/working-together-on-interop-2022/)
+
+    https://wpt.fyi/interop-2022
+
 - [从2021看2022前端发展趋势](https://segmentfault.com/a/1190000041211795)
 - [2022前端未来发展趋势](https://segmentfault.com/a/1190000041041684)
 - [The JavaScript 2022 stack](https://medium.com/@paulmorar/the-javascript-2022-stack-f5fbf028ff7a)
