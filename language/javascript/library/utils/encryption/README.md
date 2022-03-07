@@ -3,6 +3,7 @@
 ## 工具库
 
 - [crypto-js](https://github.com/brix/crypto-js)
+- [openpgpjs](https://github.com/openpgpjs/openpgpjs) - OpenPGP implementation for JavaScript
 
 ## 在线工具
 
