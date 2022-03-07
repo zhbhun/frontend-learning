@@ -16,3 +16,7 @@
 ---
 
 - [移动端页面分享快照生成总结](https://juejin.im/post/5ba1ab97e51d450e8a65f9ac)
+
+---
+
+- [It's always been you, Canvas2D](https://developer.chrome.com/blog/canvas2d/#round-rect)
