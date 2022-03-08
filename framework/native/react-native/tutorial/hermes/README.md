@@ -29,3 +29,7 @@
     - bytecode 文件占用 size 过大问题：Hermes 编译的字节码文件比纯文本js文件增大 100%（可以将 bytecode 编译放在客户端中处理）。
     - 执行纯文本 js 耗时长：Hermes 加载纯文本的性能比 JavaScriptCore 要慢将近 30%。主要原因是 Hermes 删除 JIT 功能，致使对纯文本 JS 代码运行变慢。
     - 缓存问题：使用缓存的 JavaScriptCore 引擎，第二次打开页面的速度与打开纯 native 页面的速度几乎相当，并且表现相当稳定。而使用缓存的 Hermes 引擎加载业务代码表现非常一般，甚至某些情况下比第一次加载还要慢。
+
+## 参考文献
+
+- [What makes Hermes engine (React Native) fast?](https://medium.com/tilicholabs/what-makes-hermes-engine-react-native-fast-ac6fa5e3ad2e)
