@@ -1,0 +1,1 @@
+- [react-native-shadow-2](https://github.com/SrBrahma/react-native-shadow-2) - Cross-platform shadow for React Native. Improved version of the abandoned react-native-shadow package.
