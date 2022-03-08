@@ -1,0 +1,1 @@
+- [Custom Shape Dividers](https://www.shapedivider.app/) - Helps you create beautiful shapes for your website.
