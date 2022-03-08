@@ -181,3 +181,4 @@
 - [Web应用的组件化开发（一）](http://blog.jobbole.com/56161/)
 - [前端组件化开发实践](http://web.jobbole.com/82689/)
 - [大规模的前端组件化与模块化](http://www.infoq.com/cn/news/2014/04/front-end-modular)
+- [UI Play Book](https://uiplaybook.dev/) - Compilation of documents for building UI components.
