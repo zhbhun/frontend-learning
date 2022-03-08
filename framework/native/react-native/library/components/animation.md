@@ -1,5 +1,6 @@
 - [Easing](http://easings.net/zh-cn)
 - https://github.com/airbnb/lottie-web
+- [lottie-react-native](https://github.com/lottie-react-native/lottie-react-native) - Lottie wrapper for React Native.
 - [react-native-reanimated](https://github.com/kmagiera/react-native-reanimated)
 - [react-native-animatable](https://github.com/oblador/react-native-animatable)
 - [shoutem/animation](https://github.com/shoutem/animation) - Animate your React Native components.
