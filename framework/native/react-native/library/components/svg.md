@@ -1,0 +1,1 @@
+- [react-native-svg-transformer](https://github.com/kristerkari/react-native-svg-transformer) - Import SVG files in your React Native project the same way that you would in a Web application.
