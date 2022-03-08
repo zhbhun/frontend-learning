@@ -1,0 +1,1 @@
+- [react-native-responsive-fontSize](https://github.com/heyman333/react-native-responsive-fontSize) - Responsive fontSize based on screen-size of the device in React-Native
