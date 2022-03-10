@@ -15,6 +15,11 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 - [Optimizing Application Delivery](https://hpbn.co/optimizing-application-delivery/)
 - [Ultimate Guide to Browser Hints: Preload, Prefetch, and Preconnect - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/guide-to-browser-hints-preload-preconnect-prefetch/)
 
+分析工具
+
+- [bundlesize](https://github.com/siddharthkp/bundlesize)
+- [source-map-explorer](https://github.com/danvk/source-map-explorer)
+
 ### HTML
 
 #### 压缩 HTML
