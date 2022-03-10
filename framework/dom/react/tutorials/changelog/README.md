@@ -7,9 +7,10 @@
 
 ## 18.x
 
+- Root API
+- Server Rendering APIs
 - Automatic Batching
 - Concurrent Rendering
-- Root API
 - Strict Effect Mode
 
 参考文献
@@ -20,3 +21,4 @@
 - [Automatic batching for fewer renders in React 18](https://github.com/reactwg/react-18/discussions/21)
 - [SSR support for Suspense](https://github.com/reactwg/react-18/discussions/22)
 - [React 18 is coming with new Features](https://medium.com/@externlabs/react-18-and-every-important-change-426f5a9cc919)
+- [How to Upgrade to the React 18 Release Candidate](https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html)
