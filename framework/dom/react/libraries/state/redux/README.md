@@ -99,6 +99,7 @@ Redux
 - [Improve your development workflow with Redux DevTools Extension](https://medium.com/@zalmoxis/improve-your-development-workflow-with-redux-devtools-extension-f0379227ff83)
 - [remote-redux-devtools](https://github.com/zalmoxisus/remote-redux-devtools)
 - [redux-logger](https://github.com/LogRocket/redux-logger)
+- [redux-immutable-state-invariant](https://github.com/leoasis/redux-immutable-state-invariant) - Redux middleware that detects mutations between and outside redux dispatches. For development use only.
 
 ## 常见问题
 
