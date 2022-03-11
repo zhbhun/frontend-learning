@@ -1,0 +1,3 @@
+- [TensorFlow.js](https://www.tensorflow.org/js)
+- [Brain.js](https://brain.js.org/#/)
+- http://caza.la/synaptic/#/
