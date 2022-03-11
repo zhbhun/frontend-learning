@@ -18,6 +18,7 @@
 * [2016 年 最火的 15 款 HTML5 游戏引擎](https://www.diycode.cc/topics/16)
 * [目前有哪些比较成熟的 HTML5 游戏引擎？](https://www.zhihu.com/question/20079322)
 * [Suggest a good Free & Open Source HTML5+JS gaming framework/engine? [closed]](https://stackoverflow.com/questions/7078875/suggest-a-good-free-open-source-html5js-gaming-framework-engine)
+- [9 Top JS Gaming Engines and Libraries for 2020](https://blog.bitsrc.io/9-top-js-gaming-engines-and-libraries-for-2020-81707d9f095)
 
 ---
 
