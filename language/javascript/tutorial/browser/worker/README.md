@@ -11,3 +11,7 @@
 - [JS SharedArrayBuffer](https://www.axihe.com/api/js-es/ob-shared-array-buffer/overview.html)
 - [Shared memory - a brief tutorial](https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md)
 - https://github.com/GoogleChromeLabs/buffer-backed-object
+
+---
+
+- [JavaScript Development: Making a Web Worker optional](https://itnext.io/javascript-development-making-a-web-worker-optional-f23a13490b28)
