@@ -27,3 +27,4 @@
 - [微前端连载 6/7：微前端框架 - qiankun 大法好](https://juejin.cn/post/6846687602439897101)
 - [微前端“容器”——microcosmos实现](https://segmentfault.com/a/1190000023850793)
 - [How We Build Micro Frontends With Lattice](https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea)
+- [The Future of Micro-Frontends](https://betterprogramming.pub/the-future-of-micro-frontends-2f527f97d506)
