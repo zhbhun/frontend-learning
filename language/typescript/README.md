@@ -93,6 +93,9 @@
     ```
 
 - Never
+
+    - [A Complete Guide To TypeScript’s Never Type](https://www.zhenghao.io/posts/ts-never)
+
 - Object
 - Assertions：断言
 
