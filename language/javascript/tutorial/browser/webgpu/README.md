@@ -1,0 +1,1 @@
+- [WebGPU — All of the cores, none of the canvas](https://surma.dev/things/webgpu/)
