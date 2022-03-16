@@ -1,0 +1,1 @@
+- [react-freeze](https://github.com/software-mansion/react-freeze) - This library lets you freeze the renders of parts of the React component tree using Suspense mechanism introduced in React 17.
