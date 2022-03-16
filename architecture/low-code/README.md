@@ -14,7 +14,7 @@
 
 - [directus](https://github.com/directus/directus) - Open-Source Data Platform 🐰 — Directus wraps any SQL database with a real-time GraphQL+REST API and an intuitive app for non-technical users.
 - [yao](https://github.com/YaoApp/yao) - Yao A low code engine to create web services and dashboard.
-
+- https://github.com/tnfe/shida
 
 ## 可视化搭建
 
