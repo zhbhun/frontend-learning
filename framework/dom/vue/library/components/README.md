@@ -1,5 +1,8 @@
 # 组件库
 
+- [现阶段应该使用什么 Vue 的 UI 框架？](https://www.zhihu.com/question/298703830)
+- [vue ui 框架选择 element ui 还是 ant design](https://v2ex.com/t/767468)
+
 ## 响应式
 
 - Element
@@ -12,8 +15,9 @@
 
 - Material
 
-    - [vuematerial/vue-material](https://github.com/vuematerial/vue-material)
     - [vuetifyjs/vuetify](https://github.com/vuetifyjs/vuetify)
+    - [quasar](https://github.com/quasarframework/quasar) - Quasar Framework - Build high-performance VueJS user interfaces in record time
+    - [vuematerial/vue-material](https://github.com/vuematerial/vue-material)
 
 - Quasar
 
@@ -35,15 +39,10 @@
 
 ## 移动端
 
-框架
-
 - [framework7io/framework7](https://github.com/framework7io/framework7)
 - [airyland/vux](https://github.com/airyland/vux)
 - [vue-onsenui](https://github.com/OnsenUI/OnsenUI)
 - [Ionic](https://github.com/ionic-team/ionic-framework)
-
-组件库
-
 - [youzan/vant](https://github.com/youzan/vant) - Lightweight Mobile UI Components built on Vue.
 - [mint-ui](https://github.com/ElemeFE/mint-ui)
 - [cube-ui](https://didi.github.io/cube-ui)
