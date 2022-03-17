@@ -1,4 +1,5 @@
 - [react-native-modalize](https://github.com/jeremybarbet/react-native-modalize) - A highly customizable modal/bottom sheet that loves scrolling content.
+- [react-native-modalfy](https://github.com/colorfy-software/react-native-modalfy) - Modal citizen of React Native.
 - https://github.com/maxs15/react-native-modalbox
 - https://github.com/react-native-community/react-native-modal
 - https://github.com/ggomaeng/react-native-card-modal
