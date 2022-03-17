@@ -1,24 +1,5 @@
-# 组件要点
-- 内容
-- 样式
-
-    - 主题：默认，信息，首选项，成功，警告，危险
-    - 大小：大，默认，小，超小
-    - 状态：默认，激活，禁用
-
-- 事件
-
-    - 点击
-    - 长按
-    - ...
-
-# 组件索引
-
-- [Button](./Button.md)
-
----
-
 # 组件
+
 - Material Design
 
     - [react-native-material-kit](https://github.com/xinthink/react-native-material-kit) - Bringing Material Design to React Native. by [xinthink](https://github.com/xinthink)
@@ -29,6 +10,9 @@
 - [react-native-elements](https://github.com/react-native-community/React-Native-Elements) - React Native Elements UI Toolkit. by [react-native-community](https://github.com/react-native-community)
 - [NativeBase](https://github.com/GeekyAnts/NativeBase) - ssential cross-platform UI components for React Native. 2598 ★
 - [rilyu/teaset](https://github.com/rilyu/teaset) - A UI library for react native, provides 20+ pure JS(ES6) components, focusing on content display and action control.
+- [dripsy](https://github.com/nandorojo/dripsy) - Responsive, unstyled UI primitives for React Native + Web.
+
+
 
 ## 基础
 ### 按钮
