@@ -2,6 +2,7 @@
 
 - [DPlayer](https://github.com/MoePlayer/DPlayer)
 - [flv.js](https://github.com/bilibili/flv.js)
+- [mpegts.js](https://github.com/xqq/mpegts.js) - HTML5 MPEG2-TS Stream Player
 
 ## 视频解析
 
