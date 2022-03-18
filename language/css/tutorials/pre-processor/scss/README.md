@@ -14,6 +14,9 @@
 ### 运算
 
 - [CSS外挂：Sass 之运算（加、减、乘、除）](https://segmentfault.com/a/1190000004698546)
+- [Breaking Change: Slash as Division](https://sass-lang.com/documentation/breaking-changes/slash-div)
+
+    新版的 scss 将会废弃除法符号的使用，废弃后采用 math.div 函数来处理。
 
 ### 控制流
 
