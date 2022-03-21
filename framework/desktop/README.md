@@ -1,0 +1,6 @@
+- https://github.com/nodegui/react-nodegui - Build performant, native and cross-platform desktop applications with native React + powerful CSS like styling.
+- https://github.com/microsoft/react-native-windows - A framework for building native Windows apps with React.
+- https://github.com/infinitered/reactotron - A desktop app for inspecting your React JS and React Native projects. macOS, Linux, and Windows.
+- [Compose Multiplatform](https://www.jetbrains.com/zh-cn/lp/compose-mpp/) - Compose Multiplatform 简化并加速了桌面和 Web 应用程序的 UI 开发，并允许 Android、桌面和 Web 之间广泛的 UI 代码共享。
+- https://github.com/slint-ui/slint - Slint is a toolkit to efficiently develop fluid graphical user interfaces for any display: embedded devices and desktop applications. We support multiple programming languages, such as Rust, C++ or JavaScript.
+- [WebView2](https://docs.microsoft.com/en-us/microsoft-edge/webview2/) - The Microsoft Edge WebView2 control allows you to embed web technologies (HTML, CSS, and JavaScript) in your native apps. The WebView2 control uses Microsoft Edge as the rendering engine to display the web content in native apps.
