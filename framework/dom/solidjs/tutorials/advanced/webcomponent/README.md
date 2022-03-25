@@ -1,2 +1,3 @@
 - [solid-element](https://github.com/solidjs/solid/tree/main/packages/solid-element)
 - https://custom-elements-everywhere.com/libraries/solid/results/results.html
+- [Solid Component in React App using Web Components](https://dev.to/fatihpense/solid-component-in-react-app-using-web-components-329p)
