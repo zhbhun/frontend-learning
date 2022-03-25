@@ -19,6 +19,11 @@
 
 - [Difference between “change” and “input” event for an `input` element](https://stackoverflow.com/questions/17047497/difference-between-change-and-input-event-for-an-input-element)
 
+
+---
+
+- [Creating and triggering events](https://developer.mozilla.org/en-US/docs/Web/Events/Creating_and_triggering_events)
+
 ---
 
 ## 自定义事件
