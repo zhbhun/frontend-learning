@@ -1,0 +1,2 @@
+- [浏览器的同源策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)
+- [浏览器为什么选择了如今的同源策略](https://v2ex.com/t/843069)

@@ -155,11 +155,13 @@ POST 请求常用于向服务器发送应该被保存的数据。POST 请求把�
     - 兼容性：Firefox 4+，Safari 5+，Chrome 和 Android 3+
 
 ## 跨域
+
 - [浏览器的同源策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)
 - [JavaScript跨域总结与解决办法](http://www.cnblogs.com/rainman/archive/2011/02/20/1959325.html)
 - [How to enable cross-domain request on the server?](https://stackoverflow.com/questions/6871021/how-to-enable-cross-domain-request-on-the-server)
 - [Access-Control-Allow-Origin: Dealing with CORS Errors in Angular](https://daveceddia.com/access-control-allow-origin-cors-errors-in-angular/)
 - [jQuery Ajax from child domain](https://stackoverflow.com/questions/5079212/jquery-ajax-from-child-domain)
+- [浏览器为什么选择了如今的同源策略](https://v2ex.com/t/843069)
 
 ## 参考文献
 
