@@ -18,6 +18,7 @@
 
 ## 可视化搭建
 
+- [微搭](https://cloud.tencent.com/product/weda)
 - [ly525/luban-h5](https://github.com/ly525/luban-h5)
 - [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
 - [爱速搭](https://suda.baidu.com/)
