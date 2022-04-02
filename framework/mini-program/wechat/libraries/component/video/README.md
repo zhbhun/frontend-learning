@@ -1,0 +1,1 @@
+- [探究微信小程序 Video 组件的视频兼容性](https://blog.dteam.top/posts/2020-07/wechat-mini-program-supported-videos.html)
