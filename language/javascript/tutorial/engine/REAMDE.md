@@ -12,3 +12,9 @@
 ## 工作机制
 
 Event Loop
+
+## 开源项目
+
+- [QuickJS](https://github.com/bellard/quickjs) / https://github.com/quickjs-zh/QuickJS
+
+    - [如何评价 Fabrice Bellard 发布 QuickJS JS 引擎?](https://www.zhihu.com/question/334509855)
