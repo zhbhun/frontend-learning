@@ -1,5 +1,7 @@
 # webcomponent
 
+## 教程
+
 
 - https://developer.mozilla.org/en-US/docs/Web/Web_Components
 - [Web Components](http://javascript.ruanyifeng.com/htmlapi/webcomponents.html)
@@ -15,3 +17,4 @@
 ## 开发框架
 
 - [Custom Elements Everywhere](https://custom-elements-everywhere.com/)
+- [component-register](https://github.com/ryansolid/component-register) - A simple library wrapper for Web Components
