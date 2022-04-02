@@ -13,3 +13,5 @@
 ## 参考文献
 
 - [Named character references](https://html.spec.whatwg.org/multipage/named-characters.html)
+- [HTML字符实体引用列表](https://unicode-table.com/cn/html-entities/)
+- [HTML Arrow Symbol, Arrow Entity and ASCII Arrow Character Code Reference](https://www.toptal.com/designers/htmlarrows/arrows/)
