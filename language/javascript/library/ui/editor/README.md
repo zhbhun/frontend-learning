@@ -75,7 +75,7 @@
     - [hanhdt/vue-trix](https://github.com/hanhdt/vue-trix)
 
 - [editor.js](https://github.com/codex-team/editor.js)
-- [tui.editor](https://github.com/nhn/tui.editor)
+- [tui.editor](https://github.com/nhn/tui.editor) - Markdown WYSIWYG Editor. GFM Standard + Chart & UML Extensible.
 - [tiptap](https://github.com/ueberdosis/tiptap)
 - [medium-editor](https://github.com/yabwe/medium-editor)
 
