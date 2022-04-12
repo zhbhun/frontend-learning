@@ -111,3 +111,20 @@
 参考文献
 
 - [如何评价CSS框架TailwindCSS？](https://www.zhihu.com/question/337939566)
+
+## 基础
+
+- [在 React 编程中, 我是如何用 tailwind 优化样式编写的?](https://juejin.cn/post/6937911432545566727)
+- [小程序原子化CSS技术方案（Windi CSS](https://juejin.cn/post/7040409435826552846)
+- [原子化css之windicss 初探](https://juejin.cn/post/7063061869526777870)
+
+## 问题
+
+### 样式覆盖问题
+
+- [CSS class override utility for component composition.](https://github.com/tailwindlabs/tailwindcss/discussions/1446)
+- [Conflicting className precedence rules](https://github.com/tailwindlabs/tailwindcss/issues/1010)
+
+---
+
+- [Automatically sorting your Tailwind CSS class names](https://dev.to/drnic/automatically-sorting-your-tailwind-css-class-names-4gej)
