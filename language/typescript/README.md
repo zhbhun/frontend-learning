@@ -272,3 +272,10 @@
 - [来玩TypeScript啊，机都给你开好了！](https://zhuanlan.zhihu.com/c_206498766)
 - [使用TypeScript开发Web应用的最佳实践](https://yrq110.me/post/front-end/best-practice-of-typescript-in-webapp-developing/)
 - [1.8W字|了不起的 TypeScript 入门教程（第二版）](http://semlinker.com/ts-comprehensive-tutorial/)
+- [推荐 7 个学习 TypeScript 的宝库，2021 学 TS 看这篇就够了！](https://segmentfault.com/a/1190000038959316)
+- [学习typescript求推荐教材书籍?](https://www.zhihu.com/question/264894569)
+
+    - 《TypeScript编程》
+    - 《编程与类型系统》
+
+- [编程语言的类型系统为何如此重要？](https://www.zhihu.com/question/23434097)
