@@ -1,6 +1,16 @@
 # semantic-release
 
+## 基础
+
+...
+
 ## 进阶
+
+### 集成
+
+#### Github Action
+
+- [Action For Semantic Release](https://github.com/marketplace/actions/action-for-semantic-release)
 
 ### monorepo
 

@@ -1,4 +1,6 @@
 <template>
+  <div class="p-5px !p-10px">p-5px p-10px</div>
+  <div class="p-10px !p-5px">p-10px p-5px</div>
   <div class="p-5px mt-[0.3px]">1</div>
   <button class="bg-hex-b2a8bb">11</button>
   <button class="bg-[hsl(211.7,81.9%,69.6%)]">11</button>
