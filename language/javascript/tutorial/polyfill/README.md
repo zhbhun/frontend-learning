@@ -41,7 +41,22 @@
             myVar.includes();
             ```
 
+## 工具
+
+### 兼容性查询
+
+- [core-js-compat](https://github.com/zloirock/core-js/blob/master/packages/core-js-compat/README.md)
+- [@mdn/browser-compat-data](https://github.com/mdn/browser-compat-data)
+- [compat-table](https://github.com/kangax/compat-table)
+
+### 审查工具
+
+- [eslint-plugin-compat](https://github.com/amilajack/eslint-plugin-compat)
+
 ## 参考
 
 - [How to load polyfills only when needed](https://3perf.com/blog/polyfills/)
 - [Deploying ES2015+ Code in Production Today](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/)
+- [What is best practice for `@babel/preset-env` + `useBuiltIns` + `@babel/runtime` + `browserslistrc`](https://stackoverflow.com/questions/63231564/what-is-best-practice-for-babel-preset-env-usebuiltins-babel-runtime)
+- [core-js@3, babel and a look into the future](https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md#babelpreset-env)
+- [Why you don’t need Babel](https://blog.logrocket.com/why-you-dont-need-babel/)
