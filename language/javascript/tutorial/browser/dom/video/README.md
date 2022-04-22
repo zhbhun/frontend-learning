@@ -1,4 +1,9 @@
-# 用法
+# 视频
+
+## 基础
+
+### 用法
+
 - audioTracks：返回表示可用音轨的 AudioTrackList 对象
 - autoplay：设置或返回是否在加载完成后随即播放音频/视频
 - buffered：返回表示音频/视频已缓冲部分的 TimeRanges 对象
@@ -86,30 +91,8 @@
 - videoTracks：返回表示可用视频轨道的 VideoTrackList 对象
 - volume：设置或返回音频/视频的音量
 
-## 自动播放
-TODO
+### 事件
 
-## 内联播放
-TODO
-
-## 全屏播放
-TODO
-
-## 视频遮挡
-
-## 播放控制
-- iOS 下会有一个默认的播放图标
-
-    ```css
-    video::-webkit-media-controls-start-playback-button {
-      display: none;
-    }
-    ```
-
-- 自定义控制栏
-
-
-# 事件
 https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
 
 - abort：当音频/视频的加载已放弃时
@@ -161,7 +144,59 @@ https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
 
     在播放由于视频的下一帧不可用（可能需要缓冲）而停止时引发。
 
-# 文档
+## 进阶
+
+### 自动播放
+
+TODO
+
+### 内联播放
+
+TODO
+
+### 全屏播放
+
+TODO
+
+### 视频遮挡
+
+### 播放控制
+
+- iOS 下会有一个默认的播放图标
+
+    ```css
+    video::-webkit-media-controls-start-playback-button {
+      display: none;
+    }
+    ```
+
+- 自定义控制栏
+
+## 资源
+
+- 苹果测试地址
+
+    - http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
+    - http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8
+    - https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8
+
+- 漳浦电视台
+
+    - 漳浦综合HD：http://220.161.87.62:8800/hls/0/index.m3u8
+    - 漳浦数字HD：http://220.161.87.62:8800/hls/1/index.m3u8
+
+- 其他
+
+    - http://www.w3school.com.cn/i/movie.mp4
+    - https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8
+
+
+参考文献
+
+- [实时直播测试地址rtmp,hls](https://www.jianshu.com/p/20f9e9bb89aa)
+
+## 参考
+
 - [W3C video 标准](http://www.w3.org/TR/html5/embedded-content-0.html#the-video-element)
 - [HTML/Elements/video](https://www.w3.org/wiki/HTML/Elements/video#Media_Events)
 - [HTML 5 视频/音频参考手册](http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp)
@@ -172,10 +207,6 @@ https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
 - [x5内核下video标签的使用情况](https://zzx18023.github.io/2017/09/29/x5%E5%86%85%E6%A0%B8%E4%B8%8Bvideo%E6%A0%87%E7%AD%BE%E7%9A%84%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5/)
 - [H5直播避坑指南](https://open.imtt.qq.com/forum-110-1.html)
 - [视频播放--踩坑小计](https://juejin.im/post/5b189712f265da6e235488c1)
-
-# 工具
 - [HTML5 Video Events and API检测工具](https://www.w3.org/2010/05/video/mediaevents.html)
 - [视频事件流水查看工具](http://z.weishi.qq.com/app/video.html###)
-
-# 问题
 - [How to Catch NETWORK_NO_SOURCE Errors with an HTML5 Video Tag](https://stackoverflow.com/questions/9175415/how-to-catch-network-no-source-errors-with-an-html5-video-tag)
