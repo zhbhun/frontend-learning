@@ -2,7 +2,7 @@
 
 ## 基础
 
-### 用法
+### 属性
 
 - audioTracks：返回表示可用音轨的 AudioTrackList 对象
 - autoplay：设置或返回是否在加载完成后随即播放音频/视频
@@ -160,6 +160,8 @@ TODO
 
 ### 视频遮挡
 
+TODO
+
 ### 播放控制
 
 - iOS 下会有一个默认的播放图标
@@ -173,6 +175,11 @@ TODO
 - 自定义控制栏
 
 ## 资源
+
+- https://test-videos.co.uk/
+- [Download Guide: Big Buck Bunny, Sunflower version](http://bbb3d.renderfarming.net/download.html)
+
+### m3u8
 
 - 苹果测试地址
 
@@ -194,6 +201,10 @@ TODO
 参考文献
 
 - [实时直播测试地址rtmp,hls](https://www.jianshu.com/p/20f9e9bb89aa)
+
+### HEVC/H.265
+
+- [Big Buck Bunny](https://test-videos.co.uk/bigbuckbunny/mp4-h265)
 
 ## 参考
 
