@@ -1,1 +1,2 @@
 - [wavesurfer.js](https://github.com/katspaugh/wavesurfer.js) - Navigable waveform built on Web Audio and Canvas
+- [peaks.js](https://github.com/bbc/peaks.js) - JavaScript UI component for interacting with audio waveforms
