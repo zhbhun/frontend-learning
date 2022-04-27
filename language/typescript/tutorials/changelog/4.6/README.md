@@ -1,1 +1,2 @@
 - [Announcing TypeScript 4.6](https://devblogs.microsoft.com/typescript/announcing-typescript-4-6/)
+- [精读《Typescript 4.5-4.6 新特性》](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/237.%E7%B2%BE%E8%AF%BB%E3%80%8ATypescript%204.5-4.6%20%E6%96%B0%E7%89%B9%E6%80%A7%E3%80%8B.md)
