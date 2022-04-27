@@ -6,6 +6,7 @@
 - [browser-detect](https://github.com/KennethanCeyer/browser-detect)
 - [mobile-detect.js](https://github.com/hgoebl/mobile-detect.js)
 - [react-device-detect](https://github.com/duskload/react-device-detect)
+- [ua-parser-js](https://github.com/faisalman/ua-parser-js) - UAParser.js - Detect Browser, Engine, OS, CPU, and Device type/model from User-Agent data. Supports browser & node.js environment.
 - https://modernizr.com/
 
 ## 升级
