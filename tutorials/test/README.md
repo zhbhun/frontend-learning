@@ -102,6 +102,7 @@ dalekjs, triflejs
 - [intern](https://github.com/theintern/intern)：下一代 JavaScript 代码测试栈。
 - [yolpo](http://www.yolpo.com/)：在浏览器逐句执行的 JavaScript 解释器。
 - [Selenium](https://docs.seleniumhq.org/selenium-ide/)
+- [taiko](https://github.com/getgauge/taiko)
 
 ### E2E
 
