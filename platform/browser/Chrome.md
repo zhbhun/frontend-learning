@@ -22,3 +22,7 @@
 
 # Performance
 - [GoogleChrome/lighthouse](https://github.com/GoogleChrome/lighthouse) - Auditing, performance metrics, and best practices for Progressive Web Apps.
+
+## 扩展
+
+- [Chrome Extension CLI](https://github.com/dutiyesh/chrome-extension-cli)
