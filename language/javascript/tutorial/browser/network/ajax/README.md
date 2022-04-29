@@ -390,10 +390,6 @@ ps：这是跨域简单请求和表单跨域请求的区别之处，表单请求
 
 如果公司内部存在私有的 https 协议没有认证时，http 跨域请求 https 接口失败可能是因为 https 证书问题。反之如果 https 跨域请求 http 接口失败可能是因为浏览器的混合内容限制（blocked:mixed-content），即浏览器禁止 https 域名向 http 接口请求。
 
-### 混合内容
-
-TODO
-
 ## FAQ
 
 - [Can I use XMLHttpRequest on a different port from a script file loaded from that port?](https://stackoverflow.com/questions/1767443/can-i-use-xmlhttprequest-on-a-different-port-from-a-script-file-loaded-from-that)
