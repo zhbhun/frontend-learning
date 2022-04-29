@@ -104,16 +104,40 @@ POST 请求常用于向服务器发送应该被保存的数据。POST 请求把�
 `xhr.setRequestHead(name: string, value: string)` 必须在调用 `open()` 方法之后且调用 `send()` 方法之前调用该方法。虽然不同的浏览器实际发送的头部信息有所不用，但是下列请求头基本上是所有浏览器都会发送的：
 
 - `Accept`：浏览器能够处理的内容类型
-- `Accept-Charset`：浏览器能够显示的字符集
+
+    `text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9`
+
 - `Accept-Encoding`：浏览器能够处理的压缩编码
+
+    `gzip, deflate, br`
+
 - `Accept-Language`：浏览器当前设置的语言
+
+    `zh`
+
 - `Connection`：浏览器与服务器之间的连接类型
-- `Cookie`：当前页面设置的任何 Cookie
+
+    `keep-alive`
+
 - `Host`：发出请求的页面所在的域
+
+    `www.baidu.com`
+
 - `Referer`：发出请求的页面的 URI
+- `Cookie`：当前页面设置的任何 Cookie
 - `User-Agent`：浏览器的用户代理字符串
 
+    `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36`
+
 参考[《Forbidden header name》](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name)，可以查看哪些请求头不能设置。
+
+- Accept-Charset
+- Accept-Encoding
+- Connection
+- Content-Length
+- Cookie
+- Host
+- User-Agent：早期被限制，新的标准允许修改，但是 Chrome 仍然不支持
 
 #### 设置 MIME 类型
 
@@ -252,14 +276,123 @@ TODO: 调研 fetch 的兼容性处理
 - [request](https://github.com/request/request)
 - [unfetch](https://github.com/developit/unfetch)
 
-### 跨域
+### 跨域解决方案
 
-- [浏览器的同源策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)
 - [JavaScript跨域总结与解决办法](http://www.cnblogs.com/rainman/archive/2011/02/20/1959325.html)
-- [How to enable cross-domain request on the server?](https://stackoverflow.com/questions/6871021/how-to-enable-cross-domain-request-on-the-server)
-- [Access-Control-Allow-Origin: Dealing with CORS Errors in Angular](https://daveceddia.com/access-control-allow-origin-cors-errors-in-angular/)
-- [jQuery Ajax from child domain](https://stackoverflow.com/questions/5079212/jquery-ajax-from-child-domain)
 - [浏览器为什么选择了如今的同源策略](https://v2ex.com/t/843069)
+
+### 表单跨域
+
+- [为什么form表单提交没有跨域问题，但ajax提交有跨域问题？](https://www.zhihu.com/question/31592553)
+- [表单可以跨域吗](https://github.com/frontend9/fe9-interview/issues/1)
+
+### [CORS（跨域资源共享）](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)
+
+CORS 是一个 W3C 标准，全称是"跨域资源共享"，它允许浏览器向跨源服务器，发出 XMLHttpRequest 请求，从而克服了 AJAX 只能同源使用的限制。
+
+浏览器将 CORS 请求分成两类：简单请求（simple request）和非简单请求（not-so-simple request），非简单请求的 CORS 请求，会在正式通信之前，增加一次 HTTP 查询请求，称为"预检"请求（preflight）。
+
+ps：简单请求时为了兼容表单，因为历史上表单一直可以发出跨域请求。AJAX 的跨域设计就是，只要表单可以发，AJAX 就可以直接发，但 AJAX 是否可以取得响应值，就得看 CORS 响应头的设置了。
+
+参考文献
+
+- [跨域资源共享 CORS 详解](https://www.ruanyifeng.com/blog/2016/04/cors.html)
+
+#### 简单请求
+
+满足条件：
+
+- 请求方法是 HEAD、GET 或 POST；
+- 请求头不超出以下几种字段：Accept、Accept-Language、Content-Language、Last-Event-ID，Content-Type 只限于三个值 application/x-www-form-urlencoded、multipart/form-data、text/plain。
+
+工作流程：
+
+1. AJAX 发起简单跨域请求；
+2. 浏览器自动在请求头里增加一个 Origin 字段（表示当前网页所在的域名地址：协议 + 域名 + 端口）；
+3. 服务器校验 Origin 制定的源是否在许可范围内；
+
+    - 不在许可范围内：服务器会返回一个正常的 HTTP 回应，浏览器发现回应的头信息没有包含 `Access-Control-Allow-Origin`，会抛出一个错误；
+    - 在许可范围内：服务器返回的响应会设置响应头 `Access-Control-Allow-Origin`，对应的值可以是 Origin 的值，也可以是 *，表示接受任意域名的请求；
+
+#### 非简单请求
+
+工作流程：
+
+1. AJAX 发起非简单请求；
+2. 浏览器会在正式通信之前，增加一次 HTTP 查询请求，称为"预检"请求询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些 HTTP 动词和头信息字段，只有得到肯定答复，浏览器才会发出正式的 AJAX 请求，否则就报错；
+
+    跨域请求：
+
+    ```
+    var url = 'http://api.alice.com/cors';
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader('X-Custom-Header', 'value');
+    xhr.send();
+    ```
+
+    预检请求：
+
+    ```
+    OPTIONS /cors HTTP/1.1
+    Origin: http://api.bob.com
+    Access-Control-Request-Method: PUT
+    Access-Control-Request-Headers: X-Custom-Header
+    Host: api.alice.com
+    Accept-Language: en-US
+    Connection: keep-alive
+    User-Agent: Mozilla/5.0...
+    ```
+
+    预检响应：
+
+    ```
+    HTTP/1.1 200 OK
+    Date: Mon, 01 Dec 2008 01:15:39 GMT
+    Server: Apache/2.0.61 (Unix)
+    Access-Control-Allow-Origin: http://api.bob.com
+    Access-Control-Allow-Methods: GET, POST, PUT
+    Access-Control-Allow-Headers: X-Custom-Header
+    Access-Control-Max-Age: 1728000
+    Content-Type: text/html; charset=utf-8
+    Content-Encoding: gzip
+    Content-Length: 0
+    Keep-Alive: timeout=2, max=100
+    Connection: Keep-Alive
+    Content-Type: text/plain
+    ```
+
+    ps：如果服务器否定了"预检"请求，会返回一个正常的 HTTP 回应，即不带跨域响应头，这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误。
+
+    - Access-Control-Allow-Methods：该字段必需，它的值是逗号分隔的一个字符串，表明服务器支持的所有跨域请求的方法。
+    - Access-Control-Allow-Headers：如果浏览器请求包括Access-Control-Request-Headers字段，则Access-Control-Allow-Headers字段是必需的。它也是一个逗号分隔的字符串，表明服务器支持的所有头信息字段，不限于浏览器在"预检"中请求的字段。
+    - Access-Control-Max-Age：该字段可选，用来指定本次预检请求的有效期，单位为秒。
+
+3. 浏览器发起正式请求，这个过程和简单请求一样，会有一个 Origin，服务器的回应也会有一个 `Access-Control-Allow-Origin`。
+
+#### 跨域暴露响应头
+
+CORS 请求时，`XMLHttpRequest` 对象的 `getResponseHeader()` 方法只能拿到 6 个基本字段：`Cache-Control`、`Content-Language`、`Content-Type`、`Expires`、`Last-Modified`、`Pragma`。如果想拿到其他字段，就必须在`Access-Control-Expose-Headers` 里面指定。
+
+```
+Access-Control-Expose-Headers: FooBar
+```
+
+#### 跨域 Cookie
+
+- `XMLHttpRequest` 的 `withCredentials` 设置为 true
+- 服务端响应头 `Access-Control-Allow-Credentials` 设置为 true（不能设置 false，不设置就是表示 false）
+- 服务端响应头 `Access-Control-Allow-Origin` 不能设置为 `*`，必须指定明确的、与请求网页一致的域名。
+
+ps：这是跨域简单请求和表单跨域请求的区别之处，表单请求支持跨域携带 Cookie
+
+#### 其他
+
+如果公司内部存在私有的 https 协议没有认证时，http 跨域请求 https 接口失败可能是因为 https 证书问题。反之如果 https 跨域请求 http 接口失败可能是因为浏览器的混合内容限制（blocked:mixed-content），即浏览器禁止 https 域名向 http 接口请求。
+
+### 混合内容
+
+TODO
 
 ## FAQ
 
