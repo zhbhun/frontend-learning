@@ -1,4 +1,8 @@
-enum EnumType { Red, Green, Blue };
+enum EnumType {
+  Red,
+  Green,
+  Blue,
+}
 let enumVar: EnumType;
 let anyVar: any;
 let objVar: Object;
@@ -10,7 +14,7 @@ let neverVar: never;
   let variable: boolean;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -19,7 +23,6 @@ let neverVar: never;
   variable = undefined;
   variable = neverVar;
 })();
-
 
 // Number
 (function () {
@@ -30,7 +33,7 @@ let neverVar: never;
   variable = 0xf00d;
   variable = 0b1010;
   variable = 0o744;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -40,13 +43,12 @@ let neverVar: never;
   variable = neverVar;
 })();
 
-
 // String
 (function () {
   let variable: string;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -61,7 +63,7 @@ let neverVar: never;
   let variable: EnumType;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -76,7 +78,7 @@ let neverVar: never;
   let variable: any;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -91,7 +93,7 @@ let neverVar: never;
   let variable: Object;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -106,7 +108,7 @@ let neverVar: never;
   let variable: void;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -121,7 +123,7 @@ let neverVar: never;
   let variable: null;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -136,7 +138,7 @@ let neverVar: never;
   let variable: undefined;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;
@@ -151,7 +153,7 @@ let neverVar: never;
   let variable: never;
   variable = true;
   variable = 0;
-  variable = 'string';
+  variable = "string";
   variable = enumVar;
   variable = anyVar;
   variable = objVar;

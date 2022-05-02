@@ -1,5 +1,7 @@
 # 混合内容
 
+通过安全 HTTPS 连接加载初始 HTML，但通过不安全的 HTTP 连接加载其他资源（如图像、视频、样式表、脚本）时，就会出现混合内容。
+
 ## 基础
 
 ### 两种类型
@@ -19,11 +21,11 @@
 
 - 即使攻击者不更改您网站的内容，他们也可以通过混合内容请求来跟踪用户。攻击者可以根据浏览器加载的图像或其他资源来判断用户访问了哪些页面以及查看了哪些产品。
 
-现状：截止到目前，大多浏览器仍会加载被动混合内容，因为阻止这些内容会破坏许多网站。Chrome 支持被动混合内容的自动升级，如果资源可通过 HTTPS 加载，但已将其硬编码为 HTTP，则浏览器会加载 HTTPS 版本。
+现状：截止到目前，大多浏览器仍会加载被动混合内容，因为阻止这些内容会破坏许多网站。Chrome 支持被动混合内容的自动升级，如果资源可通过 HTTPS 加载，但已将其硬编码为 HTTP，则浏览器会加载 HTTPS 版本（如果不支持 https，现在的浏览器会继续使用 http，然后发出警告，但后续浏览器开始逐渐禁止请求）。
 
     ps：Chrome 会在将 DevTools 记录混合内容自动升级的信息。
 
-    ![passive-mixed-content.avif](./assets/passive-mixed-content.avif)
+![passive-mixed-content.avif](./assets/passive-mixed-content.avif)
 
 ### 主动混合内容
 
@@ -36,7 +38,7 @@
 
 现状：由于这种威胁的严重性，为了保护用户，大多数浏览器已经默认阻止此类内容，但具体功能因浏览器供应商和版本而异。
     
-    ![active-mixed-content.avif](./assets/active-mixed-content.avif)
+![active-mixed-content.avif](./assets/active-mixed-content.avif)
 
 ## 进阶
 
