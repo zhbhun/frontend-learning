@@ -128,18 +128,23 @@ function warnUser(): void {
 
 #### [Arrays](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays)
 
-`Array<number>` / `number[]`
+```ts
+Array<number>
+number[]
+ReadonlyArray<string>
+readonly string[]
+```
 
 #### [Object Types](https://www.typescriptlang.org/docs/handbook/2/objects.html)：
 
 ```ts
-// Object Types 就是列出所有的属性和属性类型，多个属性之间可以使用 `;` 或 `,` 隔开
+// # Object Types 就是列出所有的属性和属性类型，多个属性之间可以使用 `;` 或 `,` 隔开
 function printCoord(pt: { x: number; y: number }) {
   console.log("The coordinate's x value is " + pt.x);
   console.log("The coordinate's y value is " + pt.y);
 }
-// 在属性后面添加 ? 号可以设置属性为可选的，即可能是 undefined
-// 如果开启了 strictNullChecker，那么使用时必须检查属性是否是 undefined
+
+// # 可选属性：在属性后面添加 ? 号可以设置属性为可选的，即可能是 undefined，如果开启了 strictNullChecker，那么使用时必须检查属性是否是 undefined
 function printName(obj: { first: string; last?: string }) {
   // Error - might crash if 'obj.last' wasn't provided!
   console.log(obj.last.toUpperCase());
@@ -152,6 +157,63 @@ function printName(obj: { first: string; last?: string }) {
   // A safe alternative using modern JavaScript syntax:
   console.log(obj.last?.toUpperCase());
 }
+
+// # 只读属性
+interface SomeType {
+  readonly prop: string;
+}
+
+// # Index Signatures
+interface StringArray {
+  [index: number]: string;
+}
+const myArray: StringArray = getStringArray();
+const secondItem = myArray[1]; // const secondItem: string
+
+// # 多类型的 Index Signature 要求 number 类型的 index 值类型必须是 string 类型的 index 的子类型
+interface Animal {
+  name: string;
+}
+interface Dog extends Animal {
+  breed: string;
+}
+// Error: indexing with a numeric string might get you a completely separate type of Animal!
+interface NotOkay {
+  [x: number]: Animal;
+'number' index type 'Animal' is not assignable to 'string' index type 'Dog'.
+  [x: string]: Dog;
+}
+
+// # string 类型的 Index Signature 要求所有属性都匹配它的属性值类型
+interface NumberDictionary {
+  [index: string]: number;
+ 
+  length: number; // ok
+  name: string; // Property 'name' of type 'string' is not assignable to 'string' index type 'number'.
+}
+
+// # extend
+interface Colorful {
+  color: string;
+}
+interface Circle {
+  radius: number;
+}
+interface ColorfulCircle extends Colorful, Circle {}
+const cc: ColorfulCircle = {
+  color: "red",
+  radius: 42,
+};
+
+// # Intersection Types
+interface Colorful {
+  color: string;
+}
+interface Circle {
+  radius: number;
+}
+type ColorfulCircle = Colorful & Circle;
+// ps：Extend 和 Intersection Type 的区别在于同名属性的处理方式，前者要求子类兼容父类，后者不兼容类型会变为 never。
 ```
 
 #### [Interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces)
@@ -182,6 +244,7 @@ function greet(name: string): string {}
 ```
 
 ### 其他类型
+
 #### [Type Aliases](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases)：
 
 ```ts
@@ -327,23 +390,52 @@ enum Direction {
 }
 ```
 
-#### Tuple
+#### [Tuple](https://www.typescriptlang.org/docs/handbook/2/objects.html#tuple-types)
 
 简介：Tuple（元组类型），用于表示一个固定长度且类型确定的数组。
 
 语法：
 
 ```ts
-// Declare a tuple type
+// # Declare a tuple type
 let x: [string, number];
 // Initialize it
 x = ["hello", 10]; // OK
 // Initialize it incorrectly
 x = [10, "hello"]; // Error
+
+// # Tuples can have optional properties
+type Either2dOr3d = [number, number, number?];
+function setCoordinate(coord: Either2dOr3d) {
+  const [x, y, z] = coord; // const z: number | undefined
+}
+
+// # Tuples can also have rest elements, which have to be an array/tuple type
+type StringNumberBooleans = [string, number, ...boolean[]];
+type StringBooleansNumber = [string, ...boolean[], number];
+type BooleansStringNumber = [...boolean[], string, number];
+function readButtonInput(...args: [string, number, ...boolean[]]) {
+  const [name, version, ...input] = args;
+  // ...
+}
+function readButtonInput(name: string, version: number, ...input: boolean[]) {
+  // ...
+}
+
+// # readonly
+function doSomething(pair: readonly [string, number]) {
+  pair[0] = "hello!"; // Cannot assign to '0' because it is a read-only property.
+}
+let point = [3, 4] as const;
+function distanceFromOrigin([x, y]: [number, number]) {
+  return Math.sqrt(x ** 2 + y ** 2);
+}
+distanceFromOrigin(point);
+// Argument of type 'readonly [3, 4]' is not assignable to parameter of type '[number, number]'.
+//   The type 'readonly [3, 4]' is 'readonly' and cannot be assigned to the mutable type '[number, number]'.
 ```
 
 ## 进阶
-
 
 ### [Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types)：
 
@@ -385,6 +477,11 @@ const myCanvas = <HTMLCanvasElement>document.getElementById("main_canvas");
 // 可以将值类型先转换为 any 或 unknown 然后再转为特定类型
 const x = "hello" as number; // Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
 const y = ("hello" as unkown) as number;
+
+// # as const
+function handleRequest(url: string, method: 'GET' | 'POST') {}
+const req = { url: "https://example.com", method: "GET" } as const;
+handleRequest(req.url, req.method);
 ```
 
 ### [Non-null Assertion Operator (Postfix !)](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-)
@@ -401,6 +498,114 @@ ps：区分 JS 的可选链操作符 `?`，非空断言操作符 `!` 只是让 t
 - [Safe navigation operator (?.) or (!.) and null property paths](https://stackoverflow.com/questions/40238144/safe-navigation-operator-or-and-null-property-paths)
 
 ### 类型兼容性
+
+简介：TS 是基于结构子类型来判断类型兼容的。
+
+语法：
+
+- 对象类型：对象类型的每个属性值都能在对象值上找到兼容的属性值
+
+    ```ts
+    interface Pet {
+      name: string;
+    }
+    let dog = { name: "Lassie", owner: "Rudd Weatherwax" };
+
+    let pet: Pet = god;
+
+    function greet(pet: Pet) {
+      console.log("Hello, " + pet.name);
+    }
+    greet(dog); // OK
+    ```
+
+- 函数类型：函数值的每个参数都能在函数类型上找到兼容的参数，返回值需要符合对象类型的规则
+
+    ```ts
+    let x = (a: number) => 0;
+    let y = (b: number, s: string) => 0;
+    y = x; // OK
+    x = y; // Error
+
+    let items = [1, 2, 3];
+    // Don't force these extra parameters
+    items.forEach((item, index, array) => console.log(item));
+    // Should be OK!
+    items.forEach((item) => console.log(item));
+
+    let x = () => ({ name: "Alice" });
+    let y = () => ({ name: "Alice", location: "Seattle" });
+    x = y; // OK
+    y = x; // Error, because x() lacks a location property
+    ```
+
+- 函数参数类型特定化：
+
+    ```ts
+    enum EventType {
+      Mouse,
+      Keyboard,
+    }
+    interface Event {
+      timestamp: number;
+    }
+    interface MyMouseEvent extends Event {
+      x: number;
+      y: number;
+    }
+    interface MyKeyEvent extends Event {
+      keyCode: number;
+    }
+    function listenEvent(eventType: EventType, handler: (n: Event) => void) {
+      /* ... */
+    }
+    // Unsound, but useful and common
+    listenEvent(EventType.Mouse, (e: MyMouseEvent) => console.log(e.x + "," + e.y));
+    // Undesirable alternatives in presence of soundness
+    listenEvent(EventType.Mouse, (e: Event) =>
+      console.log((e as MyMouseEvent).x + "," + (e as MyMouseEvent).y)
+    );
+    listenEvent(EventType.Mouse, ((e: MyMouseEvent) =>
+      console.log(e.x + "," + e.y)) as (e: Event) => void);
+    // Still disallowed (clear error). Type safety enforced for wholly incompatible types
+    listenEvent(EventType.Mouse, (e: number) => console.log(e));
+    ```
+
+    ps：这在开启 `strictFunctionTypes` 时，不允许函数参数类型特定化
+
+- 函数可选参数和剩余参数
+
+    ```ts
+    function invokeLater(args: any[], callback: (...args: any[]) => void) {
+      /* ... Invoke callback with 'args' ... */
+    }
+    // Unsound - invokeLater "might" provide any number of arguments
+    invokeLater([1, 2], (x, y) => console.log(x + ", " + y));
+    // Confusing (x and y are actually required) and undiscoverable
+    invokeLater([1, 2], (x?, y?) => console.log(x + ", " + y));
+    ```
+
+- 函数重载：每个重载函数类型都要能够与重载函数兼容
+- 类实例：只比较两个对象的成员属性是否兼容，类似对象或接口类型
+
+    ```ts
+    class Animal {
+      feet: number;
+      constructor(name: string, numFeet: number) {}
+    }
+    class Size {
+      feet: number;
+      constructor(numFeet: number) {}
+    }
+    let a: Animal;
+    let s: Size;
+    a = s; // OK
+    s = a; // OK
+    ```
+
+- 带私有成员和包含成员的类实例：目标类型必须是源类型的父类，即子类实例可以赋值给父类实例
+
+参考
 
 - [Type Compatibility
 ](https://www.typescriptlang.org/docs/handbook/type-compatibility.html#any-unknown-object-void-undefined-null-and-never-assignability)
