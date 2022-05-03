@@ -751,7 +751,79 @@ type StrArrOrNumArr = ToArrayNonDist<string | number>; // type StrArrOrNumArr = 
 
 ### [Mapped Types](https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#mapping-modifiers)
 
-TODO
+映射类型是一种泛型类型，它使用 PropertyKeys (通常通过 keyof 创建)的联合来迭代键以创建类型。
+
+```ts
+type OptionsFlags<Type> = {
+  [Property in keyof Type]: boolean;
+};
+type FeatureFlags = {
+  darkMode: () => void;
+  newUserProfile: () => void;
+};
+type FeatureOptions = OptionsFlags<FeatureFlags>; // type FeatureOptions = { darkMode: boolean; newUserProfile: boolean;}
+
+// # Mapping Modifiers
+// Removes 'readonly' attributes from a type's properties
+type CreateMutable<Type> = {
+  -readonly [Property in keyof Type]: Type[Property];
+};
+type LockedAccount = {
+  readonly id: string;
+  readonly name: string;
+};
+type UnlockedAccount = CreateMutable<LockedAccount>; // type UnlockedAccount = { id: string; name: string; }
+// Removes 'optional' attributes from a type's properties
+type Concrete<Type> = {
+  [Property in keyof Type]-?: Type[Property];
+};
+type MaybeUser = {
+  id: string;
+  name?: string;
+  age?: number;
+};
+type User = Concrete<MaybeUser>; // type User = { id: string; name: string; age: number; }
+
+// # Key Remapping via as
+// 模板字符变量
+type Getters<Type> = {
+    [Property in keyof Type as `get${Capitalize<string & Property>}`]: () => Type[Property]
+};
+interface Person {
+  name: string;
+  age: number;
+  location: string;
+}
+type LazyPerson = Getters<Person>; // type LazyPerson = { getName: () => string; getAge: () => number; getLocation: () => string; }
+// 过滤属性
+type Exclude<T, U> = T extends U ? never : T
+type RemoveKindField<Type> = {
+    [Property in keyof Type as Exclude<Property, "kind">]: Type[Property]
+};
+interface Circle {
+  kind: "circle";
+  radius: number;
+}
+type KindlessCircle = RemoveKindField<Circle>; // type KindlessCircle = { radius: number; }
+
+// # ...
+type EventConfig<Events extends { kind: string }> = {
+    [E in Events as E["kind"]]: (event: E) => void;
+}
+type SquareEvent = { kind: "square", x: number, y: number };
+type CircleEvent = { kind: "circle", radius: number };
+type Config = EventConfig<SquareEvent | CircleEvent> // type Config = { square: (event: SquareEvent) => void; circle: (event: CircleEvent) => void; }
+
+// # Condition Types
+type ExtractPII<Type> = {
+  [Property in keyof Type]: Type[Property] extends { pii: true } ? true : false;
+};
+type DBFields = {
+  id: { format: "incrementing" };
+  name: { type: string; pii: true };
+};
+type ObjectsNeedingGDPRDeletion = ExtractPII<DBFields>; // type ObjectsNeedingGDPRDeletion = { id: false; name: true; }
+```
 
 ### [Template Literal Types](https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html)
 
@@ -808,5 +880,3 @@ type Greeting = Capitalize<LowercaseGreeting>; // type Greeting = "Hello, world"
 type UppercaseGreeting = "HELLO WORLD";
 type UncomfortableGreeting = Uncapitalize<UppercaseGreeting>; // type UncomfortableGreeting = "hELLO WORLD"
 ```
-
-TODO
