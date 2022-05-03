@@ -214,6 +214,32 @@ interface Circle {
 }
 type ColorfulCircle = Colorful & Circle;
 // ps：Extend 和 Intersection Type 的区别在于同名属性的处理方式，前者要求子类兼容父类，后者不兼容类型会变为 never。
+
+// Indexed Access Types —— https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html
+type Person = { age: number; name: string; alive: boolean };
+type Age = Person["age"];
+type I1 = Person["age" | "name"]; // type I1 = string | number
+type I2 = Person[keyof Person]; // type I2 = string | number | boolean
+type AliveOrName = "alive" | "name";
+type I3 = Person[AliveOrName]; // type I3 = string | boolean
+type I1 = Person["alve"]; // Property 'alve' does not exist on type 'Person'.
+const MyArray = [
+  { name: "Alice", age: 15 },
+  { name: "Bob", age: 23 },
+  { name: "Eve", age: 38 },
+];
+type Person = typeof MyArray[number];
+const key = "age";
+type Age = Person[key]; // Type 'key' cannot be used as an index type. 'key' refers to a value, but is being used as a type here. Did you mean 'typeof key'?
+type key = "age";
+type Age = Person[key]; // type Age = number
+/*
+  
+  type Person = {
+    name: string;
+    age: number;
+  }
+*/
 ```
 
 #### [Interfaces](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces)
@@ -437,66 +463,6 @@ distanceFromOrigin(point);
 
 ## 进阶
 
-### [Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types)：
-
-```ts
-// Union Types 由两个或多个类型组成，其值可以是这些类型中的任意一个
-function printId(id: number | string) {
-  console.log("Your ID is: " + id.toString());
-}
-
-function printId(id: number | string) {
-  // 只允许执行所有 Union Types 都支持的操作
-  console.log(id.toUpperCase()); 
-  // Property 'toUpperCase' does not exist on type 'string | number'
-  // Property 'toUpperCase' does not exist on type 'number'.
-  // 针对以上问题的解决方案是 narrow the union types
-  if (typeof id === "string") {
-    // In this branch, id is of type 'string'
-    console.log(id.toUpperCase());
-  } else {
-    // Here, id is of type 'number'
-    console.log(id);
-  }
-}
-```
-
-### [Intersection Types]()
-
-TODO: ...
-
-
-### [Type Assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions)
-
-```ts
-// ts 可以通过类型断言将一个值的类型转换为更加特定（子类）或者更不特定（父类）的类型
-const myCanvas = document.getElementById("main_canvas") as HTMLCanvasElement;
-// 也可以使用尖括号语法，但不能在 tsx 里使用
-const myCanvas = <HTMLCanvasElement>document.getElementById("main_canvas");
-
-// 可以将值类型先转换为 any 或 unknown 然后再转为特定类型
-const x = "hello" as number; // Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-const y = ("hello" as unkown) as number;
-
-// # as const
-function handleRequest(url: string, method: 'GET' | 'POST') {}
-const req = { url: "https://example.com", method: "GET" } as const;
-handleRequest(req.url, req.method);
-```
-
-### [Non-null Assertion Operator (Postfix !)](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-)
-
-```ts
-function liveDangerously(x?: number | null) {
-  // No error
-  console.log(x!.toFixed());
-}
-```
-
-ps：区分 JS 的可选链操作符 `?`，非空断言操作符 `!` 只是让 ts 忽略空值情况，实际运行可能还是会遇到问题。
-
-- [Safe navigation operator (?.) or (!.) and null property paths](https://stackoverflow.com/questions/40238144/safe-navigation-operator-or-and-null-property-paths)
-
 ### 类型兼容性
 
 简介：TS 是基于结构子类型来判断类型兼容的。
@@ -609,3 +575,238 @@ ps：区分 JS 的可选链操作符 `?`，非空断言操作符 `!` 只是让 t
 
 - [Type Compatibility
 ](https://www.typescriptlang.org/docs/handbook/type-compatibility.html#any-unknown-object-void-undefined-null-and-never-assignability)
+
+### [Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types)：
+
+```ts
+// Union Types 由两个或多个类型组成，其值可以是这些类型中的任意一个
+function printId(id: number | string) {
+  console.log("Your ID is: " + id.toString());
+}
+
+function printId(id: number | string) {
+  // 只允许执行所有 Union Types 都支持的操作
+  console.log(id.toUpperCase()); 
+  // Property 'toUpperCase' does not exist on type 'string | number'
+  // Property 'toUpperCase' does not exist on type 'number'.
+  // 针对以上问题的解决方案是 narrow the union types
+  if (typeof id === "string") {
+    // In this branch, id is of type 'string'
+    console.log(id.toUpperCase());
+  } else {
+    // Here, id is of type 'number'
+    console.log(id);
+  }
+}
+```
+
+### [Intersection Types]()
+
+TODO: ...
+
+
+### [Type Assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions)
+
+```ts
+// ts 可以通过类型断言将一个值的类型转换为更加特定（子类）或者更不特定（父类）的类型
+const myCanvas = document.getElementById("main_canvas") as HTMLCanvasElement;
+// 也可以使用尖括号语法，但不能在 tsx 里使用
+const myCanvas = <HTMLCanvasElement>document.getElementById("main_canvas");
+
+// 可以将值类型先转换为 any 或 unknown 然后再转为特定类型
+const x = "hello" as number; // Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+const y = ("hello" as unkown) as number;
+
+// # as const
+function handleRequest(url: string, method: 'GET' | 'POST') {}
+const req = { url: "https://example.com", method: "GET" } as const;
+handleRequest(req.url, req.method);
+```
+
+### [Non-null Assertion Operator (Postfix !)](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#non-null-assertion-operator-postfix-)
+
+```ts
+function liveDangerously(x?: number | null) {
+  // No error
+  console.log(x!.toFixed());
+}
+```
+
+ps：区分 JS 的可选链操作符 `?`，非空断言操作符 `!` 只是让 ts 忽略空值情况，实际运行可能还是会遇到问题。
+
+- [Safe navigation operator (?.) or (!.) and null property paths](https://stackoverflow.com/questions/40238144/safe-navigation-operator-or-and-null-property-paths)
+
+### [Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
+
+TODO
+
+### [Generics](https://www.typescriptlang.org/docs/handbook/2/generics.html)
+
+TODO
+
+### [Typeof Type Operator](https://www.typescriptlang.org/docs/handbook/2/typeof-types.html)
+
+JS 本身已经有了 `typeof` 操作符，用于获取值类型。TS 在类型上下文中也支持 `typeof`，用于获取**变量或属性类型**。
+
+```ts
+// # js
+// Prints "string"
+console.log(typeof "Hello world");
+
+// # ts
+let s = "hello";
+let n: typeof s; // let n: string
+
+// # ReturnType
+function f() {
+  return { x: 10, y: 3 };
+}
+type P = ReturnType<typeof f>;
+/*
+  type P = {
+    x: number;
+    y: number;
+  }
+*/
+```
+
+### [Keyof Type Operator](https://www.typescriptlang.org/docs/handbook/2/keyof-types.html)
+
+`keyof` 操作符接受对象类型生成一个字符或数值字面量联合类型。
+
+```ts
+type Point = { x: number; y: number };
+type P = keyof Point; // “x” | “y”:
+
+type Arrayish = { [n: number]: unknown };
+type A = keyof Arrayish; // type A = number
+ 
+type Mapish = { [k: string]: boolean };
+type M = keyof Mapish; // type M = string | number
+```
+
+### [Conditional Types](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html)
+
+```ts
+// # ondition ? trueExpression : falseExpression
+interface Animal {
+  live(): void;
+}
+interface Dog extends Animal {
+  woof(): void;
+}
+type Example1 = Dog extends Animal ? number : string; // type Example1 = number
+type Example2 = RegExp extends Animal ? number : string; // type Example2 = string
+
+// # SomeType extends OtherType ? TrueType : FalseType;
+// extend 表示左边的类型是否赋值给右边的类型
+
+// # 实际应用1
+// 笨方法
+interface IdLabel {
+  id: number /* some fields */;
+}
+interface NameLabel {
+  name: string /* other fields */;
+}
+function createLabel(id: number): IdLabel;
+function createLabel(name: string): NameLabel;
+function createLabel(nameOrId: string | number): IdLabel | NameLabel;
+function createLabel(nameOrId: string | number): IdLabel | NameLabel {
+  throw "unimplemented";
+}
+// 条件类型方法
+type NameOrId<T extends number | string> = T extends number
+  ? IdLabel
+  : NameLabel;
+function createLabel<T extends number | string>(idOrName: T): NameOrId<T> {
+  throw "unimplemented";
+}
+let a = createLabel("typescript"); // let a: NameLabel
+let b = createLabel(2.8); // let b: IdLabel
+let c = createLabel(Math.random() ? "hello" : 42); // let c: NameLabel | IdLabel
+
+// # 实际应用2
+type NonNullable<T> = T extends null | undefined ? never : T;
+type A = NonNullable<boolean>; // boolean
+
+// # 实际应用3
+type Flatten<T> = T extends any[] ? T[number] : T;
+type Str = Flatten<string[]>; // type Str = string
+type Num = Flatten<number>; // type Num = number
+
+// # infer
+type Flatten<Type> = Type extends Array<infer Item> ? Item : Type;
+type GetReturnType<Type> = Type extends (...args: never[]) => infer Return
+  ? Return
+  : never;
+
+// # Distributive Conditional Types
+type ToArray<Type> = Type extends any ? Type[] : never;
+type StrArrOrNumArr = ToArray<string | number>; // type StrArrOrNumArr = string[] | number[]
+type StrArrOrNumArr = ToArray<string> | ToArray<number>; // type StrArrOrNumArr = string[] | number[]
+type ToArrayNonDist<Type> = [Type] extends [any] ? Type[] : never;
+type StrArrOrNumArr = ToArrayNonDist<string | number>; // type StrArrOrNumArr = (string | number)[]
+```
+
+### [Mapped Types](https://www.typescriptlang.org/docs/handbook/2/mapped-types.html#mapping-modifiers)
+
+TODO
+
+### [Template Literal Types](https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html)
+
+```ts
+// # 模板字面量类型基于字符字面量类型和类似 JS 的模板预发构成
+type World = "world";
+type Greeting = `hello ${World}`; // type Greeting = "hello world"
+
+// # 模板字面量类型中使用联合类型会产生所有可能的字符字面量组合类型
+type EmailLocaleIDs = "welcome_email" | "email_heading";
+type FooterLocaleIDs = "footer_title" | "footer_sendoff";
+type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`; // type AllLocaleIDs = "welcome_email_id" | "email_heading_id" | "footer_title_id" | "footer_sendoff_id"
+
+// # 多个联合类型会交叉出所有可能的字符字面量
+type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`;
+type Lang = "en" | "ja" | "pt";
+type LocaleMessageIDs = `${Lang}_${AllLocaleIDs}`; // type LocaleMessageIDs = "en_welcome_email_id" | "en_email_heading_id" | "en_footer_title_id" | "en_footer_sendoff_id" | "ja_welcome_email_id" | "ja_email_heading_id" | "ja_footer_title_id" | "ja_footer_sendoff_id" | "pt_welcome_email_id" | "pt_email_heading_id" | "pt_footer_title_id" | "pt_footer_sendoff_id"
+
+// # String Unions in Types
+type PropEventSource<Type> = {
+    on(eventName: `${string & keyof Type}Changed`, callback: (newValue: any) => void): void;
+};
+declare function makeWatchedObject<Type>(obj: Type): Type & PropEventSource<Type>;
+const person = makeWatchedObject({
+  firstName: "Saoirse",
+  lastName: "Ronan",
+  age: 26,
+});
+person.on("firstNameChanged", (newValue) => {
+  console.log(`firstName was changed to ${newValue}!`);
+});
+person.on("firstName", () => {}); // Argument of type '"firstName"' is not assignable to parameter of type '"firstNameChanged" | "lastNameChanged" | "ageChanged"'.
+
+// # Inference with Template Literals
+type PropEventSource<Type> = {
+    on<Key extends string & keyof Type>
+        (eventName: `${Key}Changed`, callback: (newValue: Type[Key]) => void ): void;
+};
+declare function makeWatchedObject<Type>(obj: Type): Type & PropEventSource<Type>;
+
+// # Intrinsic String Manipulation Types
+// Uppercase<StringType>
+type Greeting = "Hello, world"
+type ShoutyGreeting = Uppercase<Greeting> // type ShoutyGreeting = "HELLO, WORLD"
+type ASCIICacheKey<Str extends string> = `ID-${Uppercase<Str>}`
+type MainID = ASCIICacheKey<"my_app"> // type MainID = "ID-MY_APP"
+// Lowercase<StringType>
+type Greeting = "Hello, world"
+type QuietGreeting = Lowercase<Greeting> // type QuietGreeting = "hello, world"
+// Capitalize<StringType>
+type LowercaseGreeting = "hello, world";
+type Greeting = Capitalize<LowercaseGreeting>; // type Greeting = "Hello, world"
+// Uncapitalize<StringType>
+type UppercaseGreeting = "HELLO WORLD";
+type UncomfortableGreeting = Uncapitalize<UppercaseGreeting>; // type UncomfortableGreeting = "hELLO WORLD"
+```
+
+TODO
