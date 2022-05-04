@@ -263,7 +263,7 @@ Interfaces 是声明对象类型的另外一种方式，可以方便复用，但
     }
     ```
 
-#### [Functions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#functions)
+#### [Functions](https://www.typescriptlang.org/docs/handbook/2/functions.html)
 
 ```ts
 function greet(name: string): string {}
