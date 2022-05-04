@@ -1,0 +1,6 @@
+- [【译】对比GraphQL与REST——两种HTTP API的差异](https://www.jianshu.com/p/2ad286397f7a?open_source=weibo_search)
+- [【译】GraphQL vs. REST](https://juejin.im/post/59793f625188253ded721c70)
+- [GraphQL vs RESTful API 的一些想法](https://blog.tonyseek.com/post/graphql-vs-restful/)
+- [阻碍你使用 GraphQL 的十个问题](http://jerryzou.com/posts/10-questions-about-graphql/)
+- [用GraphQL如何实现以下API请求？与REST的思路相比实现方法孰优孰劣？](https://www.zhihu.com/question/57081368)
+- [GraphQL和REST对比时需要注意些什么](http://www.infoq.com/cn/news/2017/07/graphql-vs-rest)

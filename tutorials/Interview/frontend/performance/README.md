@@ -1,0 +1,21 @@
+
+- [High Performance Animations](https://www.html5rocks.com/en/tutorials/speed/high-performance-animations/)
+- [Accelerated Rendering in Chrome](https://www.html5rocks.com/zh/tutorials/speed/layers/)
+- https://csstriggers.com/
+- https://docs.google.com/spreadsheets/d/1Hvi0nu2wG3oQ51XRHtMv-A_ZlidnwUYwgQsPQUg1R2s/pub?single=true&gid=0&output=html
+- [CSS性能优化新属性：will-change](http://www.webhek.com/post/css-will-change.html)
+- [前端性能优化（CSS动画篇）](https://segmentfault.com/a/1190000000490328)
+- [How (not) to trigger a layout in WebKit](http://gent.ilcore.com/2011/03/how-not-to-trigger-layout-in-webkit.html)
+- [Rendering: repaint, reflow/relayout, restyle](http://www.phpied.com/rendering-repaint-reflowrelayout-restyle/)
+- [Profiling Long Paint Times with DevTools' Continuous Painting Mode](https://developers.google.com/web/updates/2013/02/Profiling-Long-Paint-Times-with-DevTools-Continuous-Painting-Mode?zh-CN)
+- [On translate3d and layer creation hacks](https://aerotwist.com/blog/on-translate3d-and-layer-creation-hacks/)
+- [Scrolling Performance](https://www.html5rocks.com/zh/tutorials/speed/scrolling/)
+- [GPU Accelerated Compositing in Chrome](http://www.chromium.org/developers/design-documents/gpu-accelerated-compositing-in-chrome)
+- [高性能 CSS3 动画](https://github.com/AlloyTeam/Mars/blob/master/performance/high-performance-css3-animation.md)
+- [回流与重绘：CSS性能让JavaScript变慢？](http://www.zhangxinxu.com/wordpress/2010/01/%E5%9B%9E%E6%B5%81%E4%B8%8E%E9%87%8D%E7%BB%98%EF%BC%9Acss%E6%80%A7%E8%83%BD%E8%AE%A9javascript%E5%8F%98%E6%85%A2%EF%BC%9F/)
+- [CSS硬件加速的好与坏](http://efe.baidu.com/blog/hardware-accelerated-css-the-nice-vs-the-naughty/#0-tsina-1-50366-397232819ff9a47a7b7e80a40613cfe1)
+- [高性能JavaScript 重排与重绘](https://www.cnblogs.com/zichi/p/4720000.html)
+- [渲染性能](https://developers.google.com/web/fundamentals/performance/rendering/)
+- [详谈层合成](https://juejin.im/entry/59dc9aedf265da43200232f9)
+- [如何优化高德地图（AMap）Marker 动画](http://jartto.wang/2017/08/28/how-to-optimize-marker-of-AMap/)
+- [坚持仅合成器的属性和管理层计数](https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count)
