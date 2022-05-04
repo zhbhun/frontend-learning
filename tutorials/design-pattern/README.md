@@ -31,3 +31,7 @@
     - 装饰模式
     - 门面模式
     - 享元模式
+
+## 书籍
+
+- [《Dive Into Design Pattern》](https://refactoringguru.cn/design-patterns)
