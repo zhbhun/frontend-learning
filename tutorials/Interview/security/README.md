@@ -1,4 +1,5 @@
 - [总结 XSS 与 CSRF 两种跨站攻击](https://blog.tonyseek.com/post/introduce-to-xss-and-csrf/)
+- [XSS Prevention, Tidy vs Purifier?](https://stackoverflow.com/questions/3085370/xss-prevention-tidy-vs-purifier)
 
 ## 认证
 
