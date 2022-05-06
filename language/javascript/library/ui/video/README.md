@@ -3,6 +3,7 @@
 - [DPlayer](https://github.com/MoePlayer/DPlayer)
 - [flv.js](https://github.com/bilibili/flv.js)
 - [mpegts.js](https://github.com/xqq/mpegts.js) - HTML5 MPEG2-TS Stream Player
+- [EasyPlayer.js](https://github.com/tsingsee/EasyPlayer.js) - EasyPlayer.js H5播放器，是一款免费的能够同时支持HTTP、RTMP、HTTP-FLV、HLS（m3u8）直播与点播等多种协议，支持H.264、H.265、AAC等多种音视频编码格式，支持mse、asm、wasm等多种解码方式，支持Windows、Linux、Android、iOS全平台终端的H5播放器。
 
 ## 视频解析
 
