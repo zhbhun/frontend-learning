@@ -390,6 +390,13 @@ ps：这是跨域简单请求和表单跨域请求的区别之处，表单请求
 
 如果公司内部存在私有的 https 协议没有认证时，http 跨域请求 https 接口失败可能是因为 https 证书问题。反之如果 https 跨域请求 http 接口失败可能是因为浏览器的混合内容限制（blocked:mixed-content），即浏览器禁止 https 域名向 http 接口请求。
 
+### 大文件分片上传和断点继传
+
+- [Node + js实现大文件分片上传基本原理及实践(一)](https://www.cnblogs.com/tugenhua0707/p/11246860.html)
+- [JavaScript 利用 Blob 进行分片上传](https://scarletsky.github.io/2015/01/27/javascript-upload-slice-file-using-blob/)
+- [大文件上传优化，断点续传，分片上传](https://segmentfault.com/a/1190000038408148)
+- [一个多文件断点续传、分片上传、秒传、重试机制的组件](https://juejin.cn/post/6850037258863673357#heading-7)
+
 ## FAQ
 
 - [Can I use XMLHttpRequest on a different port from a script file loaded from that port?](https://stackoverflow.com/questions/1767443/can-i-use-xmlhttprequest-on-a-different-port-from-a-script-file-loaded-from-that)
