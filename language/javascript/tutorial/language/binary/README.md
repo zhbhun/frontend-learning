@@ -46,6 +46,10 @@ Blob 类型只有 slice 方法，用于返回一个新的 Blob对象，包含了
 
 - [TextDecoder 和 TextEncoder](https://zh.javascript.info/text-decoder)
 
+### 文件 hash
+
+- [js 如何快速计算出文件hash值](https://juejin.cn/post/6932299991012769806)
+
 ## 参考文献
 
 - [二进制数组](https://javascript.ruanyifeng.com/stdlib/arraybuffer.html)
