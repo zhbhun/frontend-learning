@@ -78,10 +78,10 @@
   const parent = {
     works: ["teacher"],
   };
-  const son1 = extend(parent);
-  son1.works.push("programmer");
-  const son2 = extend(parent);
-  son2.works.push("...");
+  const child1 = extend(parent);
+  child1.works.push("programmer");
+  const child2 = extend(parent);
+  child2.works.push("...");
   console.log(parent.works); // 'teacher', 'programmer', '...'
 })();
 
@@ -94,17 +94,17 @@
       return this.works.join(", ");
     };
   }
-  function Son(work) {
+  function Child(work) {
     Parent.call(this, work);
   }
-  const son = new Son("");
-  console.log(son instanceof Son); // true
-  console.log(son instanceof Parent); // false
-  const son1 = new Son("teacher");
-  son1.works.push("programmer");
-  console.log(son1.toString()); // teacher', 'programmer'
-  const son2 = new Son("painter");
-  console.log(son2.toString()); // 'painter'
+  const child = new Child("");
+  console.log(child instanceof Child); // true
+  console.log(child instanceof Parent); // false
+  const child1 = new Child("teacher");
+  child1.works.push("programmer");
+  console.log(child1.toString()); // teacher', 'programmer'
+  const child2 = new Child("painter");
+  console.log(child2.toString()); // 'painter'
 })();
 
 // 组合继承
@@ -116,18 +116,18 @@
   Parent.prototype.toString = function () {
     return this.works.join(", ");
   };
-  function Son(work) {
+  function Child(work) {
     Parent.call(this, work);
   }
-  Son.prototype = new Parent();
-  const son = new Son("");
-  console.log(son instanceof Son); // true
-  console.log(son instanceof Parent); // true
-  const son1 = new Son("teacher");
-  son1.works.push("programmer");
-  console.log(son1.toString()); // teacher', 'programmer'
-  const son2 = new Son("painter");
-  console.log(son2.toString()); // 'painter'
+  Child.prototype = new Parent();
+  const child = new Child("");
+  console.log(child instanceof Child); // true
+  console.log(child instanceof Parent); // true
+  const child1 = new Child("teacher");
+  child1.works.push("programmer");
+  console.log(child1.toString()); // teacher', 'programmer'
+  const child2 = new Child("painter");
+  console.log(child2.toString()); // 'painter'
 })();
 
 // 寄生式继承
@@ -155,22 +155,22 @@
 // 寄生组合式继承
 (function () {
   console.log(">> 寄生组合式继承");
-  function extend1(childClass, parentClass) {
+  function extend1(subClass, superClass) {
     // 通过寄生式继承来避免父类构造函数重复调用
-    const prototype = Object.create(parentClass.prototype);
-    prototype.constructor = childClass;
-    childClass.prototype = prototype;
+    const prototype = Object.create(superClass.prototype);
+    prototype.constructor = subClass;
+    subClass.prototype = prototype;
   }
-  function extend2(childClass, parentClass) {
+  function extend2(subClass, superClass) {
     // 通过创建一个空方法类避免父类构造函数重复调用
     var F = function () {};
-    F.prototype = parentClass.prototype;
-    childClass.prototype = new F();
-    childClass.prototype.constructor = childClass;
+    F.prototype = superClass.prototype;
+    subClass.prototype = new F();
+    subClass.prototype.constructor = subClass;
 
-    childClass.superclass = parentClass.prototype;
-    if (parentClass.prototype.constructor === Object.prototype.constructor) {
-      parentClass.prototype.constructor = parentClass;
+    subClass.superclass = superClass.prototype;
+    if (superClass.prototype.constructor === Object.prototype.constructor) {
+      superClass.prototype.constructor = superClass;
     }
   }
   function Parent(work) {
@@ -183,6 +183,208 @@
     Parent.call(this, work);
   }
   extend1(Child, Parent); // extend2(Child, Parent) 效果也是类似的
+  const child = new Child("");
+  console.log(child instanceof Child); // true
+  console.log(child instanceof Parent); // true
+  const child1 = new Child("teacher");
+  child1.works.push("programmer");
+  console.log(child1.toString()); // teacher', 'programmer'
+  const child2 = new Child("painter");
+  console.log(child2.toString()); // 'painter'
+})();
+
+// babel loose
+(function () {
+  console.log(">> babel loose");
+
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    _setPrototypeOf(subClass, superClass);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf =
+      Object.setPrototypeOf ||
+      function _setPrototypeOf(o, p) {
+        o.__proto__ = p;
+        return o;
+      };
+    return _setPrototypeOf(o, p);
+  }
+
+  var Parent = /*#__PURE__*/ (function () {
+    function Parent(work) {
+      this.works = [work];
+    }
+
+    var _proto = Parent.prototype;
+
+    _proto.toString = function toString() {
+      return this.works.join(", ");
+    };
+
+    return Parent;
+  })();
+
+  var Child = /*#__PURE__*/ (function (_Parent) {
+    _inheritsLoose(Child, _Parent);
+
+    function Child(work) {
+      return _Parent.call(this, work) || this;
+    }
+
+    return Child;
+  })(Parent);
+  const child = new Child("");
+  console.log(child instanceof Child); // true
+  console.log(child instanceof Parent); // true
+  const child1 = new Child("teacher");
+  child1.works.push("programmer");
+  console.log(child1.toString()); // teacher', 'programmer'
+  const child2 = new Child("painter");
+  console.log(child2.toString()); // 'painter'
+})();
+
+// babel
+(function () {
+  console.log(">> babel");
+  ("use strict");
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: { value: subClass, writable: true, configurable: true },
+    });
+    Object.defineProperty(subClass, "prototype", { writable: false });
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf =
+      Object.setPrototypeOf ||
+      function _setPrototypeOf(o, p) {
+        o.__proto__ = p;
+        return o;
+      };
+    return _setPrototypeOf(o, p);
+  }
+
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+        result;
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    } else if (call !== void 0) {
+      throw new TypeError(
+        "Derived constructors may only return object or undefined"
+      );
+    }
+    return _assertThisInitialized(self);
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError(
+        "this hasn't been initialised - super() hasn't been called"
+      );
+    }
+    return self;
+  }
+
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+      Boolean.prototype.valueOf.call(
+        Reflect.construct(Boolean, [], function () {})
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf
+      ? Object.getPrototypeOf
+      : function _getPrototypeOf(o) {
+          return o.__proto__ || Object.getPrototypeOf(o);
+        };
+    return _getPrototypeOf(o);
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", { writable: false });
+    return Constructor;
+  }
+
+  var Parent = /*#__PURE__*/ (function () {
+    function Parent(work) {
+      _classCallCheck(this, Parent);
+
+      this.works = [work];
+    }
+
+    _createClass(Parent, [
+      {
+        key: "toString",
+        value: function toString() {
+          return this.works.join(", ");
+        },
+      },
+    ]);
+
+    return Parent;
+  })();
+
+  var Child = /*#__PURE__*/ (function (_Parent) {
+    _inherits(Child, _Parent);
+
+    var _super = _createSuper(Child);
+
+    function Child(work) {
+      _classCallCheck(this, Child);
+
+      return _super.call(this, work);
+    }
+
+    return _createClass(Child);
+  })(Parent);
   const child = new Child("");
   console.log(child instanceof Child); // true
   console.log(child instanceof Parent); // true

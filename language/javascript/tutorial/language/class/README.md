@@ -62,10 +62,10 @@ function extend(parent){
 const parent = {
   works: ['teacher'],
 };
-const son1 = extend(parent);
-son1.works.push('programmer');
-const son2 = extend(parent);
-son2.works.push('...');
+const child1 = extend(parent);
+child1.works.push('programmer');
+const child2 = extend(parent);
+child2.works.push('...');
 console.log(parent.works); // [ 'teacher', 'programmer', '...' ]
 ```
 
@@ -84,18 +84,23 @@ console.log(parent.works); // [ 'teacher', 'programmer', '...' ]
 用法：
 
 ```js
-function Father(){
-	this.colors = ["red","blue","green"];
+function Parent(work) {
+  this.works = [work];
+  this.toString = () => {
+    return this.works.join(", ");
+  };
 }
-function Son(){
-	Father.call(this);
+function Child(work) {
+  Parent.call(this, work);
 }
-var instance1 = new Son();
-instance1.colors.push("black");
-console.log(instance1.colors);//"red,blue,green,black"
-
-var instance2 = new Son();
-console.log(instance2.colors);
+const child = new Child("");
+console.log(child instanceof Child); // true
+console.log(child instanceof Parent); // false
+const child1 = new Child("teacher");
+child1.works.push("programmer");
+console.log(child1.toString()); // teacher', 'programmer'
+const child2 = new Child("painter");
+console.log(child2.toString()); // 'painter'
 ```
 
 总结：
@@ -123,18 +128,18 @@ function Parent(work) {
 Parent.prototype.toString = function () {
   return this.works.join(", ");
 };
-function Son(work) {
+function Child(work) {
   Parent.call(this, work);
 }
-Son.prototype = new Parent();
-const son = new Son("");
-console.log(son instanceof Son); // true
-console.log(son instanceof Parent); // true
-const son1 = new Son("teacher");
-son1.works.push("programmer");
-console.log(son1.toString()); // teacher', 'programmer'
-const son2 = new Son("painter");
-console.log(son2.toString()); // 'painter'
+Child.prototype = new Parent();
+const child = new Child("");
+console.log(child instanceof Child); // true
+console.log(child instanceof Parent); // true
+const child1 = new Child("teacher");
+child1.works.push("programmer");
+console.log(child1.toString()); // teacher', 'programmer'
+const child2 = new Child("painter");
+console.log(child2.toString()); // 'painter'
 ```
 
 总结：在借用构造函数继承的基础上，解决了方法重复创建和父类原型的继承问题。但是，Parent 存在重复调用两次的问题。
@@ -174,24 +179,22 @@ console.log(child.toJSON()); // ["teacher"]
 用法：
 
 ```js
-
-console.log(">> 寄生组合式继承");
-function extend1(childClass, parentClass) {
+function extend1(subClass, superClass) {
   // 通过寄生式继承来避免父类构造函数重复调用
-  const prototype = Object.create(parentClass.prototype);
-  prototype.constructor = childClass;
-  childClass.prototype = prototype;
+  const prototype = Object.create(superClass.prototype);
+  prototype.constructor = subClass;
+  subClass.prototype = prototype;
 }
-function extend2(childClass, parentClass) {
+function extend2(subClass, superClass) {
   // 通过创建一个空方法类避免父类构造函数重复调用
   var F = function () {};
-  F.prototype = parentClass.prototype;
-  childClass.prototype = new F();
-  childClass.prototype.constructor = childClass;
+  F.prototype = superClass.prototype;
+  subClass.prototype = new F();
+  subClass.prototype.constructor = subClass;
 
-  childClass.superclass = parentClass.prototype;
-  if (parentClass.prototype.constructor === Object.prototype.constructor) {
-    parentClass.prototype.constructor = parentClass;
+  subClass.superclass = superClass.prototype;
+  if (superClass.prototype.constructor === Object.prototype.constructor) {
+    superClass.prototype.constructor = superClass;
   }
 }
 function Parent(work) {
@@ -215,6 +218,58 @@ console.log(child2.toString()); // 'painter'
 ```
 
 总结：解决了组合式继承的构造函数重复调用问题，且满足继承的几个要点。
+
+### babel
+
+```js
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  _setPrototypeOf(subClass, superClass); // TODO: ???
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf =
+    Object.setPrototypeOf ||
+    function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+  return _setPrototypeOf(o, p);
+}
+
+var Parent = /*#__PURE__*/ (function () {
+  function Parent(work) {
+    this.works = [work];
+  }
+
+  var _proto = Parent.prototype;
+
+  _proto.toString = function toString() {
+    return this.works.join(", ");
+  };
+
+  return Parent;
+})();
+
+var Child = /*#__PURE__*/ (function (_Parent) {
+  _inheritsLoose(Child, _Parent);
+
+  function Child(work) {
+    return _Parent.call(this, work) || this;
+  }
+
+  return Child;
+})(Parent);
+const child = new Child("");
+console.log(child instanceof Child); // true
+console.log(child instanceof Parent); // true
+const child1 = new Child("teacher");
+child1.works.push("programmer");
+console.log(child1.toString()); // teacher', 'programmer'
+const child2 = new Child("painter");
+console.log(child2.toString()); // 'painter'
+```
 
 ## 参考
 
