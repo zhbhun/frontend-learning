@@ -275,6 +275,13 @@
 
 ### 错误边界处理
 
+要点：
+
+1. 渲染错误会导致整个组件树卸载；
+2. 声明周期和渲染函数里面的错误才会被捕获，其他事件处理和异步逻辑不会被捕获；
+
+参考
+
 - [Error Handling in React 16](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
 - [Introducing Error Boundaries](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
 - [componentDidCatch()](https://reactjs.org/docs/react-component.html#componentdidcatch)

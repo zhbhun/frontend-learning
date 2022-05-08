@@ -5,6 +5,7 @@ import "./App.css";
 const Home = lazy(() => import("./pages/home"));
 const InputEventTester = lazy(() => import("./pages/event/input"));
 const FormControlsTester = lazy(() => import("./pages/form/controls"));
+const LifecycleErrorTester = lazy(() => import("./pages/lifecycle/error"));
 
 function App() {
   return (
@@ -31,6 +32,14 @@ function App() {
           element={
             <Suspense>
               <FormControlsTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lifecycle/error"
+          element={
+            <Suspense>
+              <LifecycleErrorTester />
             </Suspense>
           }
         />
