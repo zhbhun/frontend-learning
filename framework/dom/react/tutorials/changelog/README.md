@@ -22,3 +22,4 @@
 - [SSR support for Suspense](https://github.com/reactwg/react-18/discussions/22)
 - [React 18 is coming with new Features](https://medium.com/@externlabs/react-18-and-every-important-change-426f5a9cc919)
 - [How to Upgrade to the React 18 Release Candidate](https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html)
+- [How to support Reusable State in Effects](https://github.com/reactwg/react-18/discussions/18)

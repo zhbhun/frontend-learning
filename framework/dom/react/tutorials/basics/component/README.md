@@ -4,7 +4,7 @@
 
 - [`createReactClass`](https://www.npmjs.com/package/create-react-class)
 - Class Component：Component、PureComponent
-- Function Component
+- Function Component / memo
 
 ### `createReactClass`
 
