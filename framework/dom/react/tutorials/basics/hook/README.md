@@ -1,10 +1,69 @@
 # Hook
 
-- [Hooks Documents](https://reactjs.org/docs/hooks-intro.html)
-- [useHooks](https://usehooks.com/useEventListener/)
+> Hook 是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。
+
+## 介绍
+
+为什么？
+
+- 缺少在组件之间复用状态逻辑的 API
+
+    RenderProps 和 HOC 这类方案需要重新组织组件结构，使得代码难以理解。如果在 React DevTools 中观察过 React 应用，你会发现由 providers，consumers，高阶组件，render props 等其他抽象层组成的组件会形成“嵌套地狱”。
+
+    使用 Hook 可以从组件中提取状态逻辑，使得这些逻辑可以单独测试并复用，Hook 使你在无需修改组件结构的情况下复用状态逻辑。 
+
+- 复杂组件业务逻辑变得难以理解
+
+    每个生命周期常常包含一些不相关的逻辑。例如，组件常常在 componentDidMount 和 componentDidUpdate 中获取数据。但是，同一个 componentDidMount 中可能也包含很多其它的逻辑，如设置事件监听，而之后需在 componentWillUnmount 中清除。相互关联且需要对照修改的代码被进行了拆分，而完全不相关的代码却在同一个方法中组合在一起。如此很容易产生 bug，并且导致逻辑不一致。
+
+    为了解决这个问题，Hook 将组件中相互关联的部分拆分成更小的函数（比如设置订阅或请求数据），而并非强制按照生命周期划分。你还可以使用 reducer 来管理组件的内部状态，使其更加可预测。
+
+- 难以理解的 class
+
+    必须去理解 JavaScript 中 this 的工作方式，这与其他语言存在巨大差异。还不能忘记绑定事件处理器。
+
+## [API](https://zh-hans.reactjs.org/docs/react-api.html#hooks)
+
+- 实例
+
+    - [useRef](https://zh-hans.reactjs.org/docs/hooks-reference.html#useref)
+    - [useImperativeHandle](https://zh-hans.reactjs.org/docs/hooks-reference.html#useimperativehandle)
+
+- 状态
+
+    - [useState](https://zh-hans.reactjs.org/docs/hooks-reference.html#usestate)
+    - [useContext](https://zh-hans.reactjs.org/docs/hooks-reference.html#usecontext)
+    - [useReducer](https://zh-hans.reactjs.org/docs/hooks-reference.html#usereducer)
+
+- 副作用
+
+    - [useEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useeffect)
+    - [useLayoutEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#uselayouteffect)
+    - [useInsertionEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useinsertioneffect)
+
+- 缓存
+
+    - [useMemo](https://zh-hans.reactjs.org/docs/hooks-reference.html#usememo)
+    - [useCallback](https://zh-hans.reactjs.org/docs/hooks-reference.html#usecallback)
+
+- 其他
+
+    - [useId](https://zh-hans.reactjs.org/docs/hooks-reference.html#useid)
+    - [useDebugValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedebugvalue)
+    - [useDeferredValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedeferredvalue)
+    - [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)
+    - [useSyncExternalStore](https://zh-hans.reactjs.org/docs/hooks-reference.html#usesyncexternalstore)
+
+## [教程](https://zh-hans.reactjs.org/docs/hooks-intro.html)
+
+### 使用规则
+
+1. 只能在 React 的函数组件中调用 Hook，不要在其他 JavaScript 函数中调用；
+2. 只能在函数最外层调用 Hook，不要在循环、条件判断或者子函数中调用；
 
 ## 第三方库
 
+- [useHooks](https://usehooks.com/useEventListener/)
 - [react-use](https://github.com/streamich/react-use)
 - [umijs/hooks](https://github.com/umijs/hooks)
 
