@@ -84,10 +84,6 @@ function MyComponent() {
 
 ### [react-loadable](https://github.com/jamiebuilds/react-loadable)
 
-...
-
-### [loadable-components](https://github.com/smooth-code/loadable-components)
-
 - 支持配置加载过渡组件
 - 支持加载失败处理；
 - 支持加载超时处理；
@@ -97,7 +93,12 @@ function MyComponent() {
 - 支持预加载；
 - 支持服务端渲染；
 
+### [loadable-components](https://github.com/smooth-code/loadable-components)
+
+...
+
 ## 参考文献
 
 - [代码分割](https://zh-hans.reactjs.org/docs/code-splitting.html)
 - [React Loadable 简介](https://zhuanlan.zhihu.com/p/25874892)
+- [Code Splitting, SSR, Lazy loading React components - a deeper understanding! (Part -1)](https://medium.com/1mgofficial/code-splitting-ssr-lazy-loading-react-components-a-deeper-understanding-part-1-7d714196706)
