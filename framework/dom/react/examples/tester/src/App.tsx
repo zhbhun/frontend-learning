@@ -6,6 +6,7 @@ const Home = lazy(() => import("./pages/home"));
 const InputEventTester = lazy(() => import("./pages/event/input"));
 const FormControlsTester = lazy(() => import("./pages/form/controls"));
 const LifecycleErrorTester = lazy(() => import("./pages/lifecycle/error"));
+const RefForwardRefTester = lazy(() => import("./pages/ref/forward-ref"));
 
 function App() {
   return (
@@ -40,6 +41,14 @@ function App() {
           element={
             <Suspense>
               <LifecycleErrorTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/ref/forward-ref"
+          element={
+            <Suspense>
+              <RefForwardRefTester />
             </Suspense>
           }
         />
