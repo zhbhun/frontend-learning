@@ -1,4 +1,6 @@
 
+# TypeScript
+
 ## 小技巧
 
 ### 获取第三方组件未暴露的 props 类型
@@ -43,4 +45,5 @@ const Example: FC = () => {
 
 ## 参考文献
 
+- https://zh-hans.reactjs.org/docs/static-type-checking.html#typescript
 - [Extremely Useful TypeScript and React Skills](https://javascript.plainenglish.io/super-useful-typescript-skills-eb35d049fdbd)
