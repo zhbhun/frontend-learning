@@ -23,3 +23,6 @@
 - [React 18 is coming with new Features](https://medium.com/@externlabs/react-18-and-every-important-change-426f5a9cc919)
 - [How to Upgrade to the React 18 Release Candidate](https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html)
 - [How to support Reusable State in Effects](https://github.com/reactwg/react-18/discussions/18)
+- [Replacing render with createRoot ](https://github.com/reactwg/react-18/discussions/5)
+- [Exploring React 18’s three new APIs](https://blog.logrocket.com/exploring-react-18-three-new-apis/)
+- [React 18 Beta来了](https://segmentfault.com/a/1190000040966821)

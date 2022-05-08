@@ -38,8 +38,8 @@
 - 副作用
 
     - [useEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useeffect)
-    - [useLayoutEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#uselayouteffect)
-    - [useInsertionEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useinsertioneffect)
+    - [useLayoutEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#uselayouteffect)：会在所有 DOM 更新后同步执行该方法的回调，可以用它来来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前，useLayoutEffect 内部的更新计划将被同步刷新。
+    - [useInsertionEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useinsertioneffect)：在所有 DOM 更新更新前同步执行该方法的回调，这会在 useLayoutEffect 之前执行，通常用于插入样式标签到 DOM 中，然后 useLayoutEffect 可以读取布局样式。
 
 - 缓存
 
@@ -48,11 +48,11 @@
 
 - 其他
 
-    - [useId](https://zh-hans.reactjs.org/docs/hooks-reference.html#useid)
-    - [useDebugValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedebugvalue)
-    - [useDeferredValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedeferredvalue)
-    - [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)
-    - [useSyncExternalStore](https://zh-hans.reactjs.org/docs/hooks-reference.html#usesyncexternalstore)
+    - [useId](https://zh-hans.reactjs.org/docs/hooks-reference.html#useid)：用于生成唯一的 ID，且这个 ID 在服务端和客户端是一致的。
+    - [useDebugValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedebugvalue)：用于在 React 开发者工具中显示自定义 hook 的标签。
+    - [useDeferredValue](https://zh-hans.reactjs.org/docs/hooks-reference.html#usedeferredvalue)：接受一个值，并在紧急的更新之后才返回一个新的值，通常用于防抖和节流。
+    - [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)：将 UI 更新标记为低优先级，这个方法会返回一个是否延迟的标志位和一个任务处理函数，将一个函数传递给这个任务处理函数，这个函数内执行的状态更新会被标记为低优先级，且可以让  Suspense 不会显示加载中的组件。
+    - [useSyncExternalStore](https://zh-hans.reactjs.org/docs/hooks-reference.html#usesyncexternalstore)L=
 
 ## [教程](https://zh-hans.reactjs.org/docs/hooks-intro.html)
 
@@ -60,6 +60,24 @@
 
 1. 只能在 React 的函数组件中调用 Hook，不要在其他 JavaScript 函数中调用；
 2. 只能在函数最外层调用 Hook，不要在循环、条件判断或者子函数中调用；
+
+### useLayoutEffect
+
+- [useLayoutEffect和useEffect的区别](https://zhuanlan.zhihu.com/p/348701319)
+- [useEffect vs useLayoutEffect](https://kentcdodds.com/blog/useeffect-vs-uselayouteffect)
+- [React useLayoutEffect vs. useEffect with examples](https://blog.logrocket.com/useeffect-vs-uselayouteffect-examples/)
+- [嗨，useLayoutEffect，醒醒](https://juejin.cn/post/6859602611901825037)
+
+### useTransition
+
+- [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)
+- [React 18新特性优先看之初探useTransition()](https://juejin.cn/post/7020621789172613157)
+- [useTransition/useDerferredValue使用指南](https://blog.shabby.in/how-to-use-useTransition/useDerferredValue/)
+
+### useSyncExternalStore
+
+- [如何理解 React 18 中的 useSyncExternalStore ?](https://www.zhihu.com/question/502917860)
+- [React18中的新特性——useSyncExternalStore](https://juejin.cn/post/7056588815170813965)
 
 ## 第三方库
 
