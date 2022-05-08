@@ -10,6 +10,7 @@
 
 - selected 和 option：需要在 select 组件上设置 value，而不是 option 上设置 selected
 - Fragment
+- Protal
 
 ### 组件命名
 
@@ -49,7 +50,15 @@
 
 - [Index as a key is an anti-pattern](https://robinpokorny.medium.com/index-as-a-key-is-an-anti-pattern-e0349aece318)
 
+### [Fragments](https://zh-hans.reactjs.org/docs/fragments.html)
+
+- `<Fragment></Fragment>`
+- `<></>`
+- `<Fragment key=""></Fragment>`
+
+
 ## 参考
 
 - [JSX 简介](https://zh-hans.reactjs.org/docs/introducing-jsx.html)
 - [DOM 元素](https://zh-hans.reactjs.org/docs/dom-elements.html)
+- [深入 JSX](https://zh-hans.reactjs.org/docs/jsx-in-depth.html)
