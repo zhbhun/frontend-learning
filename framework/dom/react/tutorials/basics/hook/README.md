@@ -68,6 +68,10 @@
 - [React useLayoutEffect vs. useEffect with examples](https://blog.logrocket.com/useeffect-vs-uselayouteffect-examples/)
 - [嗨，useLayoutEffect，醒醒](https://juejin.cn/post/6859602611901825037)
 
+### useMemo
+
+- [React Hook重复渲染问题处理：useMemo, memo, useCallback](https://juejin.cn/post/7039216773710741535)
+
 ### useTransition
 
 - [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)
