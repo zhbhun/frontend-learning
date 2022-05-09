@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 
-const FancyButton = React.forwardRef((props: any, ref: any) => {
+const FancyButton = forwardRef((props: any, ref: any) => {
   return (
     <button ref={props.ref1} className="FancyButton">
       {props.children}

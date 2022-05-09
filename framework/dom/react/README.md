@@ -22,6 +22,7 @@
 
 ## 教程
 
+- [React Tutorial: An Overview and Walkthrough](https://www.taniarascia.com/getting-started-with-react/)
 - [Tutorial: Intro to React](https://reactjs.org/tutorial/tutorial.html#before-we-start-the-tutorial)：React 官方入门教程
 - [mackintosh-windows](https://github.com/agm1984/mackintosh-windows)：包含大量的常见问题及处理方式
 - [carlleton/reactjs101](https://github.com/carlleton/reactjs101/tree/zh-CN)：从零开始学 ReactJS

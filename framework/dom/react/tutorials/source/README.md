@@ -72,3 +72,17 @@
     ```
 
 - [preact源码解析，从preact中理解react原理](https://zhuanlan.zhihu.com/p/100076938)
+
+---
+
+- [React技术揭秘](https://react.iamkasong.com/diff/prepare.html)
+
+---
+
+- v15升级到v16
+
+    > React15架构分为两层，Reconciler(负责找出变化的组件)和Renderer(负责将变化的组件渲染到页面)，在React15及以前，Reconciler采用递归的方式创建虚拟DOM，递归过程是不能中断的。如果组件树的层级很深，递归会占用线程很多时间造成卡顿。
+    >
+    > 为了解决这个问题，React16进行了重构升级到了v16，React16的架构分为三层，Scheduler(负责调度任务)、Reconciler、Renderer。将递归的 无法中断的递归更新⚠️ 重构为 异步可中断的循环更新♻️，每次循环都会判断当前是否有剩余时间，这就是全新的Fiber架构。
+
+- 
