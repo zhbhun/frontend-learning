@@ -1,0 +1,5 @@
+- [浅入浅出 TypeScript 泛型与类型黑魔法](https://serializedowen.github.io/%E6%B5%85%E5%85%A5%E6%B5%85%E5%87%BA-type-script-%E6%B3%9B%E5%9E%8B%E4%B8%8E%E7%B1%BB%E5%9E%8B%E9%BB%91%E9%AD%94%E6%B3%95)
+- [TypeScript 内置工具泛型](https://github.com/chenxiaochun/blog/issues/67)
+- [TS 一些工具泛型的使用及其实现(续)](https://moonland.cc/2020/05/01/ts-%E4%B8%80%E4%BA%9B%E5%B7%A5%E5%85%B7%E6%B3%9B%E5%9E%8B%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0-%E7%BB%AD/)
+- [看懂复杂的TypeScript泛型运算](https://juejin.cn/post/6881978855096057863)
+- [TS 一些工具泛型的使用及其实现](https://zhuanlan.zhihu.com/p/40311981)

@@ -52,7 +52,8 @@
 - NaN 和其他任何类型比较永远返回false（包括和他自己）;
 - Boolean 和其他任何类型比较，Boolean 首先被转换为 Number 类型；
 - String 和 Number 比较，先将 String 转换为 Number 类型；
-- 原始类型和引用类型做比较时，引用类型会依照 ToPrimitive 规则转换为原始类型。
+- String 和 String 比较，按字符一次匹配判断；
+- 原始类型和引用类型做比较时，引用类型会转为字符串后比较；
 
 ## 条件判断
 
