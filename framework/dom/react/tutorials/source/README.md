@@ -4,6 +4,13 @@
 - [React 源码解析](https://react.jokcy.me/)
 - [万字长文+图文并茂+全面解析 React 源码 - render 篇](https://segmentfault.com/a/1190000022105022)
 
+
+## 架构
+
+
+
+---
+
 ## Fiber
 
 - [react-fiber-architecture](https://github.com/acdlite/react-fiber-architecture)
@@ -86,3 +93,5 @@
     > 为了解决这个问题，React16进行了重构升级到了v16，React16的架构分为三层，Scheduler(负责调度任务)、Reconciler、Renderer。将递归的 无法中断的递归更新⚠️ 重构为 异步可中断的循环更新♻️，每次循环都会判断当前是否有剩余时间，这就是全新的Fiber架构。
 
 - 
+
+---
