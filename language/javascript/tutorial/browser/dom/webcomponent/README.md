@@ -17,6 +17,7 @@
 
 ### 自定义元素
 
+- 创建自定义元素
 
 ```html
 <user-card></user-card>
@@ -29,6 +30,8 @@
   window.customElements.define('user-card', UserCard);
 </script>
 ```
+
+ps：自定义网页元素的标签名必须含有连字符（-），一个或多个都可。这是因为浏览器内置的的HTML元素标签名，都不含有连字符，这样可以做到有效区分。
 
 ### 元素内容
 
@@ -100,7 +103,19 @@
 
 ### Shadow DOM
 
-...
+所谓Shadow DOM指的是，浏览器将模板、样式表、属性、JavaScript代码等，封装成一个独立的DOM元素。外部的设置无法影响到其内部，而内部的设置也不会影响到外部，与浏览器处理原生网页元素（比如 `<video>` 元素）的方式很像。
+
+## 进阶
+
+### 检测兼容性
+
+- 检测是否支持模板 
+
+    ```js
+    function supportsTemplate() {
+      return 'content' in document.createElement('template');
+    }
+    ```
 
 
 ## 开发框架
