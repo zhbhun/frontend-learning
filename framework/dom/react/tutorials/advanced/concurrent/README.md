@@ -15,3 +15,4 @@
 - [React v18中的任务调度机制](https://zhuanlan.zhihu.com/p/454432618)
 - [Behavioral changes to Suspense in React 18](https://github.com/reactwg/react-18/discussions/7)
 - [New Suspense SSR Architecture in React 18](https://github.com/reactwg/react-18/discussions/37)
+- [React Concurrent Mode 之 Suspense 实践](https://toutiao.io/posts/d1tjay8/preview)

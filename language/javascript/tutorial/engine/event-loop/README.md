@@ -16,3 +16,5 @@
 - [JavaScript任务队列的顺序机制（事件循环）](http://www.yangzicong.com/article/3)
 - [由setTimeout和setImmediate执行顺序的随机性窥探Node的事件循环机制](https://segmentfault.com/a/1190000013102056)
 - [深入探究 eventloop 与浏览器渲染的时序问题](https://www.404forest.com/2017/07/18/how-javascript-actually-works-eventloop-and-uirendering/)
+- [浅谈MessageChannel](https://zhuanlan.zhihu.com/p/432726048)
+- [了解js运行机制——微任务与宏任务](https://juejin.cn/post/6844903859949830158)

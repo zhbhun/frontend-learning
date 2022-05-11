@@ -1,12 +1,22 @@
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useState, useDeferredValue ,useTransition } from "react";
 
 const OtherComponent = lazy(() => import("./components/OtherComponent"));
 const AnotherComponent = lazy(() => import("./components/AnotherComponent"));
 
+function Temp() {
+  console.log("xxx");
+  return <AnotherComponent />;
+}
+
 function LazyTester() {
   const [tab, setTab] = useState("other");
+  const [isPending, startTransition] = useTransition();
+  // const xuseDeferredValue(1)
   function handleTabSelect(tab: string) {
-    setTab(tab);
+    startTransition(() => {
+      setTab(tab);
+    });
+    // setTab(tab);
   }
 
   return (
@@ -25,10 +35,9 @@ function LazyTester() {
           another
         </button>
       </div>
+      <div>{isPending ? "loading" : null}</div>
       <Suspense fallback={<div>Loading...</div>}>
-        <section>
-          {tab === "other" ? <OtherComponent /> : <AnotherComponent />}
-        </section>
+        <section>{tab === "other" ? <OtherComponent /> : <Temp />}</section>
       </Suspense>
     </div>
   );

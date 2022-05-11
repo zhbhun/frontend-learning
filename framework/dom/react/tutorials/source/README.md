@@ -3,6 +3,7 @@
 - [React技术揭秘](https://react.iamkasong.com/#%E5%AF%BC%E5%AD%A6%E8%A7%86%E9%A2%91)
 - [React 源码解析](https://react.jokcy.me/)
 - [万字长文+图文并茂+全面解析 React 源码 - render 篇](https://segmentfault.com/a/1190000022105022)
+- [深入剖析 React Concurrent](https://zhuanlan.zhihu.com/p/60307571)
 
 
 ## 架构

@@ -26,3 +26,4 @@
 - [How to support Reusable State in Effects](https://github.com/reactwg/react-18/discussions/18)
 - [Replacing render with createRoot ](https://github.com/reactwg/react-18/discussions/5)
 - [Exploring React 18’s three new APIs](https://blog.logrocket.com/exploring-react-18-three-new-apis/)
+- [[译] React 18 新特性概览](https://juejin.cn/post/7014683796821770247#heading-7)

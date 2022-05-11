@@ -6,3 +6,4 @@
 
 - [startTransition](https://zh-hans.reactjs.org/docs/react-api.html#starttransition)
 - [useTransition](https://zh-hans.reactjs.org/docs/hooks-reference.html#usetransition)
+- [React useTransition](http://www.ayqy.net/blog/react-usetransition/)
