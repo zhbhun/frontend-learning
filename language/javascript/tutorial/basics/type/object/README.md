@@ -1,12 +1,85 @@
 # 对象
 
-## 用法
+## 基础
 
 ### 字面量
 
 。。。
 
+### 内置对象
+
+- Number
+- Boolean
+- String
+- Object
+- Function
+- Array
+- Date
+- RegExp
+- Error
+
+### 属性描述符
+
+属性描述符
+
+- value：当前值
+- writable：是否可写
+
+    ps：不可写的属性，在严格模式下回抛出异常 TypeError
+
+- enumerable：是否可迭代
+- configurable：是否可配置
+
+    ps：不管是否处于严格模式，修改不可配置的属性描述符都会抛出 TypeError，而且不可配置的属性不允许 delete 删除。
+
+- get
+- set
+
+相关方法
+
+- `Object.getOwnPropertyDescriptor(obj, key)`
+- `Object.defineProperty(obj, key, { value, writable, configurable, enumerable })`
+
+### 内置操作
+
+- `[[Get]]()`：对象属性访问时的内置操作。
+
+    在语言规范中， myObject.a 在 myObject 上实际上是实现了 [[Get]] 操作（有点像函数调用：[[Get]]() ）。对象默认的内置 [[Get]] 操作首先在对象中查找是否有名称相同的属性， 如果找到就会返回这个属性的值。然而，如果没有找到名称相同的属性，按照 [[Get]] 算法的定义会执行另外一种非常重要的行为。
+
+- `[[Put]]()`：对象属性设置时的内置操作。
+
+    1. 检查是否存在属性描述符；
+    2. 检查属性描述符的 writable 是否 true；
+    3. 如果都不是，将该值设置为属性的值。
+
+### 属性的存在性
+
+- `in`
+- `for..in`
+- `Object.getOwnPropertyNames()`
+- `Object.keys()`
+
+### 对象遍历
+
+- `for..of`
+- `Symbol.iterator`
+
+## 进阶
+
+### 对象拷贝
+
+- 浅拷贝
+
+    - 解构：所有可枚举的自有属性
+    - Object.assign：所有可枚举的自有属性
+
+- 深拷贝
+
+    - `JSON.parse(JSON.stringify())`：所有可枚举的属性的自有属性
+
 ### 扩展、封闭和冻结
+
+不可添加 =》 不可添加、删除和配置 =》 不可添加、删除、配置和写
 
 #### 不可扩展
 
@@ -16,7 +89,6 @@
 - [`Object.isExtensible()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/isExtensible)
 
 ps：不可扩展的对象可以删除和配置现有属性。
-
 
 #### 封闭
 
