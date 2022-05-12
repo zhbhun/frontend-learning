@@ -140,6 +140,13 @@ ps：
 
 参见 [proxy](./proxy/README.md)
 
+### 深拷贝
+
+- [如何写出一个惊艳面试官的深拷贝?](https://segmentfault.com/a/1190000020255831)
+- https://segmentfault.com/a/1190000039310119
+- https://zhuanlan.zhihu.com/p/41699218
+- https://gist.github.com/Ariex/6e5b68bdb3f5e96275d3069d7dbb5579
+
 ## 实践
 
 ### has/in vs getOwnPropertyNames() vs keys()

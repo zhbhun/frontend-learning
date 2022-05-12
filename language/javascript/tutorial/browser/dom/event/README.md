@@ -36,3 +36,4 @@
 - [EventTarget.dispatchEvent()](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent)
 - [How to simulate a click with JavaScript?](https://stackoverflow.com/questions/2705583/how-to-simulate-a-click-with-javascript)
 - [document.createEvent fails](https://stackoverflow.com/questions/4645724/document-createevent-fails)
+- [JavaScript 事件委托详解](https://zhuanlan.zhihu.com/p/26536815)

@@ -2,11 +2,20 @@
 
 ## 基础
 
+### 数组增删
+
+- [`Array.prototype.fill()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/fill)
+
+### 数组遍历
+
+- [`Array.prototype.every()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+
 ### 数组属性设置
 
 `array[var] = 1`
 
 var 先转换为数值，如果数值是个大于等于 0 的正整数，那么会作为数组下标使用，否则作为对象属性使用。
+
 
 ## 进阶
 

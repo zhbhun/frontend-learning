@@ -7,6 +7,11 @@
 ### attribute VS property
 
 > “Attribute” 是在 HTML 中定义的，而 “property” 是在 DOM 上定义的。
+>
+> HTML属性 (attribute)和 DOM属性(property)，是相互关联的。多数情况 attribute 值仅用作初始DOM节点对象使用，而 property 更多用于页面交互，
+
+
+- [DOM property 和 attribute 的区别详解](https://juejin.cn/post/6844904114065768462)
 
 ## 事件
 
