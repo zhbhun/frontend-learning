@@ -29,3 +29,4 @@
 - [let 声明会提升（hoist）吗？](https://zhuanlan.zhihu.com/p/27558914?utm_source=com.ideashower.readitlater.pro)
 - https://gist.github.com/DmitrySoshnikov/b53e379f63f4cd841305
 - [Understanding This, Bind, Call, and Apply in JavaScript](https://www.digitalocean.com/community/conceptual_articles/understanding-this-bind-call-and-apply-in-javascript)
+- [漫谈ES5之前的块级作用域](https://juejin.cn/post/6844903902068867085)
