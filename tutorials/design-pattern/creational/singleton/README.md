@@ -4,12 +4,14 @@
 
 ![singleton.png](./singleton.png)
 
-## 应用场景
+应用场景
 
 - 如果程序中的某个类对于所有客户端只有一个可用的实例，可以使用单例模式。
 - 如果你需要更加严格地控制全局变量，可以使用单例模式。
 
-## 实现方案
+优缺点：TODO
+
+## 实现
 
 ### 标准版
 
@@ -143,7 +145,7 @@ Singleton.prototype.someBusinessLogic = function () {
 const ProxySingleton = createProxySingleton(Singleton);
 ```
 
-## 实践应用
+## 应用
 
 ### 全局变量的命名污染
 
