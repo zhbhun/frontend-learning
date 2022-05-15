@@ -5,7 +5,6 @@
 
 ## 技术栈
 
-![architecture.png](./.assets/architecture.png)
 
 - UI 框架：
 
@@ -37,6 +36,16 @@
     - 性能工程化管理：开发自检、性能测试、线上监控、运营分析
     - 规范化：编码规范、版本管理
 
+- 服务端
+
+    - API 网关
+    - 登录认证：JWT、CAS、OTATH
+    - 微服务治理：Dubbo
+    - 日志系统：ElasticSearch
+    - 数据库：SQL、NoSQL
+    - 消息队列
+    - 任务调度
+
 ## 系统架构
 
 ### 后端系统架构
@@ -47,7 +56,7 @@ ref: https://www.cnblogs.com/loren-Yang/p/11073536.html
 
 ### 前端同构
 
-TODO: ...
+![architecture.png](./.assets/architecture.png)
 
 ## 项目架构
 
