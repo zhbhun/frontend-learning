@@ -127,6 +127,15 @@ TODO
     - 门面模式
     - 享元模式
 
+## 实战敬仰
+
+- 路由参数透传和埋点参数
+- JSSDK 适配器
+- redumd 模板方法模式
+- react hoc
+- dom 事件责任链
+
+
 ## 参考
 
 书籍
@@ -140,9 +149,3 @@ TODO
 - [《JavaScript 设计模式与开发实践》读书笔记](https://github.com/JChehe/blog/issues/35)
 
 ---
-
-- 阳光课堂业务线的路由参数透传和埋点参数
-- JSSDK 适配器
-- redumd 模板方法模式
-- react hoc
-- dom 事件责任链
