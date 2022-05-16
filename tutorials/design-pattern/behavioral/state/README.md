@@ -123,3 +123,4 @@ context.request2();
 ## 参考
 
 - [JavaScript与有限状态机](http://www.ruanyifeng.com/blog/2013/09/finite-state_machine_for_javascript.html)
+- [JavaScript状态模式及状态机模型](https://zhuanlan.zhihu.com/p/36556081)
