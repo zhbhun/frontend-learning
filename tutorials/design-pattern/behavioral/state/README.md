@@ -119,3 +119,7 @@ context.request2();
 
 - 状态机
 - 词法分析
+
+## 参考
+
+- [JavaScript与有限状态机](http://www.ruanyifeng.com/blog/2013/09/finite-state_machine_for_javascript.html)
