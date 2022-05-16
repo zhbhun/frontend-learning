@@ -1,0 +1,5 @@
+- [中间件模式在前端框架中的应用](https://oychao.github.io/2019/04/08/javascript/38_middleware_pattern/)
+- [【js】动手实现一个简单的中间件](https://www.jianshu.com/p/67f2e02033b9)
+- [中间件js实现](https://llever.com/2017/06/13/%E4%B8%AD%E9%97%B4%E4%BB%B6js%E5%AE%9E%E7%8E%B0/)
+- [Node.js 中怎么实现中间件模式](https://m.yisu.com/zixun/178835.html)
+- [编写可维护代码之“中间件模式”](https://zhuanlan.zhihu.com/p/26063036)
