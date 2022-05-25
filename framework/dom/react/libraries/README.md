@@ -16,3 +16,4 @@
 ## 参考文献
 
 - [Lightweight Alternatives to Redux](https://medium.com/stackanatomy/lightweight-alternatives-to-redux-eef4d4eb387c)
+- [2022 年的 React 生态](https://zhuanlan.zhihu.com/p/497380207)
