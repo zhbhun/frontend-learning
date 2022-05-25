@@ -4,6 +4,7 @@
 
 ### 生命周期函数
 
+- Legacy Class
 - 16.3+：Modern Class
 - 16.8+：Hook
 
@@ -43,6 +44,24 @@
 
 - `useEffect(() => () => void, [])`：在首次渲染时执行副作用函数，副作用函数可以返回一个函数，该函数会在组件销毁时执行
 - `useEffect(() => () => void, [...dep])`：在每次依赖变化时执行副作用函数，副作用函数可以返回一个函数，该函数会在新的副作用函数处理前执行
+
+### 错误边界处理
+
+要点：
+
+1. 渲染错误会导致整个组件树卸载；
+2. 声明周期和渲染函数里面的错误才会被捕获，其他事件处理和异步逻辑不会被捕获；
+
+参考
+
+- [Error Handling in React 16](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
+- [Introducing Error Boundaries](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
+- [componentDidCatch()](https://reactjs.org/docs/react-component.html#componentdidcatch)
+
+## 进价
+
+- getDerivedStateFromProps 不能和旧的生命周期函数一起使用（旧的生命周期不会被调用）；
+- componentDidCatch 只能捕获子节点的异常，而且异常必须是在生命周期函数里抛出的；
 
 ### 为什么数据获取要在 componentDidMount 中进行?
 
@@ -273,29 +292,11 @@
 
 - [什么时候使用派生 state](https://zh-hans.reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#when-to-use-derived-state)
 
-### 错误边界处理
-
-要点：
-
-1. 渲染错误会导致整个组件树卸载；
-2. 声明周期和渲染函数里面的错误才会被捕获，其他事件处理和异步逻辑不会被捕获；
-
-参考
-
-- [Error Handling in React 16](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
-- [Introducing Error Boundaries](https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html#introducing-error-boundaries)
-- [componentDidCatch()](https://reactjs.org/docs/react-component.html#componentdidcatch)
-
-## 进价
-
-- getDerivedStateFromProps 不能和旧的生命周期函数一起使用（旧的生命周期不会被调用）；
-- componentDidCatch 只能捕获子节点的异常，而且异常必须是在生命周期函数里抛出的；
-
 ### 为什么废弃 react 旧的生命周期函数？
 
 1. 因为 fiber 的出现，很可能因为高优先级任务的出现而打断现有任务导致被废弃的那几个生命周期函数会被执行多次；
 2. componentwillMount 完全可以由 constructor 和 componentDidMount 代替；
-3. componentWillReceiveProps 是静态方法，在这里不能使用 this，也就是一个纯函数，开发者不能写出副作用的代码；
+3. getDerivedStateFromProps 是静态方法，在这里不能使用 this，也就是一个纯函数，开发者不能写出副作用的代码；
 4. componentWillUpdate 类似 componentwillMount，可以由 componentDidUpdate 代替；
 
 ---
