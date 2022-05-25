@@ -14,6 +14,7 @@ const SuspenseLazyIssueTester = lazy(
 const SuspenseLazyTransitionTester = lazy(
   () => import("./pages/suspense/lazy/transition")
 );
+const SuspenseTest = lazy(() => import("./pages/suspense/test/index"));
 
 function App() {
   return (
@@ -80,6 +81,14 @@ function App() {
           element={
             <Suspense>
               <SuspenseLazyTransitionTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/suspense/test/index"
+          element={
+            <Suspense>
+              <SuspenseTest />
             </Suspense>
           }
         />
