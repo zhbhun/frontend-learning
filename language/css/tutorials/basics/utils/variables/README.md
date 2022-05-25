@@ -21,6 +21,11 @@
 
 - [CSS Custom Properties (CSS Variables) Sample](https://googlechrome.github.io/samples/css-custom-properties/index.html)
 
+### currentColor
+
+- [currentcolor keyword](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword)
+- [currentColor](https://css-tricks.com/currentcolor/)
+- [currentColor-CSS3超高校级好用CSS变量](https://www.zhangxinxu.com/wordpress/2014/10/currentcolor-css3-powerful-css-keyword/)
 
 ### 参考文献
 
