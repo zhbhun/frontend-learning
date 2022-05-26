@@ -1,10 +1,11 @@
 - [Easing](http://easings.net/zh-cn)
 - https://github.com/airbnb/lottie-web
 - [lottie-react-native](https://github.com/lottie-react-native/lottie-react-native) - Lottie wrapper for React Native.
-- [react-native-reanimated](https://github.com/kmagiera/react-native-reanimated)
+- [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated/)
 - [react-native-animatable](https://github.com/oblador/react-native-animatable)
 - [shoutem/animation](https://github.com/shoutem/animation) - Animate your React Native components.
 - [moti](https://github.com/nandorojo/moti) - The React Native (+ Web) animation library, powered by Reanimated 2.
+- [legend-motion](https://github.com/LegendApp/legend-motion) - Legend Motion is a declarative animations library for React Native, to make it easy to transition between styles without needing to manage animations.
 
 ---
 
