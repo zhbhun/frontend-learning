@@ -1,1 +1,2 @@
 - [pqina/filepond](https://github.com/pqina/filepond) - A flexible and fun JavaScript file upload library
+- [rpldy/react-uploady](https://github.com/rpldy/react-uploady) - Modern file uploading - components & hooks for React
