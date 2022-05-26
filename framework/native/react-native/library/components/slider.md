@@ -1,3 +1,4 @@
 - https://github.com/jeanregisser/react-native-slider
 - https://github.com/bgryszko/react-native-circular-slider
 - https://github.com/JackDanielsAndCode/react-native-multi-slider
+- [RNSwipeButton](https://github.com/UdaySravanK/RNSwipeButton) - React Native Swipe Button component
