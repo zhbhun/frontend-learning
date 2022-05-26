@@ -1,3 +1,4 @@
+- [rehypejs/rehype](https://github.com/rehypejs/rehype) - HTML processor powered by plugins part of the @unifiedjs collective
 - [gumbo-parser](https://github.com/google/gumbo-parser)
 - [htmlparser2](https://github.com/fb55/htmlparser2)
 - [node-htmlparser](https://github.com/tautologistics/node-htmlparser)
