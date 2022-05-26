@@ -1,7 +1,5 @@
 # 函数式编程
 
-## 编程思想
-
 - Lambda 表达式
 - 闭包（closure）：一个函数和对其周围状态（lexical environment，词法环境）的引用捆绑在一起（或者说函数被引用包围），这样的组合就是闭包（closure）
 
@@ -17,6 +15,22 @@
     - 函数防抖
     - 惰性加载函数
 
+## 教程
+
+- https://github.com/stoeffel/awesome-fp-js
+- [什么是函数式编程思维？](https://www.zhihu.com/question/28292740)
+- [如何掌握函数式编程？](https://www.zhihu.com/question/21410150)
+- [不要再尝试函数式编程了](https://www.infoq.cn/article/b6gkx1crp2umu2*jipqb)
+- [JavaScript 函数式编程入门指南](https://chinese.freecodecamp.org/news/functional-programming-in-javascript-for-beginners/)
+- [[译] 2017年你应该了解的函数式编程](https://github.com/jasonGeng88/blog/blob/master/201705/functional_programming.md)
+- [函数式编程（FP）](https://www.zoo.team/article/function-production)
+
+## 书籍
+
+- [《JavaScript函数式编程思想》](https://book.douban.com/subject/30449514/)
+- [《Scala函数式编程》](https://book.douban.com/subject/26772149/)
+- [《函数式编程思维》](https://book.douban.com/subject/26587213/)
+- [《函数式编程指北》](https://llh911001.gitbooks.io/mostly-adequate-guide-chinese/content/)
 
 ## 开源项目
 
