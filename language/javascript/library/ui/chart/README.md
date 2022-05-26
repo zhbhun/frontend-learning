@@ -8,6 +8,7 @@
 - [kepler.gl](https://kepler.gl/) - Kepler.gl is a powerful open source geospatial analysis tool for large-scale data sets.
 - https://github.com/antvis/f2
 - echarts
+- [highcharts](https://github.com/highcharts/highcharts) - Highcharts JS, the JavaScript charting framework
 
 ## 参考文献
 

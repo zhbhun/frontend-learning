@@ -6,3 +6,4 @@
 - https://formidable.com/open-source/victory/
 - https://github.com/reactchartjs/react-chartjs-2
 - https://nivo.rocks/
+- [react-jsx-highcharts](https://github.com/whawker/react-jsx-highcharts) - Highcharts built with proper React components
