@@ -8,6 +8,13 @@ PostCSS
 - [autoprefixer](https://github.com/postcss/autoprefixer)
 - [postcss-modules](https://github.com/css-modules/postcss-modules)
 
+## 应用
+
+### 压缩
+
+- [cssnano](https://github.com/cssnano/cssnano) - A modular minifier, built on top of the PostCSS ecosystem.
+
+
 ## 参考文献
 
 - [从Sass过渡到PostCSS](https://www.w3cplus.com/preprocessor/sass-to-postcss.html)
