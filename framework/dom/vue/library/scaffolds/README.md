@@ -1,0 +1,1 @@
+- [vitesse](https://github.com/antfu/vitesse) - Opinionated Vite Starter Template
