@@ -1,6 +1,6 @@
 # [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
 
-## 对比
+## 介绍
 
 误区
 
@@ -111,20 +111,25 @@
 参考文献
 
 - [如何评价CSS框架TailwindCSS？](https://www.zhihu.com/question/337939566)
+- [关于TailwindCSS的一些思考](https://www.shymean.com/article/%E5%85%B3%E4%BA%8ETailwindCSS%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%9D%E8%80%83)
 
 ## 基础
 
 - [在 React 编程中, 我是如何用 tailwind 优化样式编写的?](https://juejin.cn/post/6937911432545566727)
 - [小程序原子化CSS技术方案（Windi CSS](https://juejin.cn/post/7040409435826552846)
 - [原子化css之windicss 初探](https://juejin.cn/post/7063061869526777870)
+- [重新构想原子化 CSS](https://antfu.me/posts/reimagine-atomic-css-zh)
 
-## 问题
+## 进阶
 
 ### 样式覆盖问题
 
 - [CSS class override utility for component composition.](https://github.com/tailwindlabs/tailwindcss/discussions/1446)
 - [Conflicting className precedence rules](https://github.com/tailwindlabs/tailwindcss/issues/1010)
 
----
+### 编码范
 
+- [eslint-plugin-tailwindcss](https://github.com/francoismassart/eslint-plugin-tailwindcss)
+- [prettier-plugin-tailwindcss](https://github.com/tailwindlabs/prettier-plugin-tailwindcss)
+- [Automatic Class Sorting with Prettier](https://tailwindcss.com/blog/automatic-class-sorting-with-prettier)
 - [Automatically sorting your Tailwind CSS class names](https://dev.to/drnic/automatically-sorting-your-tailwind-css-class-names-4gej)
