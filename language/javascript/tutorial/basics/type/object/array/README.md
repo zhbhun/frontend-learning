@@ -9,6 +9,7 @@
 ### 数组遍历
 
 - [`Array.prototype.every()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+- [Processing Arrays non-destructively: for-of vs. .reduce() vs. .flatMap()](https://2ality.com/2022/05/processing-arrays-non-destructively.html)
 
 ### 数组属性设置
 
