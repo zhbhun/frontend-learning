@@ -3,6 +3,7 @@ SPA
 
 - [说说对单页面SPA应用的认识](https://www.kelede.win/posts/singlepagewebapp/)
 - [一个单页应用解决方案](http://www.ifviva.com/articles/2017/04/spa-framework/)
+- [The balance has shifted away from SPAs](https://nolanlawson.com/2022/05/21/the-balance-has-shifted-away-from-spas/)
 
 ## 问题
 
