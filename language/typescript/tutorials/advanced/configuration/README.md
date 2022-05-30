@@ -44,3 +44,12 @@
     因为 someType 只是一个 TS 类型，JS 实际运行时并不存在该值，而像 babel 这样的单文件编译器无法知道 someType 是否是一个 TS 类型还是 JS 值，编译后会保留 someType 的导出，所以在运行编译后的代码会报错。
 
 解决：为了规避该问题，在使用 babel 这样的单文件编译器的时候，需要开启 TS 的 isolatedModules，这样 TS 会对这样代码做相关的警告
+
+## 进阶
+
+### 三斜线指令
+
+使用场景：在没有使用模块化系统，或者没有配置文件和命令行时，可以使用三斜线来引入外部依赖。
+
+- [Triple-Slash Directives](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html)
+- [When do I need a triple slash reference?](https://stackoverflow.com/questions/22684802/when-do-i-need-a-triple-slash-reference)
