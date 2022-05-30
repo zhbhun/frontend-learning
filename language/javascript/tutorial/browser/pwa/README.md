@@ -3,7 +3,7 @@
 - [Progressive Web Apps](https://developers.google.com/web/progressive-web-apps/)
 - [awesome-pwa](https://github.com/hemanth/awesome-pwa)
 
-## 技术体系
+## 基础
 
 - [Service Worker](https://www.w3.org/TR/service-workers/)
 - [Web App Manifest](https://w3c.github.io/manifest/)
@@ -13,29 +13,41 @@
 - [Web Push Protocol](https://tools.ietf.org/html/draft-ietf-webpush-protocol-12)
 - [Notification](https://www.w3.org/TR/notifications/)
 
-## 开源项目
-
-- [workbox](https://github.com/GoogleChrome/workbox)
-- [lavas](https://lavas.baidu.com/)
-- [vuejs-templates/pwa](https://github.com/vuejs-templates/pwa)
-- [create-react-pwa](https://github.com/jeffposnick/create-react-pwa)
-
-## 教程&博客
+---
 
 - [SangKa/PWA-Book-CN](https://github.com/SangKa/PWA-Book-CN)
 - [离线指南](https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook/#cache-falling-back-to-network)
 - [服务工作线程：简介](https://developers.google.com/web/fundamentals/primers/service-workers/#you_need_https)
 - https://docs.pwabuilder.com/
 
-## 模板&脚手架
+### File Handling
 
+- [将安装的 Web 应用程序作为文件处理程序](https://web.dev/file-handling/)
+- [Chrome 102 带来的杀手级功能：双击文件打开 PWA 应用](https://mp.weixin.qq.com/s/3ANzWtSTk1gzRo-ooL6dYg)
+
+## 进阶
+
+### 开发工具
+
+- [workbox](https://github.com/GoogleChrome/workbox)
+- [lavas](https://lavas.baidu.com/)
+- [vuejs-templates/pwa](https://github.com/vuejs-templates/pwa)
+- [create-react-pwa](https://github.com/jeffposnick/create-react-pwa)
 - [Atyantik/react-pwa](https://github.com/Atyantik/react-pwa)
-
-## 开发工具
-
 - [sw-precache-webpack-plugin](https://github.com/goldhand/sw-precache-webpack-plugin)
 
-## 应用示例
+### 常见问题
+
+- [Service worker JavaScript update frequency (every 24 hours?)](https://stackoverflow.com/questions/38843970/service-worker-javascript-update-frequency-every-24-hours)
+- [Options for testing service workers via HTTP](https://stackoverflow.com/questions/34160509/options-for-testing-service-workers-via-http/34161385#34161385)
+- [Android Back Button on a Progressive Web Application closes de App](https://stackoverflow.com/questions/43329654/android-back-button-on-a-progressive-web-application-closes-de-app)
+
+#### 兼容性
+
+- [iOS 终于支持了 PWA，一起来认识一下这个强化版「小程序」 | 科普](https://sspai.com/post/44027)
+- [Progressive Web Apps on iOS are here](https://medium.com/@firt/progressive-web-apps-on-ios-are-here-d00430dee3a7)
+
+### 应用示例
 
 - 汇总
 
@@ -80,17 +92,6 @@
     - [用新版的 Chrome 把 PWA 网站添加到桌面，获得媲美原生应用的体验](https://sspai.com/post/43499)
     - [PWA国内应用推荐，无需下载APP，应用秒开黑科技！](https://www.5meng.cc/1017.html/)
     - https://www.ifanr.com/app/825246
-
-## 常见问题
-
-- [Service worker JavaScript update frequency (every 24 hours?)](https://stackoverflow.com/questions/38843970/service-worker-javascript-update-frequency-every-24-hours)
-- [Options for testing service workers via HTTP](https://stackoverflow.com/questions/34160509/options-for-testing-service-workers-via-http/34161385#34161385)
-- [Android Back Button on a Progressive Web Application closes de App](https://stackoverflow.com/questions/43329654/android-back-button-on-a-progressive-web-application-closes-de-app)
-
-### 兼容性
-
-- [iOS 终于支持了 PWA，一起来认识一下这个强化版「小程序」 | 科普](https://sspai.com/post/44027)
-- [Progressive Web Apps on iOS are here](https://medium.com/@firt/progressive-web-apps-on-ios-are-here-d00430dee3a7)
 
 ## 参考文献
 
