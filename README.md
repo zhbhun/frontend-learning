@@ -46,6 +46,7 @@
     - [JavaScript-豆瓣](https://book.douban.com/tag/JavaScript?start=20&type=S)
     - [design-resources-for-developers](https://github.com/bradtraversy/design-resources-for-developers)
     - [free-programming-books](https://github.com/EbookFoundation/free-programming-books)
+    - [Exploring JS: JavaScript books for programmers](https://exploringjs.com/)
 
 ## 汇总
 
