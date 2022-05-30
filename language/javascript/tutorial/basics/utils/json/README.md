@@ -6,6 +6,7 @@
 - https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/JSON
 - [语言的魅力 - JSON的发展史_杨树林er的博客-程序员宝宝](https://www.cxybb.com/article/weixin_41636483/112589241)
 - [5 Secret features of JSON in JavaScript you didn't know about ](https://dev.to/siddharthshyniben/5-secret-features-of-json-you-didnt-know-about-5bbg)
+- [JSON And The Stringification Oddities In JavaScript](https://www.zhenghao.io/posts/json-oddities)
 
 ## 进阶
 
