@@ -95,6 +95,10 @@ https://developer.chrome.com/apps/i18n
 
 - [Top 10 Chrome Extensions Every Developer Likes](https://dev.to/shijiezhou/top-10-chrome-extensions-every-developer-likes-3ehk)
 
+## 模板
+
+- [browser-extension](https://github.com/Debdut/browser-extension) - A Out of the Box 🎁 Browser Extension Template with support for React, Typescript, Preact
+
 ## 问题
 
 ### 如何下载扩展压缩包
