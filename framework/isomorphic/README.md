@@ -137,3 +137,19 @@
 - [服务端渲染到前端渲染，再到“服务端渲染](https://segmentfault.com/a/1190000015862685)
 - [一体化 SSR/SPR](https://modernjs.dev/docs/guides/features/server-side/web/ssr-and-spr)
 - [SSR VS CSR ,一次讲个通透](https://zhuanlan.zhihu.com/p/60975107)
+
+---
+
+- [next.js](https://github.com/zeit/next.js)
+- [Server-Side React Rendering](https://css-tricks.com/server-side-react-rendering/)
+- [ultimate-hot-reloading-example](https://github.com/glenjamin/ultimate-hot-reloading-example/blob/master/client/reducers/index.js)
+- [react-webpack-server-side-example](https://github.com/webpack/react-webpack-server-side-example)
+- [Which method is faster, express : Server-side rendering vs client-side rendering](https://stackoverflow.com/questions/33359504/which-method-is-faster-express-server-side-rendering-vs-client-side-rendering)
+- [webpack-isomorphic-tools](https://github.com/halt-hammerzeit/webpack-isomorphic-tools)
+- [universal-webpack](https://github.com/halt-hammerzeit/universal-webpack)
+- https://github.com/DavidWells/isomorphic-react-example
+- http://www.aliued.com/?p=3077
+- https://github.com/joeyguo/blog/issues/9
+- [React+Redux 同构应用开发](http://www.aliued.com/?p=3077)
+- [react-universal-component](https://github.com/faceyspacey/react-universal-component)
+
