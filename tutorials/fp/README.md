@@ -24,6 +24,7 @@
 - [JavaScript 函数式编程入门指南](https://chinese.freecodecamp.org/news/functional-programming-in-javascript-for-beginners/)
 - [[译] 2017年你应该了解的函数式编程](https://github.com/jasonGeng88/blog/blob/master/201705/functional_programming.md)
 - [函数式编程（FP）](https://www.zoo.team/article/function-production)
+- [Master Higher-Order Functions in JavaScript](https://www.telerik.com/blogs/master-higher-order-functions-javascript)
 
 ## 书籍
 
