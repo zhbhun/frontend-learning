@@ -17,3 +17,7 @@
 ## JSON
 
 - [normalizr](https://github.com/paularmstrong/normalizr)
+
+## 大小
+
+- [filesize.js](https://github.com/avoidwork/filesize.js) - JavaScript library to generate a human readable String describing the file size
