@@ -2,3 +2,4 @@
 - https://github.com/egoist/saber.js
 - https://github.com/Meituan-Dianping/mpvue
 - https://github.com/mimecorg/vuido
+- [lunchboxjs](https://github.com/breakfast-studio/lunchboxjs) - Custom Vue 3 renderer for ThreeJS
