@@ -202,6 +202,7 @@ ps：下图为腾讯 BetterJS 的架构图
 - [badjs-report](https://github.com/BetterJS/badjs-report)
 - https://trackjs.com
 - [openreplay](https://github.com/openreplay/openreplay)
+- [10+ Best Error Monitoring and Error Tracking Tools](https://medium.com/flatlogic/10-best-error-monitoring-and-error-tracking-tools-383d70b0e018)
 
 ## 应用案例
 
