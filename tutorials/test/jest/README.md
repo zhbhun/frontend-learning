@@ -6,7 +6,7 @@ Jest
 
 ## 工具
 
-- [jest-image-snapshot](https://github.com/americanexpress/jest-image-snapshot)
+- [jest-image-snapshot](https://github.com/americanexpress/jest-image-snapshot) - Jest matcher for image comparisons. Most commonly used for visual regression testing.
 
 ## 集成
 
