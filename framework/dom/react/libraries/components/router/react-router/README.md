@@ -1,6 +1,7 @@
 # Router
 
 ## React Router 4
+
 - [React Router V4 中文文档](https://github.com/react-translate-team/react-router-CN)
 - [React Router 4 简易入门](https://segmentfault.com/a/1190000010174260)
 - [[译]React Router：从V2/V3迁移到V4](https://github.com/YutHelloWorld/Blog/issues/4)
@@ -9,7 +10,13 @@
 - [初探 React Router 4.0](https://www.jianshu.com/p/e3adc9b5f75c)
 - [你不知道的 React Router 4](https://zhuanlan.zhihu.com/p/28585911)
 
-### 常见问题
+## CHANGELOG
+
+### V6
+
+- [What’s new in React Router V6](https://jason-brewer.medium.com/whats-new-in-react-router-v6-ce67ca34b45a)
+
+## 常见问题
 
 #### 记住滚动位置
 
