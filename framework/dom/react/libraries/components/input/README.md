@@ -1,0 +1,1 @@
+- [react-mentions](https://github.com/signavio/react-mentions) - @mention people in a textarea
