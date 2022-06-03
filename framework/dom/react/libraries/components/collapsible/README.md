@@ -1,0 +1,1 @@
+- [react-collapsible](https://github.com/glennflanagan/react-collapsible) - React component to wrap content in Collapsible element with trigger to open and close.
