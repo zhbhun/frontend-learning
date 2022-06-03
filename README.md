@@ -21,6 +21,7 @@
 - [system-design-primer](https://github.com/donnemartin/system-design-primer) - Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards.
 - [FrontEndCollection](https://github.com/cheatsheet1999/FrontEndCollection)
 - [learn-anything](https://github.com/learn-anything/learn-anything)
+- [20minJS](https://podcast.20minjs.com/) - A podcast covering the JavaScript language and more broadly web and frontend technologies, with guests from the open-source community. Hosted by OpenReplay, an open-source session replay tool for developers.
 
 ## 会议
 
