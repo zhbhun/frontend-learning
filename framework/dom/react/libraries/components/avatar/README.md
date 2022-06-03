@@ -1,0 +1,1 @@
+- [boring-avatars](https://github.com/boringdesigners/boring-avatars)
