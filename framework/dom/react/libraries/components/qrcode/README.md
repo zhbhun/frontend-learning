@@ -1,0 +1,1 @@
+- [QR Codes generation with React](https://blog.openreplay.com/qr-codes-generation-with-react)
