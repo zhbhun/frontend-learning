@@ -54,7 +54,7 @@
         - 撤销
         - 重做
 
-## 开源库
+## 副文本
 
 - https://github.com/JefMari/awesome-wysiwyg
 - [quill](https://github.com/quilljs/quill)
@@ -94,6 +94,18 @@
 - [wangEditor](https://github.com/wangeditor-team/wangEditor)
 - https://github.com/papyrs/stylo
 - [bytemd](https://github.com/bytedance/bytemd) - Hackable Markdown editor and viewer
+
+## 代码
+
+- [highlighted-code](https://github.com/WebReflection/highlighted-code) - A textarea builtin extend to automatically provide code highlights based on one of the languages available via highlight.js
+- [monaco-editor](https://github.com/microsoft/monaco-editor) - A browser based code editor
+- [CodeMirror](https://github.com/codemirror/CodeMirror) - in-browser code editor
+- [ace](https://github.com/ajaxorg/ace) - Ace (Ajax.org Cloud9 Editor)
+
+---
+
+- [Ace, CodeMirror, and Monaco: A Comparison of the Code Editors You Use in the Browser](https://blog.replit.com/code-editors)
+- [Ace, CodeMirror, and Monaco: A Comparison of the Code Editors You Use in the Browser](https://www.reddit.com/r/javascript/comments/s1e55h/ace_codemirror_and_monaco_a_comparison_of_the/)
 
 ## 参考文献
 
