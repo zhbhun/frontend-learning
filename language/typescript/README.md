@@ -13,6 +13,7 @@
 - [推荐 7 个学习 TypeScript 的宝库，2021 学 TS 看这篇就够了！](https://segmentfault.com/a/1190000038959316)
 - [学习typescript求推荐教材书籍?](https://www.zhihu.com/question/264894569)
 - [TypeScript 精通指南](https://nodelover.gitbook.io/typescript/)
+- [来玩TypeScript啊，机都给你开好了！](https://zhuanlan.zhihu.com/c_206498766)
 
 ## 书籍
 
