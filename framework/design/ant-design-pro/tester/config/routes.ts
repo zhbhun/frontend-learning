@@ -22,10 +22,18 @@ export default [
   { name: '查询表格', icon: 'table', path: '/list', component: './TableList' },
   {
     name: '表单',
-    icon: 'table',
+    icon: 'form',
     path: '/pro-form',
     routes: [
       { name: '基础使用', icon: 'smile', path: '/pro-form/basic', component: './pro-form/basic' },
+    ],
+  },
+  {
+    name: '表格',
+    icon: 'table',
+    path: '/pro-table',
+    routes: [
+      { name: '基础使用', icon: 'smile', path: '/pro-table/basic', component: './pro-table/basic' },
     ],
   },
   { path: '/', redirect: '/welcome' },
