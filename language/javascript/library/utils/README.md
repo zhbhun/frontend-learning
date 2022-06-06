@@ -2,6 +2,7 @@
 - https://github.com/jashkenas/underscore
 - https://github.com/ramda/ramda
 - https://github.com/andrewplummer/Sugar
+- https://github.com/ecrmnn/collect.js - Convenient and dependency free wrapper for working with arrays and objects
 
 ## 对比
 
