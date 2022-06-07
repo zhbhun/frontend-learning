@@ -85,5 +85,8 @@
 
 ## 参考
 
-- [Server-Side Rendering (SSR)](https://vuejs.org/guide/scaling-up/ssr.html)
 - [Server-Side Rendering API](https://vuejs.org/api/ssr.html)
+- [Server-Side Rendering (SSR)](https://vuejs.org/guide/scaling-up/ssr.html)
+- [服务端渲染指南](https://v3.cn.vuejs.org/guide/ssr/introduction.html)
+- [Server-Side Rendering](https://vitejs.dev/guide/ssr.html)
+- [带你五步学会Vue SSR](https://segmentfault.com/a/1190000016637877)
