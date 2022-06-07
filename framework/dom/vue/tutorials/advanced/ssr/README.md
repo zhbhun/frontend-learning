@@ -6,6 +6,12 @@
 - 首屏加载速度
 - 同构代码复用
 
+存在问题
+
+- 消耗服务端性能，如果并发量较高，需要优化性能；
+- 开发存在服务端和客户端兼容限制，对开发人员要求更高；
+- 静态站点更推荐使用 SSG；
+
 ## 怎么做？
 
 - common：
@@ -20,10 +26,10 @@
     import { createRouter } from './router'
 
     export function createApp(url?: string) {
-      const app = createSSRApp(App) // 客户端也必须使用
+      // 客户端也必须使用 createSSRApp，以便复用服务端渲染的 DOM
+      const app = createSSRApp(App)
       const router = createRouter({
-        // use appropriate history implementation for server/client
-        // import.meta.env.SSR is injected by Vite.
+        // 服务端不支持浏览器 histor，所以质量使用 Memory History
         history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
         routes: []
       })
@@ -31,6 +37,7 @@
       if (url) {
         router.push(url)
       }
+      // 需要等待 router 初始化好
       return router.isReady().then(() => app)
     }
     ```
