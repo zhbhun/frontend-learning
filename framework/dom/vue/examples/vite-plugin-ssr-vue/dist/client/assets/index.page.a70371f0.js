@@ -1,0 +1,1 @@
+import{_,c as n,o as a,F as o,a as e}from"./renderer/_default.page.client.ts.0811599c.js";const t={},r=e("h1",null,"About",-1),c=e("p",null,"A colored page.",-1);function s(l,d){return a(),n(o,null,[r,c],64)}var u=_(t,[["render",s]]);export{u as default};
