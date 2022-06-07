@@ -1,0 +1,1 @@
+- [Simple State Management with Reactivity API](https://vuejs.org/guide/scaling-up/state-management.html#what-is-state-management)
