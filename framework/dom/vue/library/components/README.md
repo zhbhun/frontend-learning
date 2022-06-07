@@ -18,6 +18,7 @@
     - [vuetifyjs/vuetify](https://github.com/vuetifyjs/vuetify)
     - [quasar](https://github.com/quasarframework/quasar) - Quasar Framework - Build high-performance VueJS user interfaces in record time
     - [vuematerial/vue-material](https://github.com/vuematerial/vue-material)
+    - [balm-ui](https://github.com/balmjs/balm-ui) - A modular and customizable UI library based on Material Design and Vue
 
 - Quasar
 
@@ -36,6 +37,8 @@
 
     - [ViewUI](https://github.com/view-design/ViewUI)
     - [AT-UI](https://at-ui.github.io/at-ui/#/zh) - A fresh and flat UI-Kit specially for desktop application, made with ♥ by Vue.js 2.0 
+    - [oruga](https://github.com/oruga-ui/oruga) - Oruga is a lightweight library of UI components without CSS framework dependency
+    - [primevue](https://github.com/primefaces/primevue) - Next Generation Vue UI Component Library
 
 ## 移动端
 
