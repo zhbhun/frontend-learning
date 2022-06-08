@@ -3,6 +3,13 @@
 ## 原理
 
 - [关于 Google 搜索运作方式的深度指南](https://developers.google.com/search/docs/advanced/guidelines/how-search-works?hl=zh-cn)
+- [SEO 测试：一个简单（但完整）的指南](https://ahrefs.com/blog/zh/seo-testing/)
+- [11个免费谷歌SEO搜索引擎优化工具](https://www.a-i-world.com/blog/11-seo)
+- [SEO 教程](https://wiki.jikexueyuan.com/project/seo/00.html)
+- [2020年11个提升自然流量的SEO技巧](https://ahrefs.com/blog/zh/seo-techniques/)
+- [超详细的网站内部seo优化教程](https://zhuanlan.zhihu.com/p/84074040)
+- [SEO 网站优化的步骤和技巧有哪些？](https://www.zhihu.com/question/19808905)
+- [SEO 优化全面解析：SEO 是什么？如何制定相关计划以加速商店增长](https://zh.shopify.com/blog/seo-marketing)
 
 ## 基础
 
@@ -24,6 +31,8 @@
 ### 元标记
 
 - [使用 noindex 阻止搜索引擎编入索引](https://developers.google.com/search/docs/advanced/crawling/block-indexing?hl=zh-cn)
+
+### robots.txt
 
 ## 工具
 
