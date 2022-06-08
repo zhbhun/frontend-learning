@@ -34,7 +34,7 @@ history
 ## 工具
 
 - [history.js](https://github.com/browserstate/history.js)
-- [history](https://github.com/ReactTraining/history)
+- [history](https://github.com/remix-run/history)
 
 
 ## 参考文献
