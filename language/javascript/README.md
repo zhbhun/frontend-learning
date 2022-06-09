@@ -3,6 +3,7 @@
 - [You-Dont-Need-jQuery](https://github.com/nefe/You-Dont-Need-jQuery)
 - [The Modern Javascript Tutorial](http://javascript.info/)
 - [complete-javascript-course](https://github.com/jonasschmedtmann/complete-javascript-course) - Starter files, final projects and FAQ for my Complete JavaScript course
+- [30-seconds-of-code](https://github.com/30-seconds/30-seconds-of-code)
 
 ---
 
