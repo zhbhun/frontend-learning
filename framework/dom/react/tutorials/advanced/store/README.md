@@ -1,0 +1,2 @@
+- [如何理解 React 18 中的 useSyncExternalStore ?](https://www.zhihu.com/question/502917860)
+- [useSyncExternalStore](https://zh-hans.reactjs.org/docs/hooks-reference.html#usesyncexternalstore)
