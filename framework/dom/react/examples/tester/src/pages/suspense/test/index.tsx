@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 function fibonacci(n: number): number {
   if (n === 1 || n === 2) {
@@ -8,37 +8,39 @@ function fibonacci(n: number): number {
 }
 
 function Demo(props: { value: number }) {
-  return <div>{fibonacci(props.value)}</div>;
+  return <div>{`${props.value}: ${fibonacci(35)}`}</div>;
 }
 
 function SuspenseTester() {
+  const [pengding, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState("");
-  const [timerValue, setTimerValue] = useState(0);
-  const [eventValue, setEventValue] = useState(0);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleStart = useCallback(() => {
-    setTimeout(() => {
-      setTimerValue(40);
-      buttonRef.current?.click();
-    }, 1000);
-  }, []);
+  const count = useMemo(() => {
+    return inputValue.length;
+  }, [inputValue]);
+
+  // 效果更好
+  const handleInputChange = (event: any) => {
+    startTransition(() => {
+      setInputValue(event.target.value);
+    });
+  };
+
+  // 效果较差
+  // const handleInputChange = (event: any) => {
+  //   setInputValue(event.target.value);
+  // };
+
   return (
     <div>
       <div>
         <input
           type="text"
-          value={inputValue}
-          onChange={(event) => {
-            setInputValue(event.target.value);
-          }}
+          onChange={handleInputChange}
+          style={{ width: 300 }}
         />
-        <button onClick={handleStart}>start</button>
-        <button ref={buttonRef} onClick={() => setEventValue(1)}>
-          {eventValue}
-        </button>
       </div>
-      {Array(timerValue)
+      {Array(count)
         .fill(0)
         .map((_, i) => {
           return <Demo key={i} value={i + 1} />;
