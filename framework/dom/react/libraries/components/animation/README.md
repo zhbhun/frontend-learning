@@ -2,6 +2,7 @@
 - [react-spring](https://github.com/pmndrs/react-spring)
 - https://github.com/chenglou/react-motion
 - https://github.com/sghall/react-move
+- [react-text-transition](https://github.com/WinterCore/react-text-transition) - Animate your text changes
 
 ---
 
