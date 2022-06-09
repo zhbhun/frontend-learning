@@ -16,3 +16,6 @@
 - [Behavioral changes to Suspense in React 18](https://github.com/reactwg/react-18/discussions/7)
 - [New Suspense SSR Architecture in React 18](https://github.com/reactwg/react-18/discussions/37)
 - [React Concurrent Mode 之 Suspense 实践](https://toutiao.io/posts/d1tjay8/preview)
+- [Stress Testing Concurrent Features in React 18: A Case Study of startTransition & 3D Rendering](https://dawchihliou.github.io/articles/stress-testing-concurrent-features-in-react-18)
+- [New feature: startTransition](https://github.com/reactwg/react-18/discussions/41)
+- [Real world example: adding startTransition for slow renders](https://github.com/reactwg/react-18/discussions/65)
