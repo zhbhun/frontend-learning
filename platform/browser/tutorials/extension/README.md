@@ -95,8 +95,9 @@ https://developer.chrome.com/apps/i18n
 
 - [Top 10 Chrome Extensions Every Developer Likes](https://dev.to/shijiezhou/top-10-chrome-extensions-every-developer-likes-3ehk)
 
-## 模板
+## 框架/模板
 
+- [plasmo](https://github.com/PlasmoHQ/plasmo) - The browser extension framework
 - [browser-extension](https://github.com/Debdut/browser-extension) - A Out of the Box 🎁 Browser Extension Template with support for React, Typescript, Preact
 
 ## 问题
