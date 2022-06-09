@@ -117,6 +117,10 @@ ps：自定义网页元素的标签名必须含有连字符（-），一个或�
     }
     ```
 
+### 跨框架组件库
+
+- [Building Interoperable Web Components That Even Work With React](https://css-tricks.com/building-interoperable-web-components-react/)
+
 
 ## 开发框架
 
