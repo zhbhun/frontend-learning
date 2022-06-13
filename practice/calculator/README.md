@@ -21,3 +21,12 @@ https://codesandbox.io/s/calculator-c8tnv1
 ## 要点
 
 考察算术表达式的解析和堆栈数据结构的使用，后续会逐渐完善计算器，引入更加复杂的功能，锻炼大家使用设计模式封装高可扩展的计算器模块。
+
+
+## 参考文献
+
+- [Calculator-App](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Calculator-App.md)
+- [数据结构和算法（六）：前缀、中缀、后缀表达式](https://zhuanlan.zhihu.com/p/37467928)
+- [实现一个四则运算语法解析器](https://zhuanlan.zhihu.com/p/112460676)
+- [栈的应用：解析算术表达式](https://www.cnblogs.com/flyingbread/archive/2007/02/03/638932.html)
+- [DSA - 表达式解析(Expression Parsing)](https://iowiki.com/data_structures_algorithms/expression_parsing.html)
