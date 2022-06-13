@@ -1,5 +1,11 @@
 # Event
 
+## 基础
+
+### [EventTarget](https://developer.mozilla.org/zh-CN/docs/Web/API/EventTarget)
+
+EventTarget 是一个 DOM 接口，由可以接收事件、并且可以创建侦听器的对象实现。
+
 ## 进阶
 
 ### 自定义事件
