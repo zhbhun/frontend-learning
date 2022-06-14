@@ -68,6 +68,11 @@
     }
     ```
 
+### meta
+
+- [vue-meta](https://github.com/nuxt/vue-meta)
+- [vue-meta让你更优雅的管理头部标签](https://segmentfault.com/a/1190000012849210)
+
 ## 注意事项
 
 - 在服务端渲染组件时不存在用户交互和 DOM 更新，为了提升性能服务端渲染禁用了响应式功能；
