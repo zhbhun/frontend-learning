@@ -80,3 +80,8 @@
 
 - [ahrefs](https://ahrefs.com)
 - [semrush](https://www.semrush.com/)
+
+## LOGO
+
+- [logo的SEO优化，原来这样的logo才是一个好logo！](https://codeantenna.com/a/87K3rPJar0)
+- [网站优化（一）图标-三大标签SEO优化-LOGO优化-常用模块命名](https://blog.csdn.net/weixin_44733660/article/details/105320019)
