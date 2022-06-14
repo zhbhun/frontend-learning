@@ -95,3 +95,4 @@
 - [服务端渲染指南](https://v3.cn.vuejs.org/guide/ssr/introduction.html)
 - [Server-Side Rendering](https://vitejs.dev/guide/ssr.html)
 - [带你五步学会Vue SSR](https://segmentfault.com/a/1190000016637877)
+- [服务端渲染SSR及实现原理](https://www.zoo.team/article/web-ssr)
