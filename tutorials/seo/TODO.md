@@ -1,3 +1,4 @@
+- [awesome-seo](https://github.com/teles/awesome-seo)
 
 ## 原理
 
@@ -63,3 +64,7 @@
 > The Chrome User Experience Report is powered by real user measurement of key user experience metrics across the public web, aggregated from users who have opted-in to syncing their browsing history, have not set up a Sync passphrase, and have usage statistic reporting enabled. T
 
 ## 参考文献
+
+- [22 Smart Google SEO Tips for 2022](https://moz.com/blog/smart-google-seo-tips-2022)
+- [SEO如何做高质量维基百科外链？SEO做维基百科外链详细方法](https://www.cifnews.com/article/48505)
+- [如何建立一个维基百科页面](https://ahrefs.com/blog/zh/how-to-create-a-wikipedia-page/)
