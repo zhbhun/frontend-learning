@@ -68,3 +68,15 @@
 - [22 Smart Google SEO Tips for 2022](https://moz.com/blog/smart-google-seo-tips-2022)
 - [SEO如何做高质量维基百科外链？SEO做维基百科外链详细方法](https://www.cifnews.com/article/48505)
 - [如何建立一个维基百科页面](https://ahrefs.com/blog/zh/how-to-create-a-wikipedia-page/)
+
+
+## 301/302
+
+- [301 和 302 对 SEO 的影响](https://www.cnblogs.com/datang6777/p/7243088.html)
+- [SEO的301和302重定向: 应该使用哪个？](https://ahrefs.com/blog/zh/301-vs-302-redirects/)
+- [A Comprehensive SEO Guide to 301 Redirects: When and How to Use Them](https://www.semrush.com/blog/301-redirects/?kw=&cmp=AA_SRCH_DSA_Blog_Core_BU_EN&label=dsa_pagefeed&Network=g&Device=c&utm_content=515771559991&kwid=dsa-1057183192075&cmpid=12565136841&agpid=119030045946&BU=Core&extid=23631748690&adpos=&gclid=CjwKCAjw46CVBhB1EiwAgy6M4sb7n_8wzLrcC0zMH2S5Q9ENuju411jMOuySv_cNO8vpxX5Is1DF_hoC9awQAvD_BwE)
+
+## SEO 优化工具
+
+- [ahrefs](https://ahrefs.com)
+- [semrush](https://www.semrush.com/)
