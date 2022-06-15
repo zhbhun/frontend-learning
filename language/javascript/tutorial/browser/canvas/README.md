@@ -20,3 +20,4 @@
 ---
 
 - [It's always been you, Canvas2D](https://developer.chrome.com/blog/canvas2d/#round-rect)
+- [JavaScript of Halftone (半色调) Printing](http://anderoonies.github.io/projects/halftone/)
