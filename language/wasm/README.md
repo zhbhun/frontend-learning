@@ -29,6 +29,13 @@ WebAssembly(wasm) 是一种低级的**类汇编语言**，具有紧凑的**二�
 - [Bolero](https://github.com/fsbolero/Bolero)
 - [Ooui](https://github.com/praeclarum/Ooui)
 
+## 应用
+
+### 超声波传输数据
+
+- [quiet/quiet-js](https://github.com/quiet/quiet-js/)
+- [Ultrasonic payments](https://charliegerard.dev/blog/ultrasonic-payments/)
+
 ## 参考文献
 
 - [​2019 年 WebAssembly 盘点：跟 Javascript 的相爱相杀](https://mp.weixin.qq.com/s/C6Zhs0mMs9oAJN889pG6rQ)
