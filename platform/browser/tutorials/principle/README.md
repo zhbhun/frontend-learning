@@ -9,3 +9,6 @@
 
 - [Google Chrome漫画书](http://tech.sina.com.cn/i/2008-09-02/21522430443.shtml#diglog-5052052993f542bab36414057035d5f1)
 - [浏览器进程架构的演化](https://zhuanlan.zhihu.com/p/96957235)
+- [How Rendering Work (in WebKit and Blink)](https://blog.csdn.net/rogeryi/article/details/23686609)
+- [对页端开发高性能（交互/动画） Mobile WebApp 的一些思考](https://blog.csdn.net/rogeryi/article/details/54632471)
+- [浏览器渲染流水线解析与网页动画性能优化](https://zhuanlan.zhihu.com/p/30534023)

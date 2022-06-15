@@ -37,3 +37,4 @@
 - [HTML5DevConf May 2014: Nick Desaulniers, Mozilla: Raw WebGL](https://www.youtube.com/embed/H4c8t6myAWU/?feature=player_detailpage)
 - [LOW-LEVEL 3D GRAPHICS API BASED ON OPENGL ES](https://www.khronos.org/webgl/)
 - http://webglstats.com/ - 一个统计WebGL在不同平台上能力表现的网站。
+- https://www.khronos.org/assets/uploads/developers/library/2018_siggraph_asia/WebGL-Latest-Techniques-SIGGRAPH-Asia-Dec18.pdf

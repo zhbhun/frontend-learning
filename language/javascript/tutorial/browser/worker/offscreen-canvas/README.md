@@ -1,0 +1,2 @@
+- [OffscreenCanvas — Speed up Your Canvas Operations with a Web Worker](https://developer.chrome.com/blog/offscreen-canvas/)
+- [OffscreenCanvas - 概念说明及使用解析](https://zhuanlan.zhihu.com/p/34698375)

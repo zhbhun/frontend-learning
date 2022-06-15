@@ -1,17 +1,3 @@
-# Worker
-
-- [2021 Web Worker 需要了解的现状](https://segmentfault.com/a/1190000040521208)
-- [Web Worker 使用教程](https://www.ruanyifeng.com/blog/2018/07/web-worker.html)
-- [一文搞懂 Web Worker(原理到实践)](https://jishuin.proginn.com/p/763bfbd38a14)
-- [comlink](https://github.com/GoogleChromeLabs/comlink) - Comlink makes WebWorkers enjoyable.
-- [WebWorker — Creating an async task execution thread](https://medium.com/@lokeshpathrabe/webworker-creating-an-async-task-execution-thread-c46138350a75)
-
-## [SharedArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer)
-
-- [JS SharedArrayBuffer](https://www.axihe.com/api/js-es/ob-shared-array-buffer/overview.html)
-- [Shared memory - a brief tutorial](https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md)
-- https://github.com/GoogleChromeLabs/buffer-backed-object
-
----
-
-- [JavaScript Development: Making a Web Worker optional](https://itnext.io/javascript-development-making-a-web-worker-optional-f23a13490b28)
+- [Worker 的两类应用场景](https://xiaoiver.github.io/coding/2018/08/25/Worker-%E7%9A%84%E4%B8%A4%E7%B1%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html)
+- [WebGL in Web Workers, Today – and Faster than Expected!](https://research.mozilla.org/2014/07/22/webgl-in-web-workers-today-and-faster-than-expected/)
+- [webgl-worker](https://github.com/kripken/webgl-worker)
