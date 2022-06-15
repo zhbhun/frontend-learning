@@ -5,3 +5,4 @@
 - [Vite SSR](https://vitejs.dev/guide/ssr.html) / https://github.com/vitejs/vite/tree/main/playground/ssr-vue
 - [vite-plugin-ssr](https://github.com/brillout/vite-plugin-ssr) - Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin.
 - [vavite](https://github.com/cyco130/vavite) - Develop server-side applications with Vite
+- [vite-ssr](https://github.com/frandiox/vite-ssr) - Simplified Server Side Rendering with an SPA-like developer experience.

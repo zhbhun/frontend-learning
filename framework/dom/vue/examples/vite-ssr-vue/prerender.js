@@ -1,14 +1,14 @@
 // Pre-render the app into static HTML.
 // run `npm run generate` and then `dist/static` can be served as a static site.
 
-import fs from 'fs'
-import path from 'path'
+const fs = require('fs')
+const path = require('path')
 
 const toAbsolute = (p) => path.resolve(__dirname, p)
 
-const manifest = (await import('./dist/static/ssr-manifest.json')).default
+const manifest = require('./dist/static/ssr-manifest.json')
 const template = fs.readFileSync(toAbsolute('dist/static/index.html'), 'utf-8')
-const { render } = await import('./dist/server/entry-server.js')
+const { render } = require('./dist/server/entry-server.js')
 
 // determine routes to pre-render from src/pages
 const routesToPrerender = fs
