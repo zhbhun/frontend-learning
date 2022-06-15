@@ -1,0 +1,3 @@
+- [WebContainers 介绍: 如何在浏览器运行原生的 Nodejs](https://xie.infoq.cn/article/b7f4f6e5bb831e4f20cdca35a)
+- [如何评价 StackBlitz 可在浏览器运行 Node.js 程序的 WebContainers？](https://www.zhihu.com/question/460671381)
+- [Introducing WebContainers: Run Node.js natively in your browser](https://blog.stackblitz.com/posts/introducing-webcontainers/)
