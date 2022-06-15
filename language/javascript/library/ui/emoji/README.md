@@ -1,1 +1,2 @@
 - [picmo](https://github.com/joeattardi/picmo)
+- [emoji-mart](https://github.com/missive/emoji-mart) - One component to pick them all
