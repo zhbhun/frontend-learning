@@ -8,6 +8,7 @@
 - https://github.com/date-fns/date-fns
 - [moment](https://momentjs.com/)
 - [timeago](https://www.npmjs.com/package/timeago.js)
+- [pretty-ms](https://github.com/sindresorhus/pretty-ms)
 
 ## 数值
 
