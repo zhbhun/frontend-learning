@@ -1,0 +1,1 @@
+- [为什么Hook没有ErrorBoundary？](https://segmentfault.com/a/1190000041974765)
