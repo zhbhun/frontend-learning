@@ -1,2 +1,3 @@
 - https://vueuse.org/
 - [vueuse/head](https://github.com/vueuse/head)
+- [vue-query](https://github.com/DamianOsipiuk/vue-query) - Hooks for fetching, caching and updating asynchronous data in Vue
