@@ -21,6 +21,13 @@ history
 
     - window.onpopstate
 
+## 用法
+
+### 滚动位置
+
+- [如何实现页面刷新后不定位到之前的滚动位置？](https://www.zhangxinxu.com/wordpress/2022/05/history-scrollrestoration/)
+- [Implementing scroll restoration in ecommerce React apps](https://blog.logrocket.com/implementing-scroll-restoration-in-ecommerce-react-apps/)
+
 ## 误区
 
 - window.onpopstate 只有在调用 history.back()，history.forward() 和 history.go() 时才会触发，调用 history pushState() 和 history.replaceState() 并不会触发
