@@ -18,10 +18,11 @@
 
 https://codesandbox.io/s/calculator-c8tnv1
 
+ps：样式拷贝自 https://codepen.io/ssmkhrj/full/jOWBQqO
+
 ## 要点
 
 考察算术表达式的解析和堆栈数据结构的使用，后续会逐渐完善计算器，引入更加复杂的功能，锻炼大家使用设计模式封装高可扩展的计算器模块。
-
 
 ## 参考文献
 
