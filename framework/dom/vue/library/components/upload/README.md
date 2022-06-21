@@ -1,0 +1,1 @@
+- [vue-upload-component](https://github.com/lian-yue/vue-upload-component) - Vue.js file upload (上传) component, Multi-file upload, Upload directory, Drag upload, Drag the directory, Upload multiple files at the same time, html4 (IE 9), `PUT` method, Customize (自定义) the filter
