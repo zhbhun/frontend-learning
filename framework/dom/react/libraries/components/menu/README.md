@@ -1,1 +1,2 @@
 - [react-menu](https://github.com/szhsin/react-menu) - 
+- [react-burger-menu](https://github.com/negomi/react-burger-menu) - An off-canvas sidebar component with a collection of effects and styles using CSS transitions and SVG path animations
