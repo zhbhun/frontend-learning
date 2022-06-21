@@ -30,6 +30,7 @@
 - [Reakit](https://github.com/reakit/reakit) - Reakit is a lower-level component library for building accessible high-level UI libraries, design systems, and applications with React. Reakit is tiny and fast.
 - https://github.com/joshdschneider/formation - React component library
 - [coreui-free-react-admin-template](https://github.com/coreui/coreui-free-react-admin-template) - CoreUI React is a free React admin template based on Bootstrap 5
+- [react-desktop](https://github.com/gabrielbull/react-desktop) - React UI Components for macOS High Sierra and Windows 10
 
 ## 移动端
 
