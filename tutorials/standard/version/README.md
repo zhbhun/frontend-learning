@@ -43,6 +43,9 @@ semantic-release 通过不同分支和提交记录来发布下一个符合[语�
 
 > A way to manage your versioning and changelogs with a focus on monorepos
 
+- [Changesets: 流行的 monorepo 场景发包工具](https://zhuanlan.zhihu.com/p/427588430)
+
+
 ### [standard-version](https://github.com/conventional-changelog/standard-version)
 
 TODO
