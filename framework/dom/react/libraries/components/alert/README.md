@@ -1,0 +1,1 @@
+- [sweetalert](https://github.com/t4t5/sweetalert) - A beautiful replacement for JavaScript's alert.
