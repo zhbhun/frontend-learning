@@ -7,9 +7,23 @@
 - background：背景
 - effect：效果
 
-### 响应式
+### 修饰符
 
-### 夜晚模式
+#### 伪类
+
+- Hover, focus, and active
+- First, last, odd, and even
+- Form states
+- Styling based on parent state 
+- Styling based on sibling state
+
+#### 伪元素
+
+- Before and after
+
+#### 媒体查询
+
+#### 属性选择
 
 ## 进阶
 
