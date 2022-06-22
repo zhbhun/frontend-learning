@@ -18,3 +18,7 @@ Event Loop
 - [QuickJS](https://github.com/bellard/quickjs) / https://github.com/quickjs-zh/QuickJS
 
     - [如何评价 Fabrice Bellard 发布 QuickJS JS 引擎?](https://www.zhihu.com/question/334509855)
+
+- [microvium](https://github.com/coder-mike/microvium) - A compact, embeddable scripting engine for applications and microcontrollers for executing programs written in a subset of the JavaScript language.
+
+    [MICROVIUM IS VERY SMALL](https://coder-mike.com/blog/2022/06/11/microvium-is-very-small/)
