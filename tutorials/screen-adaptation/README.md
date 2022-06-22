@@ -15,6 +15,12 @@
     - [网易新闻](http://3g.163.com/touch/news/subchannel/all?version=v_standard)
     - [聚划算](https://jhs.m.taobao.com/m/index.htm#!all)
 
+---
+
+- [https://www.zhihu.com/question/472588754](https://www.zhihu.com/question/472588754)
+
+---
+
 # 参考文献
 - [使用Flexible实现手淘H5页面的终端适配](https://github.com/amfe/article/issues/17)
 - [css3的字体大小单位[rem]到底好在哪？](https://www.zhihu.com/question/21504656)
