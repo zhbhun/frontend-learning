@@ -1,2 +1,3 @@
 - [AbortController](https://developer.mozilla.org/zh-CN/docs/Web/API/AbortController)
 - [AbortSignal](https://developer.mozilla.org/zh-CN/docs/Web/API/AbortSignal)
+- [AbortController is your friend](https://whistlr.info/2022/abortcontroller-is-your-friend/)
