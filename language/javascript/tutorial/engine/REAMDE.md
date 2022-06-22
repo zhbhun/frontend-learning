@@ -22,3 +22,5 @@ Event Loop
 - [microvium](https://github.com/coder-mike/microvium) - A compact, embeddable scripting engine for applications and microcontrollers for executing programs written in a subset of the JavaScript language.
 
     [MICROVIUM IS VERY SMALL](https://coder-mike.com/blog/2022/06/11/microvium-is-very-small/)
+
+- [boa](https://github.com/boa-dev/boa) - About Boa (蟒蛇) is an embeddable and experimental Javascript engine written in Rust (锈) . Currently, it has support for some of the language.
