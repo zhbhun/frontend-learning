@@ -83,6 +83,7 @@ dalekjs, triflejs
 - [DalekJS](https://github.com/dalekjs/dalek)：自动化且跨浏览器的 JavaScript 功能测试框架。
 - [cypress](https://github.com/cypress-io/cypress) - Fast, easy and reliable testing for anything that runs in a browser.
 - https://github.com/avajs/ava
+- [Vitest](https://vitest.dev/) - A Vite-native unit test framework. It's fast!
 
 ### 覆盖率
 
