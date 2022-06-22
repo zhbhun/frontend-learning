@@ -1,0 +1,1 @@
+- [Lerna 5.1 — New website, new guides, new Lerna example repo, distributed caching support and speed!](https://blog.nrwl.io/lerna-5-1-new-website-new-guides-new-lerna-example-repo-distributed-caching-support-and-speed-64d66410bec7)
