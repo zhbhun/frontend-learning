@@ -9,6 +9,7 @@
 - [从2021看2022前端发展趋势](https://segmentfault.com/a/1190000041211795)
 - [2022前端未来发展趋势](https://segmentfault.com/a/1190000041041684)
 - [The JavaScript 2022 stack](https://medium.com/@paulmorar/the-javascript-2022-stack-f5fbf028ff7a)
+- [JSConf Budapest 2022](https://www.youtube.com/playlist?list=PL37ZVnwpeshGuMZrOZzEo8QLBjjpbtBGm#budapest2022)
 
 ## 2021
 
@@ -32,12 +33,15 @@
 - [2019 年 JavaScript 生态圈调查报告出炉！](https://mp.weixin.qq.com/s/TPfSXJX8Ml4xCCbjehX5Wg)
 - [2019 前端技术规划该包含什么？](https://www.zhihu.com/question/308348507/answer/571204744)
 - [倏忽一年：回顾点评前端 2019 重大事件、趋势](https://mp.weixin.qq.com/s/2d3vPu4f1NjvyXKZERugfw)
+- [JSConf 2019](https://www.youtube.com/c/JSConfEU/playlists?view=50&sort=dd&shelf_id=16)
 
 ## 2018
 
 - https://2018.stateofjs.com/introduction/
 - [The Front-End Tooling Survey 2018 - Results](https://ashleynolan.co.uk/blog/frontend-tooling-survey-2018-results)
 - [Front-End Developer Handbook 2018](https://frontendmasters.com/guides/front-end-handbook/2018/)
+- [JSConf 2018](https://www.youtube.com/c/JSConfEU/playlists?view=50&shelf_id=15)
+
 
 ## 2017
 
