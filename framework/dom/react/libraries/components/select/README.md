@@ -1,1 +1,2 @@
 - [jedwatson/react-select](https://github.com/jedwatson/react-select) - The Select Component for React.js
+- [react-cmdk](https://react-cmdk.com/) -A fast, accessible, and pretty command palette (调色板) for React
