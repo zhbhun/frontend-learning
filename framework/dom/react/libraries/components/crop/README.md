@@ -1,0 +1,1 @@
+- [react-easy-crop](https://github.com/ValentinH/react-easy-crop) - A React component to crop images/videos with easy interactions
