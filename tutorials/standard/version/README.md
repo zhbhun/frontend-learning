@@ -39,6 +39,10 @@ semantic-release 通过不同分支和提交记录来发布下一个符合[语�
 - [semantic-release 集成](https://zqblog.beaf.tech/semantic-release/)
 - [团队敏捷实践 —— 使用 semantic-release 自动管理发布版本](https://blog.dteam.top/posts/2020-05/semantic-release.html)
 
+扩展
+
+- [semantic-release-monorepo](https://github.com/pmowrer/semantic-release-monorepo) - Apply semantic-release's automatic publishing to a monorepo.
+
 ### [changesets](https://github.com/changesets/changesets)
 
 > A way to manage your versioning and changelogs with a focus on monorepos
