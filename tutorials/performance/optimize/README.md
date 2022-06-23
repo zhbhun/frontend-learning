@@ -14,6 +14,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 - [Page Weight Doesn't Matter](https://www.speedshop.co/2015/11/05/page-weight-doesnt-matter.html)
 - [Optimizing Application Delivery](https://hpbn.co/optimizing-application-delivery/)
 - [Ultimate Guide to Browser Hints: Preload, Prefetch, and Preconnect - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/guide-to-browser-hints-preload-preconnect-prefetch/)
+- [WWC22 - Qwik + Partytown: How to remove 99% of JavaScript from main thread](https://www.youtube.com/watch?v=0dC11DMR3fU&t=154s)
 
 分析工具
 

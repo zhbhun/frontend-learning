@@ -46,3 +46,7 @@
     Profiler 测量一个 React 应用多久渲染一次以及渲染一次的“代价”。 
 
 - [Suspense](https://zh-hans.reactjs.org/docs/react-api.html#reactsuspense)
+
+## 参考文献
+
+- [React Element vs Component](https://www.robinwieruch.de/react-element-component/)
