@@ -128,3 +128,4 @@
 
 - [Refs 转发](https://zh-hans.reactjs.org/docs/forwarding-refs.html)
 - [Refs and the DOM](https://zh-hans.reactjs.org/docs/reconciliation.html)
+- [React新文档：不要滥用Ref哦～](https://segmentfault.com/a/1190000041991074)
