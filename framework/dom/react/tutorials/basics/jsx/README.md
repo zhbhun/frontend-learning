@@ -63,3 +63,4 @@
 - [DOM 元素](https://zh-hans.reactjs.org/docs/dom-elements.html)
 - [深入 JSX](https://zh-hans.reactjs.org/docs/jsx-in-depth.html)
 - [不使用 JSX 的 React](https://zh-hans.reactjs.org/docs/react-without-jsx.html)
+- [You Probably Wrote Some Buggy JSX Code You Didn’t Realize](https://medium.com/frontend-canteen/you-probably-wrote-some-buggy-jsx-code-you-didnt-realize-de2413029fa4)
