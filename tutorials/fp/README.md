@@ -25,6 +25,7 @@
 - [[译] 2017年你应该了解的函数式编程](https://github.com/jasonGeng88/blog/blob/master/201705/functional_programming.md)
 - [函数式编程（FP）](https://www.zoo.team/article/function-production)
 - [Master Higher-Order Functions in JavaScript](https://www.telerik.com/blogs/master-higher-order-functions-javascript)
+- [Forever Functional: Many flavors of currying](https://blog.openreplay.com/forever-functional-many-flavors-of-currying)
 
 ## 书籍
 
