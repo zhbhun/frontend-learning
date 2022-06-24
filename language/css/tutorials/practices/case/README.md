@@ -1,2 +1,3 @@
 - [12 个令人惊叹的 CSS 项目](https://zhuanlan.zhihu.com/p/58424141)
 - [CSS Rain Effect](https://codepen.io/arickle/pen/XKjMZY)
+- [7 Practical CSS Tips](https://javascript.plainenglish.io/7-practical-css-tips-c6e4d77f4c40)
