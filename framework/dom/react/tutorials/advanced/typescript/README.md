@@ -47,3 +47,4 @@ const Example: FC = () => {
 
 - https://zh-hans.reactjs.org/docs/static-type-checking.html#typescript
 - [Extremely Useful TypeScript and React Skills](https://javascript.plainenglish.io/super-useful-typescript-skills-eb35d049fdbd)
+- [Using Typescript in React: a Crash Course](https://blog.openreplay.com/using-typescript-in-react-a-crash-course)
