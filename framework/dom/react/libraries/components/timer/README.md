@@ -1,0 +1,1 @@
+- [react-idle-timer](https://github.com/SupremeTechnopriest/react-idle-timer) - User activity timer component
