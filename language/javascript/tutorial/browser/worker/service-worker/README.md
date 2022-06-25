@@ -1,0 +1,6 @@
+- [Random notes around service workers development and testing](https://mmazzarolo.com/blog/2022-06-18-service-workers-tips-and-tricks/)
+- [Introduction to Service Worker ](https://developer.chrome.com/docs/workbox/service-worker-overview/) - Google’s introduction to service workers. It’s a great starting point if you know nothing about service workers.
+- [Now THAT’S What I Call Service Worker! ](https://alistapart.com/article/now-thats-what-i-call-service-worker/) - Jeremy Wagner breaks down the performance improvements obtainable by using service workers.
+- [Workbox](https://developer.chrome.com/docs/workbox/) - Production-ready service worker libraries and tooling from Google.
+- [thirty-four ](https://jeffy.info/) - effrey Posnick’s (WorkBox’s lead dev) blog. Talks mostly about service workers stuff.
+- [Stuff I wish I’d known sooner about service workers ](https://gist.github.com/Rich-Harris/fd6c3c73e6e707e312d7c5d7d0f3b2f9) - Rich Harris’ notes around service workers development. Old but gold.
