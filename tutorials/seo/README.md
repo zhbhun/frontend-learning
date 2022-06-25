@@ -261,3 +261,4 @@ TODO
 - [搜索引擎优化-维基百科](https://zh.wikipedia.org/wiki/%E6%90%9C%E5%B0%8B%E5%BC%95%E6%93%8E%E6%9C%80%E4%BD%B3%E5%8C%96)
 - [Google SEO 教程](https://developers.google.com/search/docs)
 - [极客学院 SEO 教程](https://wiki.jikexueyuan.com/project/seo/00.html)
+- https://wpzhanzhang.eastfu.com/category/wordpress-plugins/seo/

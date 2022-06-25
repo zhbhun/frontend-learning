@@ -136,3 +136,12 @@
 - [ Make Your Site Faster with Preconnect Hints | Viget](https://www.viget.com/articles/make-your-site-faster-with-preconnect-hints/)
 - [ A Comprehensive Guide to Font Loading Strategies—zachleat.com](https://www.zachleat.com/web/comprehensive-webfonts/#font-face)
 - [typekit/webfontloader: Web Font Loader gives you added control when using linked fonts via @font-face.](https://github.com/typekit/webfontloader)
+
+---
+
+- [ttf2woff2](https://github.com/nfroidure/ttf2woff2)
+- [TTF、TOF、WOFF 和 WOFF2 的相关概念](https://www.jianshu.com/p/20619da71752)
+- [Web 字体简介: TTF, OTF, WOFF, EOT & SVG](https://zhuanlan.zhihu.com/p/28179203)
+- [移动Web开发字体格式选择（附.woff\.woff2 兼容性）](https://codeantenna.com/a/G8XwMvPz77)
+- [了解woff2字体及转换](https://www.zhangxinxu.com/wordpress/2018/07/known-woff2-mime-convert/)
+- [网页中用什么格式的字体 eof/svg/ttf/woff/woff2 ？](https://www.jianshu.com/p/65e30df6824d)
