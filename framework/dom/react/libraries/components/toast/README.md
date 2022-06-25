@@ -1,1 +1,2 @@
 - [react-hot-toast](https://github.com/timolins/react-hot-toast) - Smoking hot React Notifications
+- [react-toastify](https://github.com/fkhadra/react-toastify) - React notification made easy 
