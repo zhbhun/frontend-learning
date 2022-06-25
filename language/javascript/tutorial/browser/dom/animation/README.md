@@ -11,3 +11,7 @@
 - [Introducing Web Animations](https://birtles.wordpress.com/2013/06/26/introducing-web-animations/)
 - [web-animations-demos](https://github.com/web-animations/web-animations-demos)
 - [Web Animations - element.animate() is now in Chrome 36](https://developers.google.com/web/updates/2014/05/Web-Animations-element-animate-is-now-in-Chrome-36)
+
+---
+
+- [Precise Timing With Web Animations API](https://www.smashingmagazine.com/2022/06/precise-timing-web-animations-api/)
