@@ -1,0 +1,1 @@
+- [main-thread-scheduling](https://github.com/astoilkov/main-thread-scheduling) - Faster apps using a simple API instead of Web Workers
