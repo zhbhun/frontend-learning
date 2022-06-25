@@ -1,0 +1,5 @@
+- [qwik](https://github.com/BuilderIO/qwik) - The HTML-first framework. Initialize apps of any size with < 1kb JS
+- [partytown](https://github.com/BuilderIO/partytown) - Relocate resource intensive third-party scripts off of the main thread and into a web worker.
+- [我们是如何利用 Qwik 和 Partytown 削减掉 页面中 99% 的 JavaScript 的](https://zhuanlan.zhihu.com/p/445122206)
+- [了解一下 Partytown 🎉：在 Web Worker 中运行 第三方脚本](https://zhuanlan.zhihu.com/p/452678872)
+- [前端以后也要多线程编程了么？](https://developer.51cto.com/article/684066.html)
