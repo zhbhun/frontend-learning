@@ -1,1 +1,2 @@
 - [formkit](https://github.com/formkit/formkit)
+- [vee-validate](https://github.com/logaretm/vee-validate) -  Form Validation for Vue.js
