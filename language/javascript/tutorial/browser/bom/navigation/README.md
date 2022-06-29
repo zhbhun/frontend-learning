@@ -16,7 +16,7 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
 
 ## 快速上手
 
-要使用 Navigation API，首先在 `window.navigation` 上添加一个 “navigate” 事件监听。这个事件基本上是集中的: 它会触发所有类型的导航，无论是用户执行一个操作(如点击链接，提交表单，或回退和前进)或当导航被程序化触发(即，通过您的网站的代码)。在大多数情况下，它允许您的代码覆盖浏览器对该操作的默认行为。对于 SPA，这可能意味着让用户保持在同一个页面上，并加载或更改站点的内容。
+要使用 Navigation API，首先在 `window.navigation` 上添加一个 “navigate” 事件监听。这个事件代表了页面上的所有同域导航事件，无论是用户点击链接，提交表单，或回退和前进。在大多数情况下，在这个事件处理函数里可以重写浏览器对这些操作的默认行为。对于 SPA，这意味着可以让用户保持在同一个页面上，并动态加载或更改站点的内容。
 
 ```html
 <main>
@@ -48,9 +48,8 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
 </main>
 <script type="module">
   navigation.addEventListener('navigate', (e) => {
-    console.log(e);
-    console.log(e.navigationType); // "reload", "push", "replace", or "traverse"
-    console.log(e.destination); // { url: '', index: '', getState() {} }
+    console.log(e.navigationType); // 导航类型： "reload", "push", "replace", or "traverse"
+    console.log(e.destination); // 导航目标：{ url: '', index: '', getState() {} }
     console.log(e.hashChange); // 是否是锚点
 
     if (e.hashChange) {
@@ -61,14 +60,16 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
     e.transitionWhile(
       (async () => {
         e.signal.addEventListener('abort', () => {
+          // 监听取消事件
           const newMain = document.createElement('main');
           newMain.textContent =
             'Navigation was aborted, potentially by the browser stop button!';
           document.querySelector('main').replaceWith(newMain);
         });
 
-        await delay(2000); // 故意测试用的
+        await delay(2000); // 故意延迟 2 秒，测试用的
 
+        // 动态加载目标页面内容
         const body = await (
           await fetch(e.destination.url, { signal: e.signal })
         ).text();
@@ -84,10 +85,10 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
   });
 
   navigation.addEventListener('navigatesuccess', () =>
-    console.log('navigatesuccess')
+    console.log('navigatesuccess') // 导航成功事件（transitionWhile 正常响应）
   );
   navigation.addEventListener('navigateerror', (ev) =>
-    console.log('navigateerror', ev.error)
+    console.log('navigateerror', ev.error) // 导航失败事件（transitionWhile 异常响应）
   );
 
   function delay(ms) {
@@ -95,6 +96,8 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
   }
 </script>
 ```
+
+如上所示的示例，演示了超链接、history 和 locatio 操作导航的场景，它们都会触发 navigation 的 navigate 事件。通过事件的 navigationType 属性可以区分导航类型，hashChange 表示是否是锚点跳转，destination 包含了跳转模板页面的信息，可以根据该信息动态的加载目标页面，从而实现 SPA。
 
 ## 导航切换
 
