@@ -1,1 +1,4 @@
 - [vue-select](https://github.com/sagalbot/vue-select) - Everything you wish the HTML
+- [vue-multiselect](https://github.com/shentao/vue-multiselect) - Universal select/multiselect/tagging component for Vue.js
+- [vue-treeselect](https://github.com/riophae/vue-treeselect) - A multi-select component with nested options support for Vue.js
+- [selection](https://github.com/Simonwep/selection) - Viselect - A simple and lightweight library to add a visual way of selecting elements, just like on your Desktop. Zero dependencies, super small. Support for major frameworks.
