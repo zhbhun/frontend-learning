@@ -99,7 +99,9 @@ Navigation API 是 Chrome 提出的一套导航 API，提供了操作和拦截�
 
 如上所示的示例，演示了超链接、history 和 locatio 操作导航的场景，它们都会触发 navigation 的 navigate 事件。通过事件的 navigationType 属性可以区分导航类型，hashChange 表示是否是锚点跳转，destination 包含了跳转模板页面的信息，可以根据该信息动态的加载目标页面，从而实现 SPA。
 
-## 导航切换
+## 路由守卫
+
+## 导航操作
 
 ## 导航历史栈
 
