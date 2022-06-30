@@ -1,1 +1,2 @@
 - [react-big-calendar](https://github.com/jquense/react-big-calendar)
+- [react-calendar-heatmap](https://github.com/kevinsqi/react-calendar-heatmap) - An svg calendar heatmap inspired by github's contribution graph
