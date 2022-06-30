@@ -3,6 +3,7 @@
 
 - [react-virtualized](https://github.com/bvaughn/react-virtualized)
 - [react-window](https://github.com/bvaughn/react-window)
+- [react-virtuoso](https://github.com/petyosi/react-virtuoso) - The most powerful virtual list component for React
 - [react-infinite](https://github.com/seatgeek/react-infinite) / [react-infinite-any-height](https://github.com/Radivarig/react-infinite-any-height)
 - [react-list](https://github.com/coderiety/react-list)
 - [react-infinite-scroller](https://github.com/CassetteRocks/react-infinite-scroller)
