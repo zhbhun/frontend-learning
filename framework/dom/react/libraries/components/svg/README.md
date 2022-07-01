@@ -1,0 +1,1 @@
+- [react-svg](https://github.com/tanem/react-svg) - A React component that injects SVG into the DOM.

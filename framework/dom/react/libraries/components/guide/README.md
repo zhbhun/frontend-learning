@@ -1,1 +1,2 @@
 - [react-joyride](https://github.com/gilbarbara/react-joyride) - Create guided tours in your apps
+- [react-shepherd](https://github.com/shipshapecode/react-shepherd) - A React wrapper for the site tour library Shepherd
