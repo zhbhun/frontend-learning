@@ -2,3 +2,4 @@
 
 - [zod](https://github.com/colinhacks/zod)
 - [ow](https://github.com/sindresorhus/ow) - Function argument validation for humans
+- [yup](https://github.com/jquense/yup) - Dead simple Object schema validation

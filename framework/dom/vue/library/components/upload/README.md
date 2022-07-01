@@ -1,1 +1,8 @@
 - [vue-upload-component](https://github.com/lian-yue/vue-upload-component) - Vue.js file upload (上传) component, Multi-file upload, Upload directory, Drag upload, Drag the directory, Upload multiple files at the same time, html4 (IE 9), `PUT` method, Customize (自定义) the filter
+- [vue-dropzone](https://github.com/rowanwins/vue-dropzone) - A Vue.js component for Dropzone.js - a drag’n’drop file uploads utility with image previews
+- [vue-image-crop-upload](https://github.com/dai-siki/vue-image-crop-upload) - A beautiful vue component for image cropping and uploading 
+- [vue-uploader](https://github.com/simple-uploader/vue-uploader) - A Vue.js upload component powered by simple-uploader.js
+- [vue-filepond](https://github.com/pqina/vue-filepond) - A handy FilePond adapter component for Vue
+- [vue-core-image-upload](https://github.com/Vanthink-UED/vue-core-image-upload) - a vue plugin for image to crop and upload
+- [vue-file-agent](https://github.com/safrazik/vue-file-agent) - The most beautiful and full featured file upload component for Vue JS
+- [vue-file-upload](https://github.com/marchFantasy/vue-file-upload) - vue.js ，vue-loader 上传文件，vue-file-upload，vue上传文件组件
