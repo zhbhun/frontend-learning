@@ -9,6 +9,7 @@
 - https://github.com/antvis/f2
 - echarts
 - [highcharts](https://github.com/highcharts/highcharts) - Highcharts JS, the JavaScript charting framework
+- [billboard.js](https://github.com/naver/billboard.js) - Re-usable, easy interface JavaScript chart library based on D3.js
 
 ## 参考文献
 

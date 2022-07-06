@@ -1,1 +1,2 @@
 - [color.js](https://github.com/LeaVerou/color.js) - Color conversion & manipulation library by the editors of the CSS Color specifications
+- [Releasing Color.js: A library that takes color seriously](https://lea.verou.me/2022/06/releasing-colorjs/)
