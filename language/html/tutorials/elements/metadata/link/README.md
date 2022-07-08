@@ -1,0 +1,4 @@
+- [`<link>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/link)
+- [Link types: preload](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload)
+- [Link types: modulepreload](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/modulepreload)
+- [CSS预加载Preload](https://zhuanlan.zhihu.com/p/32561606)
