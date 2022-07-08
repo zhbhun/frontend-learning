@@ -5,6 +5,10 @@
 - SSO
 - OAuth
 
+## 开源实现
+
+- [casdoor](https://github.com/casdoor/casdoor) - An Identity and Access Management (IAM) / Single-Sign-On (SSO) platform with web UI supporting OAuth 2.0, OIDC, SAML and CAS
+
 ## 参考文献
 
 - [4 种常规的登录认证方式](https://segmentfault.com/a/1190000030685155)
