@@ -16,6 +16,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 - [Optimizing Application Delivery](https://hpbn.co/optimizing-application-delivery/)
 - [Ultimate Guide to Browser Hints: Preload, Prefetch, and Preconnect - MachMetrics Speed Blog](https://www.machmetrics.com/speed-blog/guide-to-browser-hints-preload-preconnect-prefetch/)
 - [WWC22 - Qwik + Partytown: How to remove 99% of JavaScript from main thread](https://www.youtube.com/watch?v=0dC11DMR3fU&t=154s)
+- [优化 Cumulative Layout Shift 累积布局偏移](https://web.dev/optimize-cls/?utm_source=lighthouse&utm_medium=devtools#images-without-dimensions)
 
 分析工具
 
