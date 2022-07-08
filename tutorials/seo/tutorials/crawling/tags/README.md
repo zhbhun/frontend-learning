@@ -1,0 +1,3 @@
+- [Google 可以识别的元标记](https://developers.google.com/search/docs/advanced/crawling/special-tags?hl=zh-cn)
+- [使用 noindex 阻止搜索引擎编入索引](https://developers.google.com/search/docs/advanced/crawling/block-indexing?hl=zh-cn)
+- [漫游器元标记、data-nosnippet 和 X-Robots-Tag 规范](https://developers.google.com/search/docs/advanced/robots/robots_meta_tag?hl=zh-cn)
