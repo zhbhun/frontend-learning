@@ -1,4 +1,5 @@
 - [hermes](https://github.com/facebook/hermes) / https://hermesengine.dev/
+- [bun](https://github.com/Jarred-Sumner/bun) - Incredibly fast JavaScript runtime, bundler, transpiler and package manager – all in one.
 
 ## 实现原理
 
