@@ -36,3 +36,11 @@
 
 https://codesandbox.io/s/calculator-4-c445xo
 
+
+## 参考
+
+- [Web 应用中的撤销与重做](https://zhuanlan.zhihu.com/p/43743782)
+- [Web 应用的撤销重做实现](https://segmentfault.com/a/1190000020154153)
+- [实现撤销重做](http://cn.redux.js.org/recipes/implementing-undo-history/)
+- [【数据结构】撤销与重做 | 模型实现](https://blog.csdn.net/weixin_43095238/article/details/111475741)
+- [Undo/Redo implementation [closed]](https://stackoverflow.com/questions/3541383/undo-redo-implementation)
