@@ -4,6 +4,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 
 ## 加载优化
 
+- [Fast load times](https://web.dev/fast/#i18n.paths.fast.topics.optimize_your_images)
 - [Load Performance](https://developers.google.com/web/fundamentals/performance/get-started/)
 - [Web Performance Best Practices](https://developers.google.com/speed/docs/best-practices/rules_intro)
 - [Web Performance Tutorials](https://developers.google.com/speed/articles/)
