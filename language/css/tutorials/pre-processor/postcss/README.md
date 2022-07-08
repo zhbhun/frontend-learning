@@ -18,6 +18,7 @@ PostCSS
 
 - [postcss-px-to-viewport](https://github.com/evrone/postcss-px-to-viewport)
 - [postcss-pxtorem](https://github.com/cuth/postcss-pxtorem)
+- [postcss-plugin-px2rem](https://github.com/pigcan/postcss-plugin-px2rem)
 
 ### 模块化
 
