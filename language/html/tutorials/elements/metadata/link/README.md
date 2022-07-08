@@ -2,3 +2,8 @@
 - [Link types: preload](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload)
 - [Link types: modulepreload](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/modulepreload)
 - [CSS预加载Preload](https://zhuanlan.zhihu.com/p/32561606)
+- [Chrome预渲染【译](https://zhuanlan.zhihu.com/p/141108497?utm_source=ZHShareTargetIDMore&utm_medium=social&utm_oi=52281651232768)
+- [Resource Hints - What is Preload, Prefetch, and Preconnect?](https://www.keycdn.com/blog/resource-hints)
+- [Preload, prefetch and other `<link>` tags](https://3perf.com/blog/link-rels/)
+- [Web performance resources](https://developer.mozilla.org/en-US/docs/Learn/Performance/Web_Performance_Basics)
+- [[译] 资源提示 —— 什么是 Preload，Prefetch 和 Preconnect？](https://github.com/fi3ework/blog/issues/32)
