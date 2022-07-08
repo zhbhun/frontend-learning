@@ -1,0 +1,1 @@
+- [Stop The Screen Going To Sleep With JavaScript](https://mikevdv.dev/blog/2022-06-23-stop-the-screen-going-to-sleep-with-javascript)

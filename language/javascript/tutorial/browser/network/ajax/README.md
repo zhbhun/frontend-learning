@@ -411,4 +411,5 @@ ps：这是跨域简单请求和表单跨域请求的区别之处，表单请求
 - [Using the XML HTTP Request object](http://jibbering.com/2002/4/httprequest.html)
 - [XMLHttpRequest, REST and the Rich User Experience](http://www.peej.co.uk/articles/rich-user-experience.html)
 - [New Tricks in XMLHttpRequest2](https://www.html5rocks.com/en/tutorials/file/xhr2/)
+- [Retry XMLHttpRequest Carefully](https://lofi.limo/blog/retry-xmlhttprequest-carefully)
 
