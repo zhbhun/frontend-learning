@@ -1,0 +1,1 @@
+- [Extract critical CSS](https://web.dev/extract-critical-css/)
