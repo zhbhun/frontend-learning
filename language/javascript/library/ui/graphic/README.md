@@ -13,6 +13,7 @@
 - https://github.com/d3/d3
 - [pintora](https://github.com/hikerpig/pintora)
 - [plantuml](https://github.com/plantuml/plantuml)
+- [sigma.js](https://github.com/jacomyal/sigma.js) - A JavaScript library aimed at visualizing graphs of thousands of nodes and edges
 
 ## 人脸识别
 
