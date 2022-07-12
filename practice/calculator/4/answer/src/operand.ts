@@ -25,7 +25,7 @@ export abstract class Operand {
       return null;
     } else {
       const value = String(this.valueOf());
-      if (value.length === 0) {
+      if (value.length === 1) {
         return null;
       } else {
         return new NumberOperand(Number(value.substring(0, value.length - 1)));
@@ -34,12 +34,12 @@ export abstract class Operand {
   }
 
   /**
-   * 是否可扩展，true 表示还可以扩展
+   * 是否可扩展，true 表示还可以扩展，例如：限制了最大数值的输入长度
    */
   public abstract isExtensible(): boolean;
 
   /**
-   * 是否封闭，true 不可以和其他操作数拼接
+   * 是否封闭，true 不可以和其他操作数拼接，例如：π、e 等
    */
   public abstract isSeald(): boolean;
 

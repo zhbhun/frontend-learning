@@ -1,3 +1,4 @@
+import { Calculator } from './calculator';
 import { Operand, NumberOperand } from './operand';
 import { Operator, Equal } from './operator';
 
@@ -8,6 +9,10 @@ export class CalculatorInput {
   constructor(defaultOperand?: Operand) {
     this.defaultOperand = defaultOperand || new NumberOperand(0);
     this.inputing = [this.defaultOperand];
+  }
+
+  public getInputing(): (Operand | Operator)[] {
+    return this.inputing;
   }
 
   public append(input: Operand | Operator): boolean {
@@ -25,7 +30,7 @@ export class CalculatorInput {
         this.inputing.push(input);
         return true;
       }
-    } else if (input instanceof Operand) {
+    } else if (input instanceof Operator) {
       if (input.getType() === 0) {
         this.inputing.push(input);
         return true;
@@ -59,26 +64,36 @@ export class CalculatorInput {
       if (lastInput instanceof Operand) {
         const newOperand = lastInput.delete();
         if (newOperand === null) {
-          this.inputing.splice(this.inputing.length - 1, 1);
+          this.inputing.splice(lastIndex, 1);
           return true;
         } else {
-          this.inputing[this.inputing.length - 1] = newOperand;
+          this.inputing[lastIndex] = newOperand;
           return newOperand !== lastInput;
         }
       } else {
-        this.inputing.splice(this.inputing.length - 1, 1);
+        this.inputing.splice(lastIndex, 1);
         return true;
       }
+    } else if (this.inputing[0] !== this.defaultOperand) {
+      this.inputing.splice(0, 1, this.defaultOperand);
+      return true;
     }
     return false;
   }
 
-  public clear() {
+  public clear(): boolean {
+    if (
+      this.inputing.length === 0 &&
+      this.inputing[0] === this.defaultOperand
+    ) {
+      return false;
+    }
     this.inputing = [this.defaultOperand];
+    return true;
   }
 
   public save(): CalculatorInputSnapshot {
-    const inputing = this.inputing.splice(0);
+    const inputing = this.inputing.slice(0);
     return (input: CalculatorInput) => {
       input.inputing = inputing;
     };
@@ -86,10 +101,6 @@ export class CalculatorInput {
 
   public restore(snapshot: CalculatorInputSnapshot) {
     snapshot(this);
-  }
-
-  public toCalculation(): (number | Operator)[] {
-    return [];
   }
 }
 
@@ -101,40 +112,51 @@ export abstract class CalculatorCommand {
   protected input?: CalculatorInput;
   protected snapshot?: CalculatorInputSnapshot;
 
-  constructor() {}
-
-  public setInput(input: CalculatorInput) {
+  /**
+   * 保存快照
+   * @param input
+   */
+  public saveSnapshot(input: CalculatorInput): void {
     this.input = input;
+    this.snapshot = input.save();
   }
 
-  public saveSnapshot(): void {
-    this.snapshot = this.input?.save();
-  }
-
-  public undo() {
-    if (this.snapshot) {
-      this.input?.restore(this.snapshot);
+  /**
+   * 恢复快照
+   * @returns 执行恢复成功
+   */
+  public restoreSnapshot(): boolean {
+    if (this.input && this.snapshot) {
+      this.input.restore(this.snapshot);
+      return true;
     }
+    return false;
   }
 
-  public abstract execute(): void;
+  /**
+   * 执行命令
+   *
+   * @param calculator 计算器实例
+   * @param input 计算器输入
+   * @return 执行是否有效，true 表示正常输入，false 表示无效或重复输入
+   */
+  public abstract execute(
+    calculator: Calculator,
+    input: CalculatorInput
+  ): boolean;
 }
 
-export class CommandHistory {}
-
-export class NumberCommand extends CalculatorCommand {
+export class OperandCommand extends CalculatorCommand {
   private value: NumberOperand;
 
-  constructor(value: number) {
+  constructor(value: NumberOperand) {
     super();
-    this.value = new NumberOperand(value);
+    this.value = value;
   }
 
-  public execute(): void {
-    if (this.input) {
-      this.saveSnapshot();
-      this.input.append(this.value);
-    }
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    this.saveSnapshot(input);
+    return input.append(this.value);
   }
 }
 
@@ -146,57 +168,46 @@ export class OperatorCommand extends CalculatorCommand {
     this.value = value;
   }
 
-  public execute(): void {
-    if (this.input) {
-      this.saveSnapshot();
-      this.input.append(this.value);
-    }
-  }
-}
-
-export class ClearCommand extends CalculatorCommand {
-  public execute(): void {
-    if (this.input) {
-      this.saveSnapshot();
-      this.input.clear();
-    }
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    this.saveSnapshot(input);
+    return input.append(this.value);
   }
 }
 
 export class EqualCommand extends CalculatorCommand {
-  private value = new Equal();
+  private value = Equal.getInstance();
 
-  public execute(): void {
-    if (this.input) {
-      this.saveSnapshot();
-      this.input.append(this.value);
-    }
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    this.saveSnapshot(input);
+    return input.append(this.value);
+  }
+}
+
+export class ClearCommand extends CalculatorCommand {
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    this.saveSnapshot(input);
+    return input.clear();
+  }
+}
+
+export class DeleteCommand extends CalculatorCommand {
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    this.saveSnapshot(input);
+    return input.delete();
   }
 }
 
 export class UndoCommand extends CalculatorCommand {
-  private history: CalculatorCommandHistory;
-
-  constructor(history: CalculatorCommandHistory) {
-    super();
-    this.history = history;
-  }
-
-  public execute(): void {
-    this.history.undo()
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    calculator.undo();
+    return false;
   }
 }
 
 export class RedoCommand extends CalculatorCommand {
-  private history: CalculatorCommandHistory;
-
-  constructor(history: CalculatorCommandHistory) {
-    super();
-    this.history = history;
-  }
-
-  public execute(): void {
-    this.history.redo()
+  public execute(calculator: Calculator, input: CalculatorInput): boolean {
+    calculator.redo();
+    return false;
   }
 }
 
@@ -215,16 +226,16 @@ export class CalculatorCommandHistory {
   public undo() {
     if (this.index >= 0) {
       const command = this.history[this.index];
+      command.restoreSnapshot();
       this.index -= 1;
-      command.undo();
     }
   }
 
-  public redo() {
+  public redo(calculator: Calculator, input: CalculatorInput) {
     if (this.index < this.history.length - 1) {
       this.index += 1;
       const command = this.history[this.index];
-      command.undo();
+      command.execute(calculator, input);
     }
   }
 }

@@ -19,6 +19,7 @@ export type OperatorType = 0 | 1 | 2;
 export type OperatorPriority = 0 | 1 | 2 | 3 | 4;
 
 export abstract class Operator {
+  protected constructor() {}
   /**
    *
    * @param operator1 操作符 1
