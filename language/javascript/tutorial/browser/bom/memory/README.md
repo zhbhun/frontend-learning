@@ -1,0 +1,6 @@
+- [Memory Management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management)
+- [object-sizeof](https://github.com/miktam/sizeof)
+- [memory-stats.js](https://github.com/paulirish/memory-stats.js)
+- [Monitoring JavaScript Memory](https://trackjs.com/blog/monitoring-javascript-memory/)
+- [Monitor your web page's total memory usage with measureUserAgentSpecificMemory()](https://web.dev/monitor-total-page-memory-usage/)
+- [Guide: How To Inspect Memory Usage in Node.js](https://www.valentinog.com/blog/node-usage/)
