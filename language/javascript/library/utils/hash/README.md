@@ -1,0 +1,1 @@
+- [murmurhash-js](https://github.com/garycourt/murmurhash-js)
