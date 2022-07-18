@@ -57,7 +57,12 @@ export class ElementaryCalculatorInput extends CalculatorInput {
         }
         else if (input instanceof Operator) {
             if (input.getType() === 0) {
-                this.inputing.push(input);
+                if (lastInput instanceof Operator) {
+                    this.inputing[lastIndex] = input;
+                }
+                else {
+                    this.inputing.push(input);
+                }
                 return true;
             }
             else if (input.getType() === 1) {

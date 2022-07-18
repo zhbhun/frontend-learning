@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Mode = exports.Divide = exports.Multiply = exports.Minus = exports.Plus = exports.Equal = exports.Operator = void 0;
-class Operator {
+export class Operator {
     constructor() { }
     /**
      *
@@ -16,8 +13,7 @@ class Operator {
         return '';
     }
 }
-exports.Operator = Operator;
-class Equal extends Operator {
+export class Equal extends Operator {
     static instance;
     static getInstance() {
         if (!Equal.instance) {
@@ -38,8 +34,7 @@ class Equal extends Operator {
         return '=';
     }
 }
-exports.Equal = Equal;
-class Plus extends Operator {
+export class Plus extends Operator {
     static instance;
     static getInstance() {
         if (!Plus.instance) {
@@ -60,8 +55,7 @@ class Plus extends Operator {
         return '+';
     }
 }
-exports.Plus = Plus;
-class Minus extends Operator {
+export class Minus extends Operator {
     static instance;
     static getInstance() {
         if (!Minus.instance) {
@@ -82,8 +76,7 @@ class Minus extends Operator {
         return '-';
     }
 }
-exports.Minus = Minus;
-class Multiply extends Operator {
+export class Multiply extends Operator {
     static instance;
     static getInstance() {
         if (!Multiply.instance) {
@@ -104,8 +97,7 @@ class Multiply extends Operator {
         return '×';
     }
 }
-exports.Multiply = Multiply;
-class Divide extends Operator {
+export class Divide extends Operator {
     static instance;
     static getInstance() {
         if (!Divide.instance) {
@@ -126,8 +118,7 @@ class Divide extends Operator {
         return '÷';
     }
 }
-exports.Divide = Divide;
-class Mode extends Operator {
+export class Mode extends Operator {
     static instance;
     static getInstance() {
         if (!Mode.instance) {
@@ -148,5 +139,4 @@ class Mode extends Operator {
         return '%';
     }
 }
-exports.Mode = Mode;
 //# sourceMappingURL=operator.js.map

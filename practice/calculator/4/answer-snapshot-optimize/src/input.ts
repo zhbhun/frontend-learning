@@ -1,3 +1,4 @@
+import { Calculation } from './calculation';
 import { Calculator } from './calculator';
 import { Operand, NumberOperand } from './operand';
 import { Operator, Equal } from './operator';
@@ -6,9 +7,12 @@ export abstract class CalculatorInput {
   protected defaultOperand: Operand;
   protected inputing: (Operand | Operator)[];
 
-  constructor(defaultOperand?: Operand) {
-    this.defaultOperand = defaultOperand || new NumberOperand(0);
-    this.inputing = [this.defaultOperand];
+  constructor(options?: {
+    defaultOperand?: Operand;
+    initialInputs?: (Operand | Operator)[];
+  }) {
+    this.defaultOperand = options?.defaultOperand || new NumberOperand(0);
+    this.inputing = options?.initialInputs ?? [this.defaultOperand];
   }
 
   public getInputing(): (Operand | Operator)[] {
@@ -47,12 +51,26 @@ export interface CalculatorInputSnapshot {
 }
 
 export class ElementaryCalculatorInput extends CalculatorInput {
+  protected calculation: Calculation;
+
+  constructor(options: {
+    defaultOperand?: Operand;
+    initialInputs?: (Operand | Operator)[];
+    calculation: Calculation;
+  }) {
+    super(options);
+    this.calculation = options.calculation;
+  }
+
   public append(input: Operand | Operator): boolean {
-    const lastIndex = this.inputing.length - 1;
-    const lastInput = this.inputing[lastIndex];
+    let lastIndex = this.inputing.length - 1;
+    let lastInput = this.inputing[lastIndex];
     if (lastInput instanceof Operator && lastInput.getType() === 0) {
-      // TODO: 是否要以上次的计算结果作为初始化输入
-      this.inputing = [this.defaultOperand];
+      this.inputing = [
+        new NumberOperand(this.calculation.compute(this.getInputing())),
+      ];
+      lastIndex = this.inputing.length - 1;
+      lastInput = this.inputing[lastIndex];
     }
     if (input instanceof Operand) {
       if (lastInput instanceof Operand) {
@@ -65,7 +83,11 @@ export class ElementaryCalculatorInput extends CalculatorInput {
       }
     } else if (input instanceof Operator) {
       if (input.getType() === 0) {
-        this.inputing.push(input);
+        if (lastInput instanceof Operator) {
+          this.inputing[lastIndex] = input;
+        } else {
+          this.inputing.push(input);
+        }
         return true;
       } else if (input.getType() === 1) {
         if (lastInput === this.defaultOperand) {
@@ -181,15 +203,6 @@ export class OperatorCommand extends CalculatorCommand {
   }
 }
 
-export class EqualCommand extends CalculatorCommand {
-  private value = Equal.getInstance();
-
-  public execute(calculator: Calculator, input: CalculatorInput): boolean {
-    this.saveSnapshot(input);
-    return input.append(this.value);
-  }
-}
-
 export class ClearCommand extends CalculatorCommand {
   public execute(calculator: Calculator, input: CalculatorInput): boolean {
     this.saveSnapshot(input);
@@ -221,17 +234,36 @@ export class RedoCommand extends CalculatorCommand {
 export class CalculatorCommandHistory {
   private history: CalculatorCommand[] = [];
   private index = -1;
+  private delay: number;
+  private maxLength: number;
+  private lastTime = 0;
+
+  constructor(options?: { delay?: number; maxLength?: number }) {
+    this.delay = options?.delay ?? 50;
+    this.maxLength = options?.maxLength ?? 100;
+  }
 
   public push(command: CalculatorCommand) {
-    this.index += 1;
-    if (this.index > 0) {
-      this.history.splice(this.index, this.history.length - this.index);
+    const now = Date.now();
+    if (now - this.lastTime < this.delay && this.index >= 0) {
+      this.history[this.index] = command;
+    } else {
+      this.lastTime = now;
+      this.index += 1;
+      if (this.index !== this.history.length) {
+        this.history.splice(this.index, this.history.length - this.index);
+      }
+      this.history.push(command);
+      if (this.history.length > this.maxLength) {
+        this.history.shift();
+        this.index -= 1;
+      }
     }
-    this.history.push(command);
   }
 
   public undo() {
     if (this.index >= 0) {
+      this.lastTime = 0;
       const command = this.history[this.index];
       command.restoreSnapshot();
       this.index -= 1;
@@ -240,6 +272,7 @@ export class CalculatorCommandHistory {
 
   public redo(calculator: Calculator, input: CalculatorInput) {
     if (this.index < this.history.length - 1) {
+      this.lastTime = 0;
       this.index += 1;
       const command = this.history[this.index];
       command.execute(calculator, input);

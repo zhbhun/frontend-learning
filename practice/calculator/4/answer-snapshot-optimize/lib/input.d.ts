@@ -1,19 +1,33 @@
+import { Calculation } from './calculation';
 import { Calculator } from './calculator';
 import { Operand, NumberOperand } from './operand';
 import { Operator } from './operator';
-export declare class CalculatorInput {
-    private defaultOperand;
-    private inputing;
-    constructor(defaultOperand?: Operand);
+export declare abstract class CalculatorInput {
+    protected defaultOperand: Operand;
+    protected inputing: (Operand | Operator)[];
+    constructor(options?: {
+        defaultOperand?: Operand;
+        initialInputs?: (Operand | Operator)[];
+    });
     getInputing(): (Operand | Operator)[];
-    append(input: Operand | Operator): boolean;
-    delete(): boolean;
+    abstract append(input: Operand | Operator): boolean;
+    abstract delete(): boolean;
     clear(): boolean;
     save(): CalculatorInputSnapshot;
     restore(snapshot: CalculatorInputSnapshot): void;
 }
 export interface CalculatorInputSnapshot {
     (input: CalculatorInput): void;
+}
+export declare class ElementaryCalculatorInput extends CalculatorInput {
+    protected calculation: Calculation;
+    constructor(options: {
+        defaultOperand?: Operand;
+        initialInputs?: (Operand | Operator)[];
+        calculation: Calculation;
+    });
+    append(input: Operand | Operator): boolean;
+    delete(): boolean;
 }
 export declare abstract class CalculatorCommand {
     protected input?: CalculatorInput;
@@ -47,10 +61,6 @@ export declare class OperatorCommand extends CalculatorCommand {
     constructor(value: Operator);
     execute(calculator: Calculator, input: CalculatorInput): boolean;
 }
-export declare class EqualCommand extends CalculatorCommand {
-    private value;
-    execute(calculator: Calculator, input: CalculatorInput): boolean;
-}
 export declare class ClearCommand extends CalculatorCommand {
     execute(calculator: Calculator, input: CalculatorInput): boolean;
 }
@@ -66,6 +76,13 @@ export declare class RedoCommand extends CalculatorCommand {
 export declare class CalculatorCommandHistory {
     private history;
     private index;
+    private delay;
+    private maxLength;
+    private lastTime;
+    constructor(options?: {
+        delay?: number;
+        maxLength?: number;
+    });
     push(command: CalculatorCommand): void;
     undo(): void;
     redo(calculator: Calculator, input: CalculatorInput): void;

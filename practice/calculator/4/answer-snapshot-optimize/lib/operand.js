@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.NumberOperand = exports.Operand = void 0;
-class Operand {
+export class Operand {
     append(operand) {
         if (this.isSeald() || operand.isSeald()) {
             if (this.valueOf() === operand.valueOf()) {
@@ -37,8 +34,7 @@ class Operand {
         }
     }
 }
-exports.Operand = Operand;
-class NumberOperand extends Operand {
+export class NumberOperand extends Operand {
     value;
     constructor(value) {
         super();
@@ -55,5 +51,4 @@ class NumberOperand extends Operand {
         return this.value;
     }
 }
-exports.NumberOperand = NumberOperand;
 //# sourceMappingURL=operand.js.map
