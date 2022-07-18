@@ -3,19 +3,20 @@ import {
   CalculatorCommand,
   CalculatorCommandHistory,
   CalculatorInput,
+  ElementaryCalculatorInput,
 } from './input';
 import { Operand } from './operand';
 import { Operator } from './operator';
 
 export class Calculator {
-  private input: CalculatorInput;
-  private history: CalculatorCommandHistory;
-  private calculation: Calculation;
+  protected calculation: Calculation;
+  protected input: CalculatorInput;
+  protected history: CalculatorCommandHistory;
 
-  constructor(options?: { calculation?: Calculation; initial?: Operand }) {
-    this.calculation = options?.calculation || new ElementaryCalculation();
+  constructor(options: { calculation: Calculation; input: CalculatorInput }) {
+    this.calculation = options.calculation;
+    this.input = options.input;
     this.history = new CalculatorCommandHistory();
-    this.input = new CalculatorInput(options?.initial);
   }
 
   public press(commmand: CalculatorCommand): Calculator {
@@ -52,5 +53,14 @@ export class Calculator {
         return '';
       })
       .join(' ');
+  }
+}
+
+export class ElementaryCalculator extends Calculator {
+  constructor(initial?: Operand) {
+    super({
+      calculation: new ElementaryCalculation(),
+      input: new ElementaryCalculatorInput(initial),
+    });
   }
 }

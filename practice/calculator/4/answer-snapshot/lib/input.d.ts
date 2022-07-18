@@ -1,19 +1,23 @@
 import { Calculator } from './calculator';
 import { Operand, NumberOperand } from './operand';
 import { Operator } from './operator';
-export declare class CalculatorInput {
-    private defaultOperand;
-    private inputing;
+export declare abstract class CalculatorInput {
+    protected defaultOperand: Operand;
+    protected inputing: (Operand | Operator)[];
     constructor(defaultOperand?: Operand);
     getInputing(): (Operand | Operator)[];
-    append(input: Operand | Operator): boolean;
-    delete(): boolean;
+    abstract append(input: Operand | Operator): boolean;
+    abstract delete(): boolean;
     clear(): boolean;
     save(): CalculatorInputSnapshot;
     restore(snapshot: CalculatorInputSnapshot): void;
 }
 export interface CalculatorInputSnapshot {
     (input: CalculatorInput): void;
+}
+export declare class ElementaryCalculatorInput extends CalculatorInput {
+    append(input: Operand | Operator): boolean;
+    delete(): boolean;
 }
 export declare abstract class CalculatorCommand {
     protected input?: CalculatorInput;

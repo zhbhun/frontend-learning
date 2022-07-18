@@ -1,10 +1,11 @@
+import { Calculation } from './calculation';
 import { Calculator } from './calculator';
 import { Operand, NumberOperand } from './operand';
 import { Operator, Equal } from './operator';
 
-export class CalculatorInput {
-  private defaultOperand: Operand;
-  private inputing: (Operand | Operator)[];
+export abstract class CalculatorInput {
+  protected defaultOperand: Operand;
+  protected inputing: (Operand | Operator)[];
 
   constructor(defaultOperand?: Operand) {
     this.defaultOperand = defaultOperand || new NumberOperand(0);
@@ -15,11 +16,54 @@ export class CalculatorInput {
     return this.inputing;
   }
 
+  public abstract append(input: Operand | Operator): boolean;
+
+  public abstract delete(): boolean;
+
+  public clear(): boolean {
+    if (
+      this.inputing.length === 0 &&
+      this.inputing[0] === this.defaultOperand
+    ) {
+      return false;
+    }
+    this.inputing = [this.defaultOperand];
+    return true;
+  }
+
+  public save(): CalculatorInputSnapshot {
+    const inputing = this.inputing.slice(0);
+    return (input: CalculatorInput) => {
+      input.inputing = inputing;
+    };
+  }
+
+  public restore(snapshot: CalculatorInputSnapshot) {
+    snapshot(this);
+  }
+}
+
+export interface CalculatorInputSnapshot {
+  (input: CalculatorInput): void;
+}
+
+export class ElementaryCalculatorInput extends CalculatorInput {
+  protected calculation: Calculation;
+
+  constructor(options: { defaultOperand?: Operand; calculation: Calculation }) {
+    super(options.defaultOperand);
+    this.calculation = options.calculation;
+  }
+
   public append(input: Operand | Operator): boolean {
-    const lastIndex = this.inputing.length - 1;
-    const lastInput = this.inputing[lastIndex];
+    let lastIndex = this.inputing.length - 1;
+    let lastInput = this.inputing[lastIndex];
     if (lastInput instanceof Operator && lastInput.getType() === 0) {
-      this.inputing = [this.defaultOperand];
+      this.inputing = [
+        new NumberOperand(this.calculation.compute(this.getInputing())),
+      ];
+      lastIndex = this.inputing.length - 1;
+      lastInput = this.inputing[lastIndex];
     }
     if (input instanceof Operand) {
       if (lastInput instanceof Operand) {
@@ -80,32 +124,6 @@ export class CalculatorInput {
     }
     return false;
   }
-
-  public clear(): boolean {
-    if (
-      this.inputing.length === 0 &&
-      this.inputing[0] === this.defaultOperand
-    ) {
-      return false;
-    }
-    this.inputing = [this.defaultOperand];
-    return true;
-  }
-
-  public save(): CalculatorInputSnapshot {
-    const inputing = this.inputing.slice(0);
-    return (input: CalculatorInput) => {
-      input.inputing = inputing;
-    };
-  }
-
-  public restore(snapshot: CalculatorInputSnapshot) {
-    snapshot(this);
-  }
-}
-
-export interface CalculatorInputSnapshot {
-  (input: CalculatorInput): void;
 }
 
 export abstract class CalculatorCommand {
@@ -167,15 +185,6 @@ export class OperatorCommand extends CalculatorCommand {
     super();
     this.value = value;
   }
-
-  public execute(calculator: Calculator, input: CalculatorInput): boolean {
-    this.saveSnapshot(input);
-    return input.append(this.value);
-  }
-}
-
-export class EqualCommand extends CalculatorCommand {
-  private value = Equal.getInstance();
 
   public execute(calculator: Calculator, input: CalculatorInput): boolean {
     this.saveSnapshot(input);

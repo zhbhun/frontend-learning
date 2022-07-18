@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Calculator = void 0;
+exports.ElementaryCalculator = exports.Calculator = void 0;
 const calculation_1 = require("./calculation");
 const input_1 = require("./input");
 const operand_1 = require("./operand");
 const operator_1 = require("./operator");
 class Calculator {
+    calculation;
     input;
     history;
-    calculation;
     constructor(options) {
-        this.calculation = options?.calculation || new calculation_1.ElementaryCalculation();
+        this.calculation = options.calculation;
+        this.input = options.input;
         this.history = new input_1.CalculatorCommandHistory();
-        this.input = new input_1.CalculatorInput(options?.initial);
     }
     press(commmand) {
         const shouldSave = commmand.execute(this, this.input);
@@ -48,4 +48,13 @@ class Calculator {
     }
 }
 exports.Calculator = Calculator;
+class ElementaryCalculator extends Calculator {
+    constructor(initial) {
+        super({
+            calculation: new calculation_1.ElementaryCalculation(),
+            input: new input_1.ElementaryCalculatorInput(initial),
+        });
+    }
+}
+exports.ElementaryCalculator = ElementaryCalculator;
 //# sourceMappingURL=calculator.js.map

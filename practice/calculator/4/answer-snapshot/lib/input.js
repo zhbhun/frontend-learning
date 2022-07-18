@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CalculatorCommandHistory = exports.RedoCommand = exports.UndoCommand = exports.DeleteCommand = exports.ClearCommand = exports.EqualCommand = exports.OperatorCommand = exports.OperandCommand = exports.CalculatorCommand = exports.CalculatorInput = void 0;
+exports.CalculatorCommandHistory = exports.RedoCommand = exports.UndoCommand = exports.DeleteCommand = exports.ClearCommand = exports.EqualCommand = exports.OperatorCommand = exports.OperandCommand = exports.CalculatorCommand = exports.ElementaryCalculatorInput = exports.CalculatorInput = void 0;
 const operand_1 = require("./operand");
 const operator_1 = require("./operator");
 class CalculatorInput {
@@ -13,6 +13,26 @@ class CalculatorInput {
     getInputing() {
         return this.inputing;
     }
+    clear() {
+        if (this.inputing.length === 0 &&
+            this.inputing[0] === this.defaultOperand) {
+            return false;
+        }
+        this.inputing = [this.defaultOperand];
+        return true;
+    }
+    save() {
+        const inputing = this.inputing.slice(0);
+        return (input) => {
+            input.inputing = inputing;
+        };
+    }
+    restore(snapshot) {
+        snapshot(this);
+    }
+}
+exports.CalculatorInput = CalculatorInput;
+class ElementaryCalculatorInput extends CalculatorInput {
     append(input) {
         const lastIndex = this.inputing.length - 1;
         const lastInput = this.inputing[lastIndex];
@@ -88,25 +108,8 @@ class CalculatorInput {
         }
         return false;
     }
-    clear() {
-        if (this.inputing.length === 0 &&
-            this.inputing[0] === this.defaultOperand) {
-            return false;
-        }
-        this.inputing = [this.defaultOperand];
-        return true;
-    }
-    save() {
-        const inputing = this.inputing.slice(0);
-        return (input) => {
-            input.inputing = inputing;
-        };
-    }
-    restore(snapshot) {
-        snapshot(this);
-    }
 }
-exports.CalculatorInput = CalculatorInput;
+exports.ElementaryCalculatorInput = ElementaryCalculatorInput;
 class CalculatorCommand {
     input;
     snapshot;

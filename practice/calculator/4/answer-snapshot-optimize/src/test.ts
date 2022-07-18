@@ -1,15 +1,14 @@
 import {
-  Calculator,
+  ElementaryCalculator,
   DeleteCommand,
   OperandCommand,
   OperatorCommand,
   NumberOperand,
   Multiply,
   Plus,
-  Equal,
 } from './index';
 
-const calculator = new Calculator();
+const calculator = new ElementaryCalculator();
 
 calculator
   .press(new OperandCommand(new NumberOperand(3)))

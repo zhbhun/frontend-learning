@@ -1,5 +1,5 @@
 import {
-  Calculator,
+  ElementaryCalculator,
   DeleteCommand,
   OperandCommand,
   OperatorCommand,
@@ -9,7 +9,7 @@ import {
   Equal,
 } from './index';
 
-const calculator = new Calculator();
+const calculator = new ElementaryCalculator();
 
 calculator
   .press(new OperandCommand(new NumberOperand(3)))
@@ -18,20 +18,50 @@ calculator
   .press(new OperatorCommand(Multiply.getInstance()))
   .press(new OperandCommand(new NumberOperand(5)));
 
-console.log(calculator.toString(), '=', calculator.compute());
+console.log('>> initial', calculator.toString(), '=', calculator.compute());
 
 calculator.undo().undo();
 
-console.log(calculator.toString(), '=', calculator.compute());
+console.log(
+  '>> undo 2 steps:',
+  calculator.toString(),
+  '=',
+  calculator.compute()
+);
 
 calculator.redo().redo();
 
-console.log(calculator.toString(), '=', calculator.compute());
+console.log(
+  '>> redo 2 steps:',
+  calculator.toString(),
+  '=',
+  calculator.compute()
+);
 
 calculator.press(new DeleteCommand()).press(new DeleteCommand());
 
-console.log(calculator.toString(), '=', calculator.compute());
+console.log(
+  '>> delete 2 input:',
+  calculator.toString(),
+  '=',
+  calculator.compute()
+);
 
 calculator.undo().undo();
 
-console.log(calculator.toString(), '=', calculator.compute());
+console.log(
+  '>> undo 2 steps:',
+  calculator.toString(),
+  '=',
+  calculator.compute()
+);
+
+calculator.press(new OperatorCommand(Equal.getInstance()));
+
+console.log('>> input equal:', calculator.toString(), calculator.compute());
+
+calculator
+  .press(new OperatorCommand(Plus.getInstance()))
+  .press(new OperandCommand(new NumberOperand(3)));
+
+console.log('>> input pus and 3:', calculator.toString(), '=', calculator.compute());

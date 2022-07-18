@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
-const calculator = new index_1.Calculator();
+const calculator = new index_1.ElementaryCalculator();
 calculator
     .press(new index_1.OperandCommand(new index_1.NumberOperand(3)))
     .press(new index_1.OperatorCommand(index_1.Plus.getInstance()))
