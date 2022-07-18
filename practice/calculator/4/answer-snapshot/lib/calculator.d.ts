@@ -1,6 +1,7 @@
 import { Calculation } from './calculation';
 import { CalculatorCommand, CalculatorCommandHistory, CalculatorInput } from './input';
 import { Operand } from './operand';
+import { Operator } from './operator';
 export declare class Calculator {
     protected calculation: Calculation;
     protected input: CalculatorInput;
@@ -16,5 +17,8 @@ export declare class Calculator {
     toString(): string;
 }
 export declare class ElementaryCalculator extends Calculator {
-    constructor(initial?: Operand);
+    constructor(options?: {
+        defaultOperand?: Operand;
+        initialInputs?: (Operand | Operator)[];
+    });
 }

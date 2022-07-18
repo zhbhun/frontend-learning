@@ -1,18 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ElementaryCalculator = exports.Calculator = void 0;
-const calculation_1 = require("./calculation");
-const input_1 = require("./input");
-const operand_1 = require("./operand");
-const operator_1 = require("./operator");
-class Calculator {
+import { ElementaryCalculation } from './calculation';
+import { CalculatorCommandHistory, ElementaryCalculatorInput, } from './input';
+import { Operand } from './operand';
+import { Operator } from './operator';
+export class Calculator {
     calculation;
     input;
     history;
     constructor(options) {
         this.calculation = options.calculation;
         this.input = options.input;
-        this.history = new input_1.CalculatorCommandHistory();
+        this.history = new CalculatorCommandHistory();
     }
     press(commmand) {
         const shouldSave = commmand.execute(this, this.input);
@@ -36,10 +33,10 @@ class Calculator {
         const inputing = this.input.getInputing();
         return inputing
             .map((item) => {
-            if (item instanceof operand_1.Operand) {
+            if (item instanceof Operand) {
                 return String(Number(item));
             }
-            else if (item instanceof operator_1.Operator) {
+            else if (item instanceof Operator) {
                 return String(item);
             }
             return '';
@@ -47,14 +44,17 @@ class Calculator {
             .join(' ');
     }
 }
-exports.Calculator = Calculator;
-class ElementaryCalculator extends Calculator {
-    constructor(initial) {
+export class ElementaryCalculator extends Calculator {
+    constructor(options) {
+        const calculation = new ElementaryCalculation();
         super({
-            calculation: new calculation_1.ElementaryCalculation(),
-            input: new input_1.ElementaryCalculatorInput(initial),
+            calculation: calculation,
+            input: new ElementaryCalculatorInput({
+                defaultOperand: options?.defaultOperand,
+                initialInputs: options?.initialInputs,
+                calculation,
+            }),
         });
     }
 }
-exports.ElementaryCalculator = ElementaryCalculator;
 //# sourceMappingURL=calculator.js.map

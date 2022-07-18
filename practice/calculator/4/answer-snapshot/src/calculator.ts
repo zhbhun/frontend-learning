@@ -57,12 +57,16 @@ export class Calculator {
 }
 
 export class ElementaryCalculator extends Calculator {
-  constructor(initial?: Operand) {
+  constructor(options?: {
+    defaultOperand?: Operand;
+    initialInputs?: (Operand | Operator)[];
+  }) {
     const calculation = new ElementaryCalculation();
     super({
       calculation: calculation,
       input: new ElementaryCalculatorInput({
-        defaultOperand: initial,
+        defaultOperand: options?.defaultOperand,
+        initialInputs: options?.initialInputs,
         calculation,
       }),
     });

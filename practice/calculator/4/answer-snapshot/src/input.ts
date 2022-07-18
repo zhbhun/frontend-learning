@@ -7,9 +7,12 @@ export abstract class CalculatorInput {
   protected defaultOperand: Operand;
   protected inputing: (Operand | Operator)[];
 
-  constructor(defaultOperand?: Operand) {
-    this.defaultOperand = defaultOperand || new NumberOperand(0);
-    this.inputing = [this.defaultOperand];
+  constructor(options?: {
+    defaultOperand?: Operand;
+    initialInputs?: (Operand | Operator)[];
+  }) {
+    this.defaultOperand = options?.defaultOperand || new NumberOperand(0);
+    this.inputing = options?.initialInputs ?? [this.defaultOperand];
   }
 
   public getInputing(): (Operand | Operator)[] {
@@ -50,8 +53,12 @@ export interface CalculatorInputSnapshot {
 export class ElementaryCalculatorInput extends CalculatorInput {
   protected calculation: Calculation;
 
-  constructor(options: { defaultOperand?: Operand; calculation: Calculation }) {
-    super(options.defaultOperand);
+  constructor(options: {
+    defaultOperand?: Operand;
+    initialInputs?: (Operand | Operator)[];
+    calculation: Calculation;
+  }) {
+    super(options);
     this.calculation = options.calculation;
   }
 
@@ -223,17 +230,36 @@ export class RedoCommand extends CalculatorCommand {
 export class CalculatorCommandHistory {
   private history: CalculatorCommand[] = [];
   private index = -1;
+  private delay: number;
+  private maxLength: number;
+  private lastTime = 0;
+
+  constructor(options?: { delay?: number; maxLength?: number }) {
+    this.delay = options?.delay ?? 50;
+    this.maxLength = options?.maxLength ?? 100;
+  }
 
   public push(command: CalculatorCommand) {
-    this.index += 1;
-    if (this.index > 0) {
-      this.history.splice(this.index, this.history.length - this.index);
+    const now = Date.now();
+    if (now - this.lastTime < this.delay && this.index >= 0) {
+      this.history[this.index] = command;
+    } else {
+      this.lastTime = now;
+      this.index += 1;
+      if (this.index !== this.history.length) {
+        this.history.splice(this.index, this.history.length - this.index);
+      }
+      this.history.push(command);
+      if (this.history.length > this.maxLength) {
+        this.history.shift();
+        this.index -= 1;
+      }
     }
-    this.history.push(command);
   }
 
   public undo() {
     if (this.index >= 0) {
+      this.lastTime = 0;
       const command = this.history[this.index];
       command.restoreSnapshot();
       this.index -= 1;
@@ -242,6 +268,7 @@ export class CalculatorCommandHistory {
 
   public redo(calculator: Calculator, input: CalculatorInput) {
     if (this.index < this.history.length - 1) {
+      this.lastTime = 0;
       this.index += 1;
       const command = this.history[this.index];
       command.execute(calculator, input);
