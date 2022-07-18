@@ -16,3 +16,7 @@
 ## 应用
 
 - [ChokokuCAD](https://github.com/itta611/ChokokuCAD) - A breakthrough CAD application on your browser
+
+---
+
+- [现在，网页上也能制作专业级 3D 艺术字了](https://ewind.us/2019/three-text/)
