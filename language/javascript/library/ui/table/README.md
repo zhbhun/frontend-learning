@@ -1,1 +1,2 @@
+- [jspreadsheets](https://jspreadsheets.com/)
 - [handsontable](https://github.com/handsontable/handsontable)
