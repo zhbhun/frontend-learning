@@ -2,6 +2,7 @@
 
 - [Conventional Commits](https://www.conventionalcommits.org)
 - [Commit Message Guidelines](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines)
+- [Conventional Commits 和 commitlint](https://eric.swiftzer.net/2020/08/conventional-commits-commitlint/)
 
 ## 相关工具
 
