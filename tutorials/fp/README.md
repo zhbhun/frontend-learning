@@ -26,6 +26,7 @@
 - [函数式编程（FP）](https://www.zoo.team/article/function-production)
 - [Master Higher-Order Functions in JavaScript](https://www.telerik.com/blogs/master-higher-order-functions-javascript)
 - [Forever Functional: Many flavors of currying](https://blog.openreplay.com/forever-functional-many-flavors-of-currying)
+- [万物皆可柯里化的 Ramda.js](https://juejin.cn/post/7111551225656508430)
 
 ## 书籍
 
