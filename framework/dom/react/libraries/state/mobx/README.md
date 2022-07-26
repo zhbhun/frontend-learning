@@ -101,7 +101,7 @@ Action =》State =》Derived Value =》Reactions
     ```js
     import { useLocalObservable, useObserver } from "mobx-react-lite";
 
-    const Counter = observer(() => {
+    const Counter = () => {
       const counter = useLocalObservable(() => ({
         value: 0,
         increase(){
@@ -109,7 +109,7 @@ Action =》State =》Derived Value =》Reactions
         }
       }))
       return useObserver(() => <button onClick={counter.increase}>{counter.value}</button>)
-    })
+    }
     ```
 
 ## 参考文献
