@@ -1,0 +1,1 @@
+- [canvas-confetti](https://github.com/catdad/canvas-confetti) - on-demand confetti gun
