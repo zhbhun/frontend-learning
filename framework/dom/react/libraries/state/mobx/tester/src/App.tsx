@@ -1,6 +1,8 @@
 import { useState } from "react";
 import GlobalCounter from "./GlobalCounter";
 import LocalCounter from "./LocalCounter";
+import ObserverTester from "./ObserverTester";
+import UseObserverTester from "./UseObserverTester";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -22,6 +24,11 @@ function App() {
       <div>
         <h2>local counter2</h2>
         <LocalCounter></LocalCounter>
+      </div>
+      <div>
+        <h2>Tester</h2>
+        <ObserverTester />
+        <UseObserverTester />
       </div>
     </div>
   );
