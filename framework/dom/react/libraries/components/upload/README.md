@@ -1,2 +1,3 @@
 - [pqina/filepond](https://github.com/pqina/filepond) - A flexible and fun JavaScript file upload library
 - [rpldy/react-uploady](https://github.com/rpldy/react-uploady) - Modern file uploading - components & hooks for React
+- [dropzone](https://github.com/dropzone/dropzone) - Dropzone is an easy to use drag'n'drop library. It supports image previews and shows nice progress bars.
