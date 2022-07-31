@@ -75,3 +75,24 @@
     https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de470cffcb3c1bb133d8a55b316b6eb6/packages/stage/src/StageCore.ts#L209
 
 ## 属性更新
+
+---
+
+## 渲软初始化
+
+- 创建 App
+
+    https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de/runtime/vue3/src/playground/App.vue#L29
+
+- 配置 App 上下文
+
+    https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de/runtime/vue3/src/playground/App.vue#L34
+
+- 初始化组件实例
+
+    https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de/packages/ui/src/overlay/src/index.vue
+
+## 渲软点击处理
+
+- 触发事件：https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de/packages/core/src/events.ts#L89
+- 监听事件：https://github.com/Tencent/tmagic-editor/blob/8e1e7ef0de/packages/core/src/App.ts#L210
