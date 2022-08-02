@@ -1,0 +1,1 @@
+- [rrweb](https://www.rrweb.io/) - rrweb is an open source web session replay library, which provides easy-to-use APIs to record user's interactions and replay it remotely.
