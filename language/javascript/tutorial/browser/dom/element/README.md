@@ -23,6 +23,15 @@
 - [HTMLElement.offsetLeft](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/offsetLeft)
 - [Understanding offsetWidth, clientWidth, scrollWidth and -Height, respectively](https://stackoverflow.com/questions/21064101/understanding-offsetwidth-clientwidth-scrollwidth-and-height-respectively#comment38602697_21064102)
 
+## getBoundingClientRect vs getClientRects
+
+- [Element.getBoundingClientRect()](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect)
+- [Element.getClientRects()](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getClientRects)
+
+---
+
+- [聊聊 getBoundingClientRect 和 getClientRects 方法](https://zhuanlan.zhihu.com/p/38568124)
+- [那些你不知道的 getClientRects()](https://segmentfault.com/a/1190000016541461)
 
 ## style
 
