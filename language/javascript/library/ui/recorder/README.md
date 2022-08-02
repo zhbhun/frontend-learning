@@ -1,1 +1,3 @@
-- [rrweb](https://www.rrweb.io/) - rrweb is an open source web session replay library, which provides easy-to-use APIs to record user's interactions and replay it remotely.
+- [rrweb](https://github.com/rrweb-io/rrweb) - rrweb is an open source web session replay library, which provides easy-to-use APIs to record user's interactions and replay it remotely.
+- [rrweb-snapshot](https://github.com/rrweb-io/rrweb/tree/master/packages/rrweb-snapshot/) - including both snapshot and rebuilding features. The snapshot is used to convert the DOM and its state into a serializable data structure with a unique identifier; the rebuilding feature is to rebuild the snapshot into corresponding DOM.
+- [rrweb-player](https://github.com/rrweb-io/rrweb/tree/master/packages/rrweb-player/) - is a player UI for rrweb, providing GUI-based functions like pause, fast-forward, drag and drop to play at any time.
