@@ -14,6 +14,7 @@
 - [pintora](https://github.com/hikerpig/pintora)
 - [plantuml](https://github.com/plantuml/plantuml)
 - [sigma.js](https://github.com/jacomyal/sigma.js) - A JavaScript library aimed at visualizing graphs of thousands of nodes and edges
+- [rough](https://github.com/rough-stuff/rough) - Create graphics with a hand-drawn, sketchy, appearance
 
 ## 人脸识别
 
