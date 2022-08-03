@@ -190,3 +190,7 @@ caretaker.undo();
 ## 应用
 
 - 编辑器
+
+## 参考
+
+- [基于 Immutable.js 实现撤销重做功能](https://zhuanlan.zhihu.com/p/34026505)
