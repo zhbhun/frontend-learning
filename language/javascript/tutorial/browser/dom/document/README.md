@@ -13,3 +13,7 @@
 
 - `complete`：档和所有子资源已完成加载，load 事件即将被触发。
 
+### 获取指定坐标下的元素
+
+- [DocumentOrShadowRoot.elementFromPoint()](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/elementFromPoint)
+- [DocumentOrShadowRoot.elementsFromPoint()](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/elementsFromPoint#%E6%B5%8F%E8%A7%88%E5%99%A8%E5%85%BC%E5%AE%B9%E6%80%A7)
