@@ -6,6 +6,12 @@
 
 EventTarget 是一个 DOM 接口，由可以接收事件、并且可以创建侦听器的对象实现。
 
+### 事件处理
+
+- [event.stopPropagation](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/stopPropagation)
+- [event.preventDefault](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/preventDefault)
+- [event.stopImmediatePropagation](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/stopImmediatePropagation)
+
 ## 进阶
 
 ### 自定义事件
