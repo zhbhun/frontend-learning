@@ -26,7 +26,6 @@
 - 电脑
 
     - MacBook：	16:10 | 1280 x 800 | 2304 x 1440 | 2.0 xhdpi
-
     - MacBook Air 11 | 16:9 | 1366 x 768 | 1366 x 768 | 1.0 mdpi
     - MacBook Air 13 | 16:10 | 1440 x 900 | 1440 x 900 | 1.0 mdpi
     - MacBook Pro 13 | 16:10 | 1280 x 800 | 2560 x 1600 | 2.0 xhdpi

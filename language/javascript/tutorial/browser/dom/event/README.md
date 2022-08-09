@@ -69,6 +69,10 @@ EventTarget 是一个 DOM 接口，由可以接收事件、并且可以创建侦
 - [JavaScript 事件委托详解](https://zhuanlan.zhihu.com/p/26536815)
 - [Custom events in JavaScript: A complete guide](https://blog.logrocket.com/custom-events-in-javascript-a-complete-guide/#how-do-javascript-custom-events-work)
 
+### Point Events
+
+
+
 ---
 
 
