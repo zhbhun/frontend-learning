@@ -9,6 +9,9 @@
 ## 服务端渲染
 
 - [ocean](https://github.com/matthewp/ocean)
+- [How to server side render Web Components](https://lamplightdev.com/blog/2019/07/20/how-to-server-side-render-web-components/)
+- [Server Side Render Web Components](https://dev.to/steveblue/server-side-rendering-web-components-320g)
+- [Ionic Server Side Rendering (SSR)](https://ionic-5-full-starter-app-docs.ionicthemes.com/server-side-rendering-ssr)
 
 ## 参考文献
 
