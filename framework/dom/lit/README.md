@@ -5,3 +5,8 @@
 ## 开源库
 
 - [color-legend-element](https://github.com/clhenrick/color-legend-element) - A custom element (web component) suitable for use as a legend in data visualizations
+
+
+## 参考文献
+
+- [Web组件构建库-Lit](https://zhuanlan.zhihu.com/p/524015045)
