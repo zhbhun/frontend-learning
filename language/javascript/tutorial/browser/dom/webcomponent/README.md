@@ -131,3 +131,7 @@ ps：自定义网页元素的标签名必须含有连字符（-），一个或�
 ## 项目示例
 
 - [web-components-todo](https://github.com/shprink/web-components-todo) / https://wc-todo.firebaseapp.com/
+
+## 参考文献
+
+- [你真的了解Web Component吗？](https://juejin.cn/post/7010580819895844878#heading-1)
