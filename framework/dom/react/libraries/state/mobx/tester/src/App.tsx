@@ -3,12 +3,17 @@ import GlobalCounter from "./GlobalCounter";
 import LocalCounter from "./LocalCounter";
 import ObserverTester from "./ObserverTester";
 import UseObserverTester from "./UseObserverTester";
+import MapTester from "./MapTester";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <div className="App">
+      <div>
+        <h2>map</h2>
+        <MapTester></MapTester>
+      </div>
       <div>
         <h2>global counter1</h2>
         <GlobalCounter></GlobalCounter>
