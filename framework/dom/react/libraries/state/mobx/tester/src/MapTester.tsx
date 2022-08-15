@@ -37,7 +37,7 @@ const mapStore = new MapStore();
 
 export default observer(() => {
   return (
-    <div>
+    <div ref={(ref) => console.log(ref)}>
       <button onClick={() => mapStore.add()}>add: {mapStore.value.size}</button>
       <button onClick={() => mapStore.assign()}>
         assign: {JSON.stringify(mapStore.value.get(count))}
