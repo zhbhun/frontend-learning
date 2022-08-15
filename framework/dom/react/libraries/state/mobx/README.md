@@ -112,6 +112,12 @@ Action =》State =》Derived Value =》Reactions
     }
     ```
 
+## 进阶
+
+### [mobx-utils](https://github.com/mobxjs/mobx-utils)
+
+> Utility functions and common patterns for MobX
+
 ## 参考文献
 
 - [MobX 内部分治策略详解](http://divideandconquer.surge.sh/#1)
