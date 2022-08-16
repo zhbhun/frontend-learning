@@ -1,0 +1,1 @@
+- [SEO的301和302重定向: 应该使用哪个？](https://ahrefs.com/blog/zh/301-vs-302-redirects/)
