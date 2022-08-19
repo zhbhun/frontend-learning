@@ -9,6 +9,7 @@
 - [CSShake](http://elrumordelaluz.github.io/csshake/#1) - CSShake delivers exactly what it says on the box — a CSS library designed specifically for shaking elements within your web page. As you might expect, there are a number of variations available for shaking your web components.
 - [Hover.css](http://ianlunn.github.io/Hover/) - Hover.css is a CSS animation library designed for use with buttons and other UI elements in your website. It has really nice 2D transitions, along with a host of other well-crafted animations.
 - [AniJS](http://anijs.github.io/) - Our final library is interesting for its unique approach. AniJS is an animation library that allows you to add animations to elements in a simple ‘sentence-like’ structure. Take the following format:
+- [scenejs](https://github.com/daybrush/scenejs) - Scene.js is JavaScript & CSS timeline-based animation library
 
 ## Lottie
 
