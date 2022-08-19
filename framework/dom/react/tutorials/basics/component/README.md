@@ -47,6 +47,11 @@
 
 - [Suspense](https://zh-hans.reactjs.org/docs/react-api.html#reactsuspense)
 
+## 属性默认值
+
+- [React functional component default props vs default parameters](https://stackoverflow.com/questions/47774695/react-functional-component-default-props-vs-default-parameters)
+- [eventually be deprecated (as per Dan Abramov, one of the core team](https://twitter.com/dan_abramov/status/1133878326358171650)
+
 ## 参考文献
 
 - [React Element vs Component](https://www.robinwieruch.de/react-element-component/)
