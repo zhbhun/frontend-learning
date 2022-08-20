@@ -1,5 +1,6 @@
 # 动画
 
+- [anime](https://github.com/juliangarnier/anime) - JavaScript animation engine
 - [Lottie.js](https://airbnb.io/lottie/#/) - Great for vector-based animations at any scale
 - [Animate.css](https://animate.style/) - Animate.css is one of the smallest and easiest-to-use CSS animation libraries. It’s refined, efficient, well-maintained since its 2013 release.
 - [GreenSock (GSAP)](https://greensock.com/) - GreenSock (or GSAP – GreenSock Animation Platform) is the Swiss army knife of web animation. For sleek and sophisticated animations that run smoothly, GSAP is ideal. You can animate anything, from DOM elements to SVGs, and its ecosystem includes some amazing plugins that let you do all sorts of fun stuff, e.g., morphing SVGs, drawing SVG strokes, scrolling functionality, scrambling text, and much more. It’s fast, cross-browser compatible, and its syntax is straightforward and intuitive.
