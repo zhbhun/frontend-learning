@@ -9,6 +9,10 @@
 - [深入浅出 CSS 动画](https://github.com/chokcoco/iCSS/issues/141)
 - [文字轮播与图片轮播？CSS 不在话下](https://segmentfault.com/a/1190000041947673)
 
+## [animation-fill-mode](https://developer.mozilla.org/zh-CN/docs/Web/CSS/animation-fill-mode)
+
+- [如何理解animation-fill-mode及其使用？](https://segmentfault.com/q/1010000003867335)
+
 # 常见问题
 
 ## 缩放后元素占用大小不变
