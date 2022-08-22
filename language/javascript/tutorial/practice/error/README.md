@@ -622,30 +622,7 @@ async function main() {
 
 - [如何优雅处理前端异常？](http://jartto.wang/2018/11/20/js-exception-handling/)
 
-#### 容易忽略的同步错误
-
-- [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Exceptions) / [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Exceptions)
-- [decodeURI](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURI#Exceptions) / [decodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent#Exceptions)
-
-#### 容易忽略的回调错误
-
-- [`Geolocation.getCurrentPosition()`](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition)
-- ...
-
-#### 容易忽略的 promise reject
-
-- [HTMLMediaElement.play()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play#Exceptions)
-
-#### 自定义错误事件
-
-前面异步错误中有提到，在复杂的情形下做一个产生多个错误或多个结果的复杂操作的时候，调用者需要监听这个对象的 error 事件（观察者模式）。
-
-实现思路：
-
-- 借助 DOM 事件处理模型来实现自定义错误事件 [创建和触发 events](https://developer.mozilla.org/zh-CN/docs/Web/Guide/Events/Creating_and_triggering_events)。
-- 使用自定义的事件处理模型，例如 [es-event-emitter](https://github.com/Zlobin/es-event-emitter)。
-
-#### 全局错误捕获 - [`onerror`](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror)
+#### JS 错误
 
 浏览器运行前端代码就是一个很复杂的情形，在运行中可能会产生各种错误，例如：语法错误、未处理的异常和资源加载失败等。而浏览器的全局对象 `window` 就提供了监听全局错误的方式。
 
@@ -673,6 +650,37 @@ async function main() {
     1. 若该函数返回true，则阻止执行默认事件处理函数（即不会在开发者工具里打印错误信息）。
     2. onerror 最好写在所有 JS 脚本的前面，否则在绑定之前的错误无法捕获；
 
+- Promsie 没有 catch
+
+    在 promise 中使用 catch 可以非常方便的捕获到异步 error，这个很简单。但没有写 catch 的 Promise 中抛出的错误无法被 onerror 或 try-catch 捕获到，所以我们务必要在 Promise 中不要忘记写 catch 处理抛出的异常。为了防止有漏掉的 Promise 异常，建议在全局增加一个对 unhandledrejection 的监听，用来全局监听Uncaught Promise Error。使用方式：
+
+    ```js
+    window.addEventListener("unhandledrejection", function(e){
+    console.log(e.promise);
+    console.log(e.reason);
+    });
+    ```
+
+    TODO: unhandledrejection 的兼容性怎么样？如果不兼容要怎么处理（改写 `Promise.prototype.then`）？
+
+    参考文献
+
+    - [Promise rejection events](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Promise_rejection_events)
+    - [Window: unhandledrejection event](https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event)
+    - [Window: rejectionhandled event](https://developer.mozilla.org/en-US/docs/Web/API/Window/rejectionhandled_event)
+    - [PromiseRejectionEvent](https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent)
+
+[测试示例](./examples/onerror.html)
+
+TODO: [跨域脚本](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#Notes) 可能无法正常获取异常调用堆栈，可以通过跨域响应头或者改写 `EventTarget.prototype.addEventListener` 来解决。
+
+参考文献
+
+- [GlobalEventHandlers.onerror](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror)
+- [How to catch JavaScript Errors with window.onerror (even on Chrome and Firefox)](https://danlimerick.wordpress.com/2014/01/18/how-to-catch-javascript-errors-with-window-onerror-even-on-chrome-and-firefox/)
+
+#### 资源加载失败
+
 - [`window.addEventListener('error')`](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#window.addEventListener('error'))：等同于 `window.onerror`
 
     ```ts
@@ -686,6 +694,8 @@ async function main() {
     - `ErrorEvent.lineno`
     - `ErrorEvent.lineno`
     - `ErrorEvent.error`
+
+    ps：可以通过事件捕获监听资源加载错误。
 
 - [`element.onerror`](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#element.onerror)
 
@@ -701,34 +711,37 @@ async function main() {
 
     由于网络请求异常不会事件冒泡，因此必须在捕获阶段将其捕捉到才行，但是这种方式虽然可以捕捉到网络请求的异常，但是无法判断 HTTP 的状态是 404 还是其他比如 500 等等，所以还需要配合服务端日志才进行排查分析才可以。
 
-[测试示例](./examples/onerror.html)
+#### 接口错误
 
-TODO: [跨域脚本](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#Notes) 可能无法正常获取异常调用堆栈，可以通过跨域响应头或者改写 `EventTarget.prototype.addEventListener` 来解决。
+- `fetch.catch`
+- `XMLHttpRequest.proptype.onerror`
 
-参考文献
+ps：通过 XMLHttpRequest 和 fetch 改写方式监听
 
-- [GlobalEventHandlers.onerror](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror)
-- [How to catch JavaScript Errors with window.onerror (even on Chrome and Firefox)](https://danlimerick.wordpress.com/2014/01/18/how-to-catch-javascript-errors-with-window-onerror-even-on-chrome-and-firefox/)
+#### 自定义错误事件
 
-#### Promsie 没有 catch
+前面异步错误中有提到，在复杂的情形下做一个产生多个错误或多个结果的复杂操作的时候，调用者需要监听这个对象的 error 事件（观察者模式）。
 
-在 promise 中使用 catch 可以非常方便的捕获到异步 error，这个很简单。但没有写 catch 的 Promise 中抛出的错误无法被 onerror 或 try-catch 捕获到，所以我们务必要在 Promise 中不要忘记写 catch 处理抛出的异常。为了防止有漏掉的 Promise 异常，建议在全局增加一个对 unhandledrejection 的监听，用来全局监听Uncaught Promise Error。使用方式：
+实现思路：
 
-```js
-window.addEventListener("unhandledrejection", function(e){
-  console.log(e.promise);
-  console.log(e.reason);
-});
-```
+- 借助 DOM 事件处理模型来实现自定义错误事件 [创建和触发 events](https://developer.mozilla.org/zh-CN/docs/Web/Guide/Events/Creating_and_triggering_events)。
+- 使用自定义的事件处理模型，例如 [es-event-emitter](https://github.com/Zlobin/es-event-emitter)。
 
-TODO: unhandledrejection 的兼容性怎么样？如果不兼容要怎么处理（改写 `Promise.prototype.then`）？
+#### 容易忽略的错误
 
-参考文献
+- 同步
 
-- [Promise rejection events](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Promise_rejection_events)
-- [Window: unhandledrejection event](https://developer.mozilla.org/en-US/docs/Web/API/Window/unhandledrejection_event)
-- [Window: rejectionhandled event](https://developer.mozilla.org/en-US/docs/Web/API/Window/rejectionhandled_event)
-- [PromiseRejectionEvent](https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent)
+    - [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Exceptions) / [JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#Exceptions)
+    - [decodeURI](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURI#Exceptions) / [decodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent#Exceptions)
+    
+- 容易忽略的回调错误
+
+    - [`Geolocation.getCurrentPosition()`](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition)
+    - ...
+
+- promise
+
+    - [HTMLMediaElement.play()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play#Exceptions)
 
 ### Node.js
 
