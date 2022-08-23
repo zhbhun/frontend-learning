@@ -1,0 +1,1 @@
+- [loading-disco](https://github.com/joe-bell/loading-disco) - An alternative to the loading spinner
