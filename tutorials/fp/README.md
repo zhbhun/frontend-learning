@@ -34,6 +34,7 @@
 - [《Scala函数式编程》](https://book.douban.com/subject/26772149/)
 - [《函数式编程思维》](https://book.douban.com/subject/26587213/)
 - [《函数式编程指北》](https://llh911001.gitbooks.io/mostly-adequate-guide-chinese/content/)
+- [awesome-functional-programming](https://github.com/xgrommx/awesome-functional-programming#javascript)
 
 ## 开源项目
 
