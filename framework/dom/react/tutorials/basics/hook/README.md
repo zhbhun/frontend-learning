@@ -83,6 +83,117 @@
 - [如何理解 React 18 中的 useSyncExternalStore ?](https://www.zhihu.com/question/502917860)
 - [React18中的新特性——useSyncExternalStore](https://juejin.cn/post/7056588815170813965)
 
+## 进阶
+
+### 定时器
+
+- [Making setInterval Declarative with React Hooks](https://overreacted.io/making-setinterval-declarative-with-react-hooks/)
+
+### 节流/防抖
+
+错误：
+
+```tsx
+const App = () => {
+  const [value, setValue] = useState(0)
+  // 下面的 throttle 每次执行都是一个新的函数，导致节流失效
+  useEffect(throttle(() => console.log(value), 1000), [value])
+  return (
+    <button onClick={() => setValue(value + 1)}>{value}</button>
+  )
+}
+```
+
+正解：
+
+- 1
+
+    ```tsx
+    import { throttle } from "lodash-es";
+    import { useCallback, useEffect, useRef } from "react";
+
+    function useThrottleFn(callback: () => void, time: number) {
+      const instance = useRef({ callback });
+      const throttledCallback = useCallback(
+        throttle(() => {
+          instance.current.callback();
+        }),
+        [time]
+      );
+      useEffect(() => {
+        instance.current.callback = callback;
+      }, [callback]);
+      useEffect(() => {
+        return () => {
+          throttledCallback.cancel();
+        };
+      }, [throttledCallback]);
+      return throttledCallback;
+    }
+
+    function Demo() {
+      const [value, setValue] = useState(0);
+      const printValue = useCallback(() => {
+        console.log(value);
+      }, [value]);
+      const throttledPrintValue = useThrottleFn(printValue, 1000);
+      useEffect(() => {
+        throttledPrintValue;
+      }, [value]);
+      return <button onClick={() => setValue(value + 1)}>{value}</button>;
+    }
+    ```
+
+- 2
+
+    ```tsx
+    import { throttle } from "lodash-es";
+    import { useCallback, useEffect, useRef } from "react";
+
+    function useThrottleEffect(callback: () => void, args: any[], time: number) {
+      const instance = useRef({ callback });
+      const throttledCallback = useCallback(
+        throttle(() => {
+          instance.current.callback();
+        }),
+        [time]
+      );
+      useEffect(() => {
+        instance.current.callback = callback;
+      }, callback);
+      useEffect(() => {
+        return () => {
+          throttledCallback.cancel();
+        };
+      }, [throttledCallback]);
+      useEffect(() => {
+        throttledCallback();
+      }, args)
+      return throttledCallback;
+    }
+
+    function Demo() {
+      const [value, setValue] = useState(0);
+      const printValue = useCallback(() => {
+        console.log(value);
+      }, [value]);
+      const throttledPrintValue = useThrottleFn(printValue, [value], 1000);
+      return <button onClick={() => setValue(value + 1)}>{value}</button>;
+    }
+    ```
+
+参考文献
+
+- [How to use throttle or debounce with React Hook?](https://stackoverflow.com/questions/54666401/how-to-use-throttle-or-debounce-with-react-hook)
+- [如何使用 React Hooks 实现防抖和节流](https://chinese.freecodecamp.org/news/debounce-and-throttle-in-react-with-hooks/)
+- https://streamich.github.io/react-use/?path=/story/side-effects-usethrottle--docs
+- https://ahooks.js.org/hooks/use-throttle
+- https://ahooks.js.org/hooks/use-throttle-fn
+- https://ahooks.js.org/hooks/use-throttle-effect
+- [【笔记】可食用的react hook防抖及节流 | 拿走不谢](https://juejin.cn/post/6854573217349107725)
+
+
+
 ## 第三方库
 
 - [useHooks](https://usehooks.com/useEventListener/)
