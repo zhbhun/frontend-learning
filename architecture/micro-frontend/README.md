@@ -5,6 +5,7 @@
 ## 原理
 
 - [tab、iframe 进程隔离](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/219.%E7%B2%BE%E8%AF%BB%E3%80%8A%E6%B7%B1%E5%85%A5%E4%BA%86%E8%A7%A3%E7%8E%B0%E4%BB%A3%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%80%E3%80%8B.md#tabiframe-%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB)
+- [Why Not Iframe](https://www.yuque.com/kuitos/gky7yw/gesexv)
 
 ## 开源库
 
@@ -13,6 +14,10 @@
 
 ## 参考文献
 
+- [你可能并不需要微前端](https://www.yuque.com/kuitos/gky7yw/fy3qri)
+- [微前端的核心价值](https://www.yuque.com/kuitos/gky7yw/rhduwc)
+- [探索微前端的场景极限](https://www.yuque.com/kuitos/gky7yw/uyp6wi)
+- [目标是最完善的微前端解决方案 - qiankun 2.0](https://www.yuque.com/kuitos/gky7yw/viueoh)
 - [每日优鲜供应链前端团队微前端改造](https://juejin.cn/post/6844903943873675271)
 - [微前端入门](https://juejin.cn/post/6844903953734336525#heading-13)
 - [探索微前端的场景极限](https://www.yuque.com/kuitos/gky7yw/uyp6wi)
