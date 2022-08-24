@@ -142,10 +142,12 @@ TODO
 
 - 《JavaScript 设计模式与实践》
 - [《Dive Into Design Pattern》](https://refactoringguru.cn/design-patterns)
+- [图说设计模式](https://design-patterns.readthedocs.io/zh_CN/latest/index.html)
 
 教程
 
 - [JavaScript设计模式es6（23种)](https://juejin.cn/post/6844904032826294286#heading-5)
 - [《JavaScript 设计模式与开发实践》读书笔记](https://github.com/JChehe/blog/issues/35)
+- [设计模式 by runoob](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
 
 ---

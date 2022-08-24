@@ -25,6 +25,10 @@
 
 - [CSS Display an Image Resized and Cropped](https://stackoverflow.com/questions/493296/css-display-an-image-resized-and-cropped)
 
+## 教程
+
+- [CSS Mini Course](https://doc.clickup.com/37465296/d/13qb6g-64/css-mini-course/13qb6g-84/css-mini-course)
+
 ## 工具
 
 - [autoprefixer](https://github.com/postcss/autoprefixer)
