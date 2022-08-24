@@ -27,6 +27,8 @@
 
     有些状态需要在父级管理，可以将状态管理和使用该状态的组件提取到较小的组件中，并且可以将较复杂的组件作为 children props 传递给它。从较小的组件角度来看，children 只是 props，因此它们不会受到状态更改的影响，因此不会重新渲染。
 
+    https://codesandbox.io/s/black-night-3gp4ev
+
 - 使用 React.memo
 - 使用 React.useCallback / React.useMemo
 - 列表优化
