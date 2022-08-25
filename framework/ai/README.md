@@ -2,3 +2,4 @@
 - [Brain.js](https://brain.js.org/#/)
 - http://caza.la/synaptic/#/
 - https://ml5js.org/
+- [jina](https://github.com/jina-ai/jina) - Build cross-modal and multimodal applications on the cloud · Neural Search · Creative AI · Cloud Native · MLOps
