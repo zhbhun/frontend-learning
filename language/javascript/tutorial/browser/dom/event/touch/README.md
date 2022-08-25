@@ -140,3 +140,9 @@
             - inner: touchmove
             - inner: touchend
             - outer: touchend
+
+## 进阶
+
+### 双指缩放
+
+- [移动端双指缩放图片JS事件的实践心得](https://www.zhangxinxu.com/wordpress/2020/06/mobile-event-touches-zoom-sacle/)
