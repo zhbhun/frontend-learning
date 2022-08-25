@@ -37,6 +37,16 @@
 
 - [屏幕尺寸大全-人人都是产品经理](http://www.woshipm.com/screen/index.html)
 
+## 示例
+
+- 网易手机网：https://3g.163.com/
+
+    平板采用居中限宽模式
+
+- 淘宝触屏版：https://main.m.taobao.com/
+
+    等比放大模式
+
 ## 参考文献
 
 - [Learn Responsive Design](https://web.dev/learn/design/)
