@@ -1,0 +1,1 @@
+- [vuera](https://github.com/akxcv/vuera) - Vue in React, React in Vue. Seamless integration of the two
