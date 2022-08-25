@@ -221,3 +221,4 @@ TODO
 - [HTML5 Video Events and API检测工具](https://www.w3.org/2010/05/video/mediaevents.html)
 - [视频事件流水查看工具](http://z.weishi.qq.com/app/video.html###)
 - [How to Catch NETWORK_NO_SOURCE Errors with an HTML5 Video Tag](https://stackoverflow.com/questions/9175415/how-to-catch-network-no-source-errors-with-an-html5-video-tag)
+- [如何开发 Web 视频剪辑工具？](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247500366&idx=1&sn=4a1a44f8af29cbd3fdfa383611ce834d&chksm=ea446316dd33ea00f689b0d829a6bb2955658b7d71cb729218724893bee6d3d328322ea16289&mpshare=1&scene=1&srcid=0722yBEoJVqeBR67ecrT6mi1&sharer_sharetime=1658449689393&sharer_shareid=23bfc8f6684b676886641da1cfece5af&version=4.0.2.90474&platform=mac#rd)

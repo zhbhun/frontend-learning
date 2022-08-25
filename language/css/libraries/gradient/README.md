@@ -1,1 +1,3 @@
 - [webgradients](https://github.com/itmeo/webgradients)
+- [gradientos](https://github.com/henripar/gradientos) - Gradientos makes it easy to choose gradients.
+- [hypercolor](https://github.com/jordihales/hypercolor) - A curated collection of beautiful premade gradients using default colors from the Tailwind palette as well as a selection of custom color gradients.

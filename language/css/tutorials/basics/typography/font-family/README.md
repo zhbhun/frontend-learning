@@ -1,3 +1,28 @@
+- serif(衬线)
+- sans-serif(无衬线)
+- monospace(等宽)
+- fantasy(梦幻)
+- cuisive(草体)
+
+## 系统字体
+
+> system-ui,-apple-system,BlinkMacSystemFont,segoe ui,Roboto,Helvetica,Arial,sans-serif,apple color emoji,segoe ui emoji,segoe ui symbol;
+
+- system-ui，使用各个支持平台上的默认系统字体
+- -apple-system， 在一些稍低版本 Mac OS X 和 iOS 上，它针对旧版上的 Neue Helvetica 和 Lucida Grande 字体，升级使用更为合适的 San Francisco Fonts
+- BlinkMacSystemFont，针对一些 Mac OS X 上的 Chrome 浏览器，使用系统默认字体
+- segoe ui，在 Windows 及 Windows Phone 上选取系统默认字体
+- Roboto，面向 Android 和一些新版的的 Chrome OS
+- Helvetica,Arial，在针对不同操作系统不同平台设定采用默认系统字体后，针对一些低版本浏览器的降级方案
+- sans-serif，兜底方案，保证字体风格统一，至少也得是无衬线字体
+
+参考文献
+
+- [谈谈一些有趣的CSS题目（16）-- 你该知道的字体 font-family ](https://www.cnblogs.com/coco1s/p/11350642.html)
+- [Web 字体 font-family 再探秘](https://www.cnblogs.com/coco1s/p/11350642.html)
+- [Using UI System Fonts In Web Design: A Quick Practical Guide](https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/)
+- [font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif ](https://github.com/necolas/normalize.css/issues/665)
+
 ## [font-display](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face/font-display)
 
 - [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)

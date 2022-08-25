@@ -56,6 +56,10 @@
 
 - [vue-cli](https://github.com/vuejs/vue-cli)
 
+### 脚手架
+
+- [vitesse](https://github.com/antfu/vitesse) - Opinionated Vite + Vue Starter Template
+
 ## 示例
 
 1. [插值](./examples/interpolation.html)

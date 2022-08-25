@@ -1,1 +1,3 @@
 - [canvas-confetti](https://github.com/catdad/canvas-confetti) - on-demand confetti gun
+- [css-doodle](https://github.com/css-doodle/css-doodle) - A web component for drawing patterns with CSS.
+- [atropos](https://github.com/nolimits4web/atropos/) - Stunning touch-friendly 3D parallax hover effects
