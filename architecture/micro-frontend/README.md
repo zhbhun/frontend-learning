@@ -11,6 +11,7 @@
 
 - [qiankun](https://github.com/umijs/qiankun) - Blazing fast, simple and completed solution for micro frontends.
 - [alibabacloud-alfa](https://github.com/aliyun/alibabacloud-alfa) - 阿里云微前端解决方案
+- [elux](https://github.com/hiisea/elux) - 基于“微模块”和“模型驱动”的跨平台、跨框架『同构方案』，支持React/Vue/Web(浏览器)/Micro(微前端)/SSR(服务器渲染)/MP(小程序)/APP(手机应用)
 
 ## 参考文献
 
@@ -33,3 +34,4 @@
 - [微前端“容器”——microcosmos实现](https://segmentfault.com/a/1190000023850793)
 - [How We Build Micro Frontends With Lattice](https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea)
 - [The Future of Micro-Frontends](https://betterprogramming.pub/the-future-of-micro-frontends-2f527f97d506)
+- [从"微前端"到“微模块”](https://juejin.cn/post/7106791733509226533)
