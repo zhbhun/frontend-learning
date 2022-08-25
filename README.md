@@ -9,6 +9,7 @@
 
 - [网道](https://wangdoc.com/)
 - [《现代 JavaScript 教程》](https://zh.javascript.info/)
+- [Learn](https://web.dev/learn/)
 - [Web Development for Beginners](https://microsoft.github.io/Web-Dev-For-Beginners/#/)
 - [Front-end-tutorial](https://github.com/windiest/Front-end-tutorial)
 - [JavaScript The Right Way](http://jstherightway.org/) - This is a guide intended to introduce new developers to JavaScript and help experienced developers learn more about its best practices.
