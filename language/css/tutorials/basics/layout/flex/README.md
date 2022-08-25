@@ -187,6 +187,8 @@
 TODO
 
 # 参考文献
+
+- [A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/#flexbox-background)
 - [Flex 布局教程：语法篇](http://www.ruanyifeng.com/blog/2015/07/flex-grammar.html)
 - [Flex 布局教程：实例篇](http://www.ruanyifeng.com/blog/2015/07/flex-examples.html)
 - [Getting Dicey With Flexbox](https://davidwalsh.name/flexbox-dice)
