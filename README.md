@@ -3,6 +3,7 @@
 
 - [前端技能汇总](https://github.com/JacksonTian/fks)
 - https://www.awesomes.cn/
+- [Awesome-GitHub-Repo](https://github.com/Wechat-ggGitHub/Awesome-GitHub-Repo) - 收集整理 GitHub 上高质量、有趣的开源项目。
 
 ## 教程
 

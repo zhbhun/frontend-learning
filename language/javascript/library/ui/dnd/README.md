@@ -1,3 +1,5 @@
+> 拖拽隐喻、拖拽状态、目标暗示、位置确认、吸附确认和选中状态。
+
 - [Sortable](https://github.com/SortableJS/Sortable) - Reorderable drag-and-drop lists for modern browsers and touch devices. No jQuery or framework required.
 - [dragula](https://github.com/bevacqua/dragula) - Drag and drop so simple it hurts
 
