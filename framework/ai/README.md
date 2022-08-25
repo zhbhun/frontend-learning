@@ -1,4 +1,5 @@
 - [TensorFlow.js](https://www.tensorflow.org/js)
+- [pytorch](https://github.com/pytorch/pytorch) - Tensors and Dynamic neural networks in Python with strong GPU acceleration
 - [Brain.js](https://brain.js.org/#/)
 - http://caza.la/synaptic/#/
 - https://ml5js.org/
