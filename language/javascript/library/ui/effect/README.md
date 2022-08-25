@@ -1,1 +1,2 @@
 - [canvas-confetti](https://github.com/catdad/canvas-confetti) - on-demand confetti gun
+- [css-doodle](https://github.com/css-doodle/css-doodle) - A web component for drawing patterns with CSS.
