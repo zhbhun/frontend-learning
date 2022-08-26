@@ -5,14 +5,20 @@
 ## 原理
 
 - [tab、iframe 进程隔离](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/219.%E7%B2%BE%E8%AF%BB%E3%80%8A%E6%B7%B1%E5%85%A5%E4%BA%86%E8%A7%A3%E7%8E%B0%E4%BB%A3%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%80%E3%80%8B.md#tabiframe-%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB)
+- [Why Not Iframe](https://www.yuque.com/kuitos/gky7yw/gesexv)
 
 ## 开源库
 
 - [qiankun](https://github.com/umijs/qiankun) - Blazing fast, simple and completed solution for micro frontends.
 - [alibabacloud-alfa](https://github.com/aliyun/alibabacloud-alfa) - 阿里云微前端解决方案
+- [elux](https://github.com/hiisea/elux) - 基于“微模块”和“模型驱动”的跨平台、跨框架『同构方案』，支持React/Vue/Web(浏览器)/Micro(微前端)/SSR(服务器渲染)/MP(小程序)/APP(手机应用)
 
 ## 参考文献
 
+- [你可能并不需要微前端](https://www.yuque.com/kuitos/gky7yw/fy3qri)
+- [微前端的核心价值](https://www.yuque.com/kuitos/gky7yw/rhduwc)
+- [探索微前端的场景极限](https://www.yuque.com/kuitos/gky7yw/uyp6wi)
+- [目标是最完善的微前端解决方案 - qiankun 2.0](https://www.yuque.com/kuitos/gky7yw/viueoh)
 - [每日优鲜供应链前端团队微前端改造](https://juejin.cn/post/6844903943873675271)
 - [微前端入门](https://juejin.cn/post/6844903953734336525#heading-13)
 - [探索微前端的场景极限](https://www.yuque.com/kuitos/gky7yw/uyp6wi)
@@ -28,3 +34,4 @@
 - [微前端“容器”——microcosmos实现](https://segmentfault.com/a/1190000023850793)
 - [How We Build Micro Frontends With Lattice](https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea)
 - [The Future of Micro-Frontends](https://betterprogramming.pub/the-future-of-micro-frontends-2f527f97d506)
+- [从"微前端"到“微模块”](https://juejin.cn/post/7106791733509226533)

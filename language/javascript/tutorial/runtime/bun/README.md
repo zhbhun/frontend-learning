@@ -1,0 +1,1 @@
+- [JavaScript’s Newest Framework: Bun. Will It Take Node’s Crown?](https://semaphoreci.com/blog/javascript-bun#what-is-bun)

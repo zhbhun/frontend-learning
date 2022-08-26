@@ -23,3 +23,4 @@
 - [The Google Analytics Setup I Use on Every Site I Build](https://philipwalton.com/articles/the-google-analytics-setup-i-use-on-every-site-i-build/)
 - [监控平台前端SDK开发实践](https://tech.meituan.com/2017/09/07/hunt-sdk-practice.html)
 - [前端监控和前端埋点方案设计](https://github.com/forthealllight/blog/issues/23)
+- [前端监控系列1｜ 字节的前端监控 SDK 是怎样设计的](https://mp.weixin.qq.com/s/-eEMSn2WpDiMbNSBgY3-pg)
