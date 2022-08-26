@@ -1,0 +1,1 @@
+- [Code Golfing Tips & Tricks: How to Minify your JavaScript Code](https://getbutterfly.com/code-golfing-tips-tricks-how-to-minify-your-javascript-code/#function-variable-arguments-shorthand)
