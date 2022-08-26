@@ -1,9 +1,9 @@
 
 1. 选择正确的图片格式
 2. 选择恰当的压缩比例
-3. 使用响应式图片
+3. 使用响应式图片（格式和分辨率）
 4. 使用 CDN 加速
-5. 懒加载图片
+5. 懒加载和加载优先级
 
 ## 压缩工具
 
@@ -13,6 +13,7 @@
 
 ## 参考文献
 
+- [Best practices for images](https://github.com/nucliweb/image-element)
 - [渐进式jpeg(progressive jpeg)图片及其相关](https://www.zhangxinxu.com/wordpress/2013/01/progressive-jpeg-image-and-so-on/)
 - [Choose the right image format](https://web.dev/choose-the-right-image-format/)
 - [Choose the correct level of compression](https://web.dev/compress-images/)
