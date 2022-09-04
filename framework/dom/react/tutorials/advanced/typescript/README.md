@@ -1,4 +1,3 @@
-
 # TypeScript
 
 ## 小技巧
@@ -45,6 +44,9 @@ const Example: FC = () => {
 
 ## 参考文献
 
+- [typescript-cheatsheets/react](https://github.com/typescript-cheatsheets/react) - Cheatsheets for experienced React developers getting started with TypeScript
+- [Use TypeScript to develop React Applications](https://egghead.io/courses/use-typescript-to-develop-react-applications)
+- [Ultimate React Component Patterns with Typescript 2.8](https://levelup.gitconnected.com/ultimate-react-component-patterns-with-typescript-2-8-82990c516935)
 - https://zh-hans.reactjs.org/docs/static-type-checking.html#typescript
 - [Extremely Useful TypeScript and React Skills](https://javascript.plainenglish.io/super-useful-typescript-skills-eb35d049fdbd)
 - [Using Typescript in React: a Crash Course](https://blog.openreplay.com/using-typescript-in-react-a-crash-course)
