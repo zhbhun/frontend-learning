@@ -2,6 +2,10 @@
 
 - [awesome-lowcode](https://github.com/taowen/awesome-lowcode)
 
+## 定义
+
+- [Discuz! 创始人戴志康：低代码不适合做什么？](https://mp.weixin.qq.com/s/tCE_IB-vd5jCVzwy4z6idg)
+
 ## 开源框架
 
 - [ToolJet](https://github.com/ToolJet/ToolJet) - Extensible low-code framework for building business applications. Connect to databases, cloud storages, GraphQL, API endpoints , Airtable, etc and build apps using drag and drop application builder. Built using JavaScript/TypeScript. 
