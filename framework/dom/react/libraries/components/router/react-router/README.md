@@ -35,6 +35,10 @@
 - [Reuse existing rendered component in react-router-dom](https://github.com/ReactTraining/react-router/issues/5195)
 - [Prevent react-router re-creating component when switching links](https://stackoverflow.com/questions/38460633/prevent-react-router-re-creating-component-when-switching-links)
 
+#### `How to navigate outside React context in v6`
+
+- [[Bug]: How to navigate outside React context in v6? ](https://github.com/remix-run/react-router/issues/8264#issuecomment-1032248752)
+
 ### 其他
 
 - https://github.com/pillarjs/path-to-regexp#readme
