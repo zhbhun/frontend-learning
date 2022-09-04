@@ -11,3 +11,4 @@
 - [页面可视化搭建工具前生今世](https://github.com/CntChen/cntchen.github.io/issues/15)
 - [前端可视化搭建二三事](https://github.com/SunXinFei/sunxinfei.github.io/issues/26)
 - [「可视化搭建系统」——从设计到架构，探索前端的领域和意义](https://juejin.im/post/5f1e98c05188252e5522dc0c)
+- [从零开发一款图片编辑器Mitu-Dooring](https://mp.weixin.qq.com/s/SEIgiDJZOCX11JqxFdiKUw)

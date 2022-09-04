@@ -81,6 +81,7 @@
 ### 博客/网站
 
 - [钉钉宜搭](https://www.aliwork.com/)
+- [百度 H5](https://h5.bce.baidu.com/)
 - [微搭](https://cloud.tencent.com/product/weda)
 - [爱速搭](https://suda.baidu.com/)
 - [云凤蝶](https://www.yunfengdie.com/intro)
