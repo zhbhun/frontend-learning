@@ -1,5 +1,7 @@
 # Changelog
 
+- [ECMAScript-features](https://github.com/sudheerj/ECMAScript-features)
+
 ## Draft
 
 - [tc39/ecma262](https://github.com/tc39/ecma262) / https://tc39.github.io/ecma262/
@@ -25,6 +27,7 @@
 ## ES2015/ES6
 
 - [ECMAScript® 2015 Language Specification](http://www.ecma-international.org/ecma-262/6.0/)
+- [es6-features](https://github.com/rse/es6-features)
 - [Exploring ES6](http://exploringjs.com/es6/)
 - [ECMAScript 6 features](https://github.com/lukehoban/es6features)
 - [ECMAScript 6 入门](http://es6.ruanyifeng.com)
