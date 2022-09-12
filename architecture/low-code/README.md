@@ -60,6 +60,8 @@
 - [简述国内几大无代码开发平台](https://zhuanlan.zhihu.com/p/141212899)
 - [国内外几大无代码低代码平台评估](https://zhuanlan.zhihu.com/p/160026347)
 - [开源低代码平台盘点，低代码开发真的能减少成本吗？](https://zhuanlan.zhihu.com/p/189595033)
+- [Working Of Low-Code Development Platforms](https://www.softwaretestinghelp.com/low-code-development-platforms/#12_Mendix)
+- [awesome-lowcode](https://github.com/HiJiangChuan/awesome-lowcode)
 
 ### H5/海报/视频 
 
@@ -157,3 +159,7 @@
 - https://github.com/tnfe/shida
 - [rxeditor](https://github.com/rxdrag/rxeditor) - 基于Bootstrap实现的，HTML可视化编辑工具。
 - [rxdrag](https://rxdrag.com/) - rxDrag，一款全栈低代码平台，基于TypeScript生态构建
+
+## 参考文献
+
+- [云凤蝶低代码之路](https://developer.aliyun.com/article/786592#slide-6)
