@@ -13,6 +13,10 @@
 
 - [vite-ssg](https://github.com/antfu/vite-ssg) - Static site generation for Vue 3 on Vite
 
+## 脚手架
+
+- [vitesse](https://github.com/antfu/vitesse)
+
 ## 问题
 
 ### `require is not defined`
