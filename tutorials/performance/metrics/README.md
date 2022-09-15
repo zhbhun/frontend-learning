@@ -74,6 +74,9 @@
 
     - [FID(First Input Delay)](https://developers.google.com/web/updates/2018/05/first-input-delay)
     - [Tracking input latency](https://developers.google.com/web/fundamentals/performance/user-centric-performance-metrics#tracking_input_latency)
+    - [Interaction to Next Paint (INP)](https://web.dev/inp/)
+
+        INP 通过测量用户与页面的所有交互事件的延迟，来得出代表页面整体响应能力的实验性指标。INP 测量的范围包括鼠标/触摸屏点击事件、键盘事件，不包括悬停和滚动事件。当用户离开页面时计算，结果是一个单一的值，越低越好。
 
 - 示例
 
