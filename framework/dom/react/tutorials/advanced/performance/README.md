@@ -51,6 +51,7 @@
 
 - [Why React Re-Renders](https://www.joshwcomeau.com/react/why-react-re-renders/?utm_source=pocket_mylist)
 - [【第2709期】一份详尽的 React re-render 指南](https://mp.weixin.qq.com/s?__biz=MjM5MTA1MjAxMQ%3D%3D&chksm=bd49231a8a3eaa0c95d352fa3297a139d3c20696d0d07cb72843d954a83ebbddb1d4500a00f8&fasttmpl_type=0&idx=1&lang=zh_CN&mid=2651257502&sn=88e7dbe3cbb1ebe9ff8521a40711c1ba)
+- [React 为什么重新渲染](https://blog.skk.moe/post/react-re-renders-101/)
 
 ## 参考文献
 
