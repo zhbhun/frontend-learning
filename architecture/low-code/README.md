@@ -76,6 +76,7 @@
 
 商业
 
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
 - [易企秀](https://www.eqxiu.com/?type=home)
 - [gaoding](https://www.gaoding.com/)
 - [qingzhan](https://www.qingzhan.com/)
