@@ -1,1 +1,2 @@
 - [为什么Hook没有ErrorBoundary？](https://segmentfault.com/a/1190000041974765)
+- [React Error Boundaries: A Complete Guide](https://meticulous.ai/blog/react-error-boundaries-complete-guide/)

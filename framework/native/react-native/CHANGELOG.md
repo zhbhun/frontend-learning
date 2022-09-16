@@ -2,6 +2,15 @@
 
 - https://github.com/react-native-community/react-native-releases/blob/master/CHANGELOG.md
 
+## [0.70](https://reactnative.dev/blog/2022/09/05/version-070)
+
+- 文档更新“新的架构“部分；
+- 使用 Hermes 作为默认引擎；
+- 统一配置 iOS 和 Android 的 Codegen Config；
+- 在新架构下 Android 支持库的 Auto-linking ；
+- Android 构建时支持 CMake；
+- ...
+
 ## 0.59
 
 - Deprecated MaskedViewIOS as it has now been moved to react-native-community/masked-view
