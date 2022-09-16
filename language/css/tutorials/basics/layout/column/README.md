@@ -1,1 +1,2 @@
 - [写给自己看的CSS columns分栏布局教程](https://www.zhangxinxu.com/wordpress/2019/01/css-css3-columns-layout/)
+- [基于CSS3 column多栏布局实现水平滑页翻页交互](https://www.zhangxinxu.com/wordpress/2017/02/css3-multiple-column-layout-read-horizontal/)
