@@ -13,3 +13,7 @@
 
 - [How to declare a function that throws an error in Typescript](https://stackoverflow.com/questions/49434751/how-to-declare-a-function-that-throws-an-error-in-typescript)
 - [Suggestion: `throws` clause and typed catch clause](https://github.com/Microsoft/TypeScript/issues/13219)
+
+## 不支持 package export
+
+- [Support for NodeJS 12.7+ package exports](https://github.com/microsoft/TypeScript/issues/33079)

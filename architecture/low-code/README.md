@@ -63,27 +63,30 @@
 - [Working Of Low-Code Development Platforms](https://www.softwaretestinghelp.com/low-code-development-platforms/#12_Mendix)
 - [awesome-lowcode](https://github.com/HiJiangChuan/awesome-lowcode)
 
-### H5/海报/视频 
+### 设计
 
-开源
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
+- [稿定](https://www.gaoding.com/)
+- [创客贴](https://www.chuangkit.com/)
+- [图怪兽](https://818ps.com/)
 
-- [tmagic-editor](https://github.com/Tencent/tmagic-editor)
-- [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
-- [luban-h5](https://github.com/ly525/luban-h5)
-- [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
+### 网站
 
---
+---
 
-商业
+移动端
 
-- [易企秀](https://www.eqxiu.com/?type=home)
 - [gaoding](https://www.gaoding.com/)
 - [qingzhan](https://www.qingzhan.com/)
+- [易企秀](https://www.eqxiu.com/?type=home)
+- [百度 H5](https://h5.bce.baidu.com/)
+- [图怪兽](https://818ps.com/)
 
-### 博客/网站
+---
+
+综合
 
 - [钉钉宜搭](https://www.aliwork.com/)
-- [百度 H5](https://h5.bce.baidu.com/)
 - [微搭](https://cloud.tencent.com/product/weda)
 - [爱速搭](https://suda.baidu.com/)
 - [云凤蝶](https://www.yunfengdie.com/intro)
@@ -91,6 +94,10 @@
 - [wordpress](https://wordpress.com/)
 - [squarespace](https://www.squarespace.com/)
 - [wix](https://editor.wix.com/)
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
+
+    - [Unveiling the Canva Visual Worksuite](https://www.canva.com/newsroom/news/unveiling-the-canva-visual-worksuite/)
+
 - [webflow](https://webflow.com)
 - [Pinegrow](https://pinegrow.com/)
 - [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
@@ -102,8 +109,11 @@
 
 开源
 
-- [阿里低代码引擎](https://lowcode-engine.cn/demo/index.html) 
 - [lowcode-engine](https://github.com/alibaba/lowcode-engine) - 一套面向扩展设计的企业级低代码技术体系
+- [tmagic-editor](https://github.com/Tencent/tmagic-editor)
+- [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
+- [luban-h5](https://github.com/ly525/luban-h5)
+- [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
 
 ### App
 
