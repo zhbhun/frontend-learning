@@ -116,6 +116,8 @@
     renderListItem(originNode: ReactElement, file: UploadFile, fileList: object[])
     ```
 
+- 列表项支持拖拽移动
+
 ## 事件回调
 
 - onChange：上传文件改变时的状态
