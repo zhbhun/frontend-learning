@@ -12,6 +12,18 @@ EventTarget 是一个 DOM 接口，由可以接收事件、并且可以创建侦
 - [event.preventDefault](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/preventDefault)
 - [event.stopImmediatePropagation](https://developer.mozilla.org/zh-CN/docs/Web/API/Event/stopImmediatePropagation)
 
+### 坐标位置
+
+- clientX/Y：获取到的是触发点相对浏览器可视区域左上角距离，不随页面滚动而改变。
+- movementX/Y
+- offsetX/Y：获取到是触发点相对被触发 DOM 的左上角距离
+- pageX/Y：获取到的是触发点相对文档区域左上角距离，会随着页面滚动而改变
+- layerX/Y：获取到的是触发点相对被触发 DOM（最接近的非默认定位）左上角的距离，类似 offsetX/Y
+- screenX/Y：获取到的是触发点相对显示器屏幕左上角的距离，不随页面滚动而改变
+- x/y：通 clientX / clientY
+
+[JS基础篇--了解JS的clientX、pageX、screenX等方法来获取鼠标坐标详解](https://segmentfault.com/a/1190000002405897)
+
 ## 进阶
 
 ### 自定义事件
