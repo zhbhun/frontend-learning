@@ -1,12 +1,28 @@
-面试
-========
+## 面试
 
-## 站点
+- 经验：年限、公司、职责、业务、项目、技术栈
+- 技术：基础知识、开发框架、开发工具、业务领域
 
+    - 技术深度：原理、细节以及最佳实践
+    - 技术广度：对某项技术的思考、实践、对比等，去了解这门技术到底是做什么的、适用在哪些场景？
+    - 项目经历：把我们中遇到的一些问题同样抛出来，看候选人是否曾经遇到过又是如何去解决的
+
+- 业务
+
+    - 业务场景：聊他们的产品、他们的业务模式、商业模式，了解下候选人对产品的诞生、定位、发展的认知
+    - 技术突破：技术是如何从业务出发、给业务带来了哪些改变以及如何去评估两者之间产生的结果
+
+- 综合：学习、写作、管理、沟通、规划
+
+ps：聊公司和工作职责 =》重点参与的业务和项目 =》 围绕项目考核技术问题 =》 补充考核技术基础知识 =》 围绕综合素质进行了解。
+
+## 题库
+
+- https://www.codewars.com/
+- https://leetcode.cn/
 - [牛课网](https://www.nowcoder.com/)
+- [赛码网](https://www.acmcoder.com/#/practice/company)
 - [IT公司笔试题集锦](https://blog.csdn.net/column/details/offer.html)
-
-## 综合
 
 ### 综合
 
@@ -67,7 +83,14 @@
 - [system-design-interview](https://github.com/checkcheckzz/system-design-interview) - System design interview for IT companies.
 - [chassing/linux-sysadmin-interview-questions](https://github.com/chassing/linux-sysadmin-interview-questions) - Collection of Linux Sysadmin/DevOps interview questions.
 
-## 博客
+## 简历
+
+- [「推荐」前端新手如何做简历](https://zhuanlan.zhihu.com/p/23105699)
+- [geekcompany/DeerResume](https://github.com/geekcompany/DeerResume)
+- [Standard Resume](https://standardresume.co/?ref=usniemvuilaptrinh) - A web application to help create beautiful resume/cv for designers, developers.
+
+
+## 参考
 
 - [怎样花两年时间去面试一个人？](https://mp.weixin.qq.com/s?__biz=MjM5ODIzNDQ3Mw==&amp;mid=2649967341&amp;idx=1&amp;sn=e23064e6a95385141b57449c98cc80e2&amp;chksm=beca3aeb89bdb3fda2e5075b986170cf189c9f76e9e1c9dcce5798ac815b3fc4761c529402a5&amp;mpshare=1&amp;scene=24&amp;srcid=07026xj7NPo0eI2IG7CCxYc2&amp;key=e0f557c9f11)
 - [过完年跳槽，要考虑哪些要素？](https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&mid=2651001469&idx=2&sn=2d2afca1948ec0b98a80607ed47fc4a2&chksm=bdbeea2e8ac96338fddf7a13ea264d09ce86ed2329f6da997b2226772c4450ccaa1d2383a39b&mpshare=1&scene=23&srcid=0306Pltsg33pNzkoC17EhP3x#rd)
@@ -80,15 +103,6 @@
     - [2018年各大互联网前端面试题五（今日头条）](https://cloud.tencent.com/developer/article/1140218)
 
 - [The Interview Study Guide For Software Engineers](https://dev.to/seattledataguy/the-interview-study-guide-for-software-engineers-764)
-
-## 简历
-
-- [「推荐」前端新手如何做简历](https://zhuanlan.zhihu.com/p/23105699)
-- [geekcompany/DeerResume](https://github.com/geekcompany/DeerResume)
-- [Standard Resume](https://standardresume.co/?ref=usniemvuilaptrinh) - A web application to help create beautiful resume/cv for designers, developers.
-
-## 经验
-
 - [如何在面试中成长？来看阿里前端终面官的面试心得](https://mp.weixin.qq.com/s/s5JRsPctD2-lMeYLH_Z7UA)
 
     准备：
@@ -118,3 +132,4 @@
         - 协作：如何与自己团队、其他团队
         - 管理：如何定位自己的职责、建设团队的核心竞争力、带领团队突破，又是如何保证自己的成长
         - 招聘：招聘方面的技巧和经验
+
