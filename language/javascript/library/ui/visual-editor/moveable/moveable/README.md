@@ -1,4 +1,48 @@
-## 可视化编辑器的实现方案
+## 基础
+
+### 事件处理
+
+#### OnDrag
+
+偏移量
+
+- delta：The delta of [translateX, translateY]
+
+    单次拖拽的偏移量
+
+- dist：The distance of [translateX, translateY]
+
+    累积拖拽的偏移量
+
+- translate：The position of [translateX, translateY]
+
+    累积拖拽的偏移量（同 dist）
+
+- beforeDelta：The delta of [left, top]
+
+    同 delta ？
+
+- beforeDist：The distance of [left, top]
+
+    同 dist ?
+
+- beforeTranslate：The position of [left, top]
+
+    同 translate ?
+
+目标信息
+
+- left：a target's left
+- top：a target's top
+- right：a target's right
+- bottom：a target's bottom
+- width：number	a target's offset width
+- height：number a target's offset height
+- transform：a target's transform
+
+## 进阶
+
+### 可视化编辑器的实现方案
 
 要求：
 
