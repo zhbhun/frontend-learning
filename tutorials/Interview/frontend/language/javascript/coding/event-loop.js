@@ -5,6 +5,7 @@ function process() {
       console.log('B')
     })
   });
+
   const promsie = new Promise((resolve) => {
     console.log('C')
     resolve()
