@@ -103,6 +103,27 @@ ps：拖拽效果会影响拖拽功能和鼠标显示
 
 https://developer.mozilla.org/zh-CN/docs/Web/API/HTML_Drag_and_Drop_API/Drag_operations#%E6%94%BE%E7%BD%AE%E5%8F%8D%E9%A6%88
 
+## 问题
+
+### 元素父级存在大小变化时拖拽显示的图像存在差异
+
+- 问题：在编辑器画布使用拖拽事件实现元素的拖拽时，如果画布存在放大缩小功能，那么拖拽出来的图像可能会与当前画布的显示存在差异（拖拽出来的图像没有放大和缩小效果）
+- 解决：暂无解决方案，及时使用像素模拟放大和缩小效果，也无法模拟旋转等特殊效果。
+
+### setDragImage 存在兼容问题
+
+- 问题1：不同浏览器的偏移计算规则不一致
+
+    - chrome：根据屏幕的像素密度而定，需要等比调整
+    - firefox / safari：按实际显示的逻辑像素来计算
+
+- 问题2：不同浏览器处理图片元素的方式不一样
+
+    - firefox：是根据实际图片大小而定
+    - chrome / safari：根据图片元素的显示大小而定
+
+
+
 ## 参考
 
 - [一个拖拽，就暴露了国内外大厂的差距](https://zhuanlan.zhihu.com/p/505956645?utm_oi=35897751896064&utm_source=pocket_mylist)
