@@ -99,6 +99,10 @@
     - [Unveiling the Canva Visual Worksuite](https://www.canva.com/newsroom/news/unveiling-the-canva-visual-worksuite/)
 
 - [webflow](https://webflow.com)
+- [plasmic](https://studio.plasmic.app/)
+
+    - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0)
+
 - [Pinegrow](https://pinegrow.com/)
 - [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
 - [dhiwise](https://app.dhiwise.com)
