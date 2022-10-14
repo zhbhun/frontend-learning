@@ -1,4 +1,4 @@
-var cacheStorageKey = "minimal-pwa-2";
+var cacheStorageKey = "minimal-pwa-15";
 
 var cacheList = ["/", "/index.js"];
 
@@ -19,9 +19,9 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(
     caches.match(e.request).then(function (response) {
       console.log("fetch1", e, response);
-      // if (response != null) {
-      //   return response;
-      // }
+      if (response != null) {
+        return response;
+      }
       return fetch(e.request.url);
     })
   );
