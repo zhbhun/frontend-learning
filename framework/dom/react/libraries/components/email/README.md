@@ -1,3 +1,5 @@
 - https://github.com/mjmlio/mjml
+- [mailing](https://github.com/sofn-xyz/mailing) - Build, test, send emails with React
 - [grapesjs-mjml](https://github.com/artf/grapesjs-mjml) - Newsletter Builder with MJML components in GrapesJS
+- [react-email-editor](https://github.com/unlayer/react-email-editor) - The excellent drag-n-drop email editor by Unlayer as a React.js wrapper component. This is the most powerful and developer friendly visual email builder for your app.
 - [My Wonderful HTML Email Workflow](https://www.joshwcomeau.com/react/wonderful-emails-with-mjml-and-mdx/)
