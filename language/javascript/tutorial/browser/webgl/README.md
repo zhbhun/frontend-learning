@@ -11,6 +11,7 @@
 - [WebGL playground](http://webglplayground.net/)
 - [WebGL Academy](http://www.webglacademy.com/)
 - [webgl-examples](https://github.com/mdn/webgl-examples/tree/gh-pages/tutorial)
+- [Web 3D 从入门到跑路](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247500863&idx=1&sn=f6c8ce03f6b58e63c9cf1c0c9f11b7db&chksm=ea446567dd33ec712362fb10eee8d8814e747c13316ae503a229fddb53e59d1607e4b415a71b&mpshare=1&scene=1&srcid=1006cOHB0iJvGjPlqdKQiXM8&sharer_sharetime=1665061296850&sharer_shareid=23bfc8f6684b676886641da1cfece5af&notreplace=true#rd)
 
 ## 进阶
 
