@@ -1,6 +1,7 @@
 # [vit](https://vitejs.dev/)
 
 - https://github.com/vitejs/awesome-vite
+- [Vite Conf](https://viteconf.org/schedule)
 
 ## 插件
 
