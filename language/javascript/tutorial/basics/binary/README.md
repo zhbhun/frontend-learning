@@ -63,3 +63,4 @@ Blob 类型只有 slice 方法，用于返回一个新的 Blob对象，包含了
 - [前端二进制学习（二）](https://www.zhuyuntao.cn/%E5%89%8D%E7%AB%AF%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%BA%8C%EF%BC%89)
 - [前端二进制学习（三）](https://www.zhuyuntao.cn/%E5%89%8D%E7%AB%AF%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AD%A6%E4%B9%A0%EF%BC%88%E4%B8%89%EF%BC%89)
 - [【前端知乎系列】ArrayBuffer 与 Blob对象](https://juejin.cn/post/6844904022206332941)
+- [谈谈JS二进制：File、Blob、FileReader、ArrayBuffer、Base64](https://zhuanlan.zhihu.com/p/568915443)
