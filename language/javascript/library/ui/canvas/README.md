@@ -23,3 +23,11 @@
 
 - [html2canvas](https://github.com/niklasvh/html2canvas)
 - [canvas-toBlob.js](https://github.com/eligrey/canvas-toBlob.js)
+
+## Editor
+
+- [fabric.js](https://github.com/fabricjs/fabric.js) - Javascript Canvas Library, SVG-to-Canvas (& canvas-to-SVG) Parser
+
+## Simulator
+
+- [node-canvas](https://github.com/Automattic/node-canvas) - Node canvas is a Cairo backed Canvas implementation for NodeJS.
