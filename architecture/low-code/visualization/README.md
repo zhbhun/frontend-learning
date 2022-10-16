@@ -19,3 +19,4 @@
 - [我用 Vue +Fabric.js写了个简易的H5可视化图片编辑器](https://juejin.cn/post/6994365575027752967)
 - [从零设计可视化大屏搭建引擎](https://juejin.cn/post/6981257575425654792)
 - [Vue + Egg 实现一个 H5页面可视化编辑器 / 可视化配置平台](https://juejin.cn/post/7001077797808504839)
+- [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0) / [Subcomponents](https://medium.com/eightshapes-llc/subcomponents-753ce9f6600a)
