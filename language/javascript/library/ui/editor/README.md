@@ -107,6 +107,10 @@
 - [Ace, CodeMirror, and Monaco: A Comparison of the Code Editors You Use in the Browser](https://blog.replit.com/code-editors)
 - [Ace, CodeMirror, and Monaco: A Comparison of the Code Editors You Use in the Browser](https://www.reddit.com/r/javascript/comments/s1e55h/ace_codemirror_and_monaco_a_comparison_of_the/)
 
+## 协作
+
+- [Etherpad](https://etherpad.org/) / [etherpad-lite](https://github.com/ether/etherpad-lite)
+
 ## 参考文献
 
 - https://panjiachen.github.io/vue-element-admin-site/zh/feature/component/rich-editor.html#%E5%B8%B8%E8%A7%81%E5%AF%8C%E6%96%87%E6%9C%AC
