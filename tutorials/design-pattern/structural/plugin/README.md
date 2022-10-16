@@ -65,3 +65,10 @@
 - [精读《插件化思维》](https://zhuanlan.zhihu.com/p/35997606?group_id=971688117610254336)
 - [插件开发](https://eggjs.org/zh-cn/advanced/plugin.html)
 - [前端插件机制的探索](https://www.keisei.top/plugin-mechanism/)
+
+---
+
+- [如何设计开发一个 Web 插件系统](https://juejin.cn/post/6965049497403523108)
+- [小话设计模式（番外一）插件模式](https://blog.csdn.net/ecidevilin/article/details/52743228)
+- [插件开发概述 - IBM](https://www.ibm.com/docs/zh/cloud-pak-system-software/2.2.5?topic=guide-plug-in-development-overview)
+- [插件式可扩展架构设计心得](https://zhuanlan.zhihu.com/p/372381276)
