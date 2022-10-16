@@ -10,6 +10,7 @@
 - [谈谈 DSL 以及 DSL 的应用（以 CocoaPods 为例）](https://draveness.me/dsl/)
 - [用流畅接口构造内部DSL ](https://www.cnblogs.com/weidagang2046/archive/2011/10/30/2229293.html)
 - [Declarative Programming: Is It A Real Thing?](https://blog.hellojs.org/declarative-programming-is-it-a-real-thing-e59fe5e893fd)
+- [2021 TWeb 腾讯前端大会(一) 低代码利器--DSL](https://juejin.cn/post/7023168597912453157)
 
 ## 框架
 
