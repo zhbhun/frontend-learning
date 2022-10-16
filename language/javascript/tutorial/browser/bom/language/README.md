@@ -1,0 +1,3 @@
+- [Navigator.language](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language)
+- [Navigator.languages](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages)
+- [Window: languagechange event](https://developer.mozilla.org/en-US/docs/Web/API/Window/languagechange_event)
