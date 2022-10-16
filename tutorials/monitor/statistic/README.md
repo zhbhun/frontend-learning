@@ -25,6 +25,11 @@
     - 首次点击时间
     - 点击热力图
 
+## 实现方案
+
+- [Google Analytics](https://analytics.google.com/analytics/web/)
+- [Plausible](https://plausible.io/) - Plausible is lightweight and open source web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. Made and hosted in the EU, powered by European-owned cloud infrastructure
+
 ## 参考文献
 
 - [点击量统计的两种方案的优劣？](https://www.zhihu.com/question/34810604)
