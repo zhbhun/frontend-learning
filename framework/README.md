@@ -30,3 +30,7 @@
 
 - [uibench](https://github.com/localvoid/uibench)
 - [js-repaint-perfs](https://github.com/mathieuancelin/js-repaint-perfs)
+
+## 参考文献
+
+- [新一波JavaScript Web框架](https://mp.weixin.qq.com/s/2MrTEz_YXIxsqc1z69mJNA)
