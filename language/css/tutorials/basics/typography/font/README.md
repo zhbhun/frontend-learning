@@ -30,3 +30,24 @@
 - [Web 性能优化：使用 CSS font-display 控制字体加载和替换 ](https://www.cnblogs.com/cangqinglang/p/14692891.html)
 - [Ensure text remains visible during webfont load](https://web.dev/font-display/?utm_source=lighthouse&utm_medium=devtools)
 
+
+## 字体加载
+
+- Block Period：如果未加载字体，任何试图使用它的元素都必须渲染不可见的后备字体。如果在此期间字体已成功加载，则正常使用它。
+- Swap Period：如果未加载字体，任何尝试使用它的元素都必须呈现后备字体。如果在此期间字体已成功加载，则正常使用它。
+- Failure Period：如果未加载字体，用户代理将其视为导致正常字体回退的失败加载。
+
+| value / period | Block Period | Swap Period |
+| --- | --- | --- |
+| auto | Short(3s)/Infinite | Infinite/None |
+| block | Short(3s) | Infinite | 
+| swap | None | Infinite |
+| fallback | Extremely Short(100ms) | Short |
+| optional | Extremely Short(100ms) | None |
+
+- [font-display](https://css-tricks.com/almanac/properties/f/font-display/)
+- [Controlling Font Display Per Font-Face: the font-display descriptor](https://w3c.github.io/csswg-drafts/css-fonts-4/#font-display-desc)
+- [Web 性能优化：使用 CSS font-display 控制字体加载和替换](https://zxuqian.cn/css-font-display-intro/)
+- [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)
+- [How We Load Web Fonts Progressively](https://www.filamentgroup.com/lab/font-events.html)
+- [fontfaceobserver](https://github.com/bramstein/fontfaceobserver) - Webfont loading. Simple, small, and efficient.
