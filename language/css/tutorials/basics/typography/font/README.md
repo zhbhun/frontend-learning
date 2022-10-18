@@ -46,6 +46,7 @@
 | optional | Extremely Short(100ms) | None |
 
 - [font-display](https://css-tricks.com/almanac/properties/f/font-display/)
+- [Controlling Font Performance with font-display](https://developer.chrome.com/blog/font-display/)
 - [Controlling Font Display Per Font-Face: the font-display descriptor](https://w3c.github.io/csswg-drafts/css-fonts-4/#font-display-desc)
 - [Web 性能优化：使用 CSS font-display 控制字体加载和替换](https://zxuqian.cn/css-font-display-intro/)
 - [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)
