@@ -2,3 +2,4 @@
 - [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd)
 - [react-sortablejs](https://github.com/SortableJS/react-sortablejs)
 - [react-dragula](https://github.com/bevacqua/react-dragula)
+- https://github.com/clauderic/dnd-kit
