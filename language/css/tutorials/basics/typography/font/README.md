@@ -52,3 +52,37 @@
 - [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)
 - [How We Load Web Fonts Progressively](https://www.filamentgroup.com/lab/font-events.html)
 - [fontfaceobserver](https://github.com/bramstein/fontfaceobserver) - Webfont loading. Simple, small, and efficient.
+
+
+## unicode-range
+
+unicode-range是一个CSS属性，一般和 @font-face 规则一起使用，用于控制特定字符使用特定字体。
+
+```css
+@font-face {
+  font-family: quote;
+  src: local('SimSun');    
+  unicode-range: U+201c, U+201d;
+}
+```
+
+值和语法：
+
+```css
+unicode-range: U+26;               /* 单个字符编码 */
+unicode-range: U+0-7F;
+unicode-range: U+0025-00FF;        /* 字符编码区间 */
+unicode-range: U+4??;              /* 通配符区间 */
+unicode-range: U+0025-00FF, U+4??; /* 多个值 */
+```
+
+常用 unicode 值
+
+- 汉字：[0x4e00,0x9fa5]（或十进制[19968,40869]）
+- 数字：[0x30,0x39]（或十进制[48, 57]）
+- 小写字母：[0x61,0x7a]（或十进制[97, 122]）
+- 大写字母：[0x41,0x5a]（或十进制[65, 90]）
+
+
+
+[CSS unicode-range特定字符使用font-face自定义字体](https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/)
