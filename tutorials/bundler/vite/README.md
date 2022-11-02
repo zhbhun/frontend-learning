@@ -23,3 +23,9 @@
 ### `require is not defined`
 
 - [require is not defined when importing a node_module that imports a CSS file](https://github.com/vitejs/vite/issues/3409#issuecomment-1138202247)
+
+### `JS hash fails to change when asset URL changes`
+
+- [JS hash fails to change when asset URL changes](https://github.com/rollup/rollup/issues/3415)
+- [File hash is not updated when changing code in renderChunk](https://github.com/rollup/rollup/issues/2739)
+- [[v3.0] New hashing algorithm that "fixes (nearly) everything"](https://github.com/rollup/rollup/pull/4543)
