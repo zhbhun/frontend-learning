@@ -2,6 +2,37 @@
 
 - [一览js模块化：从CommonJS到ES6](一览js模块化：从CommonJS到ES6)
 
+## 教程
+
+### 循环依赖
+
+ES Module 支持循环依赖，后引入的模块不能直接使用钱引入模块的导出值，而必须在异步回调函数中使用。
+
+ps：Node CommonJS 遇到循环依赖时，后引入的模块会使用模块缓存初始化对象值，如果前引入的模块修改了初始化对象值，后引入的模块会无法正常使用。
+
+```js
+// a.js
+import b, { b1 } from "./b.js";
+export var a1 = "a1...";
+export default "a...";
+console.log("++ a", b, b1); // ++ a b... a1...
+setTimeout(() => {
+  console.log("-- a", b, b1); // -- a b... a1...
+}, 0);
+
+// b.js
+import a, { a1 } from "./a.js";
+export var b1 = "a1...";
+export default "b...";
+// console.log("++ b", a, a1); // Uncaught ReferenceError: Cannot access 'a' before initialization
+setTimeout(() => {
+  console.log("-- b", a, a1); // -- b a... a1...
+}, 0);
+```
+
+
+---
+
 ---
 
 - [Modular JavaScript](https://mjavascript.com/)
