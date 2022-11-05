@@ -1,1 +1,3 @@
+- [mousetrap](https://github.com/ccampbell/mousetrap)
+- [hotkeys](https://github.com/jaywcjlove/hotkeys)
 - [keycon](https://github.com/daybrush/keycon)
