@@ -69,6 +69,12 @@ Google 的两名创始者拉里·佩奇（Larry Page） 和谢尔盖·布尔（S
 
 当这些不好的垃圾索引被发现时，搜索引擎可能会惩罚使用黑帽方法的网站，或者降低他们的排名，或者完全从他们的数据库中删除他们的列表。这种惩罚可以通过搜索引擎的算法自动实施，也可以通过手工网站审查实施。一个例子是 2006 年 2 月谷歌(Google)因使用欺骗手段而将德国宝马(BMW)和 Ricoh Germany 移除。
 
+## 工具
+
+- [prerender.io](https://prerender.io/) - Get higher rankings by serving crawlers a static HTML version of your Javascript website, without compromising your customers’ experience. 
+
+    [How Prerender Crawls and Renders JavaScript Websites](https://prerender.io/blog/how-prerender-crawls-and-renders-javascript-websites/)
+
 ## 参考文献
 
 - [搜索引擎优化-维基百科](https://zh.wikipedia.org/wiki/%E6%90%9C%E5%B0%8B%E5%BC%95%E6%93%8E%E6%9C%80%E4%BD%B3%E5%8C%96)
