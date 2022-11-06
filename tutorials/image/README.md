@@ -4,3 +4,8 @@
 
 - [ImageAI 中文文档](https://imageai-cn.readthedocs.io/zh_CN/latest/index.html)
 - [GitHub开源的ImageAI 库：几行代码可实现目标对象识别](https://cloud.tencent.com/developer/article/1775805)
+
+## 图片处理
+
+- [blurhash](https://github.com/woltapp/blurhash) - A very compact representation of a placeholder for an image.
+- [primitive](https://github.com/fogleman/primitive) - Reproducing images with geometric primitives.
