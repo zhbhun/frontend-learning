@@ -11,6 +11,12 @@
 - [imagemin](https://github.com/imagemin/imagemin)
 - [ImageOptim](https://imageoptim.com/mac)
 
+## 渐进式加载
+
+- [图片渐进式加载的实现方法](https://akarin.dev/2021/11/04/progressive-image-loading/)
+- [The “Blur Up” Technique for Loading Background Images](https://css-tricks.com/the-blur-up-technique-for-loading-background-images/)
+- [CSS blur and retain sharp edges using absolute div](https://stackoverflow.com/questions/20443283/css-blur-and-retain-sharp-edges-using-absolute-div#answer-48095387)
+
 ## 参考文献
 
 - [Best practices for images](https://github.com/nucliweb/image-element)
