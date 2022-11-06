@@ -42,7 +42,7 @@
 2. Navive + Web
 3. React Natvie
 
-参考文献
+## 参考文献
 
 - [聊聊移动端跨平台开发的各种技术](http://fex.baidu.com/blog/2015/05/cross-mobile/)
-
+- [【深入解析】跨端框架的核心技术到底是什么？](https://supercodepower.com/cross-platform-tech)
