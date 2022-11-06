@@ -1,5 +1,14 @@
 # 性能优化
 
+## 启动性能优化
+
+- [React Native 启动速度优化——JS 篇](https://supercodepower.com/react-native-performance-js)
+- [React Native 启动速度优化——Native 篇](https://supercodepower.com/react-native-performance-native)
+
+## 渲染性能优化
+
+- [React Native 性能优化——Render 篇](https://supercodepower.com/react-native-performance-js#rn-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%B3%BB%E5%88%97%E7%9B%AE%E5%BD%95)
+
 ## 参考文献
 
 - [携程RN渲染性能优化实践](https://zhuanlan.zhihu.com/p/152146482)
