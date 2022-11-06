@@ -12,7 +12,7 @@
 - [Konva.js](https://konvajs.org/)
 - [CanvasKit](https://skia.org/docs/user/modules/canvaskit/)
 - [Pencil.js](https://pencil.js.org/)
-- [Paper.js](http://paperjs.org/)
+- [Paper.js](http://paperjs.org/) - The Swiss Army Knife of Vector Graphics Scripting – Scriptographer ported to JavaScript and the browser, using HTML5 Canvas.
 - [Fabric.js](http://fabricjs.com/)
 - [Three JS](https://threejs.org/)
 - [Scrawl-canvas](https://scrawl-v8.rikweb.org.uk/)
