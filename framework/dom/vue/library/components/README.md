@@ -33,6 +33,10 @@
 
     - [bootstrap-vue/bootstrap-vue](https://github.com/bootstrap-vue/bootstrap-vue)
 
+- Low Code
+
+    - [Avue](https://avuejs.com/) - 一个基于Element框架 (opens new window)低代码前端框架，它使用 JSON 配置来生成页面，可以减少页面开发工作量，极大提升效率。
+
 - Others
 
     - [ViewUI](https://github.com/view-design/ViewUI)
