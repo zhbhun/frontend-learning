@@ -1,0 +1,1 @@
+- [Push vs Pull](https://icloudnative.io/posts/what-is-gitops/#push-vs-pull)
