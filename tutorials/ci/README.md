@@ -25,6 +25,10 @@ DevOps 从计划、编码、构建，到测试、发布、部署，以及运营�
 
 [DevOps 不等于 CI，更不等于 CI /CD](https://cloud.tencent.com/developer/article/1085445)
 
+## GitOps
+
+- [GitOps 介绍](https://icloudnative.io/posts/what-is-gitops/)
+
 ## 基本概念
 
 - CI（Continuous integration）：持续集成指的是频繁地（一e天多次）将代码集成到主干。
