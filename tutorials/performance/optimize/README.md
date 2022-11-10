@@ -4,6 +4,88 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 
 ## 加载优化
 
+- 技术选型
+
+  离线包 > SSG > SSR > CSR
+
+  ps：孤岛式架构
+
+- 网络优化
+
+  - HTTP1 > HTTP2
+  - HTTP > RPC
+  - HTTP Resource Hint
+
+- 服务优化
+
+  - CDN
+  - 缓存
+
+- 静态资源优化
+
+  - HTML
+
+    - DNS 预解析
+    - TCP 预链接
+    - 资源预加载
+
+  - JavaScript
+
+    - 通过 script module 来加载现代更小打包体积的 JS
+    - script 标签设置 defer 和 async
+    - 拆包优化：
+    
+      - Tree Shaking 剔除无关代码
+      - 代码压缩混淆
+
+    - 拆包优化：第三方库单独打包
+    - 按需加载：路由动态分包
+
+  - CSS
+
+    - 关键路径 CSS
+    - Inline CSS
+    - 拆包按需加载
+
+  - Image
+
+    - 格式
+    - 压缩
+    - 响应式：分辨率、PPI
+    - 懒加载
+    - 渐进式
+
+  - 图标
+
+    - 使用雪碧图
+    - 使用
+
+  - Font
+
+    - 优先使用 woff2
+    - 设置字体加载 Swap
+    - 按需提取字体文件
+
+- 缓存优化
+
+  - HTTP 缓存
+  - Service Worker
+  - 通过调整打包机制，提高缓存命中率
+
+
+- 存在问题：
+
+  - 移动端 SSR 无法获取客户端信息
+
+    - 改用离线包
+    - 客户端约定在 URL 上追加客户端信息
+    - 服务端只渲染静态信息，动态信息交给客户端异步加载
+    - 客户端接口数据预加载
+
+  - ... 
+
+参考文献
+
 - [Fast load times](https://web.dev/fast/#i18n.paths.fast.topics.optimize_your_images)
 - [Load Performance](https://developers.google.com/web/fundamentals/performance/get-started/)
 - [Web Performance Best Practices](https://developers.google.com/speed/docs/best-practices/rules_intro)
