@@ -242,6 +242,16 @@ setTimout(function () {
 }, 0);
 ```
 
+取消请求的应用场景
+
+- 重复请求：重复点击
+- 竞态请求：并发请求
+- 无效请求：页面销毁
+
+参考文献:
+
+- [前端如何中断请求](https://zhuanlan.zhihu.com/p/460014212)
+
 ## 进阶
 
 ### XMLHttpRequest VS fetch
