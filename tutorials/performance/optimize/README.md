@@ -20,6 +20,7 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
 
   - CDN
   - 缓存
+  - 管道流输出骨架屏
 
 - 静态资源优化
 
@@ -71,7 +72,6 @@ ps：本文在 [Front-End Performance Checklist](https://github.com/thedaviddias
   - HTTP 缓存
   - Service Worker
   - 通过调整打包机制，提高缓存命中率
-
 
 - 存在问题：
 
