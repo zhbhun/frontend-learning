@@ -7,6 +7,7 @@
 - [What is the max size of localStorage values?](https://stackoverflow.com/questions/2989284/what-is-the-max-size-of-localstorage-values)
 - [chrome cookie size limit](https://stackoverflow.com/questions/2543851/chrome-cookie-size-limit)
 - [Using JavaScript to fill localStorage to its maximum capacity](https://mmazzarolo.com/blog/2022-06-26-filling-local-storage-programmatically/)
+- [Using JavaScript to fill localStorage to its maximum capacity](https://mmazzarolo.com/blog/2022-06-26-filling-local-storage-programmatically/)
 
 ---
 
