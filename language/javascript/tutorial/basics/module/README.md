@@ -54,6 +54,22 @@ setTimeout(() => {
 
 - [在浏览器中通过 importmap 使用 ES 模块](https://beginor.github.io/2021/08/16/using-es-modules-in-borwser-with-importmaps.html)
 
+### 兼容性
+
+
+| ES Modules Features                | Chrome             | Firefox            | Safari             |
+| ---------------------------------- | ------------------ | ------------------ | ------------------ |
+| modulepreload    | 66+                | :x:                | :x:                |
+| Dynamic Import  | 63+                | 67+                | 11.1+              |
+| import.meta.url  | ~76+               | ~67+               | ~12+ ❕<sup>1</sup> |
+| Import Maps        | 89+                | :x:                | :x:                |
+| JSON Modules      | 91+                | :x:                | :x:                |
+| CSS Modules        | 95+                | :x:                | :x:                |
+| import.meta.resolve    | :x:                | :x:                | :x:                |
+| Module Workers  | ~68+               | :x:                | :x:                |
+| Top-Level Await                    | 89+                | 89+                | 15+                |
+
+- [es-module-shims](https://github.com/guybedford/es-module-shims)
 
 ---
 
