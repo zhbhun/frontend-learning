@@ -22,6 +22,7 @@
 
 开源
 
+- [Create your Web Vitals report](https://web-vitals-report.web.app/)
 - [BuckyClient](https://github.com/HubSpot/BuckyClient) / https://github.hubspot.com/BuckyServer/
 - [zanePerfor](https://github.com/wangweianger/zanePerfor)
 - [web-monitoring](https://github.com/kisslove/web-monitoring/)
