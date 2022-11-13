@@ -45,6 +45,12 @@
 
 解决：为了规避该问题，在使用 babel 这样的单文件编译器的时候，需要开启 TS 的 isolatedModules，这样 TS 会对这样代码做相关的警告
 
+### allowSyntheticDefaultImports 和 esModuleInterop
+
+ES Module 导入 Commonjs 模块时自动将其转为 ES Module 格式
+
+- [由 allowSyntheticDefaultImports 引起的思考](https://blog.leodots.me/post/40-think-about-allowSyntheticDefaultImports.html)
+
 ## 进阶
 
 ### 三斜线指令
