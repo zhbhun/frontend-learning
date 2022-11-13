@@ -54,6 +54,10 @@ setTimeout(() => {
 
 - [在浏览器中通过 importmap 使用 ES 模块](https://beginor.github.io/2021/08/16/using-es-modules-in-borwser-with-importmaps.html)
 
+### CSS Module
+
+- [Using CSS Module Scripts to import stylesheets](https://web.dev/css-module-scripts/)
+
 ### 兼容性
 
 
