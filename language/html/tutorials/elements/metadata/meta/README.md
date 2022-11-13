@@ -30,3 +30,17 @@ HTML Meta
 - [Using <meta> tags to turn off caching in all browsers? [duplicate]](https://stackoverflow.com/questions/1341089/using-meta-tags-to-turn-off-caching-in-all-browsers)
 - [Disable browser caching with meta HTML tags](http://cristian.sulea.net/blog/disable-browser-caching-with-meta-html-tags/)
 - [使用 HTML meta 标签来禁用缓存](https://blog.whe.me/post/prevent-caching.html)
+
+## 移动端
+
+- `viewport`：设置视口大小、缩放和安全区域适配
+- `apple-mobile-web-app-capable`：设置是否全屏
+- `apple-mobile-web-app-status-bar-style"`：状态栏样式
+- `format-detection`：
+
+    - `telephone=no`：禁止数字自动识别为电话号码
+    - `email=no`：禁止 Email 识别
+
+参考文献
+
+- [iOS Supported Meta Tags](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html)
