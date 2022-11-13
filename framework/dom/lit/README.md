@@ -13,6 +13,13 @@
 - [Server Side Render Web Components](https://dev.to/steveblue/server-side-rendering-web-components-320g)
 - [Ionic Server Side Rendering (SSR)](https://ionic-5-full-starter-app-docs.ionicthemes.com/server-side-rendering-ssr)
 
+
+## 问题
+
+### 是否支持作用域插槽
+
+- [[question/proposal] Scoped Slots](https://github.com/lit/lit-element/issues/646)
+
 ## 参考文献
 
 - [Web组件构建库-Lit](https://zhuanlan.zhihu.com/p/524015045)
