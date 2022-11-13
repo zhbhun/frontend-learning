@@ -1,5 +1,7 @@
 # Changelog
 
+- [Web Almanac](https://almanac.httparchive.org/)
+
 ## 2022
 
 - [Working together on Interop 2022](https://webkit.org/blog/12288/working-together-on-interop-2022/)
