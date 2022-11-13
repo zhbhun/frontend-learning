@@ -25,3 +25,10 @@
 
 - [The CustomEvent interface](https://dev.to/cloudx/the-customevent-interface-2bfo)
 - [Using the EventTarget interface](https://dev.to/cloudx/using-the-eventtarget-interface-5f0f)
+
+## 问题
+
+### 旧版浏览器不可继承 EventTarget
+
+- [Issue 740576: Add EventTarget constructor](https://bugs.chromium.org/p/chromium/issues/detail?id=740576)
+- [Support extending EventTarget](https://github.com/jsdom/jsdom/issues/2156)
