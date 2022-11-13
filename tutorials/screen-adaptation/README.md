@@ -1,3 +1,5 @@
+## 适配方案
+
 - 固定宽度
 
     > 在大屏幕手机下两边是留白的，还有一个就是大屏幕手机下看起来页面会特别小，操作的按钮也很小。
@@ -14,6 +16,11 @@
 
     - [网易新闻](http://3g.163.com/touch/news/subchannel/all?version=v_standard)
     - [聚划算](https://jhs.m.taobao.com/m/index.htm#!all)
+
+## 屏幕分辨率
+
+- [iOS Design](https://kapeli.com/cheat_sheets/iOS_Design.docset/Contents/Resources/Documents/index)
+
 
 ---
 
