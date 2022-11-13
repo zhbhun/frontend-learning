@@ -30,6 +30,30 @@ setTimeout(() => {
 }, 0);
 ```
 
+### Import Map
+
+用法
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "loadash": "/libs/loadash/index.js",
+    "jquery": "/libs/jquery/index.js",
+    "three": "/libs/three.js/three.js",
+    "three/examples/": "/libs/three.js/examples/"
+  }
+}
+</script>
+```
+
+- 通过别名指定模块的地址， 适用于只有一个 js 文件的模块；
+- 通过路径指定模块的目录，适用于多个js文件组成的模块；
+
+参考文献
+
+- [在浏览器中通过 importmap 使用 ES 模块](https://beginor.github.io/2021/08/16/using-es-modules-in-borwser-with-importmaps.html)
+
 
 ---
 
