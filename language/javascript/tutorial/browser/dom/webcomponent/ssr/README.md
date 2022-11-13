@@ -1,0 +1,6 @@
+- [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/) / https://caniuse.com/declarative-shadow-dom
+- [How to server side render Web Components](https://lamplightdev.com/blog/2019/07/20/how-to-server-side-render-web-components/)
+- [Server Side Render Web Components](https://dev.to/steveblue/server-side-rendering-web-components-320g)
+- [Ionic Server Side Rendering (SSR)](https://ionic-5-full-starter-app-docs.ionicthemes.com/server-side-rendering-ssr#angular-universal)
+- [The Ultimate Ionic Server Side Rendering Guide (SSR)](https://devdactic.com/ultimate-ionic-ssr-guide)
+- [ocean](https://github.com/matthewp/ocean) - Web component server-side rendering
