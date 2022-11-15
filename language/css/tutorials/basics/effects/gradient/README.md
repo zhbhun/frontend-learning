@@ -1,5 +1,8 @@
-图片
-========
+# 渐变
+
+## 教程
+
+- [CSS Gradient Blog](https://cssgradient.io/blog/)
 
 ## 线性渐变
 
@@ -39,7 +42,7 @@
     - [linear-gradient()](https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient)
     - [repeating-linear-gradient()](https://developer.mozilla.org/en-US/docs/Web/CSS/repeating-linear-gradient)
 
-## 径向渐变
+### 径向渐变
 
 - 简介
 
@@ -76,3 +79,7 @@
 - 参考
 
     - [radial-gradient()](https://developer.mozilla.org/en-US/docs/Web/CSS/radial-gradient)
+
+## 工具
+
+- [CSS Gradient](https://cssgradient.io/)
