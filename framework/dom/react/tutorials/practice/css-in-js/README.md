@@ -1,11 +1,62 @@
-# CSS IN JS
 
-- https://speakerdeck.com/vjeux/react-css-in-js
-- https://speakerdeck.com/vjeux/react-css-in-js-react-france-meetup
-- [CSS Modules](https://glenmaddern.com/articles/css-modules)
-- https://www.w3cplus.com/css/postcss-modules-make-css-great-again.html
+## 背景
 
-## 讨论
+CSS 存在的问题
+
+- Global NameSpace & Isolation
+- Dependencies & Non-deterministic Resolution
+- Minification & Dead Code Elimination
+- Share Constants
+
+参考文献
+
+- https://speakerdeck.com/vjeux/react-css-in-js / https://speakerdeck.com/vjeux/react-css-in-js-react-france-meetup
+- [All You Need To Know About CSS-in-JS](https://hackernoon.com/all-you-need-to-know-about-css-in-js-984a72d48ebc)
+
+## 框架
+
+| 框架/特性 | Extract CSS File | Automatic Vendor Prefixing | Pseudo Classes | Media Queries | Styles As Object Literals |
+| --- | --- | --- | --- | --- | --- |
+| styled-components | x | ✓ | ✓ | ✓ | x |
+| emotion | ✓ | ✓ | ✓ | ✓ | ✓ |
+| linaria | ✓ | ✓ | ✓ | ✓ | ✓ |
+| styled-jsx | ✓ | ✓ | ✓ | ✓ | x |
+| jss | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+- [css-modules](https://github.com/css-modules/css-modules) - 16k ★, Documentation about css-modules
+
+    - https://github.com/webpack-contrib/css-loader#modules
+
+- [styled-components](https://github.com/styled-components/styled-components) - 37k ★, Visual primitives for the component age. Use the best bits of ES6 and CSS to style your apps without stress
+- [emotion](https://github.com/emotion-js/emotion)  - 15k ★, CSS-in-JS library designed for high performance style composition
+- [linaria](https://github.com/callstack/linaria) - 9k ★, Zero-runtime CSS in JS library
+- [styled-jsx](https://github.com/vercel/styled-jsx) - 7k ★, Full CSS support for JSX without compromises 
+- [polished](https://github.com/styled-components/) - 7k ★, A lightweight toolset for writing styles in JavaScript
+- [vanilla-extract](https://github.com/vanilla-extract-css/vanilla-extract) - 6k ★, Zero-runtime Stylesheets-in-TypeScript
+- [jss](https://github.com/cssinjs/jss) - 6k ★, JSS is an authoring tool for CSS which uses JavaScript as a host language.
+- [griffel](https://github.com/microsoft/griffel) - 1k ★, CSS-in-JS with ahead-of-time compilation ⚡️
+
+--- 
+
+废弃的
+
+- [radium](https://github.com/FormidableLabs/radium) - A toolchain for React component styling.
+- [aphrodite](https://github.com/Khan/aphrodite) - Framework-agnostic CSS-in-JS with support for server-side rendering, browser prefixing, and minimum CSS generation
+- [babel-plugin-react-css-modules](https://github.com/gajus/babel-plugin-react-css-modules) - Transforms styleName to className using compile time CSS module resolution.
+- [react-css-modules](https://github.com/gajus/react-css-modules) - Seamless mapping of class names to CSS modules inside of React components.
+- [glamor](https://github.com/threepointone/glamor) - inline css for react et al
+- [styletron](https://github.com/rtsao/styletron) - Toolkit for component-oriented styling
+- [fela](https://github.com/rofrischmann/fela) - State-Driven Styling in JavaScript
+
+---
+
+参考文献
+
+- [React: CSS in JS techniques comparison.](https://github.com/MicheleBertoli/css-in-js)
+- [CSS-IN-JS-Benchmarks](https://github.com/A-gambit/CSS-IN-JS-Benchmarks/blob/master/RESULT.md)
+- [这些 CSS-in-JS 库，谁更适合你](https://zhuanlan.zhihu.com/p/129670569)
+
+## 教程
 
 - [React.js inline style best practices](https://stackoverflow.com/questions/26882177/react-js-inline-style-best-practices)
 - [CSS in JavaScript: The future of component-based styling](https://medium.freecodecamp.com/css-in-javascript-the-future-of-component-based-styling-70b161a79a32) 
@@ -22,44 +73,17 @@
 - [漫谈 CSS in JS](https://zhuanlan.zhihu.com/p/31622439)
 - [css in js趋势有哪些比较明朗的方案？](https://www.zhihu.com/question/38388076/answer/76802538)
 - [如何看待《React: CSS in JS》？ ](https://github.com/hax/hax.github.com/issues/22)
-
-## 博客
-
-- [All You Need To Know About CSS-in-JS](https://hackernoon.com/all-you-need-to-know-about-css-in-js-984a72d48ebc)
 - [CSS in JS: The Argument Refined](https://medium.com/@steida/css-in-js-the-argument-refined-471c7eb83955)
 - [CSS in JS: Style as a Function of State](https://medium.com/@rofrischmann/styles-as-functions-of-state-1885627a63f7#.6k6i4kdch)
 - [CSS in JavaScript: The future of component-based styling](https://medium.freecodecamp.org/css-in-javascript-the-future-of-component-based-styling-70b161a79a32)
 - [CSS in JavaScript with JSS and React](https://medium.com/jobsity/css-in-javascript-with-jss-and-react-54cdd2720222)
 - [CSS-in-JS，向Web组件化再迈一大步](https://zhuanlan.zhihu.com/p/35282727)
 
-## 实现
+## 问题
 
-- http://cssinjs.org
-- CSS Module
+- [Real-world CSS vs. CSS-in-JS performance comparison](https://pustelto.com/blog/css-vs-css-in-js-perf/) / [[译]真实React项目中CSS与CSS-in-JS的性能比较](https://juejin.cn/post/6990667421950410766/)
+- [CSS-in-JS：一个充满争议的技术方案](https://www.infoq.cn/article/95ojp6upti9vsyfsw2xz)
+- [性能比较之后，我决定放弃 CSS-in-JS](https://jishuin.proginn.com/p/763bfbd692fd)
 
-    - https://github.com/css-modules/css-modules
-    - https://github.com/webpack-contrib/css-loader#modules
-
-- [Styled Components](https://www.styled-components.com/)
-- [radium](https://github.com/FormidableLabs/radium)
-- [aphrodite](https://github.com/Khan/aphrodite)
-- [react-css-modules](https://github.com/gajus/react-css-modules)
-- [glamor](https://github.com/threepointone/glamor)
-- [styletron](https://github.com/rtsao/styletron)
-- [react-style](https://github.com/js-next/react-style)
-- [fela](https://github.com/rofrischmann/fela)
-- [polished](https://github.com/styled-components/)
-- [linaria](https://github.com/callstack/linaria) - Zero-runtime CSS in JS library
-
-## 常见问题
-
-### 样式值设置浏览器前缀
-
-- [How do I apply vendor prefixes to inline styles in reactjs?](https://stackoverflow.com/questions/32100495/how-do-i-apply-vendor-prefixes-to-inline-styles-in-reactjs)
-
-## 参考文献
-
-- [React: CSS in JS techniques comparison.](https://github.com/MicheleBertoli/css-in-js)
-- [CSS-IN-JS-Benchmarks](https://github.com/A-gambit/CSS-IN-JS-Benchmarks/blob/master/RESULT.md)
 
 
