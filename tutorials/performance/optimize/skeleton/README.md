@@ -12,3 +12,4 @@
 - [killblanks](https://github.com/warpcgd/killblanks)
 - [一种自动化生成骨架屏的方案](https://github.com/Jocs/jocs.github.io/issues/22)
 - [Killblanks 使用预渲染和骨架屏解决页面白屏问题](https://juejin.cn/post/6935999658863329288)
+- [一个简易的预渲染自动骨架屏方案](https://developer.aliyun.com/article/987246) / [auto-skeleton-plugin](https://github.com/CJY0208/auto-skeleton-plugin)

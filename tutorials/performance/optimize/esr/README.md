@@ -1,0 +1,3 @@
+- [前端性能优化：当页面渲染遇上边缘计算](https://zhuanlan.zhihu.com/p/143972047) / [ESR Optimizes Frontend Performance by Using Edge Computing Capabilities of CDN](https://www.alibabacloud.com/blog/esr-optimizes-frontend-performance-by-using-edge-computing-capabilities-of-cdn_596863)
+- [Serverless Rendering with Cloudflare Workers](https://blog.cloudflare.com/serverless-rendering-with-cloudflare-workers/)
+- [Flareact](https://flareact.com/)
