@@ -22,6 +22,7 @@ ps：NLP 能够解决AI中一系列的问题，机器学习（ML）也能够解�
 
 - [TensorFlow.js](https://www.tensorflow.org/js)
 - [pytorch](https://github.com/pytorch/pytorch) - Tensors and Dynamic neural networks in Python with strong GPU acceleration
+- [jax](https://github.com/google/jax) - Composable transformations of Python+NumPy programs: differentiate, vectorize, JIT to GPU/TPU, and more
 - [Brain.js](https://brain.js.org/#/)
 - http://caza.la/synaptic/#/
 - https://ml5js.org/
