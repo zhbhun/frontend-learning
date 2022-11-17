@@ -120,7 +120,7 @@ CSS 存在的问题
 
 理论上是出路，但限制了 css-in-js 的灵活性。从 vanilla-extract 等编译时 css-in-js 框架来看，确实解决了运行时 css-in-js 性能问题，但带来了更多语法限制，比如必须预先定义样式再使用：
 
-``ts
+```ts
 import { style } from '@vanilla-extract/css'
 
 const myStyle = style({
