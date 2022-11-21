@@ -1,0 +1,2 @@
+- [精读《Webpack5 新特性 - 模块联邦》](https://zhuanlan.zhihu.com/p/115403616)
+- [三大应用场景调研，Webpack 新功能 Module Federation 深入解析](https://developer.aliyun.com/article/755252)
