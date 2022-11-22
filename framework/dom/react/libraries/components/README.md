@@ -17,6 +17,7 @@
     - [react-bootstrap-treeview](https://github.com/jonmiles/react-bootstrap-treeview) - React.js Tree View for Twitter Bootstrap. 98 ★
 
 - [ant-design](https://github.com/ant-design/ant-design) - An enterprise-class UI design language and React UI library
+- [fusion](https://github.com/alibaba-fusion/next)
 - [mantine](https://github.com/mantinedev/mantine/) - React components library with native dark theme support
 - [Chakra UI](https://chakra-ui.com/) - Simple, Modular & Accessible React UI Components for your React Applications
 - [Semantic-UI-React](https://github.com/Semantic-Org/Semantic-UI-React) - The official Semantic-UI-React integration
