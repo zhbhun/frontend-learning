@@ -60,6 +60,10 @@
 - [面试官: 你了解过Babel吗？写过Babel插件吗? 答: 没有。卒](https://cnodejs.org/topic/5a9317d38d6e16e56bb808d1)
 - [babel原理及插件开发](https://juejin.im/post/6844903603983892487)
 
+### Figma
+
+- [How to build a plugin system on the web and also sleep well at night](https://www.figma.com/blog/how-we-built-the-figma-plugin-system/)
+
 ## 参考文献
 
 - [精读《插件化思维》](https://zhuanlan.zhihu.com/p/35997606?group_id=971688117610254336)
