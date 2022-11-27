@@ -5,7 +5,6 @@
 - [skeleton-screen-css](https://github.com/nullilac/skeleton-screen-css)
 - [skeleton-loader](https://github.com/minaalfy/skeleton-loader)
 
-
 ## 自动生成
 
 - [placeholdifier](https://github.com/pomber/placeholdifier)

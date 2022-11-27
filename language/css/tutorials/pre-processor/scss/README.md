@@ -6,6 +6,7 @@
 - http://sass-compatibility.github.io/
 - https://www.sitepoint.com/sass-reference/
 - http://github.com/HugoGiraudel/awesome-sass
+- [An opinionated styleguide for writing sane, maintainable and scalable Sass](https://sass-guidelin.es/)
 
 ## 基础
 
