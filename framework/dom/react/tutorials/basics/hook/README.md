@@ -41,6 +41,8 @@
     - [useLayoutEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#uselayouteffect)：会在所有 DOM 更新后同步执行该方法的回调，可以用它来来读取 DOM 布局并同步触发重渲染。在浏览器执行绘制之前，useLayoutEffect 内部的更新计划将被同步刷新。
     - [useInsertionEffect](https://zh-hans.reactjs.org/docs/hooks-reference.html#useinsertioneffect)：在所有 DOM 更新更新前同步执行该方法的回调，这会在 useLayoutEffect 之前执行，通常用于插入样式标签到 DOM 中，然后 useLayoutEffect 可以读取布局样式。
 
+        [Know about the useInsertionEffect hook in React 18](https://blog.saeloun.com/2022/06/02/react-18-useinsertioneffect)
+
 - 缓存
 
     - [useMemo](https://zh-hans.reactjs.org/docs/hooks-reference.html#usememo)
@@ -229,6 +231,10 @@ const App = () => {
 
 - [How to Redux with React Hooks?](https://www.robinwieruch.de/redux-with-react-hooks/)
 - [redux-react-hook](https://github.com/facebookincubator/redux-react-hook)
+
+### useInsertionEffect 不支持 cleanup
+
+- [useInsertionEffect in Strict mode with strict effects](https://github.com/reactjs/reactjs.org/issues/4825)
 
 ## 参考文献
 
