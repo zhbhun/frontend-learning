@@ -46,3 +46,4 @@
 
 - [聊聊移动端跨平台开发的各种技术](http://fex.baidu.com/blog/2015/05/cross-mobile/)
 - [【深入解析】跨端框架的核心技术到底是什么？](https://supercodepower.com/cross-platform-tech)
+- [跨端开发浪潮中的变与不变](https://mp.weixin.qq.com/s/74v8X20FTeZVeOjRHas0rA)
