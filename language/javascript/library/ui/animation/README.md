@@ -1,5 +1,6 @@
 # 动画
 
+- [tween.js](https://github.com/tweenjs/tween.js) - JavaScript/TypeScript animation engine
 - [anime](https://github.com/juliangarnier/anime) - JavaScript animation engine
 - [Lottie.js](https://airbnb.io/lottie/#/) - Great for vector-based animations at any scale
 - [Animate.css](https://animate.style/) - Animate.css is one of the smallest and easiest-to-use CSS animation libraries. It’s refined, efficient, well-maintained since its 2013 release.
