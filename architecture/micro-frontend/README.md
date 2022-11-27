@@ -234,3 +234,4 @@
 - [How We Build Micro Frontends With Lattice](https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea)
 - [The Future of Micro-Frontends](https://betterprogramming.pub/the-future-of-micro-frontends-2f527f97d506)
 - [从"微前端"到“微模块”](https://juejin.cn/post/7106791733509226533)
+- [关于微前端，你理解到究极奥义了么？](https://v2ex.com/t/895285#reply44)
