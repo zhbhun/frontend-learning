@@ -30,6 +30,8 @@
 
 - 观察者模式：事件机制就是一种观察模式的实现，通过在特定的事件钩子上注册回调函数来干预核心处理机制
 
+- [插件式可扩展架构设计心得](https://zhuanlan.zhihu.com/p/372381276)
+
 ## 案例分析
 
 - babel
@@ -75,4 +77,4 @@
 - [如何设计开发一个 Web 插件系统](https://juejin.cn/post/6965049497403523108)
 - [小话设计模式（番外一）插件模式](https://blog.csdn.net/ecidevilin/article/details/52743228)
 - [插件开发概述 - IBM](https://www.ibm.com/docs/zh/cloud-pak-system-software/2.2.5?topic=guide-plug-in-development-overview)
-- [插件式可扩展架构设计心得](https://zhuanlan.zhihu.com/p/372381276)
+- [前端领域的插件式设计](https://mp.weixin.qq.com/s?__biz=Mzk0MDMwMzQyOA==&mid=2247496473&idx=1&sn=ff61a2e7468a5cb98d1b249a55506cc6&scene=21#wechat_redirect)
