@@ -253,6 +253,9 @@ ps：以上支持情况都是按本文编写时间为准（201904）
 - [andydavies/waterfall](https://github.com/andydavies/waterfall) - Bookmarklet that produces Page Load Waterfalls using the Resource Timing API.
 - [RUM-SpeedIndex](https://github.com/WPO-Foundation/RUM-SpeedIndex) - Calculate SpeedIndex measurements from the field.
 - [kaaes/timing](https://github.com/kaaes/timing) - Visual presentation of Navigation Timing API performance object.
+- [perfmap](https://github.com/zeman/perfmap)
+- [stats.js](https://github.com/mrdoob/stats.js)
+- [perfume.js](https://github.com/Zizzamia/perfume.js/blob/master/README-zh_CN.md)
 
 ## 参考文献
 
