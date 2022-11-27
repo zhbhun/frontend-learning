@@ -43,3 +43,4 @@
 - [LOW-LEVEL 3D GRAPHICS API BASED ON OPENGL ES](https://www.khronos.org/webgl/)
 - http://webglstats.com/ - 一个统计WebGL在不同平台上能力表现的网站。
 - https://www.khronos.org/assets/uploads/developers/library/2018_siggraph_asia/WebGL-Latest-Techniques-SIGGRAPH-Asia-Dec18.pdf
+- [现代前端如何入门 3D 开发](https://juejin.cn/post/7169509819794063368#heading-4)
