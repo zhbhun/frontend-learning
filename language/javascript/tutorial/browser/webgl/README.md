@@ -33,6 +33,10 @@
 - [mapbox-gl-js](https://github.com/mapbox/mapbox-gl-js) - Interactive, thoroughly customizable maps in the browser, powered by vector tiles and WebGL
 - [Leaflet](https://github.com/Leaflet/Leaflet) - JavaScript library for mobile-friendly interactive maps.
 
+## 案例
+
+- [汽车行业场景化营销新方向：基于 WebGL 的网上虚拟车展](https://www.infoq.cn/article/oVNT1e17igbSWFaUhosa)
+
 ## 参考
 
 - [HTML5DevConf May 2014: Nick Desaulniers, Mozilla: Raw WebGL](https://www.youtube.com/embed/H4c8t6myAWU/?feature=player_detailpage)
