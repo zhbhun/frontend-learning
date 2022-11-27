@@ -516,6 +516,7 @@ ps：在部分场景下 iOS Safari 又不会被脚本阻塞渲染，例如在 HT
 
 - [Everything I Know About The Script Tag](https://eager.io/blog/everything-I-know-about-the-script-tag/) / [【译】我所知道的关于 script 标签的一切](https://www.zcfy.cc/article/651)
 - [详解 script 标签(async,defer,integrity,crossorigin 和 onerror 属性)](https://www.html.cn/archives/8254)
+- [JavaScript engine fundamentals: Shapes and Inline Caches](https://mathiasbynens.be/notes/shapes-ics)
 
 ## TODO
 
