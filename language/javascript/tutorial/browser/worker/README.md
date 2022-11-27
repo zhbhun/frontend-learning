@@ -1,3 +1,5 @@
+- [2021 Web Worker 现状](https://juejin.cn/post/6989270404044947487)
+- [Web Worker 使用教程](https://www.ruanyifeng.com/blog/2018/07/web-worker.html)
 - [Worker 的两类应用场景](https://xiaoiver.github.io/coding/2018/08/25/Worker-%E7%9A%84%E4%B8%A4%E7%B1%BB%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.html)
 - [WebGL in Web Workers, Today – and Faster than Expected!](https://research.mozilla.org/2014/07/22/webgl-in-web-workers-today-and-faster-than-expected/)
 - [webgl-worker](https://github.com/kripken/webgl-worker)
