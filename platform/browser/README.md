@@ -41,3 +41,9 @@
 - [各主流浏览器内核介绍](http://www.cnblogs.com/vajoy/p/3735553.html)
 - [Cheat-Sheet：自定义浏览器资源调度行为的几种方式](https://twitter.com/addyosmani/status/743571393174872064)
 - [Record first paint of a webpage (from appmetrics.js)](http://gitlab.meiyou.com/snippets/3)
+- [Inside look at modern web browser](https://developer.chrome.com/blog/inside-browser-part1/)
+
+    - [Inside look at modern web browser (part 1)](https://developer.chrome.com/blog/inside-browser-part1/)
+    - [Inside look at modern web browser (part 2)](https://developer.chrome.com/blog/inside-browser-part2/)
+    - [Inside look at modern web browser (part 3)](https://developer.chrome.com/blog/inside-browser-part3/)
+    - [Inside look at modern web browser (part 4)](https://developer.chrome.com/blog/inside-browser-part4/)
