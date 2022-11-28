@@ -93,6 +93,7 @@
     - new Function VS with：`new Function` 执行 code 作用等同于 eval，但 eval 能访问到当前局部作用域变量，new Function 返回函数不管哪里执行，都只能访问全局作用域
 
 - Wasm VM：重新编译一个 Wasm 的 JS 解释器放在浏览器中，把子应用直接放进这个 VM 中执行；
+
     问题：隔离太严格了，通信非常麻烦，通信开销非常大；
 
 参考文献

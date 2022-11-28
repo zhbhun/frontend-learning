@@ -55,7 +55,7 @@
 
     - [低代码平台似乎越来越成熟，前端程序员到底该往哪里深入学习才不会被替代，看完无远以及一些商城项目陷入迷茫了](https://v2ex.com/t/872578#reply33)
 
-## 案例
+## 实现
 
 - [简述国内几大无代码开发平台](https://zhuanlan.zhihu.com/p/141212899)
 - [国内外几大无代码低代码平台评估](https://zhuanlan.zhihu.com/p/160026347)
@@ -65,6 +65,18 @@
 
 ### 设计
 
+- figma
+- Adobe XD
+- Sketch
+
+## 原型
+
+- [ProtoPie](https://www.protopie.io/) - Prototyping tool for any digital product—from mobile to IoT, from desktop to 
+connected experiences. Never make wrong assumptions, convince stakeholders 
+quickly, and save time & money.
+
+### 图片
+
 - [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
 - [稿定](https://www.gaoding.com/)
 - [创客贴](https://www.chuangkit.com/)
@@ -72,43 +84,42 @@
 
 ### 网站
 
----
+国外
 
-移动端
-
-- [gaoding](https://www.gaoding.com/)
-- [qingzhan](https://www.qingzhan.com/)
-- [易企秀](https://www.eqxiu.com/?type=home)
-- [百度 H5](https://h5.bce.baidu.com/)
-- [图怪兽](https://818ps.com/)
-
----
-
-综合
-
-- [钉钉宜搭](https://www.aliwork.com/)
-- [微搭](https://cloud.tencent.com/product/weda)
-- [爱速搭](https://suda.baidu.com/)
-- [云凤蝶](https://www.yunfengdie.com/intro)
-- [Zion](https://www.functorz.com/)
-- [reactbricks](https://reactbricks.com/)
 - [wordpress](https://wordpress.com/)
-- [squarespace](https://www.squarespace.com/)
-- [wix](https://editor.wix.com/)
-- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
-
-    - [Unveiling the Canva Visual Worksuite](https://www.canva.com/newsroom/news/unveiling-the-canva-visual-worksuite/)
-
-- [webflow](https://webflow.com)
 - [plasmic](https://studio.plasmic.app/)
 
     - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0)
 
-- [Pinegrow](https://pinegrow.com/)
-- [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
+- [wix](https://zh.wix.com/) - Wix.com是一个在线网站创建服务，能让用户在其网络上网站编辑器中拖放工具创建HTML5网站。用户可在他们的网站编辑器中加入额外的功能，例如社交网络按钮、电子商务功能、联系表格、电子报及社群论坛等。
+- [webflow](https://webflow.com) - Webflow, Inc.是一间美国公司，总部位于旧金山，为企业与设计师们提供网站建设, 网站设计与网站托管服务即SaaS 软件即服务。他们的可视化编辑器平台允许用户设计、建构和启动网站。
 - [dhiwise](https://app.dhiwise.com)
+- [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
+- [reactbricks](https://reactbricks.com/)
 - [softr](https://www.softr.io/)
-- [shopify](https://zh.shopify.com/)
+- [Pinegrow](https://pinegrow.com/)
+- [Squarespace](https://www.squarespace.com/) - Squarespace是一个由网站创建工具、网页托管服务及博客平台所组成，并以软件即服务模式运作的网上内容管理系统。该服务让个人或公司创建及修改网站及博客。 
+- [Shopify](https://www.shopify.com/) - Shopify 为在线零售商提供一整套服务“包括支付、市场营销、运输和客户契合工具，以简化小型商户开设在线商店的过程”。
+- [Shogun](https://getshogun.com/page-builder/) - Customize your entire Shopify store. Create an exceptional shopping experience that converts with a powerful drag-and-drop visual builder.
+- [PageFly](https://pagefly.io/) - Build the site you want - with more conversion. Make your Shopify website work and look just like your idea without coding. Gain more sales and conversion in less time.
+- [unbounce](https://unbounce.com/) - Unbounce is the AI-powered landing page builder with smart features that let you create beautiful, high-performing marketing campaigns in just a few minutes.
+- [instapage](https://instapage.com/) - Instapage gives us the ability to tailor our landing page content and layout to tell a unique story for each geographical target. 
+- [Hubspot](https://www.hubspot.com/) - Create, edit, and maintain a more secure and optimized website—with or without a developer Everything you need to build a powerful website that’s easy to update and grows with you.
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
+
+    - [Unveiling the Canva Visual Worksuite](https://www.canva.com/newsroom/news/unveiling-the-canva-visual-worksuite/)
+
+---
+
+国内
+
+- [钉钉宜搭](https://www.aliwork.com/)
+- [微搭](https://cloud.tencent.com/product/weda)
+- [爱速搭](https://suda.baidu.com/)
+- [Zion](https://www.functorz.com/)
+- [稿定](https://www.gaoding.com/)
+- [qingzhan](https://www.qingzhan.com/)
+- [易企秀](https://www.eqxiu.com/?type=home)
 
 ---
 
@@ -148,6 +159,9 @@
 
 - [siter](https://app.siter.io/)
 - [deco](https://deco-preview.jd.com/)
+- [BuilderX](https://builderx.io/) - BuilderX is a browser based design tool that codes React Native & React for you.
+- [SuperNova](https://www.supernova.io/) - Supernova helps you build, mature, and scale your design system with ease. From powerful documentation to efficient design system management, it's the ideal end-to-end platform that grows with your design system.
+- [animaapp](https://www.animaapp.com/) - Design to code, automated.
 - [Picasso](https://github.com/wuba/Picasso)
 - [蓝湖设计图一键生成](https://lanhuapp.com/dds?edm&utm_source=lanhu&utm_medium=mail&utm_campaign=dds&utm_term=20211129)
 - [Sketch2Code](https://sketch2code.azurewebsites.net/)
