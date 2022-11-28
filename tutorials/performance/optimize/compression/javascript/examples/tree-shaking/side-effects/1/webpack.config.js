@@ -6,9 +6,11 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
-  mode: 'development',
+  mode: 'production',
   optimization: {
-    usedExports: true
+    minimize: false,
+    concatenateModules: false,
+    // usedExports: true
   },
   devtool: false
 };

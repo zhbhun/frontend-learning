@@ -8,7 +8,7 @@ module.exports = {
   },
   mode: 'production',
   optimization: {
-    concatenateModules: false
+    concatenateModules: false,
   },
   devtool: false
 };
