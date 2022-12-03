@@ -1,0 +1,1 @@
+- [svgo](https://github.com/svg/svgo) - Node.js tool for optimizing SVG files
