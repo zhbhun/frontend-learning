@@ -621,4 +621,5 @@ Webpack 4.x 提供了一个新的配置项 `optimization.sideEffects`，在生�
 - [ModuleConcatenationPlugin](https://webpack.js.org/plugins/module-concatenation-plugin/)
 - [深入浅出的webpack4构建工具---Scope Hoisting(十六)](https://www.cnblogs.com/tugenhua0707/p/9735894.html)
 - [Tree-Shaking性能优化实践 - 原理篇](https://zhuanlan.zhihu.com/p/32554436)
+- [Rollup 与 Webpack 的 Tree-shaking](https://mp.weixin.qq.com/s?__biz=Mzg3NTcwMTUzNA==&mid=2247487915&idx=1&sn=3942ac8a37b0333438067624e4eff4d5&chksm=cf3c25daf84baccc4b68f8b23d388c86cf723411a6579e46af0b76b004882fbabf1e4495b39a&token=425013839&lang=zh_CN#rd)
 
