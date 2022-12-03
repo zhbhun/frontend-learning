@@ -13,9 +13,15 @@
 
 - [如何理解animation-fill-mode及其使用？](https://segmentfault.com/q/1010000003867335)
 
-# 常见问题
+## 进阶
 
-## 缩放后元素占用大小不变
+### 贝塞尔曲线
+
+- [advanced-animations-css](https://www.smashingmagazine.com/2022/10/advanced-animations-css/)
+
+## 常见问题
+
+### 缩放后元素占用大小不变
 
 问题概述
 
@@ -25,7 +31,7 @@
 
 参考 [CSS Transform with element resizing](http://stackoverflow.com/questions/10858523/css-transform-with-element-resizing)
 
-## 串行播放动画
+### 串行播放动画
 
 - [CSS3 Chain Animations](https://stackoverflow.com/questions/7825509/css3-chain-animations)
 - [Chaining Multiple CSS Animations](https://stackoverflow.com/questions/33004919/chaining-multiple-css-animations)
