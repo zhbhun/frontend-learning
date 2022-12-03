@@ -1,2 +1,3 @@
 - [ignite](https://github.com/infinitered/ignite)
 - [reactotron](https://github.com/infinitered/reactotron)
+- [rnx-kit](https://github.com/microsoft/rnx-kit) - Modern, scalable tools. Exceptional developer experience.
