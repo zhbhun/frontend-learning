@@ -9,3 +9,7 @@ mix-blend-mode CSS 属性描述了元素的内容应该与元素的直系父元�
 [flashlight.html](./flashlight.html)
 
 - [Browser in the Dark: flashlights with CSS and canvas](https://voussoir.net/writing/browser_in_the_dark)
+
+## 参考文献
+
+- [不可思议的颜色混合模式 mix-blend-mode:](https://github.com/chokcoco/iCSS/issues/16)
