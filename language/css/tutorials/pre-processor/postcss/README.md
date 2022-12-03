@@ -35,6 +35,10 @@ PostCSS
 - [Autoprefixer](https://github.com/postcss/autoprefixer)
 - [postcss-preset-env ](https://github.com/csstools/postcss-preset-env)
 
+### 定制属性
+
+- [PostCSS Custom Properties](https://github.com/csstools/postcss-plugins/tree/main/plugins/postcss-custom-properties)
+
 ## 参考文献
 
 - [从Sass过渡到PostCSS](https://www.w3cplus.com/preprocessor/sass-to-postcss.html)
