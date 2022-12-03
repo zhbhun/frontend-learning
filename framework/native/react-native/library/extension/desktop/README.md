@@ -1,4 +1,4 @@
-- [react-native-windows](https://github.com/ReactWindows/react-native-windows) - A framework for building native apps with React.
+- [react-native-windows](/react-native-windows) - A framework for building native apps with React.
 - [react-native-macos](https://github.com/ptmt/react-native-macos) - React Native for macOS.
 - [gabrielbull/react-desktop](https://github.com/gabrielbull/react-desktop)
 - [reactxp](https://github.com/Microsoft/reactxp) - Library for cross-platform app development.

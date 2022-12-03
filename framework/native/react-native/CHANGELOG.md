@@ -2,6 +2,10 @@
 
 - https://github.com/react-native-community/react-native-releases/blob/master/CHANGELOG.md
 
+- 2022
+
+    - [React Native in 2022 and Beyond](https://semaphoreci.com/blog/react-native#community-contributions)
+
 ## [0.70](https://reactnative.dev/blog/2022/09/05/version-070)
 
 - 文档更新“新的架构“部分；
