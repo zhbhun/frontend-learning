@@ -1,0 +1,8 @@
+- [smooth-scrollbar](https://github.com/idiotWu/smooth-scrollbar)
+- [OverlayScrollbars](https://github.com/KingSora/OverlayScrollbars) - A javascript scrollbar plugin that hides native scrollbars, provides custom styleable overlay scrollbars and keeps the native functionality and feeling.
+- [simplebar](https://github.com/Grsmto/simplebar) - Custom scrollbars vanilla javascript library with native scroll, done simple, lightweight, easy to use and cross-browser.
+- [Slim-scroll](https://github.com/kamlekar/slim-scroll) - Slim scroll is a replacement of default scrollbar provided by browsers on Windows. This library lets you design the scroll-bar by using simple css properties. It is created using javascript and css.
+- [simple-scrollbar](https://github.com/buzinas/simple-scrollbar) - Very simple and lightweight vanilla javascript library for creating a custom scrollbar cross-browser.
+- [fakescroll](https://github.com/yairEO/fakescroll) - vanilla-js lightweight custom HTML scrollbar
+- [MiniBar](https://github.com/Mobius1/MiniBar) - A lightweight scrollbar library written in vanilla javascript.
+- [scrollbot](https://github.com/akzhy/scrollbot) - Custom scrollbar using pure javascript
