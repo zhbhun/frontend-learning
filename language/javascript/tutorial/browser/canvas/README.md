@@ -2,6 +2,7 @@
 
 - [Canvas tutorial](https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial)
 - [HTML 5 Canvas 参考手册](http://www.w3school.com.cn/tags/html_ref_canvas.asp)
+- [HTML5 Canvas Book](https://www.html5canvastutorials.com/cookbook/)
 
 # 开源项目
 
