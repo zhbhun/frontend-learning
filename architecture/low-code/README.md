@@ -57,6 +57,12 @@
 
 ## 实现
 
+![ecology.png](./assets/ecology.png)
+
+- [Decoding the no-code / low-code startup universe and its players](https://pinver.medium.com/decoding-the-no-code-low-code-startup-universe-and-its-players-4b5e0221d58b)
+
+    - https://airtable.com/shrTAtbFD2tG3c2xK/tblzt784s2tIaRwcr
+
 - [简述国内几大无代码开发平台](https://zhuanlan.zhihu.com/p/141212899)
 - [国内外几大无代码低代码平台评估](https://zhuanlan.zhihu.com/p/160026347)
 - [开源低代码平台盘点，低代码开发真的能减少成本吗？](https://zhuanlan.zhihu.com/p/189595033)
@@ -65,85 +71,20 @@
 
 ### 设计
 
+#### UI
+
 - figma
 - Adobe XD
 - Sketch
 
-## 原型
+#### 原型
 
 - [ProtoPie](https://www.protopie.io/) - Prototyping tool for any digital product—from mobile to IoT, from desktop to 
 connected experiences. Never make wrong assumptions, convince stakeholders 
 quickly, and save time & money.
 
-### 图片
 
-- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
-- [稿定](https://www.gaoding.com/)
-- [创客贴](https://www.chuangkit.com/)
-- [图怪兽](https://818ps.com/)
-
-### 网站
-
-国外
-
-- [wordpress](https://wordpress.com/)
-- [plasmic](https://studio.plasmic.app/)
-
-    - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0)
-
-- [wix](https://zh.wix.com/) - Wix.com是一个在线网站创建服务，能让用户在其网络上网站编辑器中拖放工具创建HTML5网站。用户可在他们的网站编辑器中加入额外的功能，例如社交网络按钮、电子商务功能、联系表格、电子报及社群论坛等。
-- [webflow](https://webflow.com) - Webflow, Inc.是一间美国公司，总部位于旧金山，为企业与设计师们提供网站建设, 网站设计与网站托管服务即SaaS 软件即服务。他们的可视化编辑器平台允许用户设计、建构和启动网站。
-- [dhiwise](https://app.dhiwise.com)
-- [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
-- [reactbricks](https://reactbricks.com/)
-- [softr](https://www.softr.io/)
-- [Pinegrow](https://pinegrow.com/)
-- [Squarespace](https://www.squarespace.com/) - Squarespace是一个由网站创建工具、网页托管服务及博客平台所组成，并以软件即服务模式运作的网上内容管理系统。该服务让个人或公司创建及修改网站及博客。 
-- [Shopify](https://www.shopify.com/) - Shopify 为在线零售商提供一整套服务“包括支付、市场营销、运输和客户契合工具，以简化小型商户开设在线商店的过程”。
-- [Shogun](https://getshogun.com/page-builder/) - Customize your entire Shopify store. Create an exceptional shopping experience that converts with a powerful drag-and-drop visual builder.
-- [PageFly](https://pagefly.io/) - Build the site you want - with more conversion. Make your Shopify website work and look just like your idea without coding. Gain more sales and conversion in less time.
-- [unbounce](https://unbounce.com/) - Unbounce is the AI-powered landing page builder with smart features that let you create beautiful, high-performing marketing campaigns in just a few minutes.
-- [instapage](https://instapage.com/) - Instapage gives us the ability to tailor our landing page content and layout to tell a unique story for each geographical target. 
-- [Hubspot](https://www.hubspot.com/) - Create, edit, and maintain a more secure and optimized website—with or without a developer Everything you need to build a powerful website that’s easy to update and grows with you.
-- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
-
-    - [Unveiling the Canva Visual Worksuite](https://www.canva.com/newsroom/news/unveiling-the-canva-visual-worksuite/)
-
----
-
-国内
-
-- [钉钉宜搭](https://www.aliwork.com/)
-- [微搭](https://cloud.tencent.com/product/weda)
-- [爱速搭](https://suda.baidu.com/)
-- [Zion](https://www.functorz.com/)
-- [稿定](https://www.gaoding.com/)
-- [qingzhan](https://www.qingzhan.com/)
-- [易企秀](https://www.eqxiu.com/?type=home)
-
----
-
-开源
-
-- [lowcode-engine](https://github.com/alibaba/lowcode-engine) - 一套面向扩展设计的企业级低代码技术体系
-- [tmagic-editor](https://github.com/Tencent/tmagic-editor)
-- [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
-- [luban-h5](https://github.com/ly525/luban-h5)
-- [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
-
-### App
-
-- [flutterflow](https://app.flutterflow.io/create-account)
-
-### To B
-
-- [retool](https://retool.com/) - Stop wrestling with UI libraries, hacking together data sources, and figuring out access controls. Start shipping apps that move your business forward.
-- [illa Family](https://github.com/illa-family) - Accelerate your internal tools development.
-- [明道云](https://www.mingdao.com/home)
-
-    - [什么是零代码开发平台，为什么企业IT应该重视？](https://blog.mingdao.com/11346.html)
-
-### 设计稿转代码
+#### 设计稿转代码
 
 - [builder](https://builder.io/)
 
@@ -171,6 +112,175 @@ quickly, and save time & money.
 - [AI 助力中后台场景下的设计稿转代码](https://zhuanlan.zhihu.com/p/100806362)
 - [设计稿（UI视图）自动生成代码方案的探索](https://tech.meituan.com/2021/03/25/ui2dsl-dsl2code.html)
 
+
+### 图片
+
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
+- [稿定](https://www.gaoding.com/)
+- [创客贴](https://www.chuangkit.com/)
+- [图怪兽](https://818ps.com/)
+
+### 网站
+
+国外
+
+- [wordpress](https://wordpress.com/)
+- [plasmic](https://studio.plasmic.app/)
+
+    - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0)
+
+- [wix](https://zh.wix.com/) - Wix.com是一个在线网站创建服务，能让用户在其网络上网站编辑器中拖放工具创建HTML5网站。用户可在他们的网站编辑器中加入额外的功能，例如社交网络按钮、电子商务功能、联系表格、电子报及社群论坛等。
+- [webflow](https://webflow.com) - Webflow, Inc.是一间美国公司，总部位于旧金山，为企业与设计师们提供网站建设, 网站设计与网站托管服务即SaaS 软件即服务。他们的可视化编辑器平台允许用户设计、建构和启动网站。
+- [dhiwise](https://app.dhiwise.com)
+- [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
+- [reactbricks](https://reactbricks.com/)
+- [softr](https://www.softr.io/)
+- [Pinegrow](https://pinegrow.com/)
+- [Squarespace](https://www.squarespace.com/) - Squarespace是一个由网站创建工具、网页托管服务及博客平台所组成，并以软件即服务模式运作的网上内容管理系统。该服务让个人或公司创建及修改网站及博客。 
+- [Shogun](https://getshogun.com/page-builder/) - Customize your entire Shopify store. Create an exceptional shopping experience that converts with a powerful drag-and-drop visual builder.
+- [PageFly](https://pagefly.io/) - Build the site you want - with more conversion. Make your Shopify website work and look just like your idea without coding. Gain more sales and conversion in less time.
+- [unbounce](https://unbounce.com/) - Unbounce is the AI-powered landing page builder with smart features that let you create beautiful, high-performing marketing campaigns in just a few minutes.
+- [instapage](https://instapage.com/) - Instapage gives us the ability to tailor our landing page content and layout to tell a unique story for each geographical target. 
+- [Hubspot](https://www.hubspot.com/) - Create, edit, and maintain a more secure and optimized website—with or without a developer Everything you need to build a powerful website that’s easy to update and grows with you.
+- [strikingly](https://cn.strikingly.com/) - 几分钟制作一个网站
+- [softr](https://www.softr.io/) - Build custom apps for your business, as easy as lego. Turn your Airtable or Google Sheets into client portals, partner apps or internal tools.
+
+    allowing users to create sites and web apps using content from Airtable and other no-code tools.
+
+- [pory](https://pory.io/) - Build apps visually, powered by your data. Complete projects 10x faster and at a fraction of the cost.
+
+    allowing users to create sites and web apps using content from Airtable and other no-code tools.
+
+- [super](https://super.so/) - Create Websites with Notion. Create a website in less than a minute that’s easy to manage and looks great, with instant page loads, SEO optimization, and no-code. All your content stays in Notion so you can focus on creating while Super handles the rest.
+- [bettyblocks](https://www.bettyblocks.com/) - Build faster and innovate smarter with No-Code
+- [8base](https://www.8base.com/) - Build Web Applications Fast and Limitless
+- [builder]()
+
+---
+
+国内
+
+- [钉钉宜搭](https://www.aliwork.com/)
+- [微搭](https://cloud.tencent.com/product/weda)
+- [爱速搭](https://suda.baidu.com/)
+- [Zion](https://www.functorz.com/)
+- [稿定](https://www.gaoding.com/)
+- [qingzhan](https://www.qingzhan.com/)
+- [易企秀](https://www.eqxiu.com/?type=home)
+
+---
+
+开源
+
+- [lowcode-engine](https://github.com/alibaba/lowcode-engine) - 一套面向扩展设计的企业级低代码技术体系
+- [tmagic-editor](https://github.com/Tencent/tmagic-editor)
+- [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
+- [luban-h5](https://github.com/ly525/luban-h5)
+- [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
+
+#### 电子商务
+
+- [Shopify](https://www.shopify.com/) - Shopify 为在线零售商提供一整套服务“包括支付、市场营销、运输和客户契合工具，以简化小型商户开设在线商店的过程”。
+- [unstack](https://www.unstack.com/) - Unstack helps merchants create fast loading, personalized, eCommerce landing pages that convert up to 2x better than standard product pages.
+
+#### 个人主页
+
+make simple personal websites (like this one) in minutes, with your most important links at the core.
+
+- [Linktree](https://linktr.ee/) - Help your followers discover everything you’re sharing all over the internet, in one simple place. They’ll thank you for it!
+- [flooz](https://flooz.link/) - Setup your own profile in minutes and connect with your community.
+
+#### 电子邮件
+
+- [dyspatch](https://www.dyspatch.io/)
+
+### App
+
+drag-and-drop programming tools to allow anyone to make beautiful, native mobile apps without knowing how to code.
+
+- [Dropsource](https://www.dropsource.com/) - Dropsource delivers custom mobile experiences, fast.
+- [Thunkable](https://thunkable.com/#/) - No Code Mobile App Development Made Easy. 
+- [draftbit](https://draftbit.com/) - Build the mobile app you've always wanted, without the time and cost.
+- [adalo](https://www.adalo.com/) - Design And Build Custom Apps — No Code Required.
+- [buildfire](https://buildfire.com/) - BuildFire’s powerful and easy to use mobile app builder makes it so you can create mobile apps for iOS & Android in a fraction of the time and cost.
+- [Glide](https://www.glideapps.com/) - a tool that enables users to create mobile apps from Google Sheets. 
+- [flutterflow](https://app.flutterflow.io/create-account) - No-code tool on top of Flutter (fastest growing mobile app dev framework) that enables teams to build cross-platform apps faster.
+- [Universe](https://onuniverse.com/) - possibly the first mobile app that enables users to create websites using their mobile phones only.
+
+### To B
+
+#### Internal Tool
+
+- [retool](https://retool.com/) - Stop wrestling with UI libraries, hacking together data sources, and figuring out access controls. Start shipping apps that move your business forward.
+- [mendix](https://www.mendix.com/) - Accelerate enterprise app development.
+- [illa Family](https://github.com/illa-family) - Accelerate your internal tools development.
+- [明道云](https://www.mingdao.com/home)
+
+    - [什么是零代码开发平台，为什么企业IT应该重视？](https://blog.mingdao.com/11346.html)
+
+---
+
+- Retool, [BRYTER](https://bryter.com/), [Forest Admin](https://www.forestadmin.com/), [Budibase](https://budibase.com/), [Jet Admin(https://www.jetadmin.io/)] - Offering users fast ways to build internal applications and digital tools they can use for their daily work.
+- [Creatio](https://www.creatio.com/): A low-code builder focused on marketing and sales-related tasks.
+- [Flowdash](https://flowdash.com/): A low-code builder focused on ops teams.
+- [Zaptic](https://zaptic.com/): No-code automation builder focused on frontline workers, providing users the capabilities to build multiple procedures in one application.
+- [Cord](https://cord.com/), [Bubbles](https://www.usebubbles.com/): Allowing users to collaborate on any web page or SaaS tool they already use without needing to build internal tools.
+
+#### Workflow Automation Tools
+
+- [Workato](https://www.workato.com/), [Tray](http://tray.io/), [Pipefy](https://www.pipefy.com/), [Ninox](https://ninox.com/), [n8n](https://n8n.io/), [Zapier](https://zapier.com/): Allowing users to integrate their software applications using powerful automated workflows. Users can easily build and streamline processes using a beautifully designed visual workflow editor. Example: “When I get a new email in Gmail, copy the attachment from Gmail to Dropbox and then alert me on Slack about the new Dropbox file”. All of these companies can serve both SMEs and Enterprise customers. Another great player here is Integromat, which was recently acquired by Celonis.
+- [Kissflow](https://kissflow.com/), [Process Street](https://www.process.st/), [Qatalog Workflows](https://qatalog.com/workflows/): no-code Business Process Management (BPM) tools.
+- [Firedrop](https://firedrop.com/): similar to the above, but focused on creatives and creative work.
+- [Internal](https://www.internal.io//): Allows anyone in a company to build powerful business solutions on top of their existing databases, APIs, and 3rd party applications.
+- [Fibery](https://fibery.io/): Allows companies to bring every tool they already use under the same custom-built workspace in a matter of hours and save a lot of time in the long run.
+
+#### BI
+
+- [Grow](https://www.grow.com/): No-code, all-in-one business intelligence.
+- [Oribi](https://oribi.io/): No-code marketing analytics.
+- [Qrvey](https://qrvey.com/), [Apteo](https://www.apteo.co/), [Baremetrics](https://baremetrics.com/): SaaS-focused low-code analytics.
+- [Posthog](https://posthog.com/), [June](https://june.so/): Low-code / no-code (respectively) product analytics.
+- [Vespucci](https://vespuccianalytics.com/): Low-code mobile app analytics.
+- [Index](https://tryindex.com/), [Graphy](https://graphyapp.com/): Dashboard builders.
+
+#### Checkouts, Subscriptions, Memberships & Commerce
+
+How not to address the elephant in the room, the ‘Creator Economy’, or ‘Passion Economy’: most people with access to the internet today can ‘scale themselves’ and monetise their unique skills online, or launch their own business online. Similarly, any eCommerce business today can run completely online. Who powers this? In large part, it’s low-code tools that automate the most technical or mundane parts of the job: building checkout pages, allowing someone to charge their customers via recurring payments, building membership management tools and powering commerce at large. Notable examples:
+
+- [Commsor](https://www.commsor.com/), [Circle](https://circle.so/), [Memberstack](https://www.memberstack.com/), [Geneva](https://www.genevachat.com/): Helping community builders and creators bring together their discussions, memberships, and content. Some of these (e.g. Commsor, Memberstack) are focused on back-end, while others (e.g. Circle, Geneva) are more focused on front-end.
+- [Purchasely](https://www.purchasely.com/), [Apapty](https://adapty.io/): Low-code tools for mobile app marketers and developers to build in-app subscriptions quickly and flexibly.
+- [Gumroad](https://gumroad.com/), [Podia](https://www.podia.com/), [Kajabi](https://kajabi.com/): Online storefronts for online courses and digital products.
+- [Pico](https://trypico.com/), [MemberSpace](https://www.memberspace.com/): audience relationship management and monetisation tools.
+- [Swell](https://www.swell.is/), [Builder](https://www.builder.io/): Low-code, commerce-oriented headless Content Management Systems (CMSs) with full drag & drop no-code editing.
+- [Payhere](https://payhere.co/), [Billflow](https://www.billflow.io/): Making subscription payments accessible to everyone.
+- [Acquire](https://acquire.app/): Provides online merchants of varying sizes with a no-code, elevated checkout solution.
+
+#### Payments & Transactions
+
+One of the sectors in which we’ve seen some of the most powerful no-code and low-code applications is B2B payments and transactions: from tools to allow anyone to build a bank, to Zapier-like connectors orchestrating payments etc. Notable examples:
+
+- [Solarisbank](https://www.solarisbank.com/), [Mambu](https://www.mambu.com/), [Swan](https://www.swan.io/): Banking as a Service (BaaS). Through these tools, pretty much any business can become a banking provider with nothing but a few lines of code.
+- [Digits](https://digits.com/): a visual, ML-powered expense monitoring dashboard that analyses a business’ transactions by connecting with the tools they already use.
+- [when then](https://whenthen.com/), [Primer](https://primer.io/): low-code payments orchestration software.
+- [Nivaura](https://www.nivaura.com/), [Genesis](https://genesis.global/): low-code builders designed specifically for Financial Markets.
+- [Passbase](https://passbase.com/): Allowing users to integrate seamless, bank-level identity verification into their website, app, or checkout with just a few lines of code.
+- [Hydrogen](https://www.hydrogenplatform.com/), [Tint](https://www.tint.ai/): no-code tools to embed financial services / insurance (respectively) into a company’s products and services.
+
+### 办公
+
+#### PPT
+
+- [Canva](https://www.canva.cn/) —— 网站、演示文稿、图片和视频
+
+#### Form
+
+- [Typeform](https://www.typeform.com/), [Arengu](https://www.arengu.com/), [Formstack](https://www.formstack.com/), [Tally](https://tally.so/), [Niro](https://niro.co/): Allowing users to build beautifully designed, professional-looking and intelligent online forms without code.
+
+#### Spreadsheets
+
+- [Airtable](https://airtable.com/), [Rows](https://rows.com/), [Actiondesk](https://www.actiondesk.io/): Spreadsheets that can be used as databases, letting users build various types of automations, such as importing and refreshing data and more.
+- [GRID](https://www.grid.is/), [Layer](https://golayer.io/), [Sheetgo](https://www.sheetgo.com/): Adding collaboration and workflow features on top of MS Excel and Google Sheets.
+- [Opvia](https://www.opvia.bio/), [Morta](https://morta.io/), [Sensivo](https://www.sensivo.eu/): industry-specific spreadsheets providing powerful automations. Respectively, they have been called “The Airtable for Scientists”, “The Airtable for the Architecture, - Engineering & Construction industries”, and “The Airtable for Clinical Researchers”.
 
 ### 其他
 
