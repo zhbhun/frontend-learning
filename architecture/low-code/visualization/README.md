@@ -77,17 +77,55 @@
 
 ## 参考文献
 
-- [浅谈搭建平台 - 画布篇](https://mp.weixin.qq.com/s/pfWplWHajZDcsOH_m3rUMw)
-- [页面可视化搭建工具技术要点](https://github.com/CntChen/cntchen.github.io/issues/17)
 - [页面可视化搭建工具前生今世](https://github.com/CntChen/cntchen.github.io/issues/15)
 - [云凤蝶可视化搭建的推导与实现](https://zhuanlan.zhihu.com/p/90746742)
 - [前端可视化搭建二三事](https://github.com/SunXinFei/sunxinfei.github.io/issues/26)
 - [「可视化搭建系统」——从设计到架构，探索前端的领域和意义](https://juejin.im/post/5f1e98c05188252e5522dc0c)
-- [从零开发一款图片编辑器Mitu-Dooring](https://mp.weixin.qq.com/s/SEIgiDJZOCX11JqxFdiKUw)
 - [这可能是目前最好用的开源可视化拖拽框架](https://juejin.cn/post/6990000320822657031)
 - [基于自然流布局的H5编辑器brick design 项目篇](https://juejin.cn/post/6883099504480878600)
-- [我也做了一个可视化H5编辑器](https://juejin.cn/post/6919347925860499463)
 - [我用 Vue +Fabric.js写了个简易的H5可视化图片编辑器](https://juejin.cn/post/6994365575027752967)
 - [从零设计可视化大屏搭建引擎](https://juejin.cn/post/6981257575425654792)
 - [Vue + Egg 实现一个 H5页面可视化编辑器 / 可视化配置平台](https://juejin.cn/post/7001077797808504839)
 - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0) / [Subcomponents](https://medium.com/eightshapes-llc/subcomponents-753ce9f6600a)
+
+综合
+
+- [前端页面可视化搭建工具业界的轮子](https://juejin.cn/post/6858881797490098190) / [20+个前端可视化搭建工具，一次玩个够](https://jishuin.proginn.com/p/763bfbd52af4)
+- [「可视化搭建系统」——从设计到架构，探索前端领域技术和业务价值](https://zhuanlan.zhihu.com/p/164558106)
+- [页面可视化搭建工具技术要点](https://github.com/CntChen/cntchen.github.io/issues/17)
+- [可视化搭建的一些思考和实践](https://mp.weixin.qq.com/s?__biz=MzU2Mzk1NzkwOA%3D%3D&chksm=fc530835cb2481233acc7ac2c856b30c7698dd9d2aec1514b5c2fa4165bc2728f7b261c4938f&idx=1&mid=2247487950&scene=21&sn=e674a2f9379b9c9b8a149498a50c17f8&utm_source=pocket_reader)
+- [Spotify 如何可视化系统架构图](https://www.infoq.cn/article/s5UwbP01ga8akJIFgtZV?utm_source=pocket_saves)
+- [基于 React 的可视化编辑平台实践](https://zhuanlan.zhihu.com/p/94016600?utm_oi=35897751896064&utm_source=pocket_reader)
+- [技术周报· 基于设计稿识别的可视化低代码系统实践](https://mp.weixin.qq.com/s/JUXz9TOKbkO1oAzHjVfwnQ)
+- [可视化拖拽组件库一些技术要点原理分析](https://github.com/woai3c/Front-end-articles/issues/19)
+
+  - [可视化拖拽组件库一些技术要点原理分析（二）](https://github.com/woai3c/Front-end-articles/issues/20)
+  - [可视化拖拽组件库一些技术要点原理分析（三）](https://github.com/woai3c/Front-end-articles/issues/21)
+  - [可视化拖拽组件库一些技术要点原理分析（四）](https://segmentfault.com/a/1190000042282658)
+
+画布
+
+- [浅谈搭建平台 - 画布篇](https://mp.weixin.qq.com/s/pfWplWHajZDcsOH_m3rUMw)
+- [可视化搭建平台之跨iframe拖拽](https://zhuanlan.zhihu.com/p/353043053?utm_oi=35897751896064&utm_source=pocket_reader)
+
+数据
+
+- [如何设计实现 h5 页面搭建-数据模型](https://mp.weixin.qq.com/s/Fyl3SMHjv3ROw9QUBdwutA?utm_source=pocket_reader)
+
+案例
+
+- [美团外卖前端可视化界面组装平台 —— 乐高](https://zhuanlan.zhihu.com/p/27288444?utm_source=pocket_reader)
+- [我在闲鱼做搭建——魔鱼搭投编辑器介绍](https://zhuanlan.zhihu.com/p/538265765?utm_oi=35897751896064&utm_source=pocket_reader)
+- [从零开发一款图片编辑器Mitu-Dooring](https://mp.weixin.qq.com/s/SEIgiDJZOCX11JqxFdiKUw)
+- [我也做了一个可视化H5编辑器](https://juejin.cn/post/6919347925860499463)
+- [可视化搭建移动端店铺解决方案](https://mp.weixin.qq.com/s?__biz=MzU2Mzk1NzkwOA%3D%3D&chksm=fc530e9acb24878c90ce680610dd0a339dccdf2e04aea0ef815b71178c137032c3f8afbfa02a&cur_album_id=1885104505269108738&idx=1&mid=2247489377&scene=189&sn=2f205a9519c8f0e391f1e7473851153d&utm_source=pocket_saves)
+- [凹凸技术揭秘·羚珑页面可视化·成长蜕变之路](https://segmentfault.com/a/1190000038792146)
+- [从零开发一款图片编辑器Mitu-Dooring](https://mp.weixin.qq.com/s/SEIgiDJZOCX11JqxFdiKUw)
+
+开源
+
+- [rxeditor](https://github.com/rxdrag/rxeditor)
+
+讨论
+
+- [我做了一个 HTML 可视化编辑工具，有前途吗？](https://www.zhihu.com/question/390956688/answer/1184696066?utm_oi=35897751896064&utm_source=pocket_reader)
