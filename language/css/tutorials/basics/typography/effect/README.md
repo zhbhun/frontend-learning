@@ -1,0 +1,3 @@
+- [109 CSS Text Effects](https://freefrontend.com/css-text-effects/)
+- [15 Gorgeous CSS Text Animation Effects](https://alvarotrigo.com/blog/css-text-animations/)
+- [25+ Interesting CSS Text Effects](https://1stwebdesigner.com/css-text-effects/)
