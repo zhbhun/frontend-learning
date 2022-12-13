@@ -174,6 +174,11 @@ TODO
 
 - 自定义控制栏
 
+### youtube
+
+- [YouTube 嵌入式播放器及播放器参数](https://developers.google.com/youtube/player_parameters.html?playerVersion=HTML5#origin)
+- [YouTube Player API Reference for iframe Embeds](https://developers.google.com/youtube/iframe_api_reference#Autoplay_and_scripted_playback)
+
 ## 资源
 
 - https://test-videos.co.uk/
