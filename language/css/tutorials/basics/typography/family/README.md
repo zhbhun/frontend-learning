@@ -13,10 +13,155 @@
 - Serif：衬线体，笔画的末端带有衬线的字体；
 - Sans-Serif：无衬线体，笔画的末端没有衬线的字体；
 - Monospaced：等宽字体
+- fantasy：梦幻
+- cuisive：花体
 
 总结：一般来说，衬线体装饰性强，往往用于标题；无衬线体清晰度好，往往用于正文。
 
-## 系统预装字体
+## 安全字体
+
+网页安全字体（web safe fonts）：就是基本上能保证所有用户看见的是类似的字体，也就是说他们的操作系统里以很大概率自带了这些字体。
+
+### 常见的安全字体
+
+- Arial (sans-serif)：
+
+    - 简介：Win 平台上默认的无衬线西文字体
+    - 族科：Arial, “Helvetica Neue”, Helvetica
+    
+    ps：Helvetica 是一种被广泛使用的传奇般的西文字体（这货还有专门的记录片呢），在微软使用山寨货的 Arial 时，乔布斯却花费重金获得了 Helvetica 苹果系统上的使用权，因此该字体也一直伴随着苹果用户，是苹果生态中最常用的西文字体。Helvetica Neue 为 Helvetica 的改善版本，且增加了更多不同粗细与宽度的字形，共拥有51种字体版本，极大的满足了日常的使用。
+
+- Verdana (sans-serif)
+
+    - 简介：一套无衬线字体，由于它在小字上仍有结构清晰端整、阅读辨识容易等高品质的表现，因而在 1996 年推出后即迅速成为许多领域所爱用的标准字型之一。
+    - 族科: Verdana, Geneva;
+    
+    ps：此字体的设计源起于微软字型设计小组的维吉尼亚·惠烈（Virginia Howlett）希望设计一套具有高辨识性、易读性的新字型以供屏幕显示之用，于是她邀请了世界字型设计师之一的马修·卡特（Matthew Carter）操刀，以 Frutiger 字体及爱德华·约翰斯顿（Edward Johnston）为伦敦地铁所设计的字体为蓝本，并由 Monotype 公司的字型微调（Hint）专家汤姆·瑞克纳（Tom Rickner）担任手工微调，字体结构与 Tahoma（同为马修·卡特所设计）很相似，微软将 Verdana 纳入网页核心字体之一。
+
+- Tahoma (sans-serif)
+
+    - 简介：一个十分常见的无衬线字体，字体结构和 Verdana 很相似，其字符间距较小，而且对 Unicode 字集的支持范围较大。被采用为 Windows 2000、Windows XP、Windows Server 2003 及 Sega 游戏主机 Dreamcast 等系统的预设字型，显示效果比 Arial 要好。
+    - 族科: Tahoma, Verdana, Segoe;
+    
+    ps：Tahoma 和 Verdana 师出同门，同为名设计师马修·卡特（Matthew Carter）的作品，由微软在 1994 年推出。许多不喜欢 Arial 字体的人常常会改用 Tahoma 来代替，除了是因为 Tahoma 很容易取得之外，也是因为 Tahoma 没有一些 Arial 为人诟病的缺点，例如大写”I“与小写”l“难以分辨等。
+
+- Trebuchet MS (sans-serif)
+- Times New Roman (serif)
+
+    - 简介：可能是最常见且广为人知的衬线字体之一，在字体设计上属于过渡型衬线体，对后来的字型产生了很深远的影响。另外由于其中规中矩、四平八稳的经典外观，所以经常被选择为标准字体之一。
+    - 族科: TimesNewRoman, “Times New Roman”, Times, Baskerville, Georgia;
+
+- Georgia (serif)
+
+    - 简介：Georgia 是一种衬线字体，为著名字型设计师马修·卡特（Matthew Carter）于 1993 年为微软所设计的作品，具有在小字下仍能清晰辨识的特性，可读性十分优良。其命名发想自一份小报报道在美国佐治亚州发现外星人头颅的测试性头条。
+    - 族科: Georgia, Times, “Times New Roman”;
+    
+    ps：乍看之下，Georgia 与 Times New Roman 相当类似，但它们有多处不同。首先，在相同的字号下，Georgia 的字符比 Times New Roman 的字符略大；其次，Georgia 的字符线条较粗，衬线部份也比较钝而平。另外在数字部份也非常不同，Georgia采用称为”不齐线数字“的数字，特色在于数字会像英文字母般有高矮大小之别。微软将 Georgia 列入网页核心字型，是视窗操作系统的内建字型之一。苹果电脑的麦金塔系统之后也跟进采用Georgia作为内建字型之一。
+
+    请注意：数字“0″与字母“o”在Georgia字体下可能是显示成一模一样，使用时需特别注意。
+
+- Garamond (serif)
+- Courier New (monospace)
+
+    - 简介：Courier 是一个等宽字体的粗衬线字体，主要是依据打字机所打印出来的字形来设计，于 1955 年由 Howard “Bud” Kettler 设计完成。原来的 Courier 字体是 IBM 公司在 1950 年代设计给打印机使用的字体，但是并未维护他们的专利，使得这个字型成为整个打字机制造业的标准。
+    - 族科: “Courier New”, Courier, “Lucida Sans Typewriter”, “Lucida Typewriter”;
+    
+    ps：在现今的电子时代，此字体也常被使用，因为其等宽的特性可以轻易地对齐字段的左右边界，也成为脚本和程式设计中源代码的常用字体。12pt 的Courier New 字体曾是美国国务院的公文标准字体，但于 2004 年 1 月停用，改使用 14pt 的 Times New Roman，因为其具”现代性”和”易读性”。
+
+- Brush Script MT (cursive)
+
+### 跨平台中文字体
+
+- 黑体：
+
+    ```css
+    body {
+        font-family: -apple-system, "Noto Sans", "Helvetica Neue", Helvetica, "Nimbus Sans L", Arial, "Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif;
+    }
+    ```
+
+    - "Hiragino Sans GB"：冬青黑
+    - "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN"：思源黑体
+    - "Microsoft YaHei"：微软雅黑
+    - "Wenquanyi Micro Hei"：文泉驿微米黑
+    - "ST Heiti"：华文黑体
+    - "SimHei"：中易黑体
+    - "WenQuanYi Zen Hei Sharp"：文泉驿点阵正黑
+
+- 楷体：
+
+    ```css
+    body {
+        font-family: Baskerville, Georgia, "Liberation Serif", "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, "TW\-Kai", serif;
+    }
+    ```
+
+    - STKaiti： 华文楷体
+    - AR PL KaitiM GB：文鼎ＰＬ简中楷
+    - KaiTi, KaiTi_GB2312：楷体
+    - DFKai-SB：標楷體
+    - "TW\-Kai"：全字库正楷体
+
+- 宋体：
+
+    ```css
+    body {
+        font-family: Georgia, "Nimbus Roman No9 L", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif CN", STSong, "AR PL New Sung", "AR PL SungtiL GB", NSimSun, SimSun, "TW\-Sung", "WenQuanYi Bitmap Song", "AR PL UMing CN", "AR PL UMing HK", "AR PL UMing TW", "AR PL UMing TW MBE", PMingLiU, MingLiU, serif;
+    }
+    ```
+
+    - "Noto Serif CJK SC", "Source Han Serif SC", "Source Han Serif CN"：思源宋体
+    - STSong：华文宋体
+    - "AR PL SungtiL GB"：文鼎ＰＬ简报宋
+    - NSimSun：新宋体
+    - SimSun：中易宋体
+    - "TW\-Sung"：全字库正宋体
+    - "WenQuanYi Bitmap Song"：文泉驿点阵宋
+    - "PMingLiU"：新细明体
+    - MingLiU：细明体
+
+- 仿宋：
+
+    ```css
+    body {
+        font-family: Baskerville, "Times New Roman", "Liberation Serif", STFangsong, FangSong, FangSong_GB2312, "CWTEX\-F", serif;;
+    }
+    ```
+
+    - STFangsong：华文仿宋
+    - FangSong, FangSong_GB2312：仿宋
+    - "CWTEX\-F"：CWTEX仿宋体
+
+注意事项
+
+1. 中文字体也有英文名称：宋体、微软雅黑、华文细黑这样的字体名称，只是字体的显示名称，而不是字体文件的名称。虽然说在大多数情况下直接使用显示名称也有效，但有些用户却工作在一些很极端的情况下，这会导致你的字体声明无效。
+
+    ps：用户安装了中文版的操作系统，但却切换到了以英文为主要语言。这时候，操作系统很有可能无法按照显示名称找到正确的字体。所以我们要记住的第一件事情就是： 同时声明中文字体的字体名称（英文）和显示名称（中文）。
+
+2. 永远不要忘记声明英文字体，并且英文字体应该在中文字体之前
+
+    ps：绝大部分中文字体里包含英文字母（但是基本上都很丑），而英文字体里不包含中文字符。
+
+3. 兼顾不同的操作系统
+4. 确保向下兼容
+
+
+参考文献
+
+- [Fonts.css -- 跨平台中文字体解决方案](https://zenozeng.github.io/fonts.css/)
+- [Fonts.css -- 跨平台中文字体解决方案](https://github.com/zenozeng/fonts.css/)
+- [Web 中文字体应用指南](https://ruby-china.org/topics/14005)
+- [跨平台字体效果浅析](https://www.woshipm.com/ucd/25682.html)
+
+### 参考文献
+
+- [A complete collection of web safe CSS font stacks](https://www.cssfontstack.com/)
+- [Best Web Safe Fonts for HTML and CSS](https://www.w3schools.com/cssref/css_websafe_fonts.php)
+- [Safe web fonts](https://web.mit.edu/jmorzins/www/fonts.html)
+- [Common fonts to all versions of Windows & Mac equivalents](https://www.ampsoft.net/webdesign-l/WindowsMacFonts.html)
+- [网页设计中最常见的30款英文字体](http://www.lanlanwork.com/blog/?post=1657)
+- [Windows 11 font list](https://learn.microsoft.com/en-us/typography/fonts/windows_11_font_list)
+- [macOS Preinstalled Fonts](https://developer.apple.com/fonts/system-fonts/#preinstalled)
 
 ### Windows
 
@@ -42,8 +187,6 @@
     装饰性与仿宋体接近，但是宽度更大，笔画更清楚一些。这种字体也不应该在小于14px的情况下使用。在 Mac 平台的对应字体是"华文楷体"（STKaiti）。
 
 - Arial：Win 平台上默认的无衬线西文字体
-- Tahoma：十分常见的无衬线字体，被采用为Windows 2000、Windows XP、Windows Server 2003及Sega游戏主机Dreamcast等系统的预设字型，显示效果比Arial要好。
-- Verdana：无衬线字体，优点在于它在小字上仍结构清晰端整、阅读辨识容易。
 
 ### OS X
 
@@ -66,14 +209,6 @@
 - 苹方（PingFang SC）：
     
     在 Mac OS X EL Capitan上，苹果为中国用户打造了一款全新中文字体--苹方，去掉了为人诟病的喇叭口，整体造型看上去更加简洁，字族共六枚字体：极细体、纤细体、细体、常规体、中黑体、中粗体。
-
-- Times New Roman
-
-    Mac平台Safari下默认的字体，是最常见且广为人知的西文衬线字体之一，众多网页浏览器和文字处理软件都是用它作为默认字体。
-
-- Helvetica、Helvetica Neue：
-
-    一种被广泛使用的传奇般的西文字体（这货还有专门的记录片呢），在微软使用山寨货的 Arial 时，乔布斯却花费重金获得了 Helvetica 苹果系统上的使用权，因此该字体也一直伴随着苹果用户，是苹果生态中最常用的西文字体。Helvetica Neue 为 Helvetica 的改善版本，且增加了更多不同粗细与宽度的字形，共拥有51种字体版本，极大的满足了日常的使用。
 
 - San Francisco
     
@@ -106,15 +241,23 @@
 - 文泉驿点阵宋体：类似宋体的衬线字体，一般不推荐使用。
 - 文泉驿微米黑：几乎是 Linux 社区现有的最佳简体中文字体。
 
-## 实际应用
+### 实际应用
 
-- font-family: "San Francisco", "Helvetica Neue", Helvetica, "Droid Sans", Tahoma, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", STXihei, "Droid Sans Fallback", "Microsoft YaHei", SimHei, "WenQuanYi Micro Hei", sans-serif;
+- github: `-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"`
+- ant design：`-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'`
 
 ## 其他
 
 - https://github.com/aui/font-spider
 - https://github.com/zenozeng/fonts.css
 - https://github.com/sofish/typo.css
+
+## 字体资源
+
+- [Google Font](https://github.com/google/fonts)
+- [Adobe Font](https://fonts.adobe.com/fonts)
+- [fonts.com](https://www.fonts.com/)
+
 
 ## 参考文献
 
