@@ -10,13 +10,34 @@
 
 ## 字体类型
 
-- Serif：衬线体，笔画的末端带有衬线的字体；
-- Sans-Serif：无衬线体，笔画的末端没有衬线的字体；
-- Monospaced：等宽字体
-- fantasy：梦幻
-- cuisive：花体
+- serif：带衬线字体，笔画结尾有特殊的装饰线或衬线。
+- sans-Serif：无衬线字体，即笔画结尾是平滑的字体。
+- monospace：等宽字体，即字体中每个字宽度相同。
+- fantasy：主要是那些具有特殊艺术效果的字体。
+- cuisive：草书字体。这种字体有的有连笔，有的还有特殊的斜体效果。因为一般这种字体都有一点连笔效果，所以会给人一种手写的感觉。
+- emoji：专门用于呈现 Emoji 表情符号的字体
+- math：针对显示数学相关字符的特殊样式问题而设计的字体：支持上标和下标、跨行括号、嵌套表达式和具有不同含义的 double struck glyphs。
+- fangsong：一种汉字字体，介于宋体和楷体之间。这种字体常用于某些政府文件。
+- system-ui：从浏览器所处平台处获取的默认用户界面字体。
+
+    ps：实际测试 system-ui 受 chrome 浏览器的“标准字体”影响。
+
+- -apple-system：在一些稍低版本 Mac OS X 和 iOS 上，它针对旧版上的 Neue Helvetica 和 Lucida Grande 字体，升级使用更为合适的 San Francisco Fonts；
+- BlinkMacSystemFont：针对一些 Mac OS X 上的 Chrome 浏览器，使用系统默认字体
+- "Segoe UI"，在 Windows 及 Windows Phone 上选取系统默认字体；
+- ui-serif, ui-sans-serif, ui-monospace, ui-rounded
+
+    对比 serif 等，带 ui 前缀的字体可以使用系统设置，目前只有 safari 支持，其他浏览器效果等同于 system-ui。
 
 总结：一般来说，衬线体装饰性强，往往用于标题；无衬线体清晰度好，往往用于正文。
+
+- [Generic font families](https://w3c.github.io/csswg-drafts/css-fonts-4/#generic-font-families)
+- [谈谈一些有趣的CSS题目（16）-- 你该知道的字体 font-family ](https://www.cnblogs.com/coco1s/p/11350642.html)
+- [Web 字体 font-family 再探秘](https://www.cnblogs.com/coco1s/p/11350642.html)
+- [Using UI System Fonts In Web Design: A Quick Practical Guide](https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/)
+- [font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif ](https://github.com/necolas/normalize.css/issues/665)
+- [ui-serif, ui-sans-serif, ui-monospace and ui-rounded values for font-family - caniuse](https://caniuse.com/extended-system-fonts)
+- [[前端基础]font-family 详解](https://juejin.cn/post/7025161032435761189)
 
 ## 安全字体
 
@@ -80,13 +101,46 @@
     }
     ```
 
+    - San Francisco
+    
+        同样是 Mac OS X EL Capitan 上最新发布的西文字体，感觉和 Helvetica 看上去差别不大，目前已经应用在 Mac OS 10.11+、iOS 9.0+、watch OS 等最新系统上。
+
+    - "PingFang SC"：
+
+        在 Mac OS X EL Capitan上，苹果为中国用户打造了一款全新中文字体--苹方，去掉了为人诟病的喇叭口，整体造型看上去更加简洁，字族共六枚字体：极细体、纤细体、细体、常规体、中黑体、中粗体。
+
     - "Hiragino Sans GB"：冬青黑
+
+        SNOW LEOPARD 开始提供，又叫苹果丽黑，日文字体 Hiragino KakuGothic 的简体中文版，简体中文有 常规体 和 粗体 两种，冬青黑体是一款清新的专业印刷字体，小字号时足够清晰，拥有很多人的追捧。
+
     - "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN"：思源黑体
     - "Microsoft YaHei"：微软雅黑
+
+        Windows 7 开始提供，美观度和清晰度都较好，可以作为网页的首选字体，在 Mac 平台的对应字体是华文细黑（STXihei）。
+
     - "Wenquanyi Micro Hei"：文泉驿微米黑
+
+        几乎是 Linux 社区现有的最佳简体中文字体。
+
+    - "Heiti SC"：黑体-简
+
+        从 10.6 开始，黑体-简代替华文黑体用作简体中文系统界面默认字体，苹果生态最常用的字体之一，包括 iPhone、iPad 等设备用的也是这款字体，显示效果不错，但是喇叭口设计遭人诟病。
+
     - "ST Heiti"：华文黑体
+    - "ST Heiti Light"（又名STXihei）：华为细黑
+
+        OS X 10.6 之前的简体中文系统界面默认字体。
+
     - "SimHei"：中易黑体
+
+        Windows XP 没有预装 “微软雅黑”，这时可以选择黑体（Simhei）替代。不过，黑体比较粗，不应用于字号较小的文字。
+
     - "WenQuanYi Zen Hei Sharp"：文泉驿点阵正黑
+
+        类似宋体的衬线字体，一般不推荐使用。
+
+    - Droid Sans：卓系统中默认的西文字体，是一款人文主义无衬线字体
+    - Droid Sans Fallback：包含汉字、日文假名、韩文的文字扩展支持
 
 - 楷体：
 
@@ -99,6 +153,9 @@
     - STKaiti： 华文楷体
     - AR PL KaitiM GB：文鼎ＰＬ简中楷
     - KaiTi, KaiTi_GB2312：楷体
+
+        装饰性与仿宋体接近，但是宽度更大，笔画更清楚一些。这种字体也不应该在小于14px的情况下使用。在 Mac 平台的对应字体是"华文楷体"（STKaiti）。
+
     - DFKai-SB：標楷體
     - "TW\-Kai"：全字库正楷体
 
@@ -115,6 +172,9 @@
     - "AR PL SungtiL GB"：文鼎ＰＬ简报宋
     - NSimSun：新宋体
     - SimSun：中易宋体
+
+        如果没有指定字体，操作系统往往选择它来渲染。
+
     - "TW\-Sung"：全字库正宋体
     - "WenQuanYi Bitmap Song"：文泉驿点阵宋
     - "PMingLiU"：新细明体
@@ -130,6 +190,9 @@
 
     - STFangsong：华文仿宋
     - FangSong, FangSong_GB2312：仿宋
+
+        比宋体的装饰性更强。如果字号太小，会影响清晰度，所以只有在字号大于14px的情况下，才可以考虑这种字体。在 Mac 平台的对应字体是"华文仿宋"（STFangsong）。
+
     - "CWTEX\-F"：CWTEX仿宋体
 
 注意事项
@@ -148,10 +211,17 @@
 
 参考文献
 
+- [中文字体网页开发指南](http://www.ruanyifeng.com/blog/2014/07/chinese_fonts.html)
 - [Fonts.css -- 跨平台中文字体解决方案](https://zenozeng.github.io/fonts.css/)
 - [Fonts.css -- 跨平台中文字体解决方案](https://github.com/zenozeng/fonts.css/)
 - [Web 中文字体应用指南](https://ruby-china.org/topics/14005)
 - [跨平台字体效果浅析](https://www.woshipm.com/ucd/25682.html)
+
+### 最佳实践
+
+- css-tricks：`Blanco,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol`
+- github: `-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"`
+- ant design：`-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'`
 
 ### 参考文献
 
@@ -163,94 +233,66 @@
 - [Windows 11 font list](https://learn.microsoft.com/en-us/typography/fonts/windows_11_font_list)
 - [macOS Preinstalled Fonts](https://developer.apple.com/fonts/system-fonts/#preinstalled)
 
-### Windows
+## 加载机制
 
-- 黑体：SimHei，无衬线体
+- Block Period：如果未加载字体，任何试图使用它的元素都必须渲染不可见的后备字体。如果在此期间字体已成功加载，则正常使用它。
+- Swap Period：如果未加载字体，任何尝试使用它的元素都必须呈现后备字体。如果在此期间字体已成功加载，则正常使用它。
+- Failure Period：如果未加载字体，用户代理将其视为导致正常字体回退的失败加载。
 
-    Windows XP 没有预装 “微软雅黑”，这时可以选择黑体（Simhei）替代。不过，黑体比较粗，不应用于字号较小的文字。
+| value / period | Block Period | Swap Period |
+| --- | --- | --- |
+| auto | Short(3s)/Infinite | Infinite/None |
+| block | Short(3s) | Infinite | 
+| swap | None | Infinite |
+| fallback | Extremely Short(100ms) | Short |
+| optional | Extremely Short(100ms) | None |
 
-- 微软雅黑：Microsoft YaHei，无衬线体
+- [font-display](https://css-tricks.com/almanac/properties/f/font-display/)
+- [Controlling Font Performance with font-display](https://developer.chrome.com/blog/font-display/)
+- [Controlling Font Display Per Font-Face: the font-display descriptor](https://w3c.github.io/csswg-drafts/css-fonts-4/#font-display-desc)
+- [Web 性能优化：使用 CSS font-display 控制字体加载和替换](https://zxuqian.cn/css-font-display-intro/)
+- [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)
+- [How We Load Web Fonts Progressively](https://www.filamentgroup.com/lab/font-events.html)
+- [fontfaceobserver](https://github.com/bramstein/fontfaceobserver) - Webfont loading. Simple, small, and efficient.
+- [font-display的用法](https://www.w3cplus.com/css/font-display-masses.html)
+- [font-display的用法](https://segmentfault.com/a/1190000040134646)
+- [Web 性能优化：使用 CSS font-display 控制字体加载和替换 ](https://www.cnblogs.com/cangqinglang/p/14692891.html)
+- [Ensure text remains visible during webfont load](https://web.dev/font-display/?utm_source=lighthouse&utm_medium=devtools)
 
-    Windows 7 开始提供，美观度和清晰度都较好，可以作为网页的首选字体。在 Mac 平台的对应字体是华文细黑（STXihei）
+## unicode-range
 
-- 宋体：SimSun，衬线体
 
-    如果没有指定字体，操作系统往往选择它来渲染。
+unicode-range是一个CSS属性，一般和 @font-face 规则一起使用，用于控制特定字符使用特定字体。
 
-- 新宋体：NSimSun，衬线体
-- 仿宋：FangSong，衬线体
+```css
+@font-face {
+  font-family: quote;
+  src: local('SimSun');    
+  unicode-range: U+201c, U+201d;
+}
+```
 
-    比宋体的装饰性更强。如果字号太小，会影响清晰度，所以只有在字号大于14px的情况下，才可以考虑这种字体。在 Mac 平台的对应字体是"华文仿宋"（STFangsong）。
+值和语法：
 
-- 楷体：KaiTi，衬线体
+```css
+unicode-range: U+26;               /* 单个字符编码 */
+unicode-range: U+0-7F;
+unicode-range: U+0025-00FF;        /* 字符编码区间 */
+unicode-range: U+4??;              /* 通配符区间 */
+unicode-range: U+0025-00FF, U+4??; /* 多个值 */
+```
 
-    装饰性与仿宋体接近，但是宽度更大，笔画更清楚一些。这种字体也不应该在小于14px的情况下使用。在 Mac 平台的对应字体是"华文楷体"（STKaiti）。
+常用 unicode 值
 
-- Arial：Win 平台上默认的无衬线西文字体
+- 汉字：[0x4e00,0x9fa5]（或十进制[19968,40869]）
+- 数字：[0x30,0x39]（或十进制[48, 57]）
+- 小写字母：[0x61,0x7a]（或十进制[97, 122]）
+- 大写字母：[0x41,0x5a]（或十进制[65, 90]）
 
-### OS X
 
-- 华文细黑：STHeiti Light （又名STXihei）
 
-    OS X 10.6 之前的简体中文系统界面默认字体，也是目前Chrome游览器下的默认字体，有 Regular 和 Bold 两个字重。
+[CSS unicode-range特定字符使用font-face自定义字体](https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/)
 
-- 华文黑体：STHeiti
-- 华文楷体：STKaiti
-- 华文宋体：STSong
-- 华文仿宋：STFangsong
-- 黑体-简：Heiti SC
-
-    从 10.6 开始，黑体-简代替华文黑体用作简体中文系统界面默认字体，苹果生态最常用的字体之一，包括iPhone、iPad等设备用的也是这款字体，显示效果不错，但是喇叭口设计遭人诟病。
-
-- 冬青黑体: Hiragino Sans GB 
-
-    SNOW LEOPARD 开始提供，又叫苹果丽黑，日文字体 Hiragino KakuGothic 的简体中文版，简体中文有 常规体 和 粗体 两种，冬青黑体是一款清新的专业印刷字体，小字号时足够清晰，拥有很多人的追捧。
-
-- 苹方（PingFang SC）：
-    
-    在 Mac OS X EL Capitan上，苹果为中国用户打造了一款全新中文字体--苹方，去掉了为人诟病的喇叭口，整体造型看上去更加简洁，字族共六枚字体：极细体、纤细体、细体、常规体、中黑体、中粗体。
-
-- San Francisco
-    
-    同样是 Mac OS X EL Capitan 上最新发布的西文字体，感觉和Helvetica看上去差别不大，目前已经应用在Mac OS 10.11+、iOS 9.0+、watch OS等最新系统上。
-
-### MicroSoft Office
-
-- 隶书：LiSu
-- 幼圆：YouYuan
-- 华文细黑：STXihei
-- 华文楷体：STKaiti
-- 华文宋体：STSong
-- 华文中宋：STZhongsong
-- 华文仿宋：STFangsong
-- 方正舒体：FZShuTi
-- 方正姚体：FZYaoti
-- 华文彩云：STCaiyun
-- 华文琥珀：STHupo
-- 华文隶书：STLiti
-- 华文行楷：STXingkai
-- 华文新魏：STXinwei
-
-### Android
-
-- Droid Sans：卓系统中默认的西文字体，是一款人文主义无衬线字体
-- Droid Sans Fallback：包含汉字、日文假名、韩文的文字扩展支持
-
-### Linux
-
-- 文泉驿点阵宋体：类似宋体的衬线字体，一般不推荐使用。
-- 文泉驿微米黑：几乎是 Linux 社区现有的最佳简体中文字体。
-
-### 实际应用
-
-- github: `-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"`
-- ant design：`-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'`
-
-## 其他
-
-- https://github.com/aui/font-spider
-- https://github.com/zenozeng/fonts.css
-- https://github.com/sofish/typo.css
 
 ## 字体资源
 
@@ -258,14 +300,18 @@
 - [Adobe Font](https://fonts.adobe.com/fonts)
 - [fonts.com](https://www.fonts.com/)
 
+## 其他
+
+- https://github.com/aui/font-spider
+- https://github.com/sofish/typo.css
 
 ## 参考文献
 
-- [中文字体网页开发指南](http://www.ruanyifeng.com/blog/2014/07/chinese_fonts.html)
 - [Chinese Standard Web Fonts: A Guide to CSS Font Family Declarations for Web Design in Simplified Chinese](http://www.kendraschaefer.com/2012/06/chinese-standard-web-fonts-the-ultimate-guide-to-css-font-family-declarations-for-web-design-in-simplified-chinese/)
 - [如何优雅的选择字体(font-family)](https://segmentfault.com/a/1190000006110417)
 - [如何保证网页的字体在各平台都尽量显示为最高质量的黑体？](https://www.zhihu.com/question/19911793)
 - [Web 中文字体应用指南](https://ruby-china.org/topics/14005)
+
 
 ## TODO
 
