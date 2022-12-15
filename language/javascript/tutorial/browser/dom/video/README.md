@@ -148,7 +148,21 @@ https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
 
 ### 自动播放
 
-TODO
+- PC 端
+
+    - Chrome：
+
+        - 必须是静音才允许自动播放，否则用户必须和网页产生了交互时，才可以播放；
+        - PWA 允许自动播放；
+        - 根据 [ Media Engagement Index](https://developer.chrome.com/blog/autoplay/#media-engagement-index) 机制决定是否可以自动播放
+
+- 移动端
+
+
+
+参考文献
+
+- [Autoplay policy in Chrome](https://developer.chrome.com/blog/autoplay/)
 
 ### 内联播放
 
