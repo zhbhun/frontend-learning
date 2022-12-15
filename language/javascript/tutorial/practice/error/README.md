@@ -716,7 +716,10 @@ TODO: [跨域脚本](https://developer.mozilla.org/en-US/docs/Web/API/GlobalEven
 - `fetch.catch`
 - `XMLHttpRequest.proptype.onerror`
 
-ps：通过 XMLHttpRequest 和 fetch 改写方式监听
+ps：
+
+1. 通过 XMLHttpRequest 和 fetch 改写方式监听
+2. AJAX 无法获取 CORS 错误详细信息，参考 [Is it possible to trap CORS errors?](https://stackoverflow.com/questions/4844643/is-it-possible-to-trap-cors-errors)
 
 #### 自定义错误事件
 
