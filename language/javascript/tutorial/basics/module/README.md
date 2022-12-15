@@ -54,6 +54,13 @@ setTimeout(() => {
 
 - [在浏览器中通过 importmap 使用 ES 模块](https://beginor.github.io/2021/08/16/using-es-modules-in-borwser-with-importmaps.html)
 
+### JSON Module
+
+- [Import JSON in ES modules](https://simonplend.com/import-json-in-es-modules/)
+- [How to import JSON files in ES modules (Node.js)](https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/)
+- [ERR_IMPORT_ASSERTION_TYPE_MISSING for import of json file](https://stackoverflow.com/questions/70106880/err-import-assertion-type-missing-for-import-of-json-file)
+- [proposal-import-assertions](https://github.com/tc39/proposal-import-assertions)
+
 ### CSS Module
 
 - [Using CSS Module Scripts to import stylesheets](https://web.dev/css-module-scripts/)
