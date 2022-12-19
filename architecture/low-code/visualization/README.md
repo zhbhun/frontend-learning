@@ -89,6 +89,8 @@
   - 优点：实现简单，运行时只有加载全局配置的字体即可
   - 缺点：操作没那么快捷，用户需要预设好字体
 
+ps：如何解决字体文件较大的问题？参照使用 google 字体的 unicode-range。
+
 ## 参考文献
 
 - [页面可视化搭建工具前生今世](https://github.com/CntChen/cntchen.github.io/issues/15)
