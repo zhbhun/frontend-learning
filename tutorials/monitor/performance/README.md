@@ -19,6 +19,7 @@
 - [mmtrix](http://www.mmtrix.com)
 - [FrontJS](https://www.frontjs.com/)
 - [阿里云](https://help.aliyun.com/document_detail/58652.html?spm=a2c4g.11186623.3.2.56643ddf5ZO9HF)
+- [Foo](https://www.foo.software) - Automatically test and monitor website performance, SEO and accessibility with Lighthouse. Run a sample test below.
 
 开源
 
