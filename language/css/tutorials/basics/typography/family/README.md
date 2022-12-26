@@ -261,7 +261,6 @@
 
 ## unicode-range
 
-
 unicode-range是一个CSS属性，一般和 @font-face 规则一起使用，用于控制特定字符使用特定字体。
 
 ```css
@@ -291,7 +290,9 @@ unicode-range: U+0025-00FF, U+4??; /* 多个值 */
 
 
 
-[CSS unicode-range特定字符使用font-face自定义字体](https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/)
+- [CSS unicode-range特定字符使用font-face自定义字体](https://www.zhangxinxu.com/wordpress/2016/11/css-unicode-range-character-font-face/)
+- [妙用UNICODE-RANGE实现字体混搭](http://newhtml.net/custom-font-stacks-with-unicode-range/)
+- [CSS使用字体新姿势 unicode-range用法与使用场景](https://cloud.tencent.com/developer/article/1964724)
 
 
 ## 字体资源
@@ -299,6 +300,12 @@ unicode-range: U+0025-00FF, U+4??; /* 多个值 */
 - [Google Font](https://github.com/google/fonts)
 - [Adobe Font](https://fonts.adobe.com/fonts)
 - [fonts.com](https://www.fonts.com/)
+
+## 最佳实践
+
+- [字体加载的几种方案](https://juejin.cn/post/7106556068007772174#heading-2)
+- [fonteditor-core](https://github.com/kekee000/fonteditor-core)
+- [fontfaceobserver](https://github.com/bramstein/fontfaceobserver)
 
 ## 其他
 
