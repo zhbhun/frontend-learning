@@ -1,0 +1,2 @@
+- vue 的 computed 属性是怎么收集依赖的？
+- vue 的响应式数据是怎么实现的？（Object.defineProperty vs Proxy）
