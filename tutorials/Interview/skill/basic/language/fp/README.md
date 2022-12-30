@@ -1,1 +1,0 @@
-- 怎么理解 function programming？
