@@ -26,7 +26,7 @@
 
 ## 原理
 
-核心思想
+### 核心思想
 
 - 技术无关：每个团队都应该能够选择和升级他们的堆栈，而无需与其他团队协调。
 - 独立开发：。。。
@@ -103,7 +103,6 @@
 - [如何“取巧”实现一个微前端沙箱？-阿里云开发者社区 (aliyun.com)](https://developer.aliyun.com/article/761449)
 - [谈谈微前端领域的js沙箱实现机制 (qq.com)](https://mp.weixin.qq.com/s/IJMgMO1IeYw2Io8MN7WZWQ)
 - [前端 - 浅探 Web Worker 与 JavaScript 沙箱_个人文章 - SegmentFault 思否](https://segmentfault.com/a/1190000039795656)
-
 
 #### CSS 样式隔离
 
