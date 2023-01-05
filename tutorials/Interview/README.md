@@ -75,6 +75,7 @@ ps：聊公司和工作职责 =》重点参与的业务和项目 =》 围绕项�
 - [jirengu/frontend-interview](https://github.com/jirengu/frontend-interview) - 前端笔试面试题题库
 - [30-seconds-of-interviews](https://github.com/30-seconds/30-seconds-of-interviews)
 - [Daily-Interview-Question](https://github.com/Advanced-Frontend/Daily-Interview-Question)
+- [fe-interview](https://github.com/haizlin/fe-interview) - 这是一个涉及前端知识题库 最多（6000+）、最全，参与人数最多的免费开源公益项目！
 
 ### 后端
 
