@@ -8,3 +8,4 @@
 - https://nivo.rocks/
 - [react-jsx-highcharts](https://github.com/whawker/react-jsx-highcharts) - Highcharts built with proper React components
 - [h5web](https://github.com/silx-kit/h5web) - React components for data visualization and exploration
+- [mafs](https://github.com/stevenpetryk/mafs) - React components for interactive math
