@@ -4,7 +4,7 @@
 - [React 源码解析](https://react.jokcy.me/)
 - [万字长文+图文并茂+全面解析 React 源码 - render 篇](https://segmentfault.com/a/1190000022105022)
 - [深入剖析 React Concurrent](https://zhuanlan.zhihu.com/p/60307571)
-
+- [React运行时优化方案的演进](https://zhuanlan.zhihu.com/p/586327404)
 
 ## 架构
 
