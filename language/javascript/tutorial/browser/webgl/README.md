@@ -44,3 +44,4 @@
 - http://webglstats.com/ - 一个统计WebGL在不同平台上能力表现的网站。
 - https://www.khronos.org/assets/uploads/developers/library/2018_siggraph_asia/WebGL-Latest-Techniques-SIGGRAPH-Asia-Dec18.pdf
 - [现代前端如何入门 3D 开发](https://juejin.cn/post/7169509819794063368#heading-4)
+- [【视频】360@月影：你不知道的GPU — 前端、图形系统与数据可视化](https://mp.weixin.qq.com/s?__biz=MjM5MTA1MjAxMQ%3D%3D&abtest_cookie=BAABAAoACwASABMABAAjlx4AVpkeAMWZHgDzmR4AAAA%3D&ascene=56&chksm=bd4946e28a3ecff49f429caac5b16961c0e9604960dcb6a65249cc61b350a3c730d52a05d3ca&clicktime=1569801647&devicetype=android-28&enterid=1569801647&idx=3&lang=zh_CN&mid=2651234150&nettype=3gnet&pass_ticket=x1xTu2wFStuyLMXrWBhh7CndoovoXBnx2mIYQE8cm2j1oxw6RtwWA8uHl6PVj%2B%2FL&scene=90&sn=59f7d08f587f0f227e0f3a060fed2199&subscene=93&utm_source=pocket_reader&version=27000735&wx_header=1&xtrack=1)
