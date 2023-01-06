@@ -29,3 +29,7 @@
 - [JS hash fails to change when asset URL changes](https://github.com/rollup/rollup/issues/3415)
 - [File hash is not updated when changing code in renderChunk](https://github.com/rollup/rollup/issues/2739)
 - [[v3.0] New hashing algorithm that "fixes (nearly) everything"](https://github.com/rollup/rollup/pull/4543)
+
+解决：Use Rollup's augmentChunkHash hook to ensure hash takes account of chunk.viteMetadata.importedCss
+
+- [fix(build): invalidate chunk hash when css changed ](https://github.com/vitejs/vite/pull/11475)
