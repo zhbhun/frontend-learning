@@ -1,0 +1,1 @@
+- [simplepdf-embed](https://github.com/bendersej/simplepdf-embed) - Easily add SimplePDF into your website, by wrapping any HTML element with the EmbedPDF component.
