@@ -35,8 +35,19 @@
     - iMac 27 | 16:9 | 2560 x 1440 | 2560 x 1440 | 1.0 mdpi
     - iMac 27 5K | 16:9 | 2560 x 1440 | 5120 x 2880 | 2.0 xhdpi
 
+- https://screensiz.es/
+- https://iosres.com/
+- [iOS Design](https://kapeli.com/cheat_sheets/iOS_Design.docset/Contents/Resources/Documents/index)
 - [屏幕尺寸大全-人人都是产品经理](http://www.woshipm.com/screen/index.html)
 - [Screen Resolution Stats Worldwide](https://gs.statcounter.com/screen-resolution-stats)
+- [Viewport Size for Devices](https://yesviz.com/viewport/)
+
+## 响应式断点
+
+- [Mobile simulator - responsive testing tool](https://chrome.google.com/webstore/detail/mobile-simulator-responsi/ckejmhbmlajgoklhgbapkiccekfoccmk)
+- [Screen sizes and breakpoints](https://learn.microsoft.com/en-us/windows/apps/design/layout/screen-sizes-and-breakpoints-for-responsive-design)
+- [What is the ideal screen size for responsive design?](https://www.browserstack.com/guide/ideal-screen-sizes-for-responsive-design)
+- [Bootstrap Available breakpoints](https://getbootstrap.com/docs/5.0/layout/breakpoints/)
 
 ## 示例
 
