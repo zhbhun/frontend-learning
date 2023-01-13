@@ -36,6 +36,7 @@
     - iMac 27 5K | 16:9 | 2560 x 1440 | 5120 x 2880 | 2.0 xhdpi
 
 - [屏幕尺寸大全-人人都是产品经理](http://www.woshipm.com/screen/index.html)
+- [Screen Resolution Stats Worldwide](https://gs.statcounter.com/screen-resolution-stats)
 
 ## 示例
 
