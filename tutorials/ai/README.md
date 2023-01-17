@@ -18,3 +18,7 @@
 ---
 
 [AI collecting books, papers and docs. - Kensuke-Hinata/statistic](https://github.com/Kensuke-Hinata/statistic/tree/master/AI)
+
+## 教程
+
+- [MLU-EXPLAIN](https://mlu-explain.github.io/) - 这个网站使用一系列短文，配上大量插图，解释机器学习的一些概念。
