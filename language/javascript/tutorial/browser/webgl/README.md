@@ -36,6 +36,7 @@
 ## 案例
 
 - [汽车行业场景化营销新方向：基于 WebGL 的网上虚拟车展](https://www.infoq.cn/article/oVNT1e17igbSWFaUhosa)
+- [Device Frames](https://deviceframes.com/) - 这个网站可以制作智能手机、平板电脑、笔记本的 3D 展示图片。
 
 ## 参考
 
