@@ -1,7 +1,8 @@
 - ![css-selectors](./css-selectors.png)
 - ![css-selector.png](https://raw.githubusercontent.com/linxz/blog/gh-pages/img/2021-05/css-selector.png)
 
-# 常见问题
+## 常见问题
+
 1. CSS选择符有哪些？
 
     - 元素选择符
