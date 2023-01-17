@@ -14,6 +14,15 @@
 ## 渐进式加载
 
 - [图片渐进式加载的实现方法](https://akarin.dev/2021/11/04/progressive-image-loading/)
+
+    - [blurhash](https://github.com/woltapp/blurhash) - A very compact representation of a placeholder for an image.
+
+        这个工具可以提取图片的颜色分布，生成一个哈希字符串。网页就可以用这个哈希，生成图片的模糊缩略图。
+
+    - [primitive](https://github.com/fogleman/primitive) - Reproducing images with geometric primitives.
+
+        可以用数百个椭圆、矩形、三角形等简单的图形对图片进行拟合，还支持以 SVG 的矢量格式输出
+
 - [The “Blur Up” Technique for Loading Background Images](https://css-tricks.com/the-blur-up-technique-for-loading-background-images/)
 - [CSS blur and retain sharp edges using absolute div](https://stackoverflow.com/questions/20443283/css-blur-and-retain-sharp-edges-using-absolute-div#answer-48095387)
 
