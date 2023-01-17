@@ -1,0 +1,1 @@
+- [FFmpeg.guide](https://ffmpeg.guide/) - 一个图形界面，用户拖曳生成线框，表示视频处理的各种命令节点。这个软件会根据节点线框，生成对应的 FFmpeg 命令。
