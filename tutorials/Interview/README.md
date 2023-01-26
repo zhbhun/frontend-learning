@@ -105,7 +105,9 @@ ps：聊公司和工作职责 =》重点参与的业务和项目 =》 围绕项�
 - [「推荐」前端新手如何做简历](https://zhuanlan.zhihu.com/p/23105699)
 - [geekcompany/DeerResume](https://github.com/geekcompany/DeerResume)
 - [Standard Resume](https://standardresume.co/?ref=usniemvuilaptrinh) - A web application to help create beautiful resume/cv for designers, developers.
+- [rxresu](https://rxresu.me/) / https://github.com/AmruthPillai/Reactive-Resume
 
+    这是一个开源的简历制作工具网站，你可以创建任意数量的简历。也可以把简历导出为 JSON 备份到自己的设备。产品做的非常干净好看。编辑界面也很方便。
 
 ## 参考
 

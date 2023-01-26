@@ -285,6 +285,12 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 - [GRID](https://www.grid.is/), [Layer](https://golayer.io/), [Sheetgo](https://www.sheetgo.com/): Adding collaboration and workflow features on top of MS Excel and Google Sheets.
 - [Opvia](https://www.opvia.bio/), [Morta](https://morta.io/), [Sensivo](https://www.sensivo.eu/): industry-specific spreadsheets providing powerful automations. Respectively, they have been called “The Airtable for Scientists”, “The Airtable for the Architecture, - Engineering & Construction industries”, and “The Airtable for Clinical Researchers”.
 
+#### 简历
+
+- [rxresu](https://rxresu.me/) / https://github.com/AmruthPillai/Reactive-Resume
+
+    这是一个开源的简历制作工具网站，你可以创建任意数量的简历。也可以把简历导出为 JSON 备份到自己的设备。产品做的非常干净好看。编辑界面也很方便。
+
 ### 其他
 
 - [ToolJet](https://github.com/ToolJet/ToolJet) - Extensible low-code framework for building business applications. Connect to databases, cloud storages, GraphQL, API endpoints , Airtable, etc and build apps using drag and drop application builder. Built using JavaScript/TypeScript. 
