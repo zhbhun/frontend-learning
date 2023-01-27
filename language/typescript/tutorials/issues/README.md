@@ -16,4 +16,12 @@
 
 ## 不支持 package export
 
+问题
+
 - [Support for NodeJS 12.7+ package exports](https://github.com/microsoft/TypeScript/issues/33079)
+
+
+解决
+
+- https://github.com/microsoft/TypeScript/issues/33079#issuecomment-1216866007
+- [Module Resolution - moduleResolution](https://www.typescriptlang.org/tsconfig#moduleResolution)
