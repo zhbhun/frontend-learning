@@ -58,6 +58,8 @@
 
 ## 技术要点
 
+- [如何抽象可视化搭建](https://github.com/ascoders/weekly/blob/master/%E5%8F%AF%E8%A7%86%E5%8C%96%E6%90%AD%E5%BB%BA/268.%E5%A6%82%E4%BD%95%E6%8A%BD%E8%B1%A1%E5%8F%AF%E8%A7%86%E5%8C%96%E6%90%AD%E5%BB%BA.md)
+
 ### DSL
 
 存在问题：
@@ -220,6 +222,8 @@ TODO
     参考 figam，以多选拖拽的起点起点为准，如果是空白区域，那么就按整体来做拖拽，如果是流式布局子元素，那么以这个子元素为准，如果是自由布局子元素，那么以这个资源素为准。
 
 ### 组件
+
+- [组件注册与画布渲染](https://github.com/ascoders/weekly/blob/master/%E5%8F%AF%E8%A7%86%E5%8C%96%E6%90%AD%E5%BB%BA/269.%E7%BB%84%E4%BB%B6%E6%B3%A8%E5%86%8C%E4%B8%8E%E7%94%BB%E5%B8%83%E6%B8%B2%E6%9F%93.md)
 
 #### 组件动态加载
 
