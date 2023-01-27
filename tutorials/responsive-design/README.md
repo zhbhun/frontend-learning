@@ -49,6 +49,16 @@
 - [What is the ideal screen size for responsive design?](https://www.browserstack.com/guide/ideal-screen-sizes-for-responsive-design)
 - [Bootstrap Available breakpoints](https://getbootstrap.com/docs/5.0/layout/breakpoints/)
 
+## 工具
+
+- [responsively-app](https://github.com/responsively-org/responsively-app)
+
+    A modified web browser that helps in responsive web development. A web developer's must have dev-tool.
+
+- [Mobile simulator - responsive testing tool](https://chrome.google.com/webstore/detail/mobile-simulator-responsi/ckejmhbmlajgoklhgbapkiccekfoccmk?utm_source=chrome-ntp-icon)
+
+    Smartphone and tablet simulator on computer with several models to test mobile responsive websites.
+
 ## 示例
 
 - 网易手机网：https://3g.163.com/
