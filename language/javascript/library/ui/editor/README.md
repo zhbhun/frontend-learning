@@ -81,6 +81,7 @@
 
     - [FranzSkuffka/vue-medium-editor](https://github.com/FranzSkuffka/vue-medium-editor)
 
+- [lexical](https://github.com/facebook/lexical) - Lexical is an extensible text editor framework that provides excellent reliability, accessibility and performance.
 - [pell](https://github.com/jaredreich/pell)
 
     - https://github.com/DotCoyote/vue-pell-editor
