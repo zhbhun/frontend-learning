@@ -147,7 +147,7 @@ ps：
 - https://zhuanlan.zhihu.com/p/41699218
 - https://gist.github.com/Ariex/6e5b68bdb3f5e96275d3069d7dbb5579
 
-## 实践
+## 问题
 
 ### has/in vs getOwnPropertyNames() vs keys()
 
@@ -156,6 +156,10 @@ TODO: ...
 ### 检测全局变量污染
 
 - [Track down the JavaScript code responsible for polluting the global scope](https://mmazzarolo.com/blog/2022-02-16-track-down-the-javascript-code-responsible-for-polluting-the-global-scope/)
+
+### keys 返回值的排列顺序
+
+- [Object.keys()是按什么顺序返回值的？](https://segmentfault.com/a/1190000018306931)
 
 ## TODO
 
