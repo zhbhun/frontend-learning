@@ -13,9 +13,12 @@ const App: Component = () => {
         component={lazy(() => import('./pages/basics/components/children'))}
       />
       <Route
+        path="/basics/control-flow/show"
+        component={lazy(() => import('./pages/basics/control-flow/show'))}
+      />
+      <Route
         path="/basics/props"
         component={lazy(() => import('./pages/basics/props'))}
-      />
       />
       <Route
         path="/basics/more"
