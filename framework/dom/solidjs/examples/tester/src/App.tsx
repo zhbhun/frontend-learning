@@ -13,6 +13,11 @@ const App: Component = () => {
         component={lazy(() => import('./pages/basics/components/children'))}
       />
       <Route
+        path="/basics/props"
+        component={lazy(() => import('./pages/basics/props'))}
+      />
+      />
+      <Route
         path="/basics/more"
         component={lazy(() => import('./pages/basics/more'))}
       />
