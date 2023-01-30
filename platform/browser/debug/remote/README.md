@@ -15,26 +15,43 @@
     - Safari Webkit Devtools Protocol
     - VSCode Debug Adapter Protocol
 
-- 调试通断
+- 通信通道
 
     - usb
     - websocket
 
 ## 发展历程
 
-1. alert/console
-2. [weinre](https://people.apache.org/~pmuellr/weinre/docs/latest/Home.html)
+1. alert
+2. 远程模拟调试：[weinre](https://people.apache.org/~pmuellr/weinre/docs/latest/Home.html)
+
+    能力有限，比如无法调试源码、监控所有请求
+
 3. USB 连接调试
 
-    - iOS：Safari Web Inspector
+    - iOS：
+    
+        - Safari Web Inspector
+        - ios-webkit-debug-proxy + remotedebug-ios-webkit-adapter
+
     - android：Chrome Devtools
 
-4. CDP 生态
+    够实现完整的调试能力，但引入了 USB 作为调试通道，增加了远程调试成本，且不适用于跨地远程调试
 
-    - iOS：ios-webkit-debug-proxy + remotedebug-ios-webkit-adapter
-    - [chii](https://github.com/liriliri/chii) - Remote debugging tool like weinre, replacing web inspector with the latest chrome devtools frontend.
+4. 前端模拟调试：VConsole/Eruda
+5. CDP 远程模拟调试：[chii](https://github.com/liriliri/chii) - Remote debugging tool like weinre, replacing web inspector with the latest chrome devtools frontend.
 
-5. 未来：WIFI + CDP
+    于 2020.4 推出，对标 weinre 的能力，只是将 webkit protocol 改为 Chrome Devtools Protocol ，weinre 无法获取到的，chii 也无法获取，比如网络只能捕获 xhr。
+
+6. 未来：WIFI + CDP
+
+总结：
+
+- 前端调试：alert =》 VConsole/Eruda
+- 远程调试：
+
+    - CDP 调试：USB =》 WIFI
+    - 模拟调试：weinre =》wii
 
 ## 参考文献
 
