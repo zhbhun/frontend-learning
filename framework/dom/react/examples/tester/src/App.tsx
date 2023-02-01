@@ -1,20 +1,17 @@
-import React, { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
-import "./App.css";
+import React, { Suspense, lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import './App.css';
 
-const Home = lazy(() => import("./pages/home"));
-const InputEventTester = lazy(() => import("./pages/event/input"));
-const FormControlsTester = lazy(() => import("./pages/form/controls"));
-const LifecycleErrorTester = lazy(() => import("./pages/lifecycle/error"));
-const RefForwardRefTester = lazy(() => import("./pages/ref/forward-ref"));
-const ElementChildrenTester = lazy(() => import("./pages/element/children"));
-const SuspenseLazyIssueTester = lazy(
-  () => import("./pages/suspense/lazy/issue")
-);
-const SuspenseLazyTransitionTester = lazy(
-  () => import("./pages/suspense/lazy/transition")
-);
-const SuspenseTest = lazy(() => import("./pages/suspense/test/index"));
+const Home = lazy(() => import('./pages/home'));
+const InputEventTester = lazy(() => import('./pages/event/input'));
+const FormControlsTester = lazy(() => import('./pages/form/controls'));
+const LifecycleErrorTester = lazy(() => import('./pages/lifecycle/error'));
+const LifecycleInsertionTester = lazy(() => import('./pages/lifecycle/insertion'));
+const RefForwardRefTester = lazy(() => import('./pages/ref/forward-ref'));
+const ElementChildrenTester = lazy(() => import('./pages/element/children'));
+const SuspenseLazyIssueTester = lazy(() => import('./pages/suspense/lazy/issue'));
+const SuspenseLazyTransitionTester = lazy(() => import('./pages/suspense/lazy/transition'));
+const SuspenseTest = lazy(() => import('./pages/suspense/test/index'));
 
 function App() {
   return (
@@ -49,6 +46,14 @@ function App() {
           element={
             <Suspense>
               <LifecycleErrorTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lifecycle/insertion"
+          element={
+            <Suspense>
+              <LifecycleInsertionTester />
             </Suspense>
           }
         />
