@@ -1,0 +1,1 @@
+- [The State of JS 2022](https://2022.stateofjs.com/)
