@@ -1,5 +1,19 @@
-CSS
-========
+# CSS
+
+## CSS 层级上下文
+
+```html
+<div id="1" style="position: relative;">
+  <div id="2" style="position: absolute; z-index: 1" />
+</div>
+<div id="3" style="position: relative; z-index: 0">
+  <div id="4" style="position: fixed; z-index: 2" />
+</div>
+<div id="5">
+<!-- 1 > 4 > 3 > 2 > 5 -->
+```
+
+---
 
 ## 盒模型
 
