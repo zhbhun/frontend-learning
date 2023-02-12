@@ -1,3 +1,7 @@
+- [SPA vs. MPA: Pros, Cons & How To Make Final Choice](https://www.simicart.com/blog/spa-vs-mpa/)
+
+---
+
 # 客户端
 
 ## 常见问题

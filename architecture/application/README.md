@@ -1,1 +1,0 @@
-- [SPA vs. MPA: Pros, Cons & How To Make Final Choice](https://www.simicart.com/blog/spa-vs-mpa/)

@@ -19,3 +19,9 @@
 - [RBAC vs. ABAC: What’s the Difference?](https://www.dnsstuff.com/rbac-vs-abac-access-control)
 - [ABAC - 基于属性的访问控制 - 复杂场景下访问控制解决之道](https://blog.csdn.net/XiaoBeiTu/article/details/100773968)
 - [系统权限控制模型](https://www.cnblogs.com/cnblogs-wangzhipeng/p/12333982.html)
+
+---
+
+
+- [系统权限控制模型](https://www.cnblogs.com/cnblogs-wangzhipeng/p/12333982.html)
+- [基于Open Policy Agent的权限设计探索](https://miao1007.github.io/%E5%9F%BA%E4%BA%8Eopen-policy-agent%E7%9A%84%E6%9D%83%E9%99%90%E8%AE%BE%E8%AE%A1%E6%8E%A2%E7%B4%A2/)
