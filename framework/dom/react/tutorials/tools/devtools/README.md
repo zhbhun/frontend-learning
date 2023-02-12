@@ -26,6 +26,7 @@
 
     浏览器 React 调试工扩展
 
+- [click-to-component](https://github.com/ericclemmons/click-to-component) - Option+Click React components in your browser to instantly open the source in VS Code
 
 
 ## 参考文献
