@@ -1,4 +1,4 @@
-import { useInsertionEffect, useState } from 'react';
+import { useInsertionEffect, useLayoutEffect, useState } from 'react';
 
 function Demo1({ status }: { status: 0 | 1 }) {
   useInsertionEffect(() => {
@@ -20,6 +20,17 @@ function Demo2({ status }: { status: 0 | 1 }) {
   return <div>demo2: {status}</div>;
 }
 
+function Demo3() {
+  const [support, setSupport] = useState(true);
+  useLayoutEffect(() => {
+    const display = 'content-0';
+    const ele = document.createElement('div');
+    ele.style.display = display;
+    setSupport(ele.style.display === display);
+  }, []);
+  return support ? <div>3-1</div> : <div>3-0</div>;
+}
+
 export default function InsetionTester() {
   const [status, setStatus] = useState<0 | 1>(0);
   return (
@@ -29,6 +40,7 @@ export default function InsetionTester() {
       </div>
       {status === 0 ? <Demo1 status={status} /> : null}
       <Demo2 status={status} />
+      <Demo3 />
     </div>
   );
 }
