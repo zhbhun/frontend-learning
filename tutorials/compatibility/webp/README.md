@@ -1,0 +1,1 @@
+- [Detecting WebP support](https://stackoverflow.com/questions/5573096/detecting-webp-support)
