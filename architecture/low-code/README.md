@@ -182,6 +182,11 @@ quickly, and save time & money.
 - [lowcode-engine](https://github.com/alibaba/lowcode-engine) - 一套面向扩展设计的企业级低代码技术体系
 - [tmagic-editor](https://github.com/Tencent/tmagic-editor)
 - [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
+- [Webstudio](https://github.com/webstudio-is/webstudio) - Webstudio is an Open Source Visual Development Platform for developers, designers, and cross-functional teams.
+You own the data, components, and infrastructure.
+
+    - [Webstudio - next generation visual development](https://dev.to/oleg008/webstudio-next-generation-visual-development-4d0d)
+
 - [luban-h5](https://github.com/ly525/luban-h5)
 - [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
 - [H5-Dooring](https://github.com/MrXujiang/h5-Dooring) / https://github.com/MrXujiang/pc-Dooring
