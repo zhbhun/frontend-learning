@@ -1,3 +1,90 @@
+## ECMAScript
+
+### 请简述 JavaScript 中 的 this
+
+- 在调用函数时使用 new 关键字，函数内的 this 是一个全新的对象。
+- 如果 apply、call 或 bind 方法用于调用、创建一个函数，函数内的 this 就是作为参数传入这些方法的对象。
+- 当函数作为对象里的方法被调用时，函数内的 this 是调用该函数的对象。比如当 obj.method() 被调用时，函数内的 this 将绑定到 obj 对象。
+- 如果调用函数不符合上述规则，那么 this 的值指向全局对象（global object）。浏览器环境下 this 的值指向 window 对象，但是在严格模式下('use strict')，this的值为 undefined。
+- 如果符合上述多个规则，则较高的规则（1 号最高，4 号最低）将决定 this 的值。
+- 如果该函数是 ES2015 中的箭头函数，将忽略上面的所有规则，this 被设置为它被创建时的上下文。
+
+### 请解释原型继承（prototypal inheritance）的工作原理。
+
+所有 JS 对象都有一个__proto__属性，指向它的原型对象。当试图访问一个对象的属性时，如果没有在该对象上找到，它还会搜寻该对象的原型，以及该对象的原型的原型，依次层层向上搜索，直到找到一个名字匹配的属性或到达原型链的末尾。
+
+### 什么是事件循环？调用堆栈和任务队列之间有什么区别？
+
+事件循环是一个单线程循环，用于监视调用堆栈并检查是否有工作即将在任务队列中完成。如果调用堆栈为空并且任务队列中有回调函数，则将回调函数出队并推送到调用堆栈中执行。
+
+## DOM
+
+### 请解释事件委托（event delegation）
+
+事件委托是将事件监听器添加到父元素，而不是每个子元素单独设置事件监听器。当触发子元素时，事件会冒泡到父元素，监听器就会触发。这种技术的好处是：
+
+- 内存占用减少，因为只需要一个父元素的事件处理程序，而不必为每个后代都添加事件处理程序。
+- 无需从已删除的元素中解绑处理程序，也无需将处理程序绑定到新元素上。
+
+### document 中的load事件和DOMContentLoaded事件之间的区别是什么？
+
+当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载。
+
+
+
+## 函数式编程
+
+### 什么事高阶函数？
+
+高阶函数是将一个或多个函数作为参数的函数，它用于数据处理，也可能将函数作为返回结果。高阶函数是为了抽象一些重复执行的操作。一个典型的例子是 map，它将一个数组和一个函数作为参数。map 使用这个函数来转换数组中的每个元素，并返回一个包含转换后元素的新数组。JavaScript 中的其他常见示例是 forEach、filter 和 reduce。高阶函数不仅需要操作数组的时候会用到，还有许多函数返回新函数的用例。Function.prototype.bind 就是一个例子。
+
+### 你能举出一个柯里化函数（curry function）的例子吗？它有哪些好处？
+
+柯里化（currying）是一种模式，其中具有多个参数的函数被分解为多个函数，当被串联调用时，将一次一个地累积所有需要的参数。这种技术帮助编写函数式风格的代码，使代码更易读、紧凑。值得注意的是，对于需要被 curry 的函数，它需要从一个函数开始，然后分解成一系列函数，每个函数都需要一个参数。
+
+```js
+function curry(fn) {
+  /* 待实现 */
+}
+function add(a, b) {}
+const curriedAdd = curry(add);
+const addFive = curriedAdd(5);
+const result = [0, 1, 2, 3, 4, 5].map(addFive); // [5, 6, 7, 8, 9, 10]
+// ---
+function curry(fn) {
+  if (fn.length === 0) {
+    return fn;
+  }
+
+  function _curried(depth, args) {
+    return function (newArgument) {
+      if (depth - 1 === 0) {
+        return fn(...args, newArgument);
+      }
+      return _curried(depth - 1, [...args, newArgument]);
+    };
+  }
+
+  return _curried(fn.length, []);
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+var curriedAdd = curry(add);
+var addFive = curriedAdd(5);
+
+var result = [0, 1, 2, 3, 4, 5].map(addFive); // [5, 6, 7, 8, 9, 10]
+```
+
+## 参考文献
+
+- [JavaScript 问题](https://www.frontendinterviewhandbook.com/zh/javascript-questions)
+
+
+---
+
 - 怎么理解 js 语言的单线程特性？
 
 ---

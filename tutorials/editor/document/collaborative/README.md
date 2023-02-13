@@ -23,6 +23,7 @@
 
 编辑器
 
+- [etherpad-lite](https://github.com/ether/etherpad-lite)
 - [firepad](https://github.com/FirebaseExtended/firepad) - Collaborative Text Editor Powered by Firebase
 - [derby](https://github.com/derbyjs/derby): MVC framework making it easy to write realtime, collaborative applications that run in both Node.js and browsers
 - [quill-cursors](https://github.com/reedsy/quill-cursors) - A multi cursor module for Quill text editor.
