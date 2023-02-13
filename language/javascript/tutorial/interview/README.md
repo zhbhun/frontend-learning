@@ -30,7 +30,15 @@
 
 当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发，而无需等待样式表、图像和子框架的完成加载。
 
+## BOM
 
+### Service Worker
+
+- Service Worker 的生命周期是什么样的？
+- 如何更新Service Worker？
+- Service Worker 如何跨域请求资源？
+- Service Worker 在哪些方面可以提高Web应用程序的性能？
+- Service Worker 在哪些方面可能会带来安全问题？
 
 ## 函数式编程
 
