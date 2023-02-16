@@ -232,6 +232,9 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
 #### Internal Tool
 
 - [retool](https://retool.com/) - Stop wrestling with UI libraries, hacking together data sources, and figuring out access controls. Start shipping apps that move your business forward.
+
+    - [低代码独角兽Retool启示录：只给程序员提升效率，每半年估值翻倍 | 全球独角兽](https://k.sina.com.cn/article_1750070171_684ff39b02001754d.html)
+
 - [Appsmith](https://github.com/appsmithorg/appsmith)
 
     Appsmith 是一款开源低代码框架，主要用于构建管理面板、内部工具和仪表板等，允许拖放 UI 组件来构建页面，通过连接到任何 API、数据库或 GraphQL 源，并使用 JavaScript 语言编写逻辑，可以在短时间内创建内部应用程序。
