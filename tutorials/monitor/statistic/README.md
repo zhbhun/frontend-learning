@@ -29,6 +29,10 @@
 
 - [Google Analytics](https://analytics.google.com/analytics/web/)
 - [Plausible](https://plausible.io/) - Plausible is lightweight and open source web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. Made and hosted in the EU, powered by European-owned cloud infrastructure
+- [snowplow-javascript-tracker](https://github.com/snowplow/snowplow-javascript-tracker) - Snowplow event tracker for client-side and server-side JavaScript. Add analytics to your websites, web apps and servers.
+- [segmentio analytics.js](https://github.com/segmentio/analytics.js/) - Analytics.js makes it easy to collect customer data and send it to many different tools using a single, unified API.
+- [Amplitude](https://amplitude.com/) - Amplitude 是一款面向企业级客户的数据分析平台，提供了一种强大的方式来收集、分析和可视化您的用户数据。Amplitude 通过 JavaScript 库来收集事件和用户行为数据，并将其发送到后端进行处理和分析。
+- [mixpanel](https://mixpanel.com/) - Mixpanel 是另一款强大的数据分析平台，专注于用户行为分析和转化跟踪。Mixpanel 提供了一种称为“Mixpanel.js”的 JavaScript 库，可用于在 Web 应用程序中捕获事件和用户行为数据，并将其发送到后端进行分析。
 
 ## 参考文献
 
