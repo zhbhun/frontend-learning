@@ -28,6 +28,7 @@
 ## 实现方案
 
 - [Google Analytics](https://analytics.google.com/analytics/web/)
+- [posthog](https://github.com/PostHog/posthog)
 - [Plausible](https://plausible.io/) - Plausible is lightweight and open source web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. Made and hosted in the EU, powered by European-owned cloud infrastructure
 - [snowplow-javascript-tracker](https://github.com/snowplow/snowplow-javascript-tracker) - Snowplow event tracker for client-side and server-side JavaScript. Add analytics to your websites, web apps and servers.
 - [segmentio analytics.js](https://github.com/segmentio/analytics.js/) - Analytics.js makes it easy to collect customer data and send it to many different tools using a single, unified API.
