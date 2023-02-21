@@ -130,6 +130,7 @@ quickly, and save time & money.
 
 国外
 
+- [No-code Gallery](https://nocode.gallery/)
 - [wordpress](https://wordpress.com/)
 - [plasmic](https://studio.plasmic.app/)
 
@@ -137,12 +138,15 @@ quickly, and save time & money.
 
 - [wix](https://zh.wix.com/) - Wix.com是一个在线网站创建服务，能让用户在其网络上网站编辑器中拖放工具创建HTML5网站。用户可在他们的网站编辑器中加入额外的功能，例如社交网络按钮、电子商务功能、联系表格、电子报及社群论坛等。
 - [webflow](https://webflow.com) - Webflow, Inc.是一间美国公司，总部位于旧金山，为企业与设计师们提供网站建设, 网站设计与网站托管服务即SaaS 软件即服务。他们的可视化编辑器平台允许用户设计、建构和启动网站。
+- [elementor](https://elementor.com/) - Power your vision with Elementor to build, manage and host stunning websites!
 - [dhiwise](https://app.dhiwise.com)
 - [framer](https://www.framer.com/) - You’ve never made a website this fast before. Really.
 - [reactbricks](https://reactbricks.com/)
 - [softr](https://www.softr.io/)
 - [Pinegrow](https://pinegrow.com/)
 - [Squarespace](https://www.squarespace.com/) - Squarespace是一个由网站创建工具、网页托管服务及博客平台所组成，并以软件即服务模式运作的网上内容管理系统。该服务让个人或公司创建及修改网站及博客。 
+- [tilda](https://tilda.cc/) - Create beautiful websites without any code on Tilda
+- [vev](https://www.vev.design/) - Vev is the only all-in-one design platform for professionals to create and launch unique web experiences with complete creative and technical freedom.
 - [Shogun](https://getshogun.com/page-builder/) - Customize your entire Shopify store. Create an exceptional shopping experience that converts with a powerful drag-and-drop visual builder.
 - [PageFly](https://pagefly.io/) - Build the site you want - with more conversion. Make your Shopify website work and look just like your idea without coding. Gain more sales and conversion in less time.
 - [unbounce](https://unbounce.com/) - Unbounce is the AI-powered landing page builder with smart features that let you create beautiful, high-performing marketing campaigns in just a few minutes.
