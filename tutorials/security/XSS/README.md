@@ -1,3 +1,5 @@
+# XSS
+
 - 问题名称：
 
     跨站脚本攻击漏洞(XSS)
@@ -12,3 +14,13 @@
     2、转义法：对客户端输出的数据进行编码转义(建议采用该方案)
     3、内容安全策略(CSP)
     4、html实体化(<>#;/\=’)
+
+## 工具
+
+- [DOMPurify](https://github.com/cure53/DOMPurify) - a DOM-only, super-fast, uber-tolerant XSS sanitizer for HTML, MathML and SVG.
+
+    - [DOMPurify浅析](https://cloud.tencent.com/developer/article/1825938)
+
+- [sanitize-html](https://github.com/apostrophecms/sanitize-html) - Clean up user-submitted HTML, preserving whitelisted elements and whitelisted attributes on a per-element basis.
+- [js-xss](https://github.com/leizongmin/js-xss) - Sanitize untrusted HTML (to prevent XSS) with a configuration specified by a Whitelist
+- [HtmlSanitizer](https://github.com/mganss/HtmlSanitizer) - Cleans HTML to avoid XSS attacks
