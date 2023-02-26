@@ -9,6 +9,10 @@
 
 ## 生命周期
 
+注册 =》解析 =》安装 =》激活 =》空闲 =》出错/结束
+
+- [Service Worker 工作原理](https://lavas-project.github.io/pwa-book/chapter04/3-service-worker-dive.html)
+
 ### [ServiceWorker API](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorker)
 
 ServiceWorker API 是用来管理 Service Service 的公共接口，在主线程和 Service Worker 线程都可以获取
@@ -66,6 +70,18 @@ self.addEventListener('<name>', handler);
 
 ## 注册更新
 
+### 作用域
+
+- [作用域](https://lavas-project.github.io/pwa-book/chapter04/2-service-worker-register.html#%E4%BD%9C%E7%94%A8%E5%9F%9F)
+- [作用域污染](https://lavas-project.github.io/pwa-book/chapter04/2-service-worker-register.html#service-worker-%E4%BD%9C%E7%94%A8%E5%9F%9F%E6%B1%A1%E6%9F%93)
+
+### 注册设计
+
+- SPA
+- MPA
+
+### 更新机制
+
 ![](./upgrade.png)
 
 - 如果目前尚未有活跃的 Service Worker ，那就直接安装并激活。
@@ -120,11 +136,17 @@ self.addEventListener('<name>', handler);
     navigator.serviceWorker.addEventListener('controllerchange', handler)
     ```
 
-## 请求拦截
+### 容错机制
+
+https://lavas-project.github.io/pwa-book/chapter04/2-service-worker-register.html#service-worker-%E5%AE%B9%E9%94%99
+
+## 使用方法
+
+### 请求拦截
 
 TODO: ...
 
-## 缓存管理
+### 缓存管理
 
 TOOD: ...
 
@@ -148,11 +170,16 @@ TOOD: ...
     
 - 「Clients」：告诉 Service Worker 线程作用域的网页。
 
+参考文献
+
+- [Service Worker 调试](https://lavas-project.github.io/pwa-book/chapter04/4-service-worker-debug.html)
+
 ## 常见问题
 
 ## 参考文献
 
 - [科普 | Service Worker 入门指南](https://www.51cto.com/article/707436.html)
+- [《PWA 应用实战》](https://lavas-project.github.io/pwa-book/)
 
 ---
 
