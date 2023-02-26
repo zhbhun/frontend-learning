@@ -9,6 +9,10 @@
 
 - [理解CSS3 max/min-content及fit-content等width值](https://www.zhangxinxu.com/wordpress/2016/05/css3-width-max-contnet-min-content-fit-content/)
 
+## [inline-size](https://developer.mozilla.org/en-US/docs/Web/CSS/inline-size)
+
+参见实例 [inline-size](./examples/inline-size.html)
+
 ## 问题
 
 ### 如何给输入框设置最大宽度
