@@ -1,0 +1,2 @@
+- https://tresjs.org/ - TresJS Bring Three to the Vue ecosystem
+- https://github.com/troisjs/trois - ThreeJS + VueJS 3 + ViteJS 

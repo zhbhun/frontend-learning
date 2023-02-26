@@ -13,6 +13,8 @@
 
 参见实例 [inline-size](./examples/inline-size.html)
 
+[button with display:block not stretched](https://stackoverflow.com/questions/9699039/button-with-displayblock-not-stretched)
+
 ## 问题
 
 ### 如何给输入框设置最大宽度
