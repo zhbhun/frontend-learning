@@ -2,6 +2,10 @@
 
 - [Web Almanac](https://almanac.httparchive.org/)
 
+## 2023
+
+- [Pushing Interop Forward in 2023](https://webkit.org/blog/13706/interop-2023/)
+
 ## 2022
 
 - [Working together on Interop 2022](https://webkit.org/blog/12288/working-together-on-interop-2022/)
