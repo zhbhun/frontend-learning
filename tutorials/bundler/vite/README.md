@@ -18,6 +18,12 @@
 
 - [vitesse](https://github.com/antfu/vitesse)
 
+## 应用
+
+### CSS
+
+- [如何使用 Vite.js 构建 CSS 库](https://www.freecodecamp.org/chinese/news/build-a-css-library-with-vitejs/)
+
 ## 问题
 
 ### `require is not defined`
