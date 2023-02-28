@@ -19,9 +19,55 @@
 - [2015前端组件化框架之路](https://github.com/xufei/blog/issues/19)
 - [组件化——前端编程的选择](http://geek.csdn.net/news/detail/129016)
 
-## 原则
+## 设计
 
-- 响应式设计
+原则
+
+- 易用性
+
+    - 合理拆解组件：不能将整个页面杂糅为一个组件，也不能将每一小块UI都封装为组件，组件开发者需要根据组件功能和目标来确定组件封装粒度。
+
+        - 当该组件需要承载具体的额外功能时，相较于新增 API ，封装成独立的组件是更好的选择。
+
+            例如：InputTag组件 在 Input、Tag 的基础上，增加了部分交互功能，API整合了两个组件的属性，作为一个全新的组件提供给开发者使用。相似的，InputNumber、AutoComplete、Mentions等组件也是基于单一职责原则封装的特定功能组件。
+        
+        - 当组件中存在可能被单独使用、可以承载独立功能的子组件时，可以将其以内部组件的形式提供。
+
+            例如：图片预览功能通常依托着图片组件使用，在实际系统中，唤起图片预览的触发器不一定是图片，可能是按钮或其他触发事件，因此预览组件需要单独提供给开发者使用。预览组件作为 Image 的内部组件，开发者能够以Image.Preview、Image.PreviewGroup的方式使用，并提供左右切换、图片缩放等功能，用户可以通过 srcList、visible、actions、scales等API来控制并定制化预览组件。
+    
+    - 规范的 API 编写
+
+        - 减少必填的API项
+        - 使用通用且有意义的API命名：
+        
+            - onXXX：命名监听/触发方法
+            - renderXXX：命名渲染方法
+            - xxxProps：命名子组件属性
+            - 优先使用常见单词进行命名，如：value、visible、size、disabled、label、type等等
+
+        - 提供类型模块供外部使用
+        - 在类型文件中，为API编写注释；
+
+    - [Slot] 与 [Props] 的选择
+
+        例如：Card 组件一种方式是将 head、content、footer 的内部组件属性全部以 Card 组件的属性传递进去，另外一种方式是使用插槽的方式编写
+
+- 可扩展性
+
+    - 预设好插槽供外部扩展
+    - 通过作用域插槽来提供更高灵活度的扩展
+    - 布尔类型和枚举类型的选择
+    
+        例如：选择器的类型："single" | "multiple" | "cascader" | "region" | "time"，对比布尔属性扩展性更强
+
+    - Headless UI：Headless UI 是基于 React Hooks 的组件开发设计理念，强调只负责组件的状态及交互逻辑，不关注组件的样式实现。
+
+        - 将组件划分为多个原子组件，使用者可以通过填充组件或修改样式的方式来实现自己的需求
+        - 以Hooks的方式暴露内置交互功能的子组件属性，使用者可以将这些属性应用于任意组件上，由于没有将样式封装到组件中，Headless组件实现了最大程度的视图层可扩展性。
+
+参考
+
+- [浅谈前端组件设计](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247502829&idx=1&sn=d641fcca397998c59b7b5c842bd13222)
 
 ## 框架
 
@@ -108,80 +154,13 @@
         - 文本对齐
         - 文本大小写
 
-## 内容
+参考
 
-### 导航条
-
-- 商标
-- 表单
-- 菜单
-
-### 侧边栏
-
-**话题列表**
-
-- 登录表单
-- 用户相关：信息，发帖，收藏，关注...
-- 热门话题
-- 热门用户
-- 消息通知
-- 友情网站
-- 客户端二维码
-
-**话题明细**
-
-- 作者信息
-- 作者相关话题
-- 关注作者的人
-- 话题关注人
-
-### 页脚
-
-- 简介
-- 声明
-- 联系
-- 链接：RSS，用户协议，建议反馈，常见问题，人才招聘
-- 备案
-- 赞助商
-
-### 示例
-
-- 知乎
-- 雪球
-- cnode
+- [这个控件叫什么](https://www.zhihu.com/column/c_87416856) - 
 
 ## 实现
 
-- [Bootstrap](http://www.bootcss.com/)
-
-    - [bootswatch](https://github.com/thomaspark/bootswatch)
-    - [jquery-ui-bootstrap](https://github.com/jquery-ui-bootstrap/jquery-ui-bootstrap)
-
-- [Foundation](https://foundation.zurb.com/)
-- [Flat-UI](https://github.com/designmodo/Flat-UI)
-- [Semantic UI](http://www.semantic-ui.cn/)
-- [Metro-UI-CSS](https://github.com/olton/Metro-UI-CSS)
-- [Bulma](https://bulma.io/)
-- [Buttons](https://github.com/alexwolfe/Buttons)
-- Material
-
-    - [material-components-web](https://github.com/material-components/material-components-web)
-    - [material-design-lite](https://github.com/google/material-design-lite)
-
-## 对比
-
-- [Twitter Bootstrap 和 Zurb Foundation 各有何优劣？](https://www.zhihu.com/question/21407797)
-- [Bootstrap 3 与 Foundation 5 的五大区别](https://ruby-china.org/topics/17143)
-- [Bootstrap vs Foundation: Who Has An Upper Hand?](https://blog.templatetoaster.com/bootstrap-vs-foundation/)
-- [Bootstrap vs. Foundation: Which Framework Is Right for You?](https://www.upwork.com/hiring/development/bootstrap-vs-foundation-which-framework-is-right-for-you/)
-- [Bootstrap vs Foundation – Top 2 CSS Frameworks](https://www.keycdn.com/blog/bootstrap-vs-foundation/)
-
-## 参考文献
-
-- [Web应用的组件化开发（一）](http://blog.jobbole.com/56161/)
 - [前端组件化开发实践](http://web.jobbole.com/82689/)
 - [大规模的前端组件化与模块化](http://www.infoq.com/cn/news/2014/04/front-end-modular)
 - [UI Play Book](https://uiplaybook.dev/) - Compilation of documents for building UI components.
-- [这个控件叫什么](https://www.zhihu.com/column/c_87416856) - 
 - [Notes on maintaining an internal React component library](https://www.gabe.pizza/notes-on-component-libraries/)
-- [浅谈前端组件设计](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247502829&idx=1&sn=d641fcca397998c59b7b5c842bd13222)
