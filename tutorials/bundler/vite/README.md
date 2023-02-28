@@ -10,6 +10,8 @@
 
     - https://juejin.cn/post/7012446423367024676
 
+- [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer) - Visuallize your bundle
+
 ### SSR/SSG
 
 - [vite-ssg](https://github.com/antfu/vite-ssg) - Static site generation for Vue 3 on Vite
