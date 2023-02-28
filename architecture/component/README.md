@@ -184,3 +184,4 @@
 - [UI Play Book](https://uiplaybook.dev/) - Compilation of documents for building UI components.
 - [这个控件叫什么](https://www.zhihu.com/column/c_87416856) - 
 - [Notes on maintaining an internal React component library](https://www.gabe.pizza/notes-on-component-libraries/)
+- [浅谈前端组件设计](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247502829&idx=1&sn=d641fcca397998c59b7b5c842bd13222)
