@@ -7,6 +7,7 @@ const InputEventTester = lazy(() => import('./pages/event/input'));
 const FormControlsTester = lazy(() => import('./pages/form/controls'));
 const LifecycleErrorTester = lazy(() => import('./pages/lifecycle/error'));
 const LifecycleInsertionTester = lazy(() => import('./pages/lifecycle/insertion'));
+const LifecycleRefTester = lazy(() => import('./pages/lifecycle/ref'));
 const RefForwardRefTester = lazy(() => import('./pages/ref/forward-ref'));
 const ElementChildrenTester = lazy(() => import('./pages/element/children'));
 const SuspenseLazyIssueTester = lazy(() => import('./pages/suspense/lazy/issue'));
@@ -54,6 +55,14 @@ function App() {
           element={
             <Suspense>
               <LifecycleInsertionTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lifecycle/ref"
+          element={
+            <Suspense>
+              <LifecycleRefTester />
             </Suspense>
           }
         />
