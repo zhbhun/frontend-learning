@@ -6,6 +6,7 @@ const Home = lazy(() => import('./pages/home'));
 const InputEventTester = lazy(() => import('./pages/event/input'));
 const FormControlsTester = lazy(() => import('./pages/form/controls'));
 const LifecycleErrorTester = lazy(() => import('./pages/lifecycle/error'));
+const ImperativeHandleTester = lazy(() => import('./pages/lifecycle/imperative-handle'));
 const LifecycleInsertionTester = lazy(() => import('./pages/lifecycle/insertion'));
 const LifecycleRefTester = lazy(() => import('./pages/lifecycle/ref'));
 const RefForwardRefTester = lazy(() => import('./pages/ref/forward-ref'));
@@ -47,6 +48,14 @@ function App() {
           element={
             <Suspense>
               <LifecycleErrorTester />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/lifecycle/imperative-handle"
+          element={
+            <Suspense>
+              <ImperativeHandleTester />
             </Suspense>
           }
         />
