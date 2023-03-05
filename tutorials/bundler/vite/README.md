@@ -49,3 +49,8 @@
 ### 第三方库样式重复引入问题
 
 1. 类似 antd 这样的库提供了两种模块：commonjs 和 esmodule，两种模块都有样式文件，很可能是混用导致的。
+
+### 第三方库混用了 esmodule 和 commonjs 时，vite 转译失效
+
+- [build.commonjsOptions](https://cn.vitejs.dev/config/build-options.html#build-commonjsoptions)
+- [transformMixedEsModules](https://github.com/rollup/plugins/tree/master/packages/commonjs)
