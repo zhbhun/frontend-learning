@@ -64,6 +64,8 @@ setTimeout(() => {
 ### CSS Module
 
 - [Using CSS Module Scripts to import stylesheets](https://web.dev/css-module-scripts/)
+- [Feature: CSS module scripts](https://chromestatus.com/feature/5948572598009856)
+- [JavaScript statement: import: Import assertions](https://caniuse.com/mdn-javascript_statements_import_import_assertions)
 
 ### 兼容性
 
