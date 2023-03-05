@@ -45,3 +45,7 @@
 ### 第三方库 less 引入另外一个第三方库的样式文件时找不到的问题
 
 参见 [](./examples/css-import-in-vendor/README.md)
+
+### 第三方库样式重复引入问题
+
+1. 类似 antd 这样的库提供了两种模块：commonjs 和 esmodule，两种模块都有样式文件，很可能是混用导致的。
