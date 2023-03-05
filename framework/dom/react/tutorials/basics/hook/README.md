@@ -236,6 +236,11 @@ const App = () => {
 
 - [useInsertionEffect in Strict mode with strict effects](https://github.com/reactjs/reactjs.org/issues/4825)
 
+
+### react-hooks/exhaustive-deps 无法识别自定义 hook 返回的 useRef
+
+- [Bug: react-hooks/exhaustive-deps complains about useRef encapsulated in custom hook](https://github.com/facebook/react/issues/20752)
+
 ## 参考文献
 
 - [Making Sense of React Hooks](https://medium.com/@dan_abramov/making-sense-of-react-hooks-fdbde8803889)
