@@ -8,7 +8,7 @@
 - [Vite Rollup Plugins](https://vite-rollup-plugins.patak.dev/)
 - [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components) - On-demand components auto importing for Vue
 
-    - https://juejin.cn/post/7012446423367024676
+  - https://juejin.cn/post/7012446423367024676
 
 - [rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer) - Visuallize your bundle
 
@@ -41,3 +41,7 @@
 解决：Use Rollup's augmentChunkHash hook to ensure hash takes account of chunk.viteMetadata.importedCss
 
 - [fix(build): invalidate chunk hash when css changed ](https://github.com/vitejs/vite/pull/11475)
+
+### 第三方库 less 引入另外一个第三方库的样式文件时找不到的问题
+
+参见 [](./examples/css-import-in-vendor/README.md)
