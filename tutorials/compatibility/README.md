@@ -37,3 +37,7 @@
 - https://david-smith.org/iosversionstats/
 - [移动前端开发经验指南](https://github.com/doyoe/trip#user-content-checked-sibling-bug)
 - https://github.com/lazd/iNoBounce
+
+## 参考文献
+
+- [Browsers support for README.md](https://gotbahn.github.io/browsers-support-badges/)

@@ -288,7 +288,7 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
     - [什么是零代码开发平台，为什么企业IT应该重视？](https://blog.mingdao.com/11346.html)
 
 - [码匠](https://majiang.co/) - 快速开发内部系统，写 SQL、配置组件，即可获得功能完善的内部应用，让您可以专注于业务发展。
-
+- [rxeditor](https://github.com/rxdrag/rxeditor) - Design anything based on HTML. —— https://www.v2ex.com/t/920089?p=2
 
 ---
 
