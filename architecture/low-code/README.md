@@ -404,4 +404,6 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 - [云凤蝶低代码之路](https://developer.aliyun.com/article/786592#slide-6)
 - [React：搞了半天，我才是低代码的最佳形态](https://zhuanlan.zhihu.com/p/561674446)
 - [盘点12个 yyds 的低代码开源项目](https://zhuanlan.zhihu.com/p/554893860)
-- [什么是比较好的低代码产品](https://tw93.fun/2023-01-02/low-code.html)
+- [什么是比较好的低代码产品](https://tw93.fun/2023-01-02/low-code.html) / 什么是比较好的低代码产品
+
+    > 其实低代码产品是比较难做成的，特别是大而全的那种，由于考虑因素过多，导致步调很慢，也很难做到很易用，导致一边投入很大，一边又急切上线落地使用，从而出现平台方觉得投入很苦，使用方觉得不太好用还需吃狗粮的矛盾，往往需经过忍耐很长时间才可「守得云开见月明」，不过很多都在没有见月明的时候就奄奄一息了。反而专门领域的比如说表单、表格、图表低代码搭建活的很不错。还有一些 BaaS 类单领域的活得也还可以，我个人更偏向「易用的可很轻快解决对应领域问题低代码产品方案」。

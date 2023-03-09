@@ -11,6 +11,10 @@
 - [imagemin](https://github.com/imagemin/imagemin)
 - [ImageOptim](https://imageoptim.com/mac)
 
+## 懒加载
+
+- [现代图片性能优化及体验优化指南 - 懒加载及异步图像解码方案](https://zhuanlan.zhihu.com/p/610012610)
+
 ## 渐进式加载
 
 - [图片渐进式加载的实现方法](https://akarin.dev/2021/11/04/progressive-image-loading/)
