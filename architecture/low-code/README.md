@@ -144,6 +144,8 @@ quickly, and save time & money.
 
 - [No-code Gallery](https://nocode.gallery/)
 - [wordpress](https://wordpress.com/)
+- [dedecms](https://www.dedecms.com/)
+- [discuz](https://discuz.com/)
 - [plasmic](https://studio.plasmic.app/)
 
     - [设计系统的未来](https://www.bilibili.com/video/BV1KG4y1x75q/?spm_id_from=333.337.search-card.all.click&vd_source=2e69ba889e556e858093542d78fc08c0)
