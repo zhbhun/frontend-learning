@@ -1,5 +1,13 @@
 # Element
 
+## 遍历
+
+- [Node.nextSibling](https://developer.mozilla.org/en-US/docs/Web/API/Node/nextSibling)
+- [Node.previousSibling](https://developer.mozilla.org/en-US/docs/Web/API/Node/previousSibling)
+- [Element.nextElementSibling](https://developer.mozilla.org/en-US/docs/Web/API/Element/nextElementSibling)
+- [Element.previousElementSibling](https://developer.mozilla.org/en-US/docs/Web/API/Element/previousElementSibling) - 
+- [Document.createTreeWalker()](https://developer.mozilla.org/en-US/docs/Web/API/Document/createTreeWalker)
+
 ## offset vs client vs scroll
 
 ![offset-vs-client-vs-scroll.png](./offset-vs-client-vs-scroll.png)
