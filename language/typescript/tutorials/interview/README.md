@@ -57,19 +57,40 @@
 
 - 编写一个泛型函数，将函数的返回值缓存起来，避免重复计算。
 
-    ```ts
-    function memoize<T, U>(fn: (arg: T) => U): (arg: T) => U {
-      const cache = new Map<T, U>();
-      return arg => {
-        if (cache.has(arg)) {
-          return cache.get(arg);
+
+    - 问题
+
+        ```ts
+        // 编写一个函数，将函数的返回值缓存起来，避免重复计算。
+        function memoize(fn) {
         }
-        const result = fn(arg);
-        cache.set(arg, result);
-        return result;
-      };
-    }
-    ```
+
+
+        function test(value: number) {
+            return value * 2;
+        } 
+
+        const memozeTest = memoize(test);
+
+        memozeTest(1); // 2
+        memozeTest(1); // 2
+        ```
+
+    - 答案
+
+        ```ts
+        function memoize<T, U>(fn: (arg: T) => U): (arg: T) => U {
+        const cache = new Map<T, U>();
+        return arg => {
+            if (cache.has(arg)) {
+            return cache.get(arg);
+            }
+            const result = fn(arg);
+            cache.set(arg, result);
+            return result;
+        };
+        }
+        ```
 
 ## 参考文献
 
