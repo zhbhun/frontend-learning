@@ -291,6 +291,8 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
 - [码匠](https://majiang.co/) - 快速开发内部系统，写 SQL、配置组件，即可获得功能完善的内部应用，让您可以专注于业务发展。
 - [rxeditor](https://github.com/rxdrag/rxeditor) - Design anything based on HTML. —— https://www.v2ex.com/t/920089?p=2
 
+    - [实践，制作一个高扩展、可视化低代码前端，详实、完整](https://zhuanlan.zhihu.com/p/610182592)
+
 ---
 
 - Retool, [BRYTER](https://bryter.com/), [Forest Admin](https://www.forestadmin.com/), [Budibase](https://budibase.com/), [Jet Admin(https://www.jetadmin.io/)] - Offering users fast ways to build internal applications and digital tools they can use for their daily work.
