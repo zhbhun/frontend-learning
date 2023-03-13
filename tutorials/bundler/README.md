@@ -1,3 +1,10 @@
+- [rome](https://github.com/rome/tools) - Unified developer tools for JavaScript, TypeScript, and the web
+- [Rspack](https://mp.weixin.qq.com/s/R-tjPrj2N2DKMO8_cPsp9Q) - Rspack 是由 ByteDance Web Infra 团队孵化的基于 Rust 语言开发的 Web 构建工具，拥有高性能、兼容 Webpack 生态、定制性强等多种优点，解决了我们在业务场景中遇到的非常多的问题，让很多开发者的体验有了质的提升。
+- [farm](https://github.com/farm-fe/farm) - Super fast web build tool written in Rust
+
+    - https://github.com/farm-fe/performance-compare
+    - [Farm v0.4：最快！增加与 rspack 和 turbopack 性能对比，支持大量新特性](https://zhuanlan.zhihu.com/p/613209716)
+
 - [minipack](https://github.com/ronami/minipack)
 
 ## 打包优化
