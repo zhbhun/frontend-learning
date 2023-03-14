@@ -105,6 +105,10 @@ https://developer.chrome.com/apps/i18n
 - [Browser Platform Publisher](https://github.com/marketplace/actions/browser-platform-publisher)
 - [Publish in the Chrome Web Store](https://developer.chrome.com/docs/webstore/publish/)
 - [Register as a Chrome Web Store developer](https://developer.chrome.com/docs/webstore/register/)
+- [我是如何开发和部署一个 Chrome 扩展程序的](https://www.infoq.cn/article/uuvipcp804xkhic479o0)
+- [如何注册 Chrome Web Store 开发者账号](https://blog.byetool.com/2022/03/03/%E5%A6%82%E4%BD%95%E6%B3%A8%E5%86%8C%20Chrome%20Web%20Store%20%E5%BC%80%E5%8F%91%E8%80%85%E8%B4%A6%E5%8F%B7/)
+- [如何成为一名Chrome应用开发者](https://aliqin.github.io/2016-04-03-chrome-ext-dev/) / https://www.globalcash.hk/
+- [如何注册 Chrome Web Store 开发者账号](https://www.jianshu.com/p/a2d62d778e08)
 
 ## 问题
 
