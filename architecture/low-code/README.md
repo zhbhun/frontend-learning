@@ -184,6 +184,7 @@ quickly, and save time & money.
     这是个零代码制作 landing page 的产品，制作很不错的出海产品，作者正在 Twitter 上尝试 build in public，也在 V2EX 上发布了 [Product Hunt 发布心得](https://v2ex.com/t/904886#reply6)，如果有同样想要公开构建产品，或者计划应用出海的朋友，可以关注作者 [@LuoBaishun](https://twitter.com/luobaishun)。
 
 - [Bootstrap Studio](https://bootstrapstudio.io/) - Bootstrap Studio has a beautiful and powerful interface, which is built around the simplicity of drag and drop. This makes it the perfect tool for prototyping and designing web pages and apps.
+- [bricksbuilder](https://bricksbuilder.io/) - A Faster, More Customizable & Performant Tool To Visually Design Your Entire Site.
 
 ---
 
