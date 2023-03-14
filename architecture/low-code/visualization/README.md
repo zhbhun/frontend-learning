@@ -385,13 +385,15 @@ TODO
 
 #### 组件变体属性
 
-TOOD
+- 状态变体
 
-#### 组件动态数据
+ps：属性、交互和动画是否要支持变体？
 
-参考 [dynamic-data](./component/dynamic-data/README.md)
+#### 组件联动
 
-### 逻辑编排
+
+
+#### 逻辑编排
 
 - [精读《低代码逻辑编排》](https://github.com/ascoders/weekly/blob/master/%E5%89%8D%E6%B2%BF%E6%8A%80%E6%9C%AF/197.%E7%B2%BE%E8%AF%BB%E3%80%8A%E4%BD%8E%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91%E7%BC%96%E6%8E%92%E3%80%8B.md)
 - [RxEditor 逻辑编排](https://juejin.cn/post/7205361008272326716#heading-31)
@@ -416,8 +418,13 @@ TOOD
 
     组件之间联动：
 
-    1. 子组件可以调用父组件的的组件空值逻辑
+    1. 子组件可以调用父组件的的组件的交互逻辑（自定义的交互行为，以及变量和属性的操作）；
+    2. 兄弟组件无法相互调用，父组件也无法调用子组件；
 
+
+#### 组件动态数据
+
+参考 [dynamic-data](./component/dynamic-data/README.md)
 
 ### 样式
 
