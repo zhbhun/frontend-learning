@@ -100,6 +100,12 @@ https://developer.chrome.com/apps/i18n
 - [plasmo](https://github.com/PlasmoHQ/plasmo) - The browser extension framework
 - [browser-extension](https://github.com/Debdut/browser-extension) - A Out of the Box 🎁 Browser Extension Template with support for React, Typescript, Preact
 
+## 发布
+
+- [Browser Platform Publisher](https://github.com/marketplace/actions/browser-platform-publisher)
+- [Publish in the Chrome Web Store](https://developer.chrome.com/docs/webstore/publish/)
+- [Register as a Chrome Web Store developer](https://developer.chrome.com/docs/webstore/register/)
+
 ## 问题
 
 ### 如何下载扩展压缩包
