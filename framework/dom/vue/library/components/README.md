@@ -45,6 +45,11 @@
     - [primevue](https://github.com/primefaces/primevue) - Next Generation Vue UI Component Library
     - [lew-ui](https://github.com/lewkamtao/Lew-UI) - A beautiful component library based on vue3
 
+## Admin
+
+- [vben](https://github.com/vbenjs/vue-vben-admin)
+- [vue-element-admin](https://github.com/PanJiaChen/vue-element-adminn) - A magical vue admin
+
 ## 移动端
 
 - [framework7io/framework7](https://github.com/framework7io/framework7)
