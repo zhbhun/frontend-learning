@@ -1,0 +1,2 @@
+- [剪贴板操作 Clipboard API 教程](https://www.ruanyifeng.com/blog/2021/01/clipboard-api.html)
+- [Can I use clipboard](https://caniuse.com/?search=clipboard)
