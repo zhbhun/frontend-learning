@@ -116,3 +116,7 @@ https://developer.chrome.com/apps/i18n
 
 - https://chrome-extension-downloader.com/
 - [How to download a CRX file from the Chrome web store for a given ID?](https://stackoverflow.com/questions/7184793/how-to-download-a-crx-file-from-the-chrome-web-store-for-a-given-id)
+
+### `Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist`
+
+- [Chrome Extension message passing: Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist](https://stackoverflow.com/questions/54181734/chrome-extension-message-passing-unchecked-runtime-lasterror-could-not-establi)
