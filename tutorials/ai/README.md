@@ -1,6 +1,7 @@
 
 ## 社区
 
+- [ai weekly](https://aiweekly.co/issues/)
 - [huggingface](https://huggingface.co/) - The AI community building the future.
 
 ## 书籍
@@ -23,4 +24,5 @@
 
 - [ai-edu](https://github.com/microsoft/ai-edu) - 微软人工智能教育与学习共建社区
 - [MLU-EXPLAIN](https://mlu-explain.github.io/) - 这个网站使用一系列短文，配上大量插图，解释机器学习的一些概念。
-- [三个基础假设](https://mp.weixin.qq.com/s/jC-_B_arDpm1dsEmJLZYIw)
+- [三个基础假设](https://mp.weixin.qq.com/s/jC-_B_arDpm1dsEmJLZYIw) TOOLS DIRECTORY, UPDATED DAILY.
+- [showmeai](https://www.showmeai.tech/) - 
