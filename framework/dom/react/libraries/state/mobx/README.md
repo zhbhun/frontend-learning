@@ -6,6 +6,10 @@
 
 Action =》State =》Derived Value =》Reactions
 
+## 对比
+
+- [我为什么从Redux迁移到了Mobx](https://tech.youzan.com/mobx_vs_redux/)
+
 ## 基础
 
 ### 创建响应式对象的方式
