@@ -1,5 +1,7 @@
 # [mobx](https://zh.mobx.js.org/README.html)
 
+- https://github.com/mobxjs/awesome-mobx
+
 ## 概念
 
 Action =》State =》Derived Value =》Reactions
