@@ -129,4 +129,47 @@ box-shadow: var(--x) var(--y) var(--blur) var(--spread) var(--color);
 - [Media query range syntax on MDN](https://developer.mozilla.org/docs/Web/CSS/Media_Queries/Using_media_queries#syntax_improvements_in_level_4)
 - [Media query range syntax PostCSS plugin](https://github.com/postcss/postcss-media-minmax)
 
+## Custom Media
+
+- [Custom media queries specification](https://www.w3.org/TR/mediaqueries-5/#custom-mq)
+- [Custom media queries PostCSS plugin](https://github.com/csstools/postcss-plugins/tree/main/plugins/postcss-custom-media)
+
+### 是什么
+
+CSS @custom-media 规则定义了自定义媒体查询，可以在 CSS 中重复使用，类似于自定义变量。
+
+如下所示，假设很多模块都要设置大于等于 768px 的屏幕样式，那么每个地方都要重复的写 `@media (min-width: 768px)`，如果后期要做调整的话，需要遍历所有代码进行修改。
+
+```css
+/* page1 */
+@media (min-width: 768px) {
+}
+/* page2 */
+@media (min-width: 768px) {
+}
+```
+
+### 怎么用
+
+@custom-media 规则需要定义一个名称和一个表示式。名称必须以 `--` 开头，表示式则必须是有效的媒体查询，例如 `screen and (min-width: 768px)`。
+
+```css
+@custom-media --portrait      (orientation: portrait);
+@custom-media --landscape     (orientation: landscape);
+
+@custom-media --md-only       (480px <= width <= 768px);
+@custom-media --md-n-above    (width >= 768px);
+@custom-media --md-n-below    (width < 768px);
+@custom-media --md-phone      (--md-only) and (--portrait);
+
+@media (--md-n-above) {
+  :root {
+    …
+  }
+}
+```
+
+## 兼容性
+
+虽然目前大部分浏览器都还不支持该功能，但我们可以使用 postcss 的插件 [postcss-custom-media](https://github.com/csstools/postcss-plugins/tree/main/plugins/postcss-custom-media) 来提前使用该语法。
 

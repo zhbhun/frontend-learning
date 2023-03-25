@@ -18,4 +18,5 @@
 
 - 弱网下路由跳转阻塞
 
-    - [[Beta] Reflect pending navigation in the sidebar](https://github.com/reactjs/reactjs.org/issues/4691)
+    - [[Beta] Reflect pending navigation in the sidebar](https://gi
+    thub.com/reactjs/reactjs.org/issues/4691)
