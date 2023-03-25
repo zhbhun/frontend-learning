@@ -236,3 +236,378 @@ ps：在此之前，一般使用 JavaScript 来实现瀑布流布局，参考[�
 ### 兼容性
 
 目前只有 Firefox 版本的实现了该特性（需要开启实验性功能）。
+
+## prefers-reduced-data
+
+- [prefers-reduced-data on MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-data)
+- [prefers-reduced-data on Can I Use](https://caniuse.com/mdn-css_at-rules_media_prefers-reduced-data)
+
+### 是什么
+
+prefers-reduced-data 是 CSS 的媒体功能，用来检测用户是否要求使用消耗较少互联网流量的网络内容。
+
+### 怎么用
+
+- no-preference：默认，未开启
+- reduce：开启
+
+如下所示，在开启节省流量的情况下，通过媒体查询来隐藏图片和视频，并且使用系统字体来显示文字。
+
+```css
+@media (prefers-reduced-data: reduce) {
+  picture, video {
+    display: none;
+  }
+}
+@media (prefers-reduced-data: no-preference) {
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    /* latin */
+    src: local("Montserrat Regular"), local("Montserrat-Regular"),
+      url("fonts/montserrat-regular.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+      U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+      U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+}
+
+body {
+  font-family: Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, "Microsoft YaHei", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+}
+```
+
+### 兼容性
+
+![](./prefers-reduced-data/caniuse.png)
+
+## Scroll Snap
+
+- [scroll-snap-type](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-type)
+- [scroll-snap-align](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-align)
+- [scroll-snap-stop](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-stop)
+- [scroll-margin](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin)
+- [scroll-padding](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding)
+
+### 是什么
+
+`scroll snap` 是一个 CSS 属性，用来实现走马灯和轮播等效果。它可以将滚动行为分割成独立的片段，并将页面内容停止在容器的特定位置。这可以使页面滚动更流畅、更可预测，同时提高用户体验。
+
+### 怎么用
+
+scroll snap 属性主要有两个子属性：scroll-snap-type 和 scroll-snap-align。
+
+- `scroll-snap-type`：用于定义容器的滚动方式，可以设置为 x 或 y 表示水平或垂直滚动，并且可以将滚动行为设置为 mandatory、proximity 或 none，以定义滚动到每个片段的方式。
+- `scroll-snap-align`：用于定义每个片段的对齐方式，可以设置为 start、end、center、none 等。
+
+#### New API
+
+- `snapChanging()`：在释放一个 snap child 的时候触发
+
+    ```js
+    document.querySelector('.snap-carousel').addEventListener('snapchanging', event => {
+        console.log('Snap is changing', event.snappedTargetsList);
+    });
+    ```
+
+- `snapChanged()`：滑动到新的新的 snap child 的时候触发
+
+    ```js
+    document.querySelector('.snap-carousel').addEventListener('snapchanged', event => {
+        console.log('Snap changed', event.snappedTargetsList);
+    });
+    ```
+
+- `scroll-start`：设置初始化的滚动高度
+
+    ```css
+    :root { --nav-height: 100px }
+
+    .snap-scroll-y {
+        scroll-start-y: var(--nav-height);
+    }
+    ```
+
+- `:snap-target`：伪类选择器，匹配当前滚动捕获的 child
+
+    ```css
+    .card:snapped {
+        font-weight: 600;
+    }
+    ```
+
+参考文献
+
+- [Scroll Snap 2 draft specification](https://drafts.csswg.org/css-scroll-snap-2/)
+- [Scroll Snap 2 explainers](https://github.com/argyleink/ScrollSnapExplainers/blob/main/css-snap-target/readme.md)
+- [Snap demos](https://snap-gallery.netlify.app/)
+
+### 兼容性
+
+![](./scroll-snap/caniuse.png)
+
+## Cascade layers
+
+- [The Future of CSS: Cascade Layers (CSS @layer)](https://www.bram.us/2021/09/15/the-future-of-css-cascade-layers-css-at-layer/)
+
+
+### 是什么
+
+`@layer` 规则是一个 CSS Modules v3 中引入的新规则，它允许将样式表分解成多个层级，并指定这些层级之间的优先级顺序。
+
+有了 @layer，入口文件可以预先定义层级和它们的顺序。然后，随着样式的加载，它们可以被放置在一个层中，允许保留样式覆盖的重要性，但没有细致管理的加载协调。
+
+![](./layer/vs.mp4)
+
+### 怎么用
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      @layer libraries, components;
+    </style>
+    <style id="components">
+      @layer components {
+        .button {
+          background-color: brown;
+        }
+        button {
+          text-align: right;
+        }
+      }
+    </style>
+    <style id="libraries">
+      @layer libraries {
+        .button {
+          min-width: 200px;
+          text-align: center;
+          background-color: yellow;
+          color: white;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="button">Beware of the zombies</button>
+  </body>
+</html>
+```
+
+![](./layer/demo.png)
+
+### 兼容性
+
+![](./layer/caniuse.png)
+
+## Container queries
+
+- [Container Queries specification](https://www.w3.org/TR/css-contain-3/#container-queries)
+- [Container Queries on MDN](https://developer.mozilla.org/docs/Web/CSS/CSS_Container_Queries)
+- [The new responsive on web.dev](https://web.dev/new-responsive/#responsive-to-the-container)
+- [Awesome container queries collection](https://github.com/sturobson/Awesome-Container-Queries)
+- [Ahmad Shadeed: Say Hello To CSS Container Queries](https://twitter.com/shadeed9)
+
+### 是什么
+
+CSS Container Queries 是一项新的 Web 标准，它允许开发人员基于容器的宽度、高度、比例和其他属性来编写响应式 CSS。它的目标是让开发者能够更加灵活地设计网站布局，使布局能够更好地适应不同的屏幕大小和设备类型。
+
+### 怎么用
+
+1. 声明容器上下文：
+
+    ```css
+    .xxx {
+      container-type: inline-size;
+      container-name: xxx;
+    }
+    ```
+
+    - container-type：容器类型，用来创建容器上下文
+    - container-name：容器名称，可选
+
+2. 使用容器查询：
+
+    ```css
+    /** 按最近的父级容器查询 */
+    @container (min-width: 700px) {
+      .card h2 {
+        font-size: 2em;
+      }
+    }
+    /** 按指定名称的容器查询 */
+    @container xxx (min-width: 700px) {
+      .card h2 {
+        font-size: 2em;
+      }
+    }
+    ```
+
+### 兼容性
+
+![](./container-query/caniuse.png)
+
+## `:has()` 
+
+- [:has() on MDN](https://developer.mozilla.org/docs/Web/CSS/:has)
+- [The CSS :has() selector is way more than a "parent selector"](https://www.bram.us/2021/12/21/the-css-has-selector-is-way-more-than-a-parent-selector/)
+
+### 是什么
+
+CSS :has() 是一项新的 CSS 选择器，允许开发人员选择包含特定元素的父元素。这个选择器被称为“影子选择器”，因为它可以选择元素的祖先而不影响其样式。
+
+### 怎么用
+
+例如，要选择后代元素里有类名为 "my-class" 的父元素，且元素类型为 div，可以这样写：
+
+```css
+div:has(.my-class) {
+  /* 父元素的样式 */
+}
+div:has(.my-class1):has(.my-class2) {
+  /* 父元素的样式 */
+}
+```
+
+### `:has` vs `:is` vs `:where` vs `:not`
+
+| 选择器/区别 | 功能 | 优先级 |
+| --- | --- | --- |
+| is | 将选择器列表作为参数，并选择该列表中任意一个选择器可以选择的元素 | 取决于选择器列表中优先级最高的选择器 |
+| where | 同 is | 优先级总是为 0 |
+| not | 用来匹配不符合一组选择器的元素 | 取决于选择器列表中优先级最高的选择器 |
+| has | 父选择器 | 取决于选择器列表中优先级最高的选择器 |
+
+### 兼容性
+
+| not | is | where | has |
+| --- | --- | --- | --- |
+| ![](./logic-selector/caniuse-not.png) | ![](./logic-selector/caniuse-is.png) | ![](./logic-selector/caniuse-where.png) | ![](./logic-selector/caniuse-has.png) |
+
+## accent-color
+
+- [accent-color specification](https://www.w3.org/TR/css-ui-4/#widget-accent)
+- [accent-color on MDN](https://developer.mozilla.org/docs/Web/CSS/accent-color)
+- [accent-color on web.dev](https://web.dev/accent-color/)
+- [Bramus: Tint User-Interface Controls with CSS accent-color](https://www.bram.us/2021/08/23/tint-user-interface-controls-with-css-accent-color/)
+
+### 是什么
+
+accent-color 是 CSS 的一个属性，用于为元素的一些特定部分（如输入框、按钮、链接等）设置强调颜色。例如：为一个链接设置一个蓝色的下划线、为输入框设置一个黄色的边框等等。在使用这个属性时，浏览器会自动应用相应的颜色和样式，以确保与系统主题的一致性。
+
+![](./accent-color/demo.webp)
+
+### 怎么用
+
+在下面示例中，分别为链接、提交按钮和普通按钮设置了不同的强调颜色。
+
+```css
+a {
+  accent-color: blue;
+}
+
+input[type="submit"] {
+  accent-color: yellow;
+}
+
+button {
+  accent-color: red;
+}
+```
+
+### 兼容性
+
+![](./accent-color/caniuse.png)
+
+## inert
+
+- [Inert specification](https://html.spec.whatwg.org/multipage/interaction.html#inert)
+- [Inert on MDN](https://developer.mozilla.org/docs/Web/API/HTMLElement/inert)
+- [Chrome Developers: Introducing inert](https://developer.chrome.com/blog/inert/)
+
+### 是什么
+
+inert 是 HTML 的一个属性，用于将一个元素及其子元素设置为无效（inert），使其不响应用户事件、不可聚焦，并且不参与到页面的交互行为中。
+
+### 怎么用
+
+inert 可以实现类似 window.alert() 的效果，弹出提示框后无法与网页其他内容产生任何交互。
+
+```html
+<body>
+  <div class="modal">
+    <h2>Modal Title</h2>
+    <p>...<p>
+    <button>Save</button>
+    <button>Discard</button>
+  </div>
+  <main inert>
+    <!-- cannot be keyboard focused or clicked -->
+  </main>
+</body>
+```
+
+![](./inert/demo.mp4)
+
+#### inert vs pointer-events
+
+- inert：将元素及其子元素设置为无效状态，不响应用户事件、不可聚焦，并且不参与到页面的交互行为中。
+- pointer-events：控制元素对鼠标或触摸事件的响应，使用该属性可以将某些元素设置为不响应鼠标或触摸事件，以避免用户误操作或遮挡其他元素。但是这类元素仍然可以响应键盘事件，通过 tab 键可以让输入框获取焦点并输入信息。
+
+### 兼容性
+
+![](./inert/caniuse.png)
+
+## COLRv1 Fonts
+
+- [Colrv1 specification on Github](https://github.com/googlefonts/colr-gradients-spec)
+- [Chrome Developers: Colrv1 Fonts](https://developer.chrome.com/blog/colrv1-fonts/)
+
+### 是什么
+
+COLRv1 字体是一种特殊的 OpenType 字体，可以支持比传统字体更丰富的颜色、渐变等效果，从而在设计中提供更多的可能性。
+
+ps：COLRv1 是 COLRv0 的改进版本。
+
+### 怎么用
+
+1. 导入 COLRv1 字体
+
+    ```css
+    @import url(https://fonts.googleapis.com/css2?family=Bungee+Spice);
+    ```
+
+2. 自定义 COLRv1 字体：[@font-palette-values](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-palette-values) 可以定制由字体制作者创建的 font-palette 的默认值。
+
+    ```css
+    @font-palette-values --colorized {
+      font-family: "Bungee Spice";
+      base-palette: 0;
+      override-colors: 0 hotpink, 1 cyan, 2 white;
+    }
+
+    .spicy {
+      font-family: "Bungee Spice";
+      font-palette: --colorized;
+    }
+    ```
+
+## Viewport units
+
+在手机上加载一个页面时，会显示带有网址的导航栏，这个导航栏会消耗一些空间。经过几秒钟和一些互动，导航栏可能会滑开，以便为用户提供更大的视口体验。但是，当该条滑出时，视口的高度已经改变，任何 vh 单位都会随着目标尺寸的改变而移动和调整大小。在后来，vh 将始终代表最大的视口，并引入了一些新的单位来代表窗口改变导致的高度变化。
+
+- dvh：Dynamic viewport height
+- lvh：Largest viewport height
+- svh：Smallest viewport height
+
+![](./viewport-unit/caniuse.png)
+
+## Color level 4 and 5
