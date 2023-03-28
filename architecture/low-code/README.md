@@ -128,6 +128,9 @@ quickly, and save time & money.
 - [animaapp](https://www.animaapp.com/) - Design to code, automated.
 - [Picasso](https://github.com/wuba/Picasso)
 - [蓝湖设计图一键生成](https://lanhuapp.com/dds?edm&utm_source=lanhu&utm_medium=mail&utm_campaign=dds&utm_term=20211129)
+
+    - [蓝湖一键生成整页代码，帮开发留住头发](https://zhuanlan.zhihu.com/p/355970754)
+
 - [Sketch2Code](https://sketch2code.azurewebsites.net/)
 - [FigmaToCode](https://github.com/bernaferrari/FigmaToCode) - Generate responsive pages and apps on HTML, Tailwind, Flutter and SwiftUI.
 - [figma-html](https://github.com/BuilderIO/figma-html)
