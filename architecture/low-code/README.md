@@ -249,6 +249,12 @@ You own the data, components, and infrastructure.
 
     vite-vue3-lowcode 是一个基于 Vite2.x + Vue3.x + TypeScript 的 H5 低代码平台。
 
+- [vue-component-creater-ui](https://github.com/sahadev/vue-component-creater-ui) - 拖拽式Vue组件代码生成编辑器（VCC）
+- [mall-cook](https://github.com/wangyuan389/mall-cook) - 商城低代码平台，可视化搭建H5、小程序多端商城
+- [sparrow](https://github.com/sparrow-js/sparrow) - 场景化低代码（LowCode）搭建工作台，实时输出源代码
+- [mometa](https://github.com/imcuttle/mometa) - 面向研发的低代码元编程，代码可视编辑，辅助编码工具
+- [jeecg](https://github.com/jeecgboot/jeecg)  - JEECG 是一款基于代码生成器的 J2EE 快速开发平台，开源界“小普元”超越传统商业企业级开发平台。
+
 #### 电子商务
 
 - [Shopify](https://www.shopify.com/) - Shopify 为在线零售商提供一整套服务“包括支付、市场营销、运输和客户契合工具，以简化小型商户开设在线商店的过程”。
@@ -283,6 +289,8 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
 - [Universe](https://onuniverse.com/) - possibly the first mobile app that enables users to create websites using their mobile phones only.
 
 ### To B
+
+- [BizWorks](https://help.aliyun.com/product/277044.html) - BizWorks是一体化的云原生应用的开发和运营平台，内置阿里巴巴业务中台构建的最佳技术实践。
 
 #### Internal Tool
 
@@ -381,6 +389,7 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 
     Element UI 表单设计及代码生成器，可将生成的代码直接运行在基于Element的vue项目中；也可导出JSON表单，使用配套的解析器将JSON解析成真实的表单。
 
+- [variant-form](https://github.com/vform666/variant-form) - A powerful form designer for Vue.
 - [Typeform](https://www.typeform.com/)
 - [Arengu](https://www.arengu.com/)
 - [Formstack](https://www.formstack.com/)
@@ -414,7 +423,10 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 - [yao](https://github.com/YaoApp/yao) - Yao A low code engine to create web services and dashboard.
 - https://github.com/tnfe/shida
 - [rxeditor](https://github.com/rxdrag/rxeditor) - 基于Bootstrap实现的，HTML可视化编辑工具。
-- [rxdrag](https://rxdrag.com/) - rxDrag，一款全栈低代码平台，基于TypeScript生态构建
+
+    - [rxdrag](https://rxdrag.com/) - rxDrag，一款全栈低代码平台，基于TypeScript生态构建
+    - [RxDrag低代码前端解读](https://www.bilibili.com/video/BV1sX4y1R76r/?vd_source=3ce9f53a6e5affa0588763dacdb8ff15)
+
 
 ## 问题
 
