@@ -291,6 +291,15 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
 ### To B
 
 - [BizWorks](https://help.aliyun.com/product/277044.html) - BizWorks是一体化的云原生应用的开发和运营平台，内置阿里巴巴业务中台构建的最佳技术实践。
+- [nop-entropy](https://github.com/entropy-cloud/nop-entropy) - 基于可逆计算原理从零开始构建的低代码平台，支持GraalVM原生编译。 
+
+    - [GPT驱动低代码平台生产完整应用的已验证策略](https://zhuanlan.zhihu.com/p/614745000)
+    - [可逆计算：下一代软件构造理论](https://zhuanlan.zhihu.com/p/64004026)
+    - [低代码平台需要什么样的ORM引擎？(1) canonical](https://zhuanlan.zhihu.com/p/543252423)
+    - https://gitee.com/canonical-entropy/nop-entropy/blob/master/docs/tutorial/tutorial.md
+    - [可逆计算原理和Nop平台介绍及答疑](https://www.bilibili.com/video/BV1u84y1w7kX/?vd_source=2e69ba889e556e858093542d78fc08c0)
+    - [使用Nop平台开发商品列表页面的完整示例](https://www.bilibili.com/video/BV1384y1g78L/?vd_source=2e69ba889e556e858093542d78fc08c0)
+    - [通过XView模型定制增删改查页面](https://www.bilibili.com/video/BV1cs4y1D7Tr/?vd_source=2e69ba889e556e858093542d78fc08c0)
 
 #### Internal Tool
 
