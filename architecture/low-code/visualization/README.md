@@ -779,10 +779,6 @@ ps：如何解决字体文件较大的问题？参照使用 google 字体的 uni
 - [凹凸技术揭秘·羚珑页面可视化·成长蜕变之路](https://segmentfault.com/a/1190000038792146)
 - [从零开发一款图片编辑器Mitu-Dooring](https://mp.weixin.qq.com/s/SEIgiDJZOCX11JqxFdiKUw)
 
-开源
-
-- [rxeditor](https://github.com/rxdrag/rxeditor)
-
 讨论
 
 - [我做了一个 HTML 可视化编辑工具，有前途吗？](https://www.zhihu.com/question/390956688/answer/1184696066?utm_oi=35897751896064&utm_source=pocket_reader)

@@ -213,6 +213,23 @@ quickly, and save time & money.
 开源
 
 - [lowcode-engine](https://github.com/alibaba/lowcode-engine) - 一套面向扩展设计的企业级低代码技术体系
+
+    1. [前端智能化看“低代码/无代码”](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247487655&idx=1&sn=9abd018bc7b345b3cab7b77b97b22e91&chksm=cf5b0f3bf82c862dd667bf8b7a2ebfd1cfea8d5ba03303bdd643d59bdf2fc961336d0e862e64&scene=178&cur_album_id=1806379264246644737#rd)
+    2. [物联网低代码平台 IoT Studio 的思考和技术挑战](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247487744&idx=1&sn=831b5a87f5827dc1cc606c7693d394a6&chksm=cf5b0e9cf82c878a3d4d65c96ed0f21f0f24f44dd99fe2e23636d273d42e3565be7a1b3d0040&scene=178&cur_album_id=1806379264246644737#rd)
+    3. [2B 领域下的低代码探索之路](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247487934&idx=1&sn=b9a987891e63820abc8364780d209a35&chksm=cf5b0e22f82c8734a91ad2de82dac76ac6f337b6a6fe2939d9afd7cbd396c13c972835051baf&scene=178&cur_album_id=1806379264246644737#rd)
+    4. [云凤蝶低代码之路](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247488169&idx=1&sn=2663385d8f3a3dabafa901422d19a9fc&chksm=cf5b0d35f82c84238f4a0a88acf17bcd5ef02e647b7ce3a7cea30de1a5bea5a35d5e032db964&scene=178&cur_album_id=1806379264246644737#rd)
+    5. [企业级应用搭建平台是如何设计资产体系的？](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247488740&idx=1&sn=63bd8145ebd7c69682f52f0ab42ca328&chksm=cf5b0b78f82c826e4cb4818fc2820e4c33946efdff94ea2bde04ff903186fab6b9da4a8a5128&scene=178&cur_album_id=1806379264246644737#rd)
+    6. [阿里低代码引擎和生态建设实战及思考](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247489735&idx=1&sn=c3841b1731fde2999ea6a617c91b9ed2&chksm=cf5b075bf82c8e4d7db70f86b3228a9e99db39d8a80e22f537ff903c6c40e169fa5e54bc9337&scene=178&cur_album_id=1806379264246644737#rd)
+    7. [阿里低代码引擎 LowCodeEngine 正式开源！](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247490617&idx=1&sn=996f1c1899f12bdc1b0de5436672f64b&chksm=cf5b03a5f82c8ab35a4b109ea986e2872ebf58e688fe05b8412b0b2f4915df61b5e6c10301c1&scene=178&cur_album_id=1806379264246644737#rd)
+    8. [磁贴布局在钉钉宜搭报表设计引擎中的实现](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247490761&idx=1&sn=3c8ea18a63fdd8e2f5066ce157eeada8&chksm=cf5b0355f82c8a43a9a81919b6de7b2a9546fdf1288dc16f9a827b796a3dcb6b7d6d5932989f&scene=178&cur_album_id=1806379264246644737#rd)
+    9. [关于 LowCode&ProCode 混合研发的思考](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247491552&idx=1&sn=80842e24cdf1a078dab7229ab1e18af0&chksm=cf5b007cf82c896ae14f5974667a163a2df1e762131d1720f4d407ec82593b2cc0656db96eef&scene=178&cur_album_id=1806379264246644737#rd)
+    10. [低代码渲染那些事](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247491681&idx=1&sn=387027420642ca4043f8bfd920d0badf&chksm=cf58fffdf82f76eb48fc1093a254733bfa72fb6562844a560cd7b168150dc133cc4dc6b27cc6&scene=178&cur_album_id=1806379264246644737#rd)
+    11. [基于 LowCodeEngine 的调试能力建设与实践](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247496453&idx=1&sn=a607815ef508f07b75b37f75b8e32251&chksm=cf58ec99f82f658facaf0dfd2ab0273b4c8864fd5483cea01030111c1a73750635db1403f222&scene=178&cur_album_id=1806379264246644737#rd)
+    12. [低代码技术在研发团队的应用模式探讨](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247497610&idx=1&sn=79621099a40efcee98b156eaec80c38c&chksm=cf58e816f82f6100ee39f69dcc07afb545a3aa7871654ef5f03543d4dfe78ef55b91cbb8f793&scene=178&cur_album_id=1806379264246644737#rd)
+    13. [低代码多分支协同开发的建设与实践](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247498965&idx=1&sn=666d22c4babb77647fdf36c5d6a5bb3c&chksm=cf58e349f82f6a5f4185798c8263753fcaace9180159394e3db7874ef15c81e4c8e125fa1bae&scene=178&cur_album_id=1806379264246644737#rd)
+    14. [基于 LowCodeEngine 的低代码组件体系的建设和实践](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw==&mid=2247499841&idx=1&sn=139cb04400fd8125093dde3371e8a19f&chksm=cf58dfddf82f56cb031b674db73d489c2e3b0476168315e9032eeb82ca0c2d1cf0af259f0bab&scene=178&cur_album_id=1806379264246644737#rd)
+    15. [低代码引擎 LowCodeEngine 茁壮成长的一年](https://mp.weixin.qq.com/s?__biz=Mzg4MjE5OTI4Mw%3D%3D&chksm=cf58dc6af82f557cc7d803dfa2fcc969d757231c7686f2d37403fe86fb68b64956dad05aa382&cur_album_id=1806379264246644737&idx=1&mid=2247500790&scene=178&sn=1f19767a8313c197ddb9e4e471d8a411&utm_source=pocket_reader)
+
 - [tmagic-editor](https://github.com/Tencent/tmagic-editor)
 - [baidu/amis](https://github.com/baidu/amis) / [amis-editor-demo](https://github.com/aisuda/amis-editor-demo)
 - [Webstudio](https://github.com/webstudio-is/webstudio) - Webstudio is an Open Source Visual Development Platform for developers, designers, and cross-functional teams.
