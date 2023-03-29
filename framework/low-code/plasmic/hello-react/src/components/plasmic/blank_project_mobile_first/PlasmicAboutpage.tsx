@@ -32,11 +32,15 @@ import {
   deriveRenderOpts,
   ensureGlobalVariants,
 } from '@plasmicapp/react-web';
+import Button from '../../Button'; // plasmic-import: QSK6PQ93Bv4/component
 
 import '@plasmicapp/react-web/lib/plasmic.css';
 
 import projectcss from './plasmic_blank_project_mobile_first.module.css'; // plasmic-import: vhuvvwRnfW9WJhUtwQYjKc/projectcss
 import sty from './PlasmicAboutpage.module.css'; // plasmic-import: CNOwlFxo8A/css
+
+import ChecksvgIcon from './icons/PlasmicIcon__Checksvg'; // plasmic-import: 60hG1AK21fg/icon
+import IconIcon from './icons/PlasmicIcon__Icon'; // plasmic-import: KWUYUDb_Fmn/icon
 
 export type PlasmicAboutpage__VariantMembers = {};
 export type PlasmicAboutpage__VariantsArgs = {};
@@ -50,6 +54,8 @@ export const PlasmicAboutpage__ArgProps = new Array<ArgPropType>();
 export type PlasmicAboutpage__OverridesType = {
   root?: p.Flex<'div'>;
   text?: p.Flex<'div'>;
+  textbox?: p.Flex<'input'>;
+  button?: p.Flex<typeof Button>;
 };
 
 export interface DefaultAboutpageProps {
@@ -83,6 +89,18 @@ function PlasmicAboutpage__RenderFunc(props: {
 
   const currentUser = p.useCurrentUser?.() || {};
   const [$queries, setDollarQueries] = React.useState({});
+  const stateSpecs = React.useMemo(
+    () => [
+      {
+        path: 'textbox.textboxValue',
+        type: 'private',
+        variableType: 'text',
+        initFunc: ({ $props, $state, $queries, $ctx }) => 'Some value' as const,
+      },
+    ],
+    [$props, $ctx]
+  );
+  const $state = p.useDollarState(stateSpecs, { $props, $ctx, $queries });
 
   const [isTextActive, triggerTextActiveProps] = useTrigger('usePressed', {});
   const triggers = {
@@ -115,6 +133,31 @@ function PlasmicAboutpage__RenderFunc(props: {
           >
             {triggers.active_text ? 'Enter some text123123' : 'Enter some text'}
           </div>
+          <input
+            data-plasmic-name={'textbox'}
+            data-plasmic-override={overrides.textbox}
+            className={classNames(projectcss.all, projectcss.input, sty.textbox)}
+            onChange={(e) => {
+              p.generateStateOnChangeProp($state, ['textbox', 'textboxValue'])(e.target.value);
+            }}
+            placeholder={'Some placeholder' as const}
+            ref={(ref) => {
+              $refs['textbox'] = ref;
+            }}
+            size={1 as const}
+            type={'text' as const}
+            value={p.generateStateValueProp($state, ['textbox', 'textboxValue'])}
+          />
+
+          <Button
+            data-plasmic-name={'button'}
+            data-plasmic-override={overrides.button}
+            className={classNames('__wab_instance', sty.button)}
+            color={'red' as const}
+            isDisabled={$state.textbox.textboxValue === '1'}
+            showEndIcon={true}
+            showStartIcon={true}
+          />
         </div>
       </div>
     </React.Fragment>
@@ -122,14 +165,18 @@ function PlasmicAboutpage__RenderFunc(props: {
 }
 
 const PlasmicDescendants = {
-  root: ['root', 'text'],
+  root: ['root', 'text', 'textbox', 'button'],
   text: ['text'],
+  textbox: ['textbox'],
+  button: ['button'],
 } as const;
 type NodeNameType = keyof typeof PlasmicDescendants;
 type DescendantsType<T extends NodeNameType> = (typeof PlasmicDescendants)[T][number];
 type NodeDefaultElementType = {
   root: 'div';
   text: 'div';
+  textbox: 'input';
+  button: typeof Button;
 };
 
 type ReservedPropsType = 'variants' | 'args' | 'overrides';
@@ -183,6 +230,8 @@ export const PlasmicAboutpage = Object.assign(
   {
     // Helper components rendering sub-elements
     text: makeNodeComponent('text'),
+    textbox: makeNodeComponent('textbox'),
+    button: makeNodeComponent('button'),
 
     // Metadata about props expected for PlasmicAboutpage
     internalVariantProps: PlasmicAboutpage__VariantProps,
