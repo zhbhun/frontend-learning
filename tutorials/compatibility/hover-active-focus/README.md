@@ -11,6 +11,9 @@
 
 1. hover 在移动端时点击后生效的，相当于获取焦点，只有点击了其他元素失去焦点后才会取消 hover
 2. active 在 iOS 下必须绑定 touch 事件才会生效
+
+    - [IOS兼容:active伪类](https://blog.nowcoder.net/n/854a7cb924af4e5fb70b0f5df3c5141f?from=nowcoder_improve)
+
 3. active 和 hover 效果会冒泡，子元素无法拦截阻止父元素的 active 和 hover。 
 
 ## 参考文献
