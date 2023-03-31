@@ -13,3 +13,4 @@
 - [Control Page Scroll in CSS Using Scroll Snapping](https://alligator.io/css/scroll-snapping/)
 - [The scroll-snap-* Properties.](https://webkit.org/demos/scroll-snap/)
 - [CSS Scroll Snap](https://blog.kulturbanause.de/2019/02/css-scroll-snap/)
+- [大侠，请留步，要不过来了解下CSS Scroll Snap？](https://www.zhangxinxu.com/wordpress/2018/11/know-css-scroll-snap/)
