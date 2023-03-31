@@ -124,3 +124,6 @@ URI 编码将 URI 非法字符转化成合法字符，转换后形式类似 `%**
 - [mathiasbynens/he](https://github.com/mathiasbynens/he)
 - [Character encodings in HTML](https://en.wikipedia.org/wiki/Character_encodings_in_HTML)
 
+## 参考文献
+
+- [关于编码的那些事 - URL 编码](https://zhuanlan.zhihu.com/p/616033838)
