@@ -1,5 +1,7 @@
 # 变量
 
+- [Supercharged CSS variables.](https://open-props.style/#)
+
 ## API
 
 - [Custom properties (--*): CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/--*)
