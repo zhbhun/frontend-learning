@@ -26,3 +26,8 @@ clip-path 使用裁剪方式创建元素的可显示区域，区域内的部分�
 
 - [Clipping and Masking in CSS](https://css-tricks.com/clipping-masking-css/)
 - [Clipping and masking](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Clipping_and_masking)
+
+## 参考文献
+
+- [Animating with Clip-Path](https://css-tricks.com/animating-with-clip-path/)
+- [你用的那些CSS转场动画可以换一换了](https://www.zhangxinxu.com/wordpress/2019/05/css-transfer-animation/)
