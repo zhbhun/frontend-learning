@@ -7,6 +7,9 @@ Backend as a Service，后端即服务。
 ### 综合
 
 - [Firebase](https://firebase.google.com/?hl=zh-cn)
+
+    - [FireBase国内可用性调研](https://www.jianshu.com/p/712f50fc6096)
+
 - [Supabase](https://github.com/supabase/supabase)
 
     Supabase 是一个开源工具的组合，使用企业级的开源产品构建 Firebase 的功能。Firebase 是谷歌旗下的一家 BaaS 云服务公司，可以让开发者通过 Firebase 的框架就可以简单地开发一个 App，无需服务器以及基础设施。主要功能是提供了数据库托管、身份验证和授权、自动生成 API、函数服务、文件存储等易用能力，相当于这些代码的实现使用者都不需要写了，只需去调用即可，此外提供了 JS/C#/Flutter/Go/Java/Python/Swift/Rust 等客户端库来供使用
@@ -14,6 +17,15 @@ Backend as a Service，后端即服务。
 - [Appwrite](https://github.com/appwrite/appwrite)
 
     除去 Supabase，Appwrite 也是一个很有名的完整后端服务能力，可以当做他的竞品，功能差不多，通过视觉化界面极简了从零编写 API 的繁琐过程，在保证软件安全的前提下为开发者创造了一个高效的开发环境。基于 Docker 的端到端开发者平台，其容器化的微服务库可应用于网页端，移动端，以及后端。提供对应的软件服务，如账户、用户、团队、数据库、存储、云函数、多语言、头像等通用能力，并搭配对应客户端或服务端的开发套件，使用微服务架构方式让其更好扩展。
+
+- [Parse](https://github.com/parse-community)
+- [LeanCloud](https://www.leancloud.cn/)
+
+---
+
+- [有没有类似 Firebase 且适合在国内使用的后端服务？](https://www.zhihu.com/question/268939000)
+- [2023年Firebase十大替代平台](https://blog.back4app.com/zh/firebase%E5%8D%81%E5%A4%A7%E6%9B%BF%E4%BB%A3%E5%B9%B3%E5%8F%B0/)
+- [Firebase国内替代方案](https://juejin.cn/post/6921881325851181063)
 
 ### 数据库
 
