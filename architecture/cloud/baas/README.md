@@ -21,12 +21,15 @@ Backend as a Service，后端即服务。
 - [Parse](https://github.com/parse-community)
 - [LeanCloud](https://www.leancloud.cn/)
 - [Bmob](https://www.bmobapp.com/prices)
+- 野狗通信云
 
 ---
 
 - [有没有类似 Firebase 且适合在国内使用的后端服务？](https://www.zhihu.com/question/268939000)
 - [2023年Firebase十大替代平台](https://blog.back4app.com/zh/firebase%E5%8D%81%E5%A4%A7%E6%9B%BF%E4%BB%A3%E5%B9%B3%E5%8F%B0/)
 - [Firebase国内替代方案](https://juejin.cn/post/6921881325851181063)
+- [剑指 Firebase ，云开发—— 腾讯云的小 B 战略能行么？](https://cloud.tencent.com/developer/article/1361883)
+- [阿里云和腾讯云有没有类似bmob的baas服务.价格怎么样?](https://cnodejs.org/topic/5d075db41fe902120f31fe54)
 
 ### 数据库
 
