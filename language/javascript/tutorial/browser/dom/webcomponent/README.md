@@ -1,5 +1,7 @@
 # [webcomponent](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
 
+- https://webcomponents.dev/docs/
+
 ## 基础
 
 - [Web Components Tutorial for Beginners](https://www.robinwieruch.de/web-components-tutorial/)
