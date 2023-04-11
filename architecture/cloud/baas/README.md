@@ -20,6 +20,7 @@ Backend as a Service，后端即服务。
 
 - [Parse](https://github.com/parse-community)
 - [LeanCloud](https://www.leancloud.cn/)
+- [Bmob](https://www.bmobapp.com/prices)
 
 ---
 
