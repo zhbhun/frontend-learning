@@ -12,5 +12,7 @@ function logout() {
 </script>
 
 <template>
-  <p>Welcome, <a @click="logout">logout.</a></p>
+  <p>
+    Welcome, <a style="color: blue; cursor: pointer" @click="logout">logout</a>.
+  </p>
 </template>

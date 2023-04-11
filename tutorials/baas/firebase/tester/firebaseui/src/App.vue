@@ -3,6 +3,11 @@ import { onUnmounted, reactive } from "vue";
 import { RouterView, useRouter } from "vue-router";
 import { User } from "firebase/auth";
 import { firebaseAuth } from "./firebase";
+import testService from "./services/testService";
+import messageService from "./services/messageService";
+
+window.testService = testService;
+window.messageService = messageService;
 
 const router = useRouter();
 
@@ -14,6 +19,8 @@ const state = reactive({
 const offAuthStateChanged = firebaseAuth.onAuthStateChanged(function (user) {
   if (!user) {
     router.replace("/signup");
+  } else {
+    console.log(user);
   }
 
   state.loading = false;
