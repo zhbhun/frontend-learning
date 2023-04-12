@@ -258,8 +258,9 @@ TODO
 
 加载方式：综合来说，使用 systemJS 加载模块是个更好的选择，对现代打包工具有较好的支持，有一套规范可以实现复杂的依赖引用，而且还支持各种模块的规范。
 
-- SystemJS
+- Script
 - RequireJS
+- SystemJS
 
 依赖分析：除了加载组件本身还远远不够，组件在实现时会依赖很多通用的基础库、框架，如按钮组件在 Web 端会依赖 React，具体依赖大概可分为以下三种类型。这三种类型的依赖，如果每一个组件都打包的话，无疑会造成很大的物料体积冗余，从而进一步影响拖拽体验，所以需要根据不同类型做不同的打包优化处理。
 
@@ -278,6 +279,9 @@ TODO
 参考文献
 
 - [低代码平台远程组件加载的多种方案](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247500403&idx=1&sn=3470062142a9ad0ddbece75e915a1a5e&chksm=ea44632bdd33ea3d82074a59cfb0388e45e02cda07719672e4db40fd6d31a235b3e294732d78&mpshare=1&scene=1&srcid=0803kipweJuMt6e0ytTBVegH&sharer_sharetime=1659502754360&sharer_shareid=23bfc8f6684b676886641da1cfece5af&version=4.0.2.90474&platform=mac#rd)
+- [远程组件实践 - 前端早读课](https://mp.weixin.qq.com/s/-PdXPDIhXRqLqupRiQOoGg)
+- [远程组件加载方案实践](https://juejin.cn/post/7086791335688028196)
+- [超级变变变，动态云组件加载实践](https://developer.aliyun.com/article/919169)
 
 
 #### 组件样式隔离
