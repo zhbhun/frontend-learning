@@ -241,6 +241,7 @@ You own the data, components, and infrastructure.
 
     - [Webstudio - next generation visual development](https://dev.to/oleg008/webstudio-next-generation-visual-development-4d0d)
 
+- [craft.js](https://github.com/prevwong/craft.js) - A React Framework for building extensible drag and drop page editors
 - [grapesjs](https://github.com/GrapesJS/grapesjs) - Free and Open source Web Builder Framework. Next generation tool for building templates without coding
 - [luban-h5](https://github.com/ly525/luban-h5)
 - [page-pipepline/pipeline-editor](https://github.com/page-pipepline/pipeline-editor)
