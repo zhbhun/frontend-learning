@@ -311,6 +311,14 @@ drag-and-drop programming tools to allow anyone to make beautiful, native mobile
     - [使用Nop平台开发商品列表页面的完整示例](https://www.bilibili.com/video/BV1384y1g78L/?vd_source=2e69ba889e556e858093542d78fc08c0)
     - [通过XView模型定制增删改查页面](https://www.bilibili.com/video/BV1cs4y1D7Tr/?vd_source=2e69ba889e556e858093542d78fc08c0)
 
+- [Delicacy低代码平台](https://www.bilibili.com/video/BV1US4y1m7KG/?buvid=YD4558DE77322CD54F81ABE0385B0F40FB7A&is_story_h5=false&mid=1TbU2qZU0zASSqweBjxA4w%3D%3D&plat_id=147&share_from=ugc&share_medium=iphone&share_plat=ios&share_session_id=803E8E9C-1FAB-478F-A2D2-E46BAA6EBD01&share_source=WEIXIN&share_tag=s_i&timestamp=1681278744&unique_k=c7IrpRN&up_id=1286351594&vd_source=2e69ba889e556e858093542d78fc08c0)
+
+#### 大屏可视化
+
+- [go-view](https://gitee.com/dromara/go-view) - GoView 是一个Vue3搭建的低代码数据可视化开发平台，将图表或页面元素封装为基础组件，无需编写代码即可完成业务需求。 它的技术栈为：Vue3 + TypeScript4 + Vite2 + NaiveUI + ECharts5 + Axios + Pinia2 + PlopJS
+- [DataV](https://github.com/DataV-Team/DataV) - Vue数据可视化组件库（类似阿里DataV，大屏数据展示），提供SVG的边框及装饰、图表、水位图、飞线图等组件，简单易用，长期更新(React版已发布)
+- [ChartFun](https://github.com/ddiu8081/ChartFun) - 数据大屏可视化编辑器
+
 #### Internal Tool
 
 - [retool](https://retool.com/) - Stop wrestling with UI libraries, hacking together data sources, and figuring out access controls. Start shipping apps that move your business forward.
