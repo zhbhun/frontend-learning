@@ -1,3 +1,4 @@
+- https://tailwindui.com/
 - [awesome-tailwindcss](https://github.com/aniftyco/awesome-tailwindcss) - Awesome things related to Tailwind CSS
 
 ---
