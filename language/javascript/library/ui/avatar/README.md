@@ -1,0 +1,3 @@
+- https://github.com/ambassify/react-avatar
+- https://en.gravatar.com/
+- https://github.com/eliep/vue-avatar
