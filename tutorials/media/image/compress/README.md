@@ -17,6 +17,8 @@
 
     可以用数百个椭圆、矩形、三角形等简单的图形对图片进行拟合，还支持以 SVG 的矢量格式输出
 
+- [birme](https://www.birme.net/) - BIRME is a flexible and easy to use bulk image resizer. It can resize your images to any specific dimension and crop them proportionately if necessary. It's an online tool and you don't need to download or install on your computer. BIRME is absolutely free to use.
+
 ## 参考
 
 - [图片不压缩，前端要背锅](https://mp.weixin.qq.com/s/VU_aKmFqk24yYBWR98QCdw)
