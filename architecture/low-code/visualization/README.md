@@ -479,6 +479,11 @@ TODO
     1. 子组件可以调用父组件的的组件的交互逻辑（自定义的交互行为，以及变量和属性的操作）；
     2. 兄弟组件无法相互调用，父组件也无法调用子组件；
 
+---
+
+- [如何评价虚幻4的蓝图系统？](https://www.zhihu.com/question/32193443)
+- [codeck](https://github.com/moonrailgun/codeck)
+
 
 #### 组件动态数据
 
