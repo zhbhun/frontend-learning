@@ -454,6 +454,8 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
     - [rxdrag](https://rxdrag.com/) - rxDrag，一款全栈低代码平台，基于TypeScript生态构建
     - [RxDrag低代码前端解读](https://www.bilibili.com/video/BV1sX4y1R76r/?vd_source=3ce9f53a6e5affa0588763dacdb8ff15)
     - [业务编排深入交流会](https://www.bilibili.com/video/BV1ao4y1W766/?vd_source=2e69ba889e556e858093542d78fc08c0)
+    - https://github.com/codebdy/appx
+    - https://github.com/codebdy/entix
 
 
 ## 问题
