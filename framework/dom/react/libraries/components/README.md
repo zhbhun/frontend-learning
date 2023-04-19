@@ -48,6 +48,7 @@
 ## 其他
 
 - [React95](https://github.com/arturbien/React95) - Refreshed Windows 95 style UI components for your React app
+- [react-notion-x](https://github.com/NotionX/react-notion-x) - Fast and accurate React renderer for Notion. TS batteries included.
 
 ## 参考文献
 
