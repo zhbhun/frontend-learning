@@ -1,6 +1,7 @@
 ## 产品
 
 - https://theresanaiforthat.com/website-building/
+- [dynamic-interface-web](https://github.com/zckly/dynamic-interface-web) - Dynamically generate UI with Large Language Models
 - [noya](https://www.noya.io/app/) - Draw wireframes, get designs & code.
 
     以画线框图的形式绘制 UI
