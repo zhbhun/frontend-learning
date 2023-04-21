@@ -6,3 +6,8 @@
 - [signature_pad](https://github.com/szimek/signature_pad) - HTML5 canvas based smooth signature drawing
 - [fabric.js](https://github.com/fabricjs/fabric.js) - Javascript Canvas Library, SVG-to-Canvas (& canvas-to-SVG) Parser.
 - [css-doodle](https://github.com/css-doodle/css-doodle) - A web component for drawing patterns with CSS.
+
+## ASCII diagrams
+
+- [asciiflow](https://github.com/lewish/asciiflow) - ASCIIFlow
+- https://textik.com/#dbcdcfda64f0c089
