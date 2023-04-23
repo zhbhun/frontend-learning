@@ -2,6 +2,7 @@
 
 - https://theresanaiforthat.com/website-building/
 - https://60sec.site/ - Create site in 60 seconds with No-Code and AI
+- [unicornplatform](https://unicornplatform.com/)
 - [dynamic-interface-web](https://github.com/zckly/dynamic-interface-web) - Dynamically generate UI with Large Language Models
 - [noya](https://www.noya.io/app/) - Draw wireframes, get designs & code.
 

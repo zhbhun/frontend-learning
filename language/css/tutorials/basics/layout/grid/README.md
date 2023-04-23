@@ -7,6 +7,8 @@
     - 采用网格布局的区域，称为"容器"（container）
     - 容器内部采用网格定位的子元素，称为"项目"（item）。
 
+        ps：设为网格布局以后，容器子元素（项目）的 float、display: inline-block、display: table-cell、vertical-align 和 column-* 等设置都将失效。
+
 - 行和列
 
     - 容器里面的水平区域称为"行"（row）
@@ -22,10 +24,11 @@
 - `display: grid` 指定一个块级容器采用网格布局；
 - `display: inline-grid` 指定一个行内容器采用网格布局；
 
-## 设置行列划分
+### 设置行列划分
 
-- `grid-template-columns` 属性定义每一列的列宽
-- `grid-template-rows` 属性定义每一行的行高。`
+- [`grid-template`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template)
+- [`grid-template-columns`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template) 属性定义每一列的列宽
+- [`grid-template-rows`](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows) 属性定义每一行的行高。`
 
 用法
 
@@ -81,10 +84,12 @@
     }
     ```
 
+    ps：如果有剩余的空间不显示
+
 - fr 关键字
 
     ```less
-    // 为了方便表示比例关系，网格布局提供了fr关键字（fraction 的缩写，意为"片段"）。
+    // 为了方便表示比例关系，网格布局提供了 fr 关键字（fraction 的缩写，意为"片段"，有点像 flex）。
     .container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -99,18 +104,75 @@
 
     auto关键字表示由浏览器自己决定长度。
 
+    ps：如果其他列式固定宽度，那么 auto 列会占用剩余空间，如果其他列存在 fr，那么实际内容宽度显示
+
 ### 设置行列间距
+
+- 旧版
+
+    - grid-gap
+    - grid-column-gap
+    - grid-row-gap
+
+- 新版
+
+    - gap
+    - row-gap
+    - column-gap
+
+参考文献
 
 - [CSS gap属性进化史](https://www.zhangxinxu.com/wordpress/2020/06/css-gap-history/)
 
+### Auto Rows/Columns
+
+有时候，一些项目的指定位置，在现有网格的外部。比如网格只有3列，但是某一个项目指定在第5行。这时，浏览器会自动生成多余的网格，以便放置项目。grid-auto-columns 属性和 grid-auto-rows 属性用来设置，浏览器自动创建的多余网格的列宽和行高。
+
+- [grid-auto-rows](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-rows)
+- [grid-auto-columns](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-columns)
+
+### grid-auto-flow
+
+配置自动排列方式，默认先行后列。
+
+- row
+- column
+- row dense
+- column dense
+
+### 区域配置
+
+容器属性
+
+- [grid-template-areas](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-areas)
+
+---
+
+项目属性
+
+- [grid-area](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-area)
+- [grid-column](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column)
+- [grid-column-end](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-end)
+- [grid-column-start](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-start)
+- [grid-row](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row)
+- [grid-row-end](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row-end)
+- [grid-row-start](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row-start)
+
 ### 设置对齐
 
-- justify-items
-- align-items
-- place-items
-- justify-content
-- align-content
+项目熟悉
+
+- justify-items：设置单元格内容的水平位置（左中右）
+- align-items：设置单元格内容的垂直位置（上中下）
+- place-items：align-items属性和justify-items属性的合并简写形式
+- justify-content：整个内容区域在容器里面的水平位置（左中右）
+- align-content：align-content属性是整个内容区域的垂直位置（上中下）
 - place-content
+
+---
+
+- justify-self
+- align-self
 
 ## 参考文献
 
