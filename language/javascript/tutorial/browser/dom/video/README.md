@@ -193,6 +193,11 @@ TODO
 - [YouTube 嵌入式播放器及播放器参数](https://developers.google.com/youtube/player_parameters.html?playerVersion=HTML5#origin)
 - [YouTube Player API Reference for iframe Embeds](https://developers.google.com/youtube/iframe_api_reference#Autoplay_and_scripted_playback)
 
+### 视频缓存
+
+- [Service Worker Video Cache Sample](https://github.com/googlechrome/samples/tree/gh-pages/service-worker/prefetch-video)
+- [Is it possible to cache an entire HTML5 video using the Service Worker API for offline use?](https://stackoverflow.com/questions/41916875/is-it-possible-to-cache-an-entire-html5-video-using-the-service-worker-api-for-o)
+
 ## 资源
 
 - https://test-videos.co.uk/
