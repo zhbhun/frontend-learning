@@ -5,7 +5,7 @@
 ## 应用
 
 - [Web LLM](https://mlc.ai/web-llm/)
-- [Web Stable Diffusion](https://mlc.ai/web-stable-diffusion/)
+- [Web Stable Diffusion](https://mlc.ai/web-stable-diffusion/) / https://github.com/mlc-ai/web-stable-diffusion
 
 ---
 

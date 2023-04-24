@@ -264,6 +264,7 @@ You own the data, components, and infrastructure.
 - [mometa](https://github.com/imcuttle/mometa) - 面向研发的低代码元编程，代码可视编辑，辅助编码工具
 - [jeecg](https://github.com/jeecgboot/jeecg)  - JEECG 是一款基于代码生成器的 J2EE 快速开发平台，开源界“小普元”超越传统商业企业级开发平台。
 - https://github.com/hlerenow/chameleon
+- [visual-drag-demo](https://github.com/woai3c/visual-drag-demo) - 一个低代码（可视化拖拽）教学项目
 
 #### 电子商务
 
