@@ -265,6 +265,7 @@ You own the data, components, and infrastructure.
 - [jeecg](https://github.com/jeecgboot/jeecg)  - JEECG 是一款基于代码生成器的 J2EE 快速开发平台，开源界“小普元”超越传统商业企业级开发平台。
 - https://github.com/hlerenow/chameleon
 - [visual-drag-demo](https://github.com/woai3c/visual-drag-demo) - 一个低代码（可视化拖拽）教学项目
+- [Everright-formEditor](https://github.com/Liberty-liu/Everright-formEditor/blob/main/README.zh-cn.md) - Everright-formEditor是一个免费开源的javascript可视化低代码编辑器，通过gui的界面只需简单的操作即可创建出表单，拥有灵活的交互界面，pc端依赖element-plus，mobile依赖vant,内部有一套适配器，适配element和vant的组件
 
 #### 电子商务
 
