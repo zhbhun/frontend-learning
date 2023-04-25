@@ -3,6 +3,7 @@
 - https://theresanaiforthat.com/website-building/
 - https://60sec.site/ - Create site in 60 seconds with No-Code and AI
 - [unicornplatform](https://unicornplatform.com/)
+- [uncody](https://uncody.com/#pricing) - Create stunning landing pages that convert with Uncody'sintuitive interface and modular components. Build a professional-looking page in no time and impress your visitors.
 - [dynamic-interface-web](https://github.com/zckly/dynamic-interface-web) - Dynamically generate UI with Large Language Models
 - [noya](https://www.noya.io/app/) - Draw wireframes, get designs & code.
 

@@ -36,6 +36,9 @@
 
     - [蓝湖一键生成整页代码，帮开发留住头发](https://zhuanlan.zhihu.com/p/355970754)
 
+- https://exportkit.com/
+- https://avocode.com/
+
 ## 教程
 
 - [Introducing: Figma to React](https://www.figma.com/blog/introducing-figma-to-react/)
