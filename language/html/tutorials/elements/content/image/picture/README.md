@@ -80,6 +80,20 @@ HTML `<picture> `元素通过包含零或多个 `<source>` 元素和一个 `<img
     />
 </picture>
 ```
+
+## FAQ
+
+### 大小限制问题
+
+picture 是 inline 元素无法设置宽高，img 元素在 picture 里正常显示，相当于在 img 外包裹了一个 span。一般来说，我们希望封装的组件只需要修改 picture 标签的样式就好了。
+
+1. 设定 picture 为块或内联块样式，img 为块样式；
+2. 限定宽高的情况，可以设置 img 的宽高为 100%；
+3. 自动宽高的情况下，可以设置 img 的宽高为 auto；
+4. 自动宽或高的情况喜爱，设置对应的 img 宽或高为 auto；
+
+    如果设置宽高为 100% 的话，会导致部分浏览器占满外部容器。
+
 ## 参考文献
 
 - [<picture>: The Picture element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture)
