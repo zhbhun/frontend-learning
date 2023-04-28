@@ -384,6 +384,7 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 
 #### Form
 
+- https://notionforms.io/ - Create beautiful forms to fill your Notion tables. It takes seconds, you don't need to know how to code and it's free.
 - [form-generator](https://github.com/JakHuang/form-generator)
 
     Element UI 表单设计及代码生成器，可将生成的代码直接运行在基于Element的vue项目中；也可导出JSON表单，使用配套的解析器将JSON解析成真实的表单。
