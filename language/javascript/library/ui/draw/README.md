@@ -5,6 +5,9 @@
 - [sketch.js](https://github.com/soulwire/sketch.js) - Cross-Platform JavaScript Creative Coding Framework
 - [signature_pad](https://github.com/szimek/signature_pad) - HTML5 canvas based smooth signature drawing
 - [fabric.js](https://github.com/fabricjs/fabric.js) - Javascript Canvas Library, SVG-to-Canvas (& canvas-to-SVG) Parser.
+
+    - [vue-fabric-editor](https://github.com/nihaojob/vue-fabric-editor)
+
 - [css-doodle](https://github.com/css-doodle/css-doodle) - A web component for drawing patterns with CSS.
 
 ## ASCII diagrams
