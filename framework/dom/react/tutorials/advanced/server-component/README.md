@@ -9,3 +9,7 @@
 - [MFNG](https://github.com/unstubbable/mfng)
 
     Micro Frontends Next Generation – A Serverless RSC Playground
+
+## 示例
+
+- [next-react-server-components](https://github.com/vercel/next-react-server-components) - Demo repository for Next.js + React Server Components
