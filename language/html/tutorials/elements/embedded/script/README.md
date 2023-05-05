@@ -518,6 +518,13 @@ ps：在部分场景下 iOS Safari 又不会被脚本阻塞渲染，例如在 HT
 - [详解 script 标签(async,defer,integrity,crossorigin 和 onerror 属性)](https://www.html.cn/archives/8254)
 - [JavaScript engine fundamentals: Shapes and Inline Caches](https://mathiasbynens.be/notes/shapes-ics)
 
+## FAQ
+
+### Inline javascript with `"<script>"` string closes script tag by mistake
+
+- [Inline javascript with `"<script>"` string closes script tag by mistake](https://stackoverflow.com/questions/12331531/inline-javascript-with-script-string-closes-script-tag-by-mistake)
+- [在字符串里写的script结束标签把外面的script闭合了？](https://segmentfault.com/q/1010000019376066)
+
 ## TODO
 
 - [Document.currentScript](https://developer.mozilla.org/en-US/docs/Web/API/Document/currentScript)
