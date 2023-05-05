@@ -1,0 +1,3 @@
+- [Images with loading="lazy" have uncontrollable gray border while loading](https://bugs.webkit.org/show_bug.cgi?id=243601)
+- [How to remove white border on lazy loaded images in Safari](https://stackoverflow.com/questions/71992334/how-to-remove-white-border-on-lazy-loaded-images-in-safari)
+- [chrome/safari display border around image](https://stackoverflow.com/questions/4743127/chrome-safari-display-border-around-image)
