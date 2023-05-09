@@ -1,3 +1,14 @@
+## React18 有哪些新变化？
+
+- 新的创建方式：现在是要先通过 createRoot() 创建一个 root 节点，然后该 root 节点来调用 render() 方法；
+- 自动批处理优化：批处理：React 将多个状态更新分组到一个重新渲染中以获得更好的性能。（将多次 setstate 事件合并）；
+
+    ps：在 v18 之前只在事件处理函数中实现了批处理，在 v18 中所有更新都将自动批处理，包括 promise 链、setTimeout 等异步代码以及原生事件处理函数；
+
+- 并发渲染机制：根据用户的设备性能和网速对渲染过程进行适当的调整，保证 React 应用在长时间的渲染过程中依旧保持可交互性，避免页面出现卡顿或无响应的情况，从而提升用户体验。
+- startTransition：主动降低优先级。比如「搜索引擎的关键词联想」，用户在输入框中的输入希望是实时的，而联想词汇可以稍稍延迟一会儿。我们可以用 startTransition 来降低联想词汇更新的优先级；
+- useId：主要用于 SSR 服务端渲染的场景，方便在服务端渲染和客户端渲染时，产生唯一的 id；
+
 ## 如何实现组件的懒加载
 
 - react lazy / [react-loadable](https://github.com/jamiebuilds/react-loadable) / [loadable-components](https://github.com/gregberge/loadable-components)
