@@ -1,3 +1,5 @@
+- [React 面试题 & 回答](https://github.com/semlinker/reactjs-interview-questions)
+
 ## React 18 有哪些新变化？
 
 - 新的创建方式：现在是要先通过 createRoot() 创建一个 root 节点，然后该 root 节点来调用 render() 方法；
