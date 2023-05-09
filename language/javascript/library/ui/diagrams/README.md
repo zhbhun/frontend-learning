@@ -1,17 +1,20 @@
 图形
 ========
 
+## 底层
+
 - https://github.com/d3/d3
 - [GoJS](https://github.com/NorthwoodsSoftware/GoJS) - A Web Framework for Rapidly Building Interactive Diagrams
 - [jointjs](https://github.com/clientIO/joint) - JavaScript diagramming library powering exceptional UIs, Build advanced visual and No-Code/Low-Code applications quickly and confidently with a proven library.
 
     - [用JointJS做一个简单的功能控制图](http://www.bjhee.com/jointjs.html)
 
-- [sigma.js](https://github.com/jacomyal/sigma.js) - A JavaScript library aimed at visualizing graphs of thousands of nodes and edges
 - [rough](https://github.com/rough-stuff/rough) - Create graphics with a hand-drawn, sketchy, appearance
-- [mxgraph](https://github.com/jgraph/mxgraph) - https://github.com/jgraph/mxgraph
-- [Cytoscape.js](https://github.com/cytoscape/cytoscape.js/) - Graph theory (network) library for visualisation and analysis
-- [vis.js](https://github.com/visjs) - Dynamic, browser based visualization libraries
+
+## 白板
+
+- https://github.com/jgraph/drawio
+- [excalidraw](https://github.com/excalidraw/excalidraw) - Virtual whiteboard for sketching hand-drawn like diagrams
 
 ## 基于文本语法来描述的图表
 
@@ -32,10 +35,6 @@
 ---
 
 - [The Magical Markdown I Bet You Don’t Know](https://medium.com/codex/the-magical-markdown-i-bet-you-dont-know-b51f8c049773)
-
-## 白板
-
-- [excalidraw](https://github.com/excalidraw/excalidraw) - Virtual whiteboard for sketching hand-drawn like diagrams
 
 ## 人脸识别
 

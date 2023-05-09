@@ -1,0 +1,4 @@
+- [sigma.js](https://github.com/jacomyal/sigma.js) - A JavaScript library aimed at visualizing graphs of thousands of nodes and edges
+- [mxgraph](https://github.com/jgraph/mxgraph) - https://github.com/jgraph/mxgraph
+- [Cytoscape.js](https://github.com/cytoscape/cytoscape.js/) - Graph theory (network) library for visualisation and analysis
+- [vis.js](https://github.com/visjs) - Dynamic, browser based visualization libraries
