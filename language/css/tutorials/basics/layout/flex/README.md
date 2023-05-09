@@ -98,6 +98,12 @@
 
 - [Can I Use Flexbox](http://caniuse.com/#feat=flexbox)
 
+## FAQ
+
+### Flex 子元素溢出容器问题
+
+[Prevent flex items from overflowing a container](https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container)
+
 ## 实际应用
 
 - 骰子的布局 - 参考 [dice](./application/dice.html)
