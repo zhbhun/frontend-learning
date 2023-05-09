@@ -1,3 +1,69 @@
+## 如何实现一个定时器的 hook
+
+问题
+
+https://codesandbox.io/s/react-hook-interval-xc7fmw
+
+题解
+
+1. useEffect 依赖
+
+    ```tsx
+    const App = () => {
+      const [count, setCount] = useState(0);
+        
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setCount(count + 1);
+        }, 1000);
+        return () => clearTimout(timer);
+      }, [count]);
+    
+      return <div>{count}</div>;
+    };  
+    ```
+
+2. 回调方式
+
+    ```tsx
+    const App = () => {
+      const [count, setCount] = useState(0);
+        
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCount(count => count + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [count]);
+    
+      return <div>{count}</div>;
+    };  
+    ```
+
+3. 封装 Hook
+
+    ```tsx
+    const useInterval = (callback: () => void, delay: number | null): void => {
+      const savedCallback = useRef(callback);
+    
+      useEffect(() => {
+        savedCallback.current = callback;
+      });
+    
+      useEffect(() => {
+        function tick() {
+          savedCallback.current();
+        }
+        if (delay !== null) {
+          const id = setInterval(tick, delay);
+          return () => clearInterval(id);
+        }
+      }, [delay]);
+    };
+    ```
+
+---
+
 ## 组件的通信方式？
 
 ## 组件代码的复用逻辑？
