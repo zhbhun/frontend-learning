@@ -1,3 +1,9 @@
+## 如何实现组件的懒加载
+
+- react lazy / [react-loadable](https://github.com/jamiebuilds/react-loadable) / [loadable-components](https://github.com/gregberge/loadable-components)
+- react suspense 的作用和最佳实践
+- react suspense 和 useTransition 的结合
+
 ## 如何实现一个定时器的 hook
 
 问题
