@@ -87,6 +87,84 @@ https://codesandbox.io/s/react-hook-interval-xc7fmw
     };
     ```
 
+## 实现一个 useDebounce
+
+问题
+
+```tsx
+const Demo = () => {
+  const [state, setState] = React.useState('Typing stopped');
+  const [val, setVal] = React.useState('');
+  const [debouncedValue, setDebouncedValue] = React.useState('');
+
+  // TODO: debouncedValue 通过防抖来更新，会在用户暂停输入 1 秒后更新
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={val}
+        placeholder="Debounced input"
+        onChange={({ currentTarget }) => {
+          setState('Waiting for typing to stop...');
+          setVal(currentTarget.value);
+        }}
+      />
+      <div>{state}</div>
+      <div>
+        Debounced value: {debouncedValue}
+      </div>
+    </div>
+  );
+};
+```
+
+题解
+
+1. 使用 hook 来执行防抖函数
+
+    ```tsx
+    import React, { useEffect, useRef, useState } from 'react';
+    import useTimeoutFn from './useTimeoutFn';
+
+    function useDebounceHook(value, delay) {
+      const [debounceValue, setDebounceValue] = useState(value);
+      useEffect(() => {
+        let timer = setTimeout(() => setDebounceValue(value), delay);
+        return () => clearTimeout(timer);
+      }, [value, delay]);
+      return debounceValue;
+    }
+    
+    const Demo = () => {
+      const [state, setState] = React.useState('Typing stopped');
+      const [val, setVal] = React.useState('');
+      const [debouncedValue, setDebouncedValue] = useDebounceHook(val, 1000);
+    
+      return (
+        <div>
+          <input
+            type="text"
+            value={val}
+            placeholder="Debounced input"
+            onChange={({ currentTarget }) => {
+              setState('Waiting for typing to stop...');
+              setVal(currentTarget.value);
+            }}
+          />
+          <div>{state}</div>
+          <div>
+            Debounced value: {debouncedValue}
+          </div>
+        </div>
+      );
+    };
+    ```
+
+2. 使用 hook 创建防抖函数
+
+    ...
+
 ---
 
 ## 组件的通信方式？
