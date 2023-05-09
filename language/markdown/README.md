@@ -2,6 +2,7 @@
 
 - [CommonMark Spec](https://github.github.com/gfm/)
 - [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)
+- [Markdown Guide](https://www.markdownguide.org/)
 
 ## 数学公式
 
