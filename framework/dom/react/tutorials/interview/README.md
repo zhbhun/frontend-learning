@@ -165,6 +165,9 @@ const Demo = () => {
 
     ...
 
+- https://codesandbox.io/s/react-debounce-ug7cr7
+- https://segmentfault.com/a/1190000043236681
+
 ---
 
 ## 组件的通信方式？
