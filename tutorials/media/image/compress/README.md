@@ -1,6 +1,7 @@
 ## 工具
 
 - TinyPng
+- [compressor.io](https://compressor.io/)
 - [pngquant](https://pngquant.org/) - pngquant is a command-line utility and a library for lossy compression of PNG images.
 - [squoosh](https://github.com/GoogleChromeLabs/squoosh) - Make images smaller using best-in-class codecs, right in the browser.
 - [jimp-dev/jimp](https://github.com/jimp-dev/jimp) - An image processing library written entirely in JavaScript for Node, with zero external or native dependencies.
