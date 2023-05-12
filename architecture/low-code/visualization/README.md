@@ -89,6 +89,30 @@ BOM：Batman Object Model，是 DSL 的编程接口，提供了对 DSL 的结构
             - 优点：实现简单，CSS 和 JS 都是隔离的
             - 缺点：加载稍微慢一点。
 
+#### iframe
+
+- plasmic：画布支持模拟显示多种尺寸的渲染设备，通过两层 iframe 实现，外层的 iframe 地址为 https://host.plasmicdev.com/static/host.html，里层的 iframe 分别对应不同尺寸的设备
+
+    - 外层：`<iframe class="studio-frame" src="https://host.plasmicdev.com/static/host.html"></iframe>`
+    - 里层：`<iframe class="canvas-editor__viewport" data-test-frame-uid="3009101"></iframe>`
+
+- webflow：画布只模拟显示当前尺寸的渲染是被，通过一层 iframe 实现
+
+    `<iframe style="width: 992px; height: 1240px; max-width: 1029px; min-width: 992px; transform-origin: 0px 0px; display: inline; min-height: 100%; max-height: 100%; border: 0px; position: relative; overflow: hidden; transform-style: preserve-3d; transform: scale(1); pointer-events: auto;"></iframe>`
+
+- framer：画布支持模拟显示多种尺寸的渲染设备，通过一层 iframe 实现，外层的 iframe 地址为 `https://project-xxx.framercanvas.com/s/app.xxx/canvas-sandbox.html`，里层的多尺寸设备通过 div 模拟
+
+    ```html
+    <iframe allow="accelerometer; ambient-light-sensor; autoplay; camera; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; magnetometer; microphone; midi; picture-in-picture; speaker; usb; vibrate; vr; xr-spatial-tracking" src="https://project-xxx.framercanvas.com/s/app.xxx/canvas-sandbox.html" sandbox="allow-scripts allow-same-origin" style="display: block; height: 100%; width: 100%; position: absolute; top: 0px; left: 0px; border: none; z-index: -1; pointer-events: none;"></iframe>
+    ```
+
+- webflow：画布只模拟显示当前尺寸的渲染是被，通过一层 iframe 实现
+
+    ```html
+    <iframe sandbox="allow-popups allow-modals allow-scripts" class="preview-frame css-12m0k8p" name="preview-frame" data-test-id="preview-frame" src="https://demo-editor-ten.vercel.app/default" style="border: 0px; box-shadow: 0 0 0 1px var(--border-color); background-color: white; width: 3000px; max-width: 100%; min-width: 1001px; transform-origin: left top; position: absolute; left: 0px; right: 0px; margin: auto; height: 100%; transition: opacity 0.2s ease 0s, width 0.5s ease-in-out 0s, min-width 0.5s ease-in-out 0s, filter 0.2s ease 0s; opacity: 1;"></iframe>
+    ```
+
+
 #### 编辑渲染分层
 
 用户搭建时需要在组件上渲染出各种编辑交互态，这些状态不能直接与组件本身耦合。此外，组件本身时可交互的，如何在画布编辑时避免触发组件自身的交互行为呢？
