@@ -18,6 +18,12 @@ app.get('/embedded.html', function (req, res) {
   }, 2000);
 });
 
+app.get('/temp.html', function (req, res) {
+  setTimeout(function() {
+    res.sendFile(path.resolve(__dirname, '../temp.html'));
+  }, 2000);
+});
+
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });
