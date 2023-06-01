@@ -19,6 +19,7 @@
 
 - [Animate.css](https://animate.style/) - Animate.css is one of the smallest and easiest-to-use CSS animation libraries. It’s refined, efficient, well-maintained since its 2013 release.
 - [Magic Animations](https://www.minimamente.com/project/magic/) - Magic Animations has been one of the most impressive animation libraries available. It has many different animations, many of which are quite unique to this library. As with Animate.css, you can implement Magic by simply importing the CSS file. You can also implement the animations using jQuery. This project offers a particularly cool demo application.
+- [animista](https://animista.net/) - on-demand css animations library
 
 
 ## 效果
