@@ -1,1 +1,2 @@
 - [openlayers](https://github.com/openlayers/openlayers) - OpenLayers is a high-performance, feature-packed library for creating interactive maps on the web. It can display map tiles, vector data and markers loaded from any source on any web page. OpenLayers has been developed to further the use of geographic information of all kinds. It is completely free, Open Source JavaScript, released under the BSD 2-Clause License.
+- [maplibre](https://maplibre.org/) - Open-source mapping libraries for web and mobile app developers.
