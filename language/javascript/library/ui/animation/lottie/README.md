@@ -16,6 +16,10 @@
 ## 教程
 
 - [动画输出新手向！使用BodyMovin和Lottie的避坑指南](https://www.zcool.com.cn/article/ZOTk2MDgw.html)
+- [Lottie - 让复杂动画如此简单](https://www.jianshu.com/p/282d098cf928?utm_source=oschina-app)
+- [如何看待 Airbnb 新发布的 Lottie？](https://www.zhihu.com/question/55315505)
+- [Android 动画库对比(Lottie 和 SVGA)](https://jfson.github.io/2018/01/08/41-anim/)
+- [Motion One](https://motion.dev/guides/quick-start) - Motion One is the smallest fully-featured animation library for the web.
 
 ### 格式
 
@@ -39,3 +43,4 @@
 - [bodymovin on codepen](https://codepen.io/collection/nVYWZR/)
 
 
+---
