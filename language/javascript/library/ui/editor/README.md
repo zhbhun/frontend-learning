@@ -54,7 +54,7 @@
         - 撤销
         - 重做
 
-## 副文本
+## 富文本
 
 - https://github.com/JefMari/awesome-wysiwyg
 - [quill](https://github.com/quilljs/quill)
@@ -111,6 +111,11 @@
 ## 协作
 
 - [Etherpad](https://etherpad.org/) / [etherpad-lite](https://github.com/ether/etherpad-lite)
+
+## 综合
+
+- [affine](https://github.com/toeverything/affine) - There can be more than Notion and Miro. AFFiNE is a next-gen knowledge base that brings planning, sorting and creating all together. Privacy first, open-source, customizable and ready to use.
+- [BlockNote](https://github.com/TypeCellOS/BlockNote) - A "Notion-style" block-based extensible text editor built on top of Prosemirror and Tiptap.
 
 ## 参考文献
 
