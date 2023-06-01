@@ -1,16 +1,100 @@
-- 业务
+- 产品
+
+    - 短期 VS 长期（快糙猛VS可维护性）：例如运营活动性质的产品一般是短期内使用的，可以选择 H5 这种轻量可快速迭代的技术
+    - 探索性 VS 守成型（微内核架构VS保守）：例如 Lottie 动画，刚推出的时候可以尝试使用它来实现一些交互动效
+    - 边缘产品 VS 生命线产品（试验新技术VS保守）：例如 React Native 刚出来的时候，一些业务需要提升体验且兼具动态性，那么可以考虑使用它来替代边缘业务。
+
+- 用户
+
+    - 不同设备（PC VS 移动端）
+    - 浏览器版本
+    - 用户带宽
+    - 可访问性
+    - 国际化
+    - 访问频度
+
+- 团队
+
+    - 技术背景
+    - 团队规模
+    - 组织架构
+    - 人员流动性
+
 - 技术
 
-    - 性能
     - 生态
+    - 性能
+    - 质量（单元测试覆盖率）
     - 能力完备性
     - 扩展性
     - 迁移成本
     - 开发成本
     - 学习成本
     - 研究价值
-    
-- 人员
+
+## 场景
+
+### 移动端应用
+
+- Native
+- Flutter
+- React Native
+- Hybrid App
+
+### 移动端小程序
+
+- Hybrid App
+- React Native
+- FinClip
+
+### 移动端 H5
+
+- react + ant design mobile
+- vue + vant
+
+### 桌面端应用
+
+- Electron
+- Tauri
+
+### 官方网站
+
+- Next.js
+- Astro
+- Qwik
+- Remit
+- Nuxt.js
+
+### 管理后台
+
+框架选型
+
+- React
+- Vue
+- Angular
+
+组件库选型
+
+- Element
+- Ant Design(Pro)
+
+脚手架选型
+
+- Umi
+- Vbens
+
+### 第三方库选型
+
+日期
+
+- moment
+- day.js
+
+...
+
+## 参考文献
+
+- [技术选型指南](https://insights.thoughtworks.cn/choosing-technology-guide/)
 
 ---
 
