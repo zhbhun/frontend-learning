@@ -44,6 +44,7 @@
     - [oruga](https://github.com/oruga-ui/oruga) - Oruga is a lightweight library of UI components without CSS framework dependency
     - [primevue](https://github.com/primefaces/primevue) - Next Generation Vue UI Component Library
     - [lew-ui](https://github.com/lewkamtao/Lew-UI) - A beautiful component library based on vue3
+    - [inkline](https://github.com/inkline/inkline) - Inkline is the intuitive UI Components library that gives you a developer-friendly foundation for building high-quality, accessible, and customizable Vue.js 3 Design Systems.
 
 ## Admin
 
