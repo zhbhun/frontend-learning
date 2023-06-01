@@ -3,6 +3,7 @@
 - [Sortable](https://github.com/SortableJS/Sortable) - Reorderable drag-and-drop lists for modern browsers and touch devices. No jQuery or framework required.
 - [draggable](https://github.com/Shopify/draggable) - The JavaScript Drag & Drop library your grandparents warned you about.
 - [dragula](https://github.com/bevacqua/dragula) - Drag and drop so simple it hurts
+- [gridstack.js](https://github.com/gridstack/gridstack.js) - Build interactive dashboards in minutes.
 
 ## 参考文献
 
