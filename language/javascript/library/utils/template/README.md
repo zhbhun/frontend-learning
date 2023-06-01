@@ -10,3 +10,4 @@
     - [Goodbye JSX, Hello Comma-First Hyperscript](https://medium.com/@nicholasbaroni/goodbye-jsx-hello-comma-first-hyperscript-608194591433)
 
 - [mustache](https://mustache.github.io/)
+- [eta](https://github.com/eta-dev/eta) - Embedded JS template engine for Node, Deno, and the browser. Lighweight, fast, and pluggable. Written in TypeScript
