@@ -1,5 +1,6 @@
 - [jspreadsheets](https://jspreadsheets.com/)
 - [handsontable](https://github.com/handsontable/handsontable)
+- [tabulator](https://github.com/olifolkerd/tabulator) - Interactive Tables and Data Grids for JavaScript
 
 ---
 
