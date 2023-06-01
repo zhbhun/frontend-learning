@@ -1,1 +1,2 @@
 - [murmurhash-js](https://github.com/garycourt/murmurhash-js)
+- [hashids](https://hashids.org/javascript/)
