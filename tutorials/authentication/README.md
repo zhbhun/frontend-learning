@@ -3,6 +3,7 @@
 
     可扩展的身份验证和授权库，支持本地验证策略，OAuth，OpenID 等多种身份验证方案。
 
+- [accounts](https://github.com/accounts-js/accounts) - Fullstack authentication and accounts-management for Javascript.
 - [next-auth](https://github.com/nextauthjs/next-auth) - NextAuth.js is a complete open source authentication solution for Next.js applications.
 - [JSON Web Token](https://jwt.io/)
 
