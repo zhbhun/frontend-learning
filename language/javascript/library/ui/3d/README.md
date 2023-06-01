@@ -1,2 +1,5 @@
 - [three.js](https://github.com/mrdoob/three.js)
 - [Whitestorm.js](https://github.com/WhitestormJS/whs.js) - 🚀 🌪 Super-fast 3D framework for Web Applications 🥇 & Games 🎮. Based on Three.js
+- [lightgl.js](https://github.com/evanw/lightgl.js/) - A lightweight WebGL library
+- [litegl.js](https://github.com/jagenjo/litegl.js) - Lightweight Javascript WebGL library for handling Context, Meshes, Textures and Shaders. Relies on glMatrix 2.0, very easy to use.
+- [philogl](https://github.com/senchalabs/philogl) - A WebGL Framework for Data Visualization, Creative Coding and Game Development
