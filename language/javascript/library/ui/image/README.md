@@ -18,3 +18,9 @@
 ## 效果
 
 - [ImageFlow](https://github.com/one-piece-official/ImageFlow) - Node Image Effect Component By OpenGl ES
+
+## 压缩
+
+- [UPNG.js](https://github.com/photopea/UPNG.js) - Fast and advanced PNG (APNG) decoder and encoder (lossy / lossless)
+
+    - https://blog.photopea.com/png-minifier-inside-photopea.html
