@@ -43,3 +43,7 @@
 ---
 
 利用命令模式实现回退和撤销，利用命令模式实现远程计算器
+
+---
+
+- [Qalculate](https://github.com/Qalculate) - Multi-purpose cross-platform desktop calculator with customizable functions, units, arbitrary precision, symbolic calculations, etc. (library, CLI and GUI)
