@@ -29,6 +29,10 @@
 - [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm) - FFmpeg for browser and node, powered by WebAssembly
 - [Seriously.js](https://github.com/brianchirls/Seriously.js) - A real-time, node-based video effects compositor for the web built with HTML5, Javascript and WebGL
 
+## 开源项目
+
+- [olive](https://github.com/olive-editor/olive) - Free open-source non-linear video editor
+
 ## 实现案例
 
 - https://www.veed.io
