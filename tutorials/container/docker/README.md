@@ -82,6 +82,18 @@ sudo systemctl start docker
 1. `docker image pull hello-world`
 2. `docker container run hello-world`
 
+### 其他版本
+
+- [minikube](https://github.com/kubernetes/minikube) - Run Kubernetes locally
+
+    - [Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? MacOS](https://github.com/rancher-sandbox/rancher-desktop/issues/3296#issuecomment-1295236564)
+
+- [rancher-desktop](https://github.com/rancher-sandbox/rancher-desktop/)
+
+---
+
+- [Install Docker on Mac M1 without Docker Desktop](https://dev.to/sergej_brazdeikis/install-docker-on-mac-m1-without-docker-desktop-k6o)
+
 ## 教程
 
 - [Docker 入门教程](http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html)
