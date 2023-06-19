@@ -32,6 +32,7 @@
 ## 开源项目
 
 - [olive](https://github.com/olive-editor/olive) - Free open-source non-linear video editor
+- [lossless-cut](https://github.com/mifi/lossless-cut) - The swiss army knife of lossless video/audio editing
 
 ## 实现案例
 
