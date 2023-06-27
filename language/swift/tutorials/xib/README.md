@@ -1,0 +1,2 @@
+- [代码手写UI，xib和StoryBoard间的博弈，以及Interface Builder的一些小技巧](https://onevcat.com/2013/12/code-vs-xib-vs-storyboard/)
+- [写给Storyboard / Xib新手的总结](https://www.jianshu.com/p/8edf2a4ae383)
