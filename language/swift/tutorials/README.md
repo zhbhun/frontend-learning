@@ -8,6 +8,7 @@
 - [awesome-ios](https://github.com/vsouza/awesome-ios)
 - [awesome-ios-ui](https://github.com/cjwirth/awesome-ios-ui)
 - [Awesome-Swift-Education](https://github.com/hsavit1/Awesome-Swift-Education)
+- https://github.com/panbin/panbin-ios
 
 ## 教程
 
