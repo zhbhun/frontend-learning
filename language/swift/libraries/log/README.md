@@ -1,0 +1,2 @@
+- [SwiftyBeaver](https://github.com/SwiftyBeaver/SwiftyBeaver)
+- [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack)
