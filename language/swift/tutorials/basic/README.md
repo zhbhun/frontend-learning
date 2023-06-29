@@ -1,0 +1,2 @@
+- https://developer.apple.com/documentation/swift
+- https://docs.swift.org/swift-book/documentation/the-swift-programming-language/functions

@@ -1,0 +1,1 @@
+- [Fakery](https://github.com/vadymmarkov/Fakery) - Swift fake data generator
