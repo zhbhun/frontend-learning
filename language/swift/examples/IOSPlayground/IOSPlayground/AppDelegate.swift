@@ -12,13 +12,16 @@ let log = SwiftyBeaver.self
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    
+    var notificationCenterTester: NotificationCenterTester?;
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let console = ConsoleDestination()
         log.addDestination(console)
+
+        notificationCenterTester = NotificationCenterTester()
+
         return true
     }
 

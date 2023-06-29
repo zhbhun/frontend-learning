@@ -7,21 +7,43 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UITableViewController {
     
-    var notificationCenterTester: NotificationCenterTester?;
-
+    let demoControllers: [(String, UIViewController.Type)] = [
+        ("UILabel", UILabelPlayground.self),
+        ("Demo 1", Demo1ViewController.self),
+        ("Demo 2", Demo2ViewController.self),
+        // 添加更多示例控制器
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        self.view.backgroundColor = .white
+        title = "Playground"
         
-        notificationCenterTester = NotificationCenterTester()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    }
+    
+    // MARK: - UITableViewDataSource
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return demoControllers.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = demoControllers[indexPath.row].0
+        return cell
+    }
+    
+    // MARK: - UITableViewDelegate
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
-        let label = UILabel(frame: CGRect(x: UIScreen.main.bounds.size.width / 2 - 50, y: UIScreen.main.bounds.size.height / 2 - 10, width: 100, height: 20))
-        label.text = "Hello World"
-        label.textAlignment = NSTextAlignment.center
-        self.view.addSubview(label)
+        let controllerClass = demoControllers[indexPath.row].1
+        let viewController = controllerClass.init()
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }
