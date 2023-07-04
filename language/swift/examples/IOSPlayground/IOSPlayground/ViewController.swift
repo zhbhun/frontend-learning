@@ -12,7 +12,9 @@ class ViewController: UITableViewController {
     let demoControllers: [(String, UIViewController.Type)] = [
         ("UIColor", UIColorPlayground.self),
         ("UILabel", UILabelPlayground.self),
+        ("UIStackView", UIStackViewPlayground.self),
         ("NSLayoutConstraint", NSLayoutConstraintPlayground.self),
+        ("FlexLayout", FlexLayoutPlayground.self),
         ("Demo 1", Demo1ViewController.self),
         ("Demo 2", Demo2ViewController.self),
         // 添加更多示例控制器
