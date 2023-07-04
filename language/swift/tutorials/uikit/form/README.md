@@ -1,0 +1,6 @@
+- UISwitch: 开关控件，用于切换二进制选项的状态。
+- UIProgressView: 用于显示进度或完成百分比的进度条。
+- UISlider: 滑块控件，用于通过滑动来选择一个值或范围。
+- UIActivityIndicatorView: 用于显示操作进行中的指示器视图。
+- UIPickerView: 用于从预定义选项中选择
+- UITextField: 用于接收用户输入的文本框视图。可以设置键盘类型、占位符文本等属性。
