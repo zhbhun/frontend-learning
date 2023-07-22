@@ -15,8 +15,8 @@ class ViewController: UITableViewController {
         ("UIStackView", UIStackViewPlayground.self),
         ("NSLayoutConstraint", NSLayoutConstraintPlayground.self),
         ("FlexLayout", FlexLayoutPlayground.self),
-        ("Demo 1", Demo1ViewController.self),
-        ("Demo 2", Demo2ViewController.self),
+        ("UITapGestureRecognizer", UITapGestureRecognizerPlayground.self),
+        ("UILongPressGestureRecognizer", UILongPressGestureRecognizerPlayground.self)
         // 添加更多示例控制器
     ]
     
