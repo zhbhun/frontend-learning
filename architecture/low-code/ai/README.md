@@ -47,3 +47,5 @@
 - [【第2907期】AI+低代码的过去、现在和未来](https://mp.weixin.qq.com/s/5mCpzqQOLUcrdH4CfDZE9Q)
 
     - https://m.inmuu.com/v1/live/news/2549026/intro
+
+- [GPT X LowCode-GPT 提示工程与低代码开发实战](https://zhuanlan.zhihu.com/p/633375871)
