@@ -10,3 +10,7 @@ http://www.jb51.net/article/52911.htm
 - [Stop loading of images with javascript (lazyload)?](https://stackoverflow.com/questions/1339901/stop-loading-of-images-with-javascript-lazyload)
 - [Javascript: Cancel/Stop Image Requests](https://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests)
 - [How to cancel an image from loading](https://stackoverflow.com/questions/5278304/how-to-cancel-an-image-from-loading)
+
+### 如何检测 picture 实际渲染的图片地址
+
+- [currentSrc](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/currentSrc)
