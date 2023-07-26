@@ -7,3 +7,4 @@
 
 - [Open iOs settings with href link](https://stackoverflow.com/questions/74011244/open-ios-settings-with-href-link)
 - [Settings URLs](https://github.com/FifiTheBulldog/ios-settings-urls/blob/master/settings-urls.md)
+- [List of known iOS URL Schemes and Universal Links](https://github.com/Tanaschita/ios-known-url-schemes-and-universal-links)
