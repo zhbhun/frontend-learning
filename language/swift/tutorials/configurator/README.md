@@ -1,0 +1,2 @@
+- [Apple Configurator](https://apps.apple.com/us/app/apple-configurator/id1037126344?mt=12)
+- [WebClip](https://developer.apple.com/documentation/devicemanagement/webclip)
