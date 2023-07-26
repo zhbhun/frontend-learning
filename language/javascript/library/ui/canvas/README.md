@@ -30,3 +30,7 @@
 ## Simulator
 
 - [node-canvas](https://github.com/Automattic/node-canvas) - Node canvas is a Cairo backed Canvas implementation for NodeJS.
+
+## Text
+
+- [CanvasTextWrapper.js](https://github.com/namniak/canvas-text-wrapper)
