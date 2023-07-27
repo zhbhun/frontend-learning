@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import './pages/DemoPage.dart';
+import './pages/NamingPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +34,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: {
+        DemoPage.routeName: (context) => DemoPage(),
+        NamingPage.routeName: (context) => NamingPage(),
+      },
     );
   }
 }
@@ -111,6 +117,18 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, DemoPage.routeName);
+              },
+              child: Text('Go to Second Page'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, NamingPage.routeName);
+              },
+              child: Text('Naming'),
             ),
           ],
         ),
