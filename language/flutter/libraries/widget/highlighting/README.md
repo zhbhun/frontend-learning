@@ -1,0 +1,1 @@
+- [flutter_highlighting](https://pub.dev/packages/flutter_highlighting)

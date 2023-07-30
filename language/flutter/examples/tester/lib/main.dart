@@ -1,8 +1,51 @@
 import 'package:flutter/material.dart';
+import './pages/demo/LayoutTutorial.dart';
+import './pages/widget/ConstrainedBoxTester.dart';
+import './pages/widget/CenterTester.dart';
 import './pages/DemoPage.dart';
 import './pages/NamingPage.dart';
 
+class WidgetRoute {
+  const WidgetRoute({
+    required this.name,
+    required this.title,
+    required this.builder,
+  });
+
+  final String name;
+  final String title;
+  final WidgetBuilder builder;
+}
+
+final routeList = [
+  WidgetRoute(
+      name: ConstrainedBoxTester.routeName,
+      title: ConstrainedBoxTester.routeTitle,
+      builder: (context) => ConstrainedBoxTester()),
+  WidgetRoute(
+      name: CenterTester.routeName,
+      title: CenterTester.routeTitle,
+      builder: (context) => CenterTester()),
+  WidgetRoute(
+      name: DemoPage.routeName,
+      title: DemoPage.routeTitle,
+      builder: (context) => DemoPage()),
+  WidgetRoute(
+      name: NamingPage.routeName,
+      title: NamingPage.routeTitle,
+      builder: (context) => NamingPage()),
+  WidgetRoute(
+      name: LayoutTutorial.routeName,
+      title: LayoutTutorial.routeTitle,
+      builder: (context) => LayoutTutorial()),
+];
+
+final Map<String, WidgetBuilder> routeMap = {};
+
 void main() {
+  for (var route in routeList) {
+    routeMap.addAll({route.name: route.builder});
+  }
   runApp(const MyApp());
 }
 
@@ -33,11 +76,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      routes: {
-        DemoPage.routeName: (context) => DemoPage(),
-        NamingPage.routeName: (context) => NamingPage(),
-      },
+      home: const MyHomePage(title: 'Flutter'),
+      routes: routeMap,
     );
   }
 }
@@ -53,7 +93,6 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
   final String title;
 
   @override
@@ -61,19 +100,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -92,52 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, DemoPage.routeName);
+      body: ListView(
+        children: [
+          for (var route in routeList)
+            ListTile(
+              title: Text(route.title),
+              onTap: () {
+                Navigator.pushNamed(context, route.name);
               },
-              child: Text('Go to Second Page'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, NamingPage.routeName);
-              },
-              child: Text('Naming'),
-            ),
-          ],
-        ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

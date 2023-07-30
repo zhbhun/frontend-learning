@@ -3,6 +3,7 @@ import 'package:english_words/english_words.dart';
 import 'package:provider/provider.dart';
 
 class NamingPage extends StatelessWidget {
+  static const String routeTitle = 'Naming';
   static const String routeName = '/naming';
 
   @override

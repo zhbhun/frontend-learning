@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DemoPage extends StatelessWidget {
+  static const String routeTitle = 'Demo';
   static const String routeName = '/demo';
 
   @override
