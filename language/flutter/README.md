@@ -11,8 +11,48 @@
 
   - State
 
-    - initState
-    - dispose
+    - Callbacks
+
+      - initState：当 State 对象被插入树中时调用，表示初始化阶段。
+      - didChangeDependencies：表示 State 对象依赖的对象发生变化时调用。
+      - didUpdateWidget：在组件的配置发生变化（例如父组件重建时）时调用。
+      - shouldRebuild：决定是否需要重建组件，返回 true 会导致 build 方法被调用。
+      - dispose：当 State 对象从树中被永久移除时调用，用于释放资源。
+      - deactivate：当 State 对象从树中暂时移除时调用，用于释放资源。
+
+    - Lifes
+
+      - Init
+
+        - initState
+        - didChangeDependencies
+        - build
+    
+      - Parent rebuild
+
+        - didUpdateWidget
+        - shouldRebuild
+        - build
+      
+      - State change
+
+        - didChangeDependencies
+        - shouldRebuild
+        - build
+
+      - Destroy
+
+        - dispose
+
+- Keys
+
+  - LocalKey
+
+    - ObjectKey: 通过对象引用来标识子组件
+    - ValueKey: 通过特定值来标识子组件
+    - UniqueKey
+
+  - GlobalKey
 
 - Widgets
 
@@ -21,8 +61,8 @@
     - Container：容器，设置背景、边框、填充等属性，常用于包裹其他 Widget。
     - Row：水平布局
     - Column：垂直布局
-    - Center：用于将子Widget居中显示
-    - Expanded：用于在 Row 和 Column 中扩展子Widget的空间。
+    - Center：用于将子 Widget 居中显示
+    - Expanded：用于在 Row 和 Column 中扩展子 Widget 的空间。
     - Flexible：同上
     - Padding：用于给子 Widget 添加内边距。
     - Wrap： 用于自动换行的流式布局。
@@ -35,7 +75,9 @@
     - CupertinoApp
     - MaterialApp
     - MaterialPageRoute
+    - PageRouteBuilder
     - Navigator
+    - Router
 
   - Display
 
@@ -43,7 +85,6 @@
     - FlatButton
     - IconButton
     - Text
-    - Image
     - Icon
     - Card
     - Chip
@@ -55,12 +96,20 @@
     - SingleChildScrollView
     - ListView
     - GridView
-    - Table
     - CustomScrollView
     - NestedScrollView
-    - VideoPlayer
-    - Camera
+    - Table
+
+  - Media
+
     - AudioPlayer
+    - Camera
+    - Image
+
+      - Image.file(File('file:///...'))
+      - FadeInImage
+
+    - VideoPlayer
 
   - Form
 
@@ -136,30 +185,35 @@
     - BottomSheet
     - MaterialButton
 
+## Style
+
+- BoxConstraints
+- TextStyle
+- Theme
+
 ## State
 
-- State
-- Provider
+- Local
 
-## Assets
+  - State
 
-- Type
+- Context
 
-    - JSON
-    - Image
-    - Audio
-    - Video
+  - InheritedWidget & InheritedModel
 
-- Specific
+- Global
 
-    - flutter:assets:assets/my_icon.png
-    - flutter:assets:assets/
-
-- Variants
-
-    - Local
-    - Resolution
-    - Theme
+  - Provider
+  - Riverpod
+  - Redux
+  - Fish-Redux
+  - BLoC / Rx
+  - GetIt
+  - MobX
+  - Binder
+  - GetX
+  - states_rebuilder
+  - Triple Pattern
 
 ## Event
 
@@ -167,11 +221,43 @@
 
 ## Animation
 
-- ...
+- PageRouteBuilder
+
+## Assets
+
+- Type
+
+  - JSON
+  - Image
+  - Audio
+  - Video
+
+- Specific
+
+  - flutter:assets:assets/my_icon.png
+  - flutter:assets:assets/
+
+- Variants
+
+  - Local
+  - Resolution
+  - Theme
+
+## Storage
+
+- path_provider: 文件读写
+- shared_preferences:
+- sqflite
 
 ## Network
 
 - http
 - serialization
 
-    - dart:convert 
+  - dart:convert
+
+## Test
+
+- Integration
+- Unit
+- Widget
