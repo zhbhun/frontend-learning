@@ -75,7 +75,6 @@
     - [hanhdt/vue-trix](https://github.com/hanhdt/vue-trix)
 
 - [editor.js](https://github.com/codex-team/editor.js)
-- [tui.editor](https://github.com/nhn/tui.editor) - Markdown WYSIWYG Editor. GFM Standard + Chart & UML Extensible.
 - [tiptap](https://github.com/ueberdosis/tiptap)
 - [medium-editor](https://github.com/yabwe/medium-editor)
 
@@ -94,7 +93,11 @@
 - [Squire](https://github.com/neilj/Squire)
 - [wangEditor](https://github.com/wangeditor-team/wangEditor)
 - https://github.com/papyrs/stylo
-- [bytemd](https://github.com/bytedance/bytemd) - Hackable Markdown editor and viewer
+
+## Markdown
+
+- [tui.editor](https://github.com/nhn/tui.editor) -  16K Star, Markdown WYSIWYG Editor. GFM Standard + Chart & UML Extensible.
+- [bytemd](https://github.com/bytedance/bytemd) - 4K Star, Hackable Markdown editor and viewer
 
 ## 代码
 

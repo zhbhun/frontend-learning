@@ -24,3 +24,7 @@
 - [UPNG.js](https://github.com/photopea/UPNG.js) - Fast and advanced PNG (APNG) decoder and encoder (lossy / lossless)
 
     - https://blog.photopea.com/png-minifier-inside-photopea.html
+
+## Editor
+
+- [tui.image-editor](https://github.com/nhn/tui.image-editor) - Full-featured photo image editor using canvas. It is really easy, and it comes with great filters.
