@@ -1,3 +1,4 @@
+- [superset](https://github.com/apache/superset)
 - [antv](https://antv.alipay.com/zh-cn/index.html)
 
     - [G2](https://antv.alipay.com/zh-cn/g2/3.x/index.html)：可视化图形语法
