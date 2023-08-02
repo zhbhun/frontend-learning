@@ -96,8 +96,15 @@
 
 ## Markdown
 
+- [showdown](https://github.com/showdownjs/showdown) - 53K Star, Apache Superset is a Data Visualization and Data Exploration Platform
+- [marktext](https://github.com/marktext/marktext) - 40K Star, A simple and elegant markdown editor, available for Linux, macOS and Windows.
 - [tui.editor](https://github.com/nhn/tui.editor) -  16K Star, Markdown WYSIWYG Editor. GFM Standard + Chart & UML Extensible.
+- [editor.md](https://github.com/pandao/editor.md) - 13K Star, The open source embeddable online markdown editor (component).
+- [react-markdown](https://github.com/remarkjs/react-markdown) - 10K Star, https://github.com/remarkjs/react-markdown
+- [simplemde-markdown-editor](https://github.com/sparksuite/simplemde-markdown-editor) - 9K Star, A simple, beautiful, and embeddable JavaScript Markdown editor. Delightful editing for beginners and experts alike. Features built-in autosaving and spell checking.
+- [pen](https://github.com/sofish/pen) - 5K Star, enjoy live editing (+markdown)
 - [bytemd](https://github.com/bytedance/bytemd) - 4K Star, Hackable Markdown editor and viewer
+- [markdown-editor](https://github.com/jbt/markdown-editor) - 3K Star, Live (Github-flavored) Markdown Editor
 
 ## 代码
 
