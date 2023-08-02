@@ -5,6 +5,7 @@
 - [complete-javascript-course](https://github.com/jonasschmedtmann/complete-javascript-course) - Starter files, final projects and FAQ for my Complete JavaScript course
 - [30-seconds-of-code](https://github.com/30-seconds/30-seconds-of-code)
 - [33 Concepts Every JavaScript Developer Should Know](https://github.com/leonardomso/33-js-concepts)
+- [33-js-concepts](https://github.com/stephentian/33-js-concepts) - 每个 JavaScript 工程师都应懂的33个概念
 
 ---
 

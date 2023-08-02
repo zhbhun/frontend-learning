@@ -2,6 +2,7 @@
 - [handsontable](https://github.com/handsontable/handsontable)
 - [tabulator](https://github.com/olifolkerd/tabulator) - Interactive Tables and Data Grids for JavaScript
 - [tui.grid](https://github.com/nhn/tui.grid) - The Powerful Component to Display and Edit Data. Experience the Ultimate Data Transformer!w
+- [table](https://github.com/TanStack/table) - Headless UI for building powerful tables & datagrids for TS/JS - React-Table, Vue-Table, Solid-Table, Svelte-Table
 
 ---
 
