@@ -7191,11 +7191,11 @@
                                                   item.y = item.y / scaleY;
                                                   return item
                                                 })
-                                                // this_1.ctx.save();
+                                                var scaledOffsetX = x / scaleX;
+                                                var scaledOffsetY = y / scaleY;
                                                 this_1.ctx.scale(scaleX, scaleY)
-                                                this_1.renderRepeat(scalePath, pattern, x, y);
-                                                // this_1.ctx.restore();
-                                                // this_1.ctx.scale(1 / scaleX, 1 / scaleY);
+                                                this_1.renderRepeat(scalePath, pattern, scaledOffsetX, scaledOffsetY);
+                                                this_1.ctx.scale(1 / scaleX, 1 / scaleY);
                                             }
                                             return [3 /*break*/, 6];
                                         case 5:
