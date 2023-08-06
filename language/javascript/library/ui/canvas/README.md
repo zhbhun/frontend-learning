@@ -21,15 +21,6 @@
 ## Utils
 
 - [html2canvas](https://github.com/niklasvh/html2canvas)
-
-    - object-fit 支 问题
-
-        - [fix for apply object-fit](https://github.com/niklasvh/html2canvas/issues/2541)
-        - [Canvas ignores object-fit property](https://github.com/niklasvh/html2canvas/issues/725)
-        - [Tutorial: How to support object-fit: contain and object-fit: cover](https://github.com/niklasvh/html2canvas/issues/3072)
-        - [Background with background-size cover is not working.](https://github.com/niklasvh/html2canvas/issues/288)
-        - [Html2canvas Ignores object-fit for image](https://stackoverflow.com/questions/65895497/html2canvas-ignores-object-fit-for-image)
-
 - [canvas-toBlob.js](https://github.com/eligrey/canvas-toBlob.js)
 
 ## Editor
