@@ -1,1 +1,2 @@
 - [The State of JS 2022](https://2022.stateofjs.com/)
+- [whats-new-in-ecmascript-2022](https://pawelgrzybek.com/whats-new-in-ecmascript-2022/)
