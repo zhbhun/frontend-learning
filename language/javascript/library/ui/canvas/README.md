@@ -18,9 +18,13 @@
 - [Pts](https://github.com/williamngan/pts)
 - [EaselJS](https://github.com/CreateJS/EaselJS)
 
-## Utils
+## Screenshot
 
 - [html2canvas](https://github.com/niklasvh/html2canvas)
+- [dom-to-image](https://github.com/tsayen/dom-to-image)
+- [html-to-image](https://github.com/bubkoo/html-to-image)
+- [html2pdf.js](https://github.com/eKoopmans/html2pdf.js)
+- [html2svg](https://github.com/fathyb/html2svg)
 - [canvas-toBlob.js](https://github.com/eligrey/canvas-toBlob.js)
 
 ## Editor
