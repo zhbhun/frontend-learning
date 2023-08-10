@@ -40,7 +40,6 @@ ps：聊公司和工作职责 =》重点参与的业务和项目 =》 围绕项�
 - https://leetcode.cn/
 - [牛课网](https://www.nowcoder.com/)
 - [赛码网](https://www.acmcoder.com/#/practice/company)
-- [IT公司笔试题集锦](https://blog.csdn.net/column/details/offer.html)
 - https://fe.ecool.fun/topic-list
 
 ---

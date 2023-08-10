@@ -9518,6 +9518,7 @@
                         });
                         scaledOffsetX = x / scaleX_1;
                         scaledOffsetY = y / scaleY_1;
+                        this_1.ctx.save();
                         this_1.ctx.scale(scaleX_1, scaleY_1);
                         this_1.renderRepeat(
                           scaledPath,
@@ -9525,7 +9526,7 @@
                           scaledOffsetX,
                           scaledOffsetY
                         );
-                        this_1.ctx.scale(1 / scaleX_1, 1 / scaleY_1);
+                        this_1.ctx.restore();
                       }
                       return [3 /*break*/, 6];
                     case 5:

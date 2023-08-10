@@ -1,3 +1,30 @@
+## this 指向
+
+下面代码的输出是什么？
+
+```js
+const obj = {
+ fn1: () => console.log(this),
+ fn2: function() {console.log(this)}
+}
+
+obj.fn1();
+obj.fn2();
+
+const x = new obj.fn1();
+const y = new obj.fn2();
+```
+
+输出结果：
+
+1. window 或 undefined
+2. obj
+3. 报错
+4. 不执行，但是执行后会输出 fn2 构造的新实例
+
+
+---
+
 ## ECMAScript
 
 ### 请简述 JavaScript 中 的 this
