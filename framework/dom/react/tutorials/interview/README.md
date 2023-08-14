@@ -92,7 +92,8 @@ https://codesandbox.io/s/react-hook-interval-xc7fmw
 
 ## 实现一个 useDebounce
 
-https://codesandbox.io/s/react-debounce-hook-mmyzkc
+- https://codesandbox.io/s/react-debounce-hook-mmyzkc
+- https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAJQKYEMDGMA0cDecCuAzkgMowoxJwC+cAZlBCHAERSoYsDcAUKJLFxwAJkgBGEfADs0VWgyasANhGEpCACwC0SQtx4860jMAhS4AQTBgAFAEpcPOHDRnC8ANoA3FEuzEYADVfAF04AF4CYjIKJBsWFjteZwB6FLgAFQB5ABEsgC4RcUkZJGFgpXwqQCwEwHH4wCY0wDSjQFNzQBezQAbTQBh-wCx5QAp1QApXQHYjQCCzQB0FQGT4wFNFOABGOEAlz0A4FQ6DZ3YYfChzGydnOAAeYWAvAD5dvYPgKTB8GHOLuBgATzAkcJZKAA8YFnuLn0qbxwAOofz2YCU6CQGggSlEUHeOWKxjKcCuNx+YOcZgAwhoUFIAOZAmx4NCbdhSGAZFBQYnwagOcInRwPB4BCo2clQSnU2n0gB0AKqSSxNFBbJSZzZh2OJyREhRwjgwqQhWBvmo+xSR1O921uulcFFoKAA
 
 问题
 
