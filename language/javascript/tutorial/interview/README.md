@@ -1,26 +1,34 @@
 ## this 指向
 
-下面代码的输出是什么？
+- 问题：下面代码的输出是什么？
 
-```js
-const obj = {
- fn1: () => console.log(this),
- fn2: function() {console.log(this)}
-}
+    ```js
+    const obj = {
+      fn1: () => console.log(this),
+      fn2: function() {console.log(this)}
+    }
 
-obj.fn1();
-obj.fn2();
+    obj.fn1();
+    obj.fn2();
 
-const x = new obj.fn1();
-const y = new obj.fn2();
-```
+    const x = new obj.fn1();
+    const y = new obj.fn2();
+    ```
 
-输出结果：
+- 解答：
 
-1. window 或 undefined
-2. obj
-3. 报错
-4. 不执行，但是执行后会输出 fn2 构造的新实例
+    ```
+    1. window 或 undefined
+    2. obj
+    3. 报错
+    4. 不执行，但是执行后会输出 fn2 构造的新实例
+    ```
+
+- 示例：https://codesandbox.io/s/mutable-butterfly-xg9hfm
+
+## 原型链
+
+https://codesandbox.io/s/prototype-rty44s
 
 
 ---

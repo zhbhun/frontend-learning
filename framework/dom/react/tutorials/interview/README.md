@@ -92,6 +92,8 @@ https://codesandbox.io/s/react-hook-interval-xc7fmw
 
 ## 实现一个 useDebounce
 
+https://codesandbox.io/s/react-debounce-hook-mmyzkc
+
 问题
 
 ```tsx
