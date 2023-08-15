@@ -1,0 +1,1 @@
+- [TanStack/router](https://github.com/TanStack/router) - Fully typesafe Router for React (and friends) w/ built-in caching, 1st class search-param APIs, client-side cache integration and isomorphic rendering.
