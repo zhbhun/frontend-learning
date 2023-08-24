@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import './pages/demo/Dart3PatternDemo.dart';
 import './pages/demo/LayoutTutorial.dart';
+import './pages/demo/SinUpDemo.dart';
 import './pages/widget/ConstrainedBoxTester.dart';
 import './pages/widget/CenterTester.dart';
 import './pages/DemoPage.dart';
 import './pages/NamingPage.dart';
+
 
 class WidgetRoute {
   const WidgetRoute({
@@ -38,6 +41,18 @@ final routeList = [
       name: LayoutTutorial.routeName,
       title: LayoutTutorial.routeTitle,
       builder: (context) => LayoutTutorial()),
+  WidgetRoute(
+      name: Dart3PatternDemo.routeName,
+      title: Dart3PatternDemo.routeTitle,
+      builder: (context) => Dart3PatternDemo()),
+  WidgetRoute(
+      name: SignUpDemo.routeName,
+      title: SignUpDemo.routeTitle,
+      builder: (context) => SignUpDemo()),
+  WidgetRoute(
+      name: SignUpWelcomeScreen.routeName,
+      title: SignUpWelcomeScreen.routeTitle,
+      builder: (context) => SignUpWelcomeScreen()),
 ];
 
 final Map<String, WidgetBuilder> routeMap = {};
@@ -76,7 +91,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter'),
+      home: const MyHomePage(title: '...'),
       routes: routeMap,
     );
   }
