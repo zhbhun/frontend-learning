@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tester/widgets/index.dart';
 
 class ConstrainedBoxTester extends StatelessWidget {
-  static const String routeTitle = 'ConstrainedBox';
-  static const String routeName = '/widget/constrained-box-tester';
+  static final Demo demo =
+      Demo(name: 'ConstrainedBox', builder: (BuildContext context) => ConstrainedBoxTester());
 
   @override
   Widget build(BuildContext context) {

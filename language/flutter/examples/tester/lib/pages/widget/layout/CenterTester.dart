@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tester/widgets/index.dart';
 
 class CenterTester extends StatelessWidget {
-  static const String routeTitle = 'Center';
-  static const String routeName = '/widget/center';
+  static final Demo demo =
+      Demo(name: 'Center', builder: (BuildContext context) => CenterTester());
 
   @override
   Widget build(BuildContext context) {

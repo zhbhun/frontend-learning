@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tester/widgets/index.dart';
 
-class LayoutTutorial extends StatelessWidget {
-  static const String routeTitle = 'Layout';
-  static const String routeName = '/demo/layout';
+class LayoutTutorialApp extends StatelessWidget {
+  static final Demo demo = Demo(name: 'Layout', builder: (BuildContext context) => LayoutTutorialApp());
 
   @override
   Widget build(BuildContext context) {

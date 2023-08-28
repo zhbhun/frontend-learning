@@ -14,6 +14,7 @@
 - [Zdog](https://zzz.dog/) - Zdog is a JavaScript library for creating 3D designs and animations by David DeSandro. With its help, you can draw your designs using the `<canvas>` element or SVGs and bring them to life in smooth animations with a sleek 3D effect.
 - [scenejs](https://github.com/daybrush/scenejs) - Scene.js is JavaScript & CSS timeline-based animation library
 - [AniJS](http://anijs.github.io/) - Our final library is interesting for its unique approach. AniJS is an animation library that allows you to add animations to elements in a simple ‘sentence-like’ structure. Take the following format:
+- [motion-canvas](https://github.com/motion-canvas/motion-canvas) - Visualize Your Ideas With Code
 
 ### CSS
 

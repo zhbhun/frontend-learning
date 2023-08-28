@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:provider/provider.dart';
+import 'package:tester/widgets/index.dart';
 
-class NamingPage extends StatelessWidget {
-  static const String routeTitle = 'Naming';
-  static const String routeName = '/naming';
+class NamingApp extends StatelessWidget {
+  static final Demo demo = Demo(name: 'Naming', builder: (BuildContext context) => NamingApp());
 
   @override
   Widget build(BuildContext context) {

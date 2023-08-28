@@ -7,22 +7,23 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:tester/widgets/index.dart';
 
-class Dart3PatternDemo extends StatefulWidget {
-  static const String routeTitle = 'Dart 3 Pattern';
-  static const String routeName = '/dart3/pattern';
+class Dart3PatternApp extends StatefulWidget {
+  static final Demo demo =
+      Demo(name: 'Dart 3 Pattern', builder: (BuildContext context) => Dart3PatternApp());
 
-  const Dart3PatternDemo({
+  const Dart3PatternApp({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<Dart3PatternDemo> createState() {
-    return _Dart3PatternDemoState();
+  State<Dart3PatternApp> createState() {
+    return _Dart3PatternAppState();
   }
 }
 
-class _Dart3PatternDemoState extends State<Dart3PatternDemo> {
+class _Dart3PatternAppState extends State<Dart3PatternApp> {
   late _Document document;
 
   @override
