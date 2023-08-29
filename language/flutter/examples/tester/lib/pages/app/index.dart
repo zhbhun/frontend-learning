@@ -4,12 +4,14 @@ import './Dart3PatternApp.dart';
 import './LayoutTutorialApp.dart';
 import './NamingApp.dart';
 import './SignUpDemo.dart';
+import './ShopperApp.dart';
 
 final List<Demo> demos = [
   Dart3PatternApp.demo,
   LayoutTutorialApp.demo,
   NamingApp.demo,
   SignUpApp.demo,
+  ShopperApp.demo,
 ];
 
 class AppPage extends StatelessWidget {

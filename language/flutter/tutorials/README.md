@@ -7,7 +7,6 @@
 - [《Flutter实战·第二版》》](https://book.flutterchina.club/)
 - 《Flutter 组件详解与实践》
 
-
 ## 示例
 
 - https://github.com/flutter/samples / [Flutter Examples](https://flutter.github.io/samples/#)

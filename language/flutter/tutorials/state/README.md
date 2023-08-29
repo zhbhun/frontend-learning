@@ -1,3 +1,2 @@
-- [Flutter Architecture Samples](https://fluttersamples.com/)
-- [Introduction to state management](https://docs.flutter.dev/data-and-backend/state-mgmt/intro)
 - [Simple app state management](https://docs.flutter.dev/data-and-backend/state-mgmt/simple)
+- [Flutter Architecture Samples](https://fluttersamples.com/)
