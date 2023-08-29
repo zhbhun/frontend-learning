@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
+import './lifecycle/index.dart';
 import './layout/index.dart';
+import './material/index.dart';
 
 final List<Demo> demos = [
+  LifecyclePage.demo,
   LayoutPage.demo,
+  MaterialWidgetPage.demo,
 ];
 
 class WidgetPage extends StatelessWidget {
