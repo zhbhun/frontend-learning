@@ -61,7 +61,7 @@ class _LifecycleLoggerState extends State<LifecycleLogger> {
 
   @override
   Widget build(BuildContext context) {
-    print('>> build');
+    print('>> ${widget.name} build');
     return widget.child ?? Placeholder();
   }
 }
