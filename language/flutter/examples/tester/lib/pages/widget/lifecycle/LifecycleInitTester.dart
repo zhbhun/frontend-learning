@@ -15,12 +15,12 @@ class LifecycleInitTester extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LifecycleLogger(
-        name: 'init',
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('Lifecycle Init'),
-          ),
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Lifecycle Init'),
+        ),
+        body: LifecycleLogger(
+          name: 'logger',
         ));
   }
 }

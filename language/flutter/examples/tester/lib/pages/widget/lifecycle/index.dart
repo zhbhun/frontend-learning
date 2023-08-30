@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
 import './LifecycleInitTester.dart';
 import './LifecycleParentUpdateTester.dart';
+import './LifecycleInheritUpdateTester.dart';
 
 final List<Demo> demos = [
   LifecycleInitTester.demo,
   LifecycleParentUpdateTester.demo,
+  LifecycleInheritUpdateTester.demo,
 ];
 
 class LifecyclePage extends StatelessWidget {

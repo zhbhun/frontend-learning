@@ -3,18 +3,6 @@ import './widgets/index.dart';
 import './pages/app/index.dart';
 import './pages/widget/index.dart';
 
-class WidgetRoute {
-  const WidgetRoute({
-    required this.name,
-    required this.title,
-    required this.builder,
-  });
-
-  final String name;
-  final String title;
-  final WidgetBuilder builder;
-}
-
 final List<Demo> demos = [AppPage.demo, WidgetPage.demo];
 
 void main() {

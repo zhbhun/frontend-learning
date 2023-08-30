@@ -3,6 +3,8 @@
  *
  * 1. didUpdateWidget
  * 2. build
+ *
+ * ps：只有 widget 重新构建的才会触发，像 child2 在父组件更新状态时，是不会重新构建的
  */
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
@@ -19,18 +21,34 @@ class LifecycleParentUpdateTester extends StatefulWidget {
 }
 
 class _LifecycleParentUpdateTesterState extends State<LifecycleParentUpdateTester> {
+  var logger = LifecycleLogger(
+    name: 'logger2',
+    child: (BuildContext context) => Text('Logger 2'),
+  );
+
   @override
   Widget build(BuildContext context) {
-    return LifecycleLogger(
-        name: 'Parent Update',
-        child: Scaffold(
-          appBar: AppBar(
-            title: GestureDetector(
-              onTap: _update,
-              child: Text('Parent Update'),
+    print('>> rebuild');
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Parent Update'),
+      ),
+      body: Column(
+        children: [
+          GestureDetector(
+            onTap: _update,
+            child: LifecycleLogger(
+              name: 'logger1',
+              child: (BuildContext context) => Text('Logger 1'),
             ),
           ),
-        ));
+          logger,
+          const LifecycleLogger(
+            name: 'logger3',
+          ),
+        ],
+      ),
+    );
   }
 
   _update() {

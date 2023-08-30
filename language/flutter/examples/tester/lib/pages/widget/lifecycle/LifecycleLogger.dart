@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class LifecycleLogger extends StatefulWidget {
   final String name;
-  final Widget? child;
+  final WidgetBuilder? child;
 
   const LifecycleLogger({
     Key? key,
@@ -62,6 +62,6 @@ class _LifecycleLoggerState extends State<LifecycleLogger> {
   @override
   Widget build(BuildContext context) {
     print('>> ${widget.name} build');
-    return widget.child ?? Placeholder();
+    return widget.child != null ? widget.child!(context) : Placeholder();
   }
 }
