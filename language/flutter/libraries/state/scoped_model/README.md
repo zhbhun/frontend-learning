@@ -1,0 +1,1 @@
+- [scoped_model](https://github.com/brianegan/scoped_model)
