@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import './widgets/index.dart';
 import './pages/app/index.dart';
 import './pages/widget/index.dart';
+import './pages/utils/main.dart';
 
-final List<Demo> demos = [AppPage.demo, WidgetPage.demo];
+final List<Demo> demos = [AppPage.demo, WidgetPage.demo, UtilsTester.demo];
 
 void main() {
   runApp(const App());

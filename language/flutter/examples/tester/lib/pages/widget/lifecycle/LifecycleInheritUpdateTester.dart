@@ -101,6 +101,22 @@ class _Frog5 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('>> frog5 build');
-    return Text('frog5', style: TextStyle(color: FrogColor.of(context).color));
+    return Column(
+      children: [
+        Text('frog5', style: TextStyle(color: FrogColor.of(context).color)),
+        _Frog6(),
+      ],
+    );
+  }
+}
+
+
+class _Frog6 extends StatelessWidget {
+  const _Frog6();
+
+  @override
+  Widget build(BuildContext context) {
+    print('>> frog6 build');
+    return Text('frog6');
   }
 }

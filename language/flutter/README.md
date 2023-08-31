@@ -414,7 +414,8 @@
 
 - Context
 
-  - InheritedWidget & InheritedModel
+  - InheritedWidget
+  - InheritedModel
 
 - Global
 
