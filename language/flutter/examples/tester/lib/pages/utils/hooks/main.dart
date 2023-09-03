@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
-import './use_state.dart';
-import './use_listenable.dart';
+import 'use_state.dart';
+import 'use_listenable.dart';
+import 'use_func_widget.dart';
 
 final List<Demo> demos = [
   UseStateTester.demo,
   UseListenableTester.demo,
+  UseFuncWidgetTester.demo,
 ];
 
 class HooksTester extends StatelessWidget {
