@@ -1,0 +1,3 @@
+- https://github.com/chakra-ui/panda
+- [Panda CSS 🐼，更现代的CSS-in-JS方案](https://juejin.cn/post/7274182001933828132#heading-6)
+- [[RFC][system] Zero-runtime CSS-in-JS implementation](https://github.com/mui/material-ui/issues/38137)
