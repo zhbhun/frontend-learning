@@ -28,3 +28,6 @@
 ## Editor
 
 - [tui.image-editor](https://github.com/nhn/tui.image-editor) - Full-featured photo image editor using canvas. It is really easy, and it comes with great filters.
+- [pqina.nl](https://pqina.nl/pintura/)
+- [jimp](https://github.com/jimp-dev/jimp)
+- [CamanJS](https://github.com/meltingice/CamanJS)
