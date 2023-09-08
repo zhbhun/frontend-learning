@@ -1,8 +1,10 @@
 - [cropperjs](https://github.com/fengyuanchen/cropperjs) - 12K Star, JavaScript image cropper.
 - [smartcrop.js](https://github.com/jwagner/smartcrop.js) - 12K Star, Content aware image cropping
+- [JavaScript-Load-Image](https://github.com/blueimp/JavaScript-Load-Image)
 - [Jcrop](https://github.com/tapmodo/Jcrop) - 4K Star, Jcrop - The Javascript Image Cropping Engine
 - [Croppie](https://github.com/Foliotek/Croppie) - 2.5K Star, A Javascript Image Cropper
 - [we-cropper](https://github.com/we-plugin/we-cropper) - 2.1K Star, 微信小程序图片裁剪工具
+- [react-easy-crop](https://github.com/ValentinH/react-easy-crop) - A React component to crop images/videos with easy interactions
 - [react-image-crop](https://github.com/DominicTobias/react-image-crop) - A responsive image cropping tool for React
 - [antd-img-crop](https://github.com/nanxiaobei/antd-img-crop) - An image cropper for Ant Design Upload
 - [react-avatar-image-cropper](https://github.com/likeconan/react-avatar-image-cropper)
