@@ -31,3 +31,8 @@
 - [pqina.nl](https://pqina.nl/pintura/)
 - [jimp](https://github.com/jimp-dev/jimp)
 - [CamanJS](https://github.com/meltingice/CamanJS)
+
+## Relight
+
+- https://github.com/avirakesh/image-relighting
+- https://github.com/zhhoper/DPR
