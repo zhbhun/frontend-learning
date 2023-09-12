@@ -36,6 +36,15 @@ https://codesandbox.io/s/async-k4wkds?file=/src/index.ts
 
 - https://fe.ecool.fun/topic/462ff8a8-29ba-4e49-88ad-d60e7b3f4ee8?orderBy=updateTime&order=desc&tagId=10
 
+```tsx
+function promiseAllWithLimit<T extends readonly (() => Promise<unknown>)[] | []>(
+  values: T
+): Promise<{ -readonly [P in keyof T]: Awaited<ReturnType<T[P]>> }> {
+  const a = values.map((value) => value());
+  return Promise.all(a) as any;
+}
+```
+
 ## 深拷贝浅拷贝有什么区别？怎么实现深拷贝？
 
 https://fe.ecool.fun/topic/a5330a58-5be0-4f4f-8394-43392311ddaa?orderBy=updateTime&order=desc&tagId=10
