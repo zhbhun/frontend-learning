@@ -8,3 +8,8 @@
 - [flutter-woocommerce-app](https://github.com/woosignal/flutter-woocommerce-app) - 400+ Srar, WooCommerce App template that uses Flutter. Integrated to work with WooCommerce stores, connect and create an IOS and Android app from Flutter for IOS and Android
 - [FlutterNewsApp](https://github.com/theindianappguy/FlutterNewsApp) - 400+ Star, Flutter news app with NewsApi Orgs
 - [wger](https://github.com/wger-project/flutter) - Flutter fitness/workout app for wger
+
+
+## AI
+
+- [aidea](https://github.com/mylxsw/aidea) - AIdea 是一款支持 GPT 以及国产大语言模型通义千问、文心一言等，支持 Stable Diffusion 文生图、图生图、 SDXL1.0、超分辨率、图片上色的全能型 APP。
