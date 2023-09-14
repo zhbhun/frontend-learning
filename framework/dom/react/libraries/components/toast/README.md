@@ -1,2 +1,3 @@
+- [notistack](https://github.com/iamhosseindhv/notistack) - Highly customizable notification snackbars (toasts) that can be stacked on top of each other
 - [react-hot-toast](https://github.com/timolins/react-hot-toast) - Smoking hot React Notifications
 - [react-toastify](https://github.com/fkhadra/react-toastify) - React notification made easy 
