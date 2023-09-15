@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import './App.css';
 
 const Home = lazy(() => import('./pages/home'));
+const SpringTester = lazy(() => import('./pages/animation/spring'));
 const InputEventTester = lazy(() => import('./pages/event/input'));
 const FormControlsTester = lazy(() => import('./pages/form/controls'));
 const LifecycleErrorTester = lazy(() => import('./pages/lifecycle/error'));
@@ -25,6 +26,14 @@ function App() {
           element={
             <Suspense>
               <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/animation/spring"
+          element={
+            <Suspense>
+              <SpringTester />
             </Suspense>
           }
         />
