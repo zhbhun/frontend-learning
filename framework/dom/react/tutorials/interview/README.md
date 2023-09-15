@@ -90,6 +90,10 @@ https://codesandbox.io/s/react-hook-interval-xc7fmw
     };
     ```
 
+## 实现一个倒计时抢券组件
+
+要求用 vue 或者 react 实现一个倒计时抢券组件，页面加载时从 10s 开始倒计时，倒计时结束之后点击按钮请求接口进行抢券，同时更新文案等等功能。
+
 ## 实现一个 useDebounce
 
 - https://codesandbox.io/s/react-debounce-hook-mmyzkc
@@ -173,6 +177,10 @@ const Demo = () => {
 
 - https://codesandbox.io/s/react-debounce-ug7cr7
 - https://segmentfault.com/a/1190000043236681
+
+## 组件渲染优化
+
+...
 
 ---
 
