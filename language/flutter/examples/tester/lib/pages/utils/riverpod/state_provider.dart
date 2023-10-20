@@ -4,9 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:tester/widgets/index.dart';
 
 class StateProviderTester extends StatelessWidget {
-  static final Demo demo = Demo(
-      name: 'StateProvider',
-      builder: (BuildContext context) => StateProviderTester());
+  static final Demo demo =
+      Demo(name: 'StateProvider', builder: (BuildContext context) => StateProviderTester());
 
   @override
   Widget build(BuildContext context) {
