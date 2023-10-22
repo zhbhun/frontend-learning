@@ -76,3 +76,6 @@ Dart 提供了在线编辑器 [DartPad](https://dartpad.dev/) 来快速上手和
 ## 参考文献
 
 - [Get the Dart SDK](https://dart.dev/get-dart)
+- [Try Dart](https://dart.dev/#try-dart)
+- [Bootstrap into Dart](https://flutter.dev/docs/resources/bootstrap-into-dart)
+
