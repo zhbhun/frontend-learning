@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import './widgets/index.dart';
-import './pages/app/index.dart';
-import './pages/widget/index.dart';
-import './pages/utils/main.dart';
+import 'generated/l10n.dart';
+import 'widgets/index.dart';
+import 'pages/app/index.dart';
+import 'pages/widget/index.dart';
+import 'pages/utils/main.dart';
 
 final List<Demo> demos = [AppPage.demo, WidgetPage.demo, UtilsTester.demo];
 
@@ -27,17 +28,16 @@ class App extends StatelessWidget {
         //   return locale;
         // }
         // return Locale('zh', 'CN');
-        return Locale('en', 'US');
+        // return Locale('en');
+        return Locale('zh');
       },
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate
+        GlobalCupertinoLocalizations.delegate,
+        S.delegate,
       ],
-      supportedLocales: [
-        Locale('en', 'US'), // 美国英语
-        Locale('zh', 'CN'), // 中文简体
-      ],
+      supportedLocales: S.delegate.supportedLocales,
       title: 'Flutter Demo',
       theme: ThemeData(
         useMaterial3: true,
