@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
 import './hooks/main.dart';
+import './freezed/main.dart';
 import './riverpod/main.dart';
 
 final List<Demo> demos = [
+  FreezedTester.demo,
   HooksTester.demo,
   RiverpodTester.demo,
 ];
