@@ -1,0 +1,2 @@
+- [intl](https://github.com/dart-lang/i18n/tree/main/pkgs/intl)
+- [flutter_localizations](https://github.com/channdara/flutter_localization)
