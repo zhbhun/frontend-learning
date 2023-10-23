@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
-import './hooks/main.dart';
+import './convert/main.dart';
 import './freezed/main.dart';
+import './hooks/main.dart';
 import './riverpod/main.dart';
 
 final List<Demo> demos = [
+  ConvertTester.demo,
   FreezedTester.demo,
   HooksTester.demo,
   RiverpodTester.demo,
