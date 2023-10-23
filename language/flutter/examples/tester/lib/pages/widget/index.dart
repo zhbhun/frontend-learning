@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:tester/widgets/index.dart';
-import './lifecycle/index.dart';
-import './layout/index.dart';
-import './material/index.dart';
+import 'form/index.dart';
+import 'lifecycle/index.dart';
+import 'layout/index.dart';
+import 'material/index.dart';
 
 final List<Demo> demos = [
+  FormPage.demo,
   LifecyclePage.demo,
   LayoutPage.demo,
   MaterialWidgetPage.demo,
