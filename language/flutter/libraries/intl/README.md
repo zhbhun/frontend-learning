@@ -3,5 +3,6 @@
 
 ## 参考文献
 
+- [Internationalizing Flutter apps](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization)
 - [2023了，如何快速实现 Flutter 国际化](https://juejin.cn/post/7192758172153561147)
 - [Flutter实现国际化](https://developer.aliyun.com/article/978858)
