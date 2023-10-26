@@ -1,0 +1,1 @@
+- [url_launcher](https://github.com/flutter/packages/tree/main/packages/url_launcher/url_launcher)
