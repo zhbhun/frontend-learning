@@ -5,4 +5,6 @@
 
 ## 处理
 
+- https://imagemagick.org/index.php
 - [WASM-ImageMagick](https://github.com/KnicKnic/WASM-ImageMagick)
+- [magick-wasm](https://github.com/dlemstra/magick-wasm)

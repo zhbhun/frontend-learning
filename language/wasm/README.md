@@ -9,6 +9,7 @@ WebAssembly(wasm) 是一种低级的**类汇编语言**，具有紧凑的**二�
 
 相关资源
 
+- [awesome-wasm](https://github.com/mbasso/awesome-wasm)
 - [WebAssembly 官网](http://webassembly.org) / [WebAssembly 中文网](http://webassembly.org.cn/)
 - [awesome-wasm](https://github.com/mbasso/awesome-wasm)
 - [WebAssembly完全入门——了解wasm的前世今身](https://segmentfault.com/a/1190000016949129)
