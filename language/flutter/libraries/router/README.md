@@ -1,1 +1,2 @@
-- [go_router](https://pub.dev/packages/go_router)
+- [go_router](https://pub.dev/packages/go_router) - A declarative routing package for Flutter that uses the Router API to provide a convenient, url-based API for navigating between different screens. You can define URL patterns, navigate using a URL, handle deep links, and a number of other navigation-related scenarios.
+- [fluro](https://github.com/lukepighetti/fluro) - Fluro is a Flutter routing library that adds flexible routing options like wildcards, named parameters and clear route definitions.
