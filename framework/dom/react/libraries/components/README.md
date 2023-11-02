@@ -21,6 +21,7 @@
     - [react-bootstrap-treeview](https://github.com/jonmiles/react-bootstrap-treeview) - React.js Tree View for Twitter Bootstrap. 98 ★
 
 - [ant-design](https://github.com/ant-design/ant-design) - An enterprise-class UI design language and React UI library
+- [radix-ui](https://github.com/radix-ui/primitives)
 - [primer](https://primer.style/) - Design, build, and create with GitHub’s design system
 - [fusion](https://github.com/alibaba-fusion/next)
 - [mantine](https://github.com/mantinedev/mantine/) - React components library with native dark theme support
