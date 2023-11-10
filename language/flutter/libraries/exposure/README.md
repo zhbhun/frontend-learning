@@ -6,3 +6,4 @@
 - [Flutter 曝光自动上报](https://juejin.cn/post/6922418020354621447)
 - [Flutter 中 ListView 组件的子元素曝光统计](https://loveky.github.io/2018/07/13/flutter-listview-child-visibility-monitor/)
 - [如何设计高准确率的 Flutter 埋点框架](https://www.infoq.cn/article/3-vxbwyjxqxxldlbu09x)
+- [Flutter visibility_detector 原理解析](https://juejin.cn/post/6985043598051901477)
