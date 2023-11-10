@@ -1,0 +1,1 @@
+- [flutter_boost](https://github.com/alibaba/flutter_boost)
