@@ -8,3 +8,7 @@
 - https://imagemagick.org/index.php
 - [WASM-ImageMagick](https://github.com/KnicKnic/WASM-ImageMagick)
 - [magick-wasm](https://github.com/dlemstra/magick-wasm)
+
+## 背景消除
+
+- [Real-Time-Person-Removal](https://github.com/jasonmayes/Real-Time-Person-Removal)
