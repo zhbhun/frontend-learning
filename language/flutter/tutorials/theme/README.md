@@ -1,0 +1,1 @@
+- [Force Flutter Android Application to behave like it is on an iOS Device](https://stackoverflow.com/questions/58042717/force-flutter-android-application-to-behave-like-it-is-on-an-ios-device  )
