@@ -12,3 +12,6 @@
 ## 背景消除
 
 - [Real-Time-Person-Removal](https://github.com/jasonmayes/Real-Time-Person-Removal)
+- https://github.com/mathieudutour/sketch-remove-bg
+- [tensorflowjs-remove-background](https://github.com/poly-glot/tensorflowjs-remove-background)
+- [vanilla-front-end-starter](https://github.com/poly-glot/vanilla-front-end-starter) - A vanilla front-end starter kit with tools to support code quality, accessibility, unit testing, end to end testing, continuous integration setup and feature branch testing.
