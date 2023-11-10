@@ -1,0 +1,2 @@
+- [path_provider](https://pub-web.flutter-io.cn/packages/path_provider) - A Flutter plugin for finding commonly used locations on the filesystem. Supports Android, iOS, Linux, macOS and Windows. Not all methods are supported on all platforms.
+- [flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager) - A CacheManager to download and cache files in the cache directory of the app. Various settings on how long to keep a file can be changed.
