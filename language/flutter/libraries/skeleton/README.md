@@ -1,0 +1,1 @@
+- [skeleton](https://pub.dev/packages/skeleton_text) - A package provides an easy way to add skeleton text loading animation in Flutter project
