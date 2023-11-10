@@ -1,3 +1,4 @@
+- [Flutter 工程化框架选择 — 状态管理何去何从](https://juejin.cn/post/7163925807893577735)
 - [Flutter | 状态管理探索篇——Scoped Model（一）](https://juejin.cn/post/6844903680844496904)
 - [Flutter | 状态管理探索篇——Redux（二）](https://juejin.cn/post/6844903683327524871)
 - [Flutter | 状态管理探索篇——BLoC(三)](https://juejin.cn/post/6844903689082109960)
