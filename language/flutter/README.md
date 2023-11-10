@@ -288,11 +288,54 @@
 
   - Feedback
 
-    - showGeneralDialog...
-    - showDialog + Dialog / AlertDialog / SimpleDialog
-    - showCupertinoModalPopup + CupertinoAlertDialog
     - RefreshIndicator
     - SnackBar
+
+  - 弹框
+
+    - 原理：所有弹框都是通过路由的形式实现的
+
+      - ModalRoute：是基础的弹框，页面路由也是一种弹框
+      - PopupRoute：盖在当前页面上的弹框，这种弹框一般有一个遮罩，点击后弹框小时
+      
+        ps：可以通过继承 PopupRoute 来自定义实现想要的弹框
+
+      - RawDialogRoute：基础弹框
+
+        - DialogRoute：增加了进场和出场动画，用于封装实现 showDialog
+        - CupertinoDialogRoute：iOS风格
+
+      - ModalBottomSheetRoute：底部弹框，用于封装实现 showModalBottomSheetRoute
+      - CupertinoModalPopupRoute：iOS 风格的底部弹框
+
+    - 遮罩：Barrier
+
+      - ModalBarrier
+      - AnimatedModalBarrier
+
+    - 对话框：Dialog
+
+      - showGeneralDialog：基础弹框，用来自定义实现自定义的弹框
+      - showDialog：内容可自定义，但也预提供了以下几个组件
+
+        - Dialog：最基础的对话框，内容完全自定义
+        - SimpleDialog：支持提供多个选项的对话框
+        - AlertDialog：确认框，提供 ok 或 cancel 等按钮
+
+      - showCupertinoDialog：iOS 风格
+
+    - 底部弹框
+
+      - Scaffold.bottomSheet：在当前页面显示底部弹框，不会遮挡内容
+      - showBottomSheet：同上
+      - showModalBottomSheet：显示从底部弹出的对话框，会遮挡内容
+      - showCupertinoModalPopup：iOS 风格的底部弹框
+
+    - 悬浮框：Popover
+
+      - Overlay：气泡卡片
+      - PopupMenuButton：弹出菜单
+      - showMenu
 
   - Utils
 
@@ -450,44 +493,76 @@
 
 ## Animation
 
-- 原理
+- 要素
 
-  - 持续时间
-  - 动画曲线
-  - 取值范围
-
-- Basic
-
-  - Animation：保存动画的插值和状态
+  - Animation：保存动画的插值和状态，以及提供了监听插值和状态的方法。
 
     - value：当前值
     - addListener：帧监听
     - addStatusListener：动画状态监听
 
-  - AnimationController：动画控制器
-  - Curve：动画曲线
+  - AnimationController：在 Animation 的基础上增加动画控制功能，支持控制动画前进或后退
 
-    - linear：匀速
-    - decelerate：匀减速
-    - ease：开始加速，后面减速
-    - easeIn：开始慢，后面快
-    - easeOut：开始快，后面慢
-    - easeInOut：开始慢，然后加速，最后再减速
+    - duration：动画时长
+    - vsync：刷新机制，设置一个 TickerProvider
 
-  - Tween：取值范围
+  - Curve：动画插值的变化曲线
 
-- Widget
+    - CurvedAnimation：贝塞尔曲线
 
-  - AnimatedWidget
-  - AnimatedBuilder
-  - PageRouteBuilder：自定义路由切换动画
-  - AnimatedSwitcher
-  - AnimatedPadding
-  - AnimatedPositioned
-  - AnimatedOpacity
-  - AnimatedAlign
-  - AnimatedContainer
-  - AnimatedDefaultTextStyle
+      - linear：匀速
+      - decelerate：匀减速
+      - ease：开始加速，后面减速
+      - easeIn：开始慢，后面快
+      - easeOut：开始快，后面慢
+      - easeInOut：开始慢，然后加速，最后再减速
+
+  - Tween：用来来添加映射以生成不同的范围或数据类型的插值
+
+    - ColorTween
+
+- 使用
+
+  1. 创建 AnimationController
+  2. 基于 controller + curve + tween 组合创建新的 Animation
+  3. 将动画值传递给需要的组件
+
+    - 使用 StatefulWiget，然后监听 animation 的值变化
+    - 使用 AnimatedWidget
+    - 使用 AnimationBuilder
+    - 使用 AnimatedSwitcher 
+
+  4. 播放动画
+
+- widget
+
+  - Basic：通过传递的值变化来触发使用
+
+    - AnimatedAlign
+    - AnimatedCrossFade
+    - AnimatedDefaultTextStyle：文本样式渐变
+    - AnimatedFractionallySizedBox: 大小 + 位置变化渐变
+    - AnimatedOpacity：透明度渐变
+    - AnimatedPadding
+    - AnimatedPositioned
+    - AnimatedContainer
+    - AnimatedDefaultTextStyle
+    - AnimatedModalBarrier
+    - AnimatedPadding
+    - AnimatedPositioned
+    - AnimatedPositionedDirectional
+    - AnimatedRotation
+    - AnimatedScale
+    - AnimatedSize
+    - AnimatedSlide
+
+  - Custom：需要自定义 Animation 使用
+
+    - AnimatedBuilder
+    - AnimatedGrid
+    - AnimatedList
+    - AnimatedSwitcher
+    - AnimatedWidget
 
 ## Assets
 
