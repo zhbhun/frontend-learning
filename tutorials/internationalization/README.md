@@ -1,0 +1,1 @@
+- [localizely](https://localizely.com/) - Unite developers, translators, editors, and project managers on one platform - use Localizely. A translation management tool that'll simplify your workflow during software localization.
