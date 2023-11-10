@@ -1,2 +1,3 @@
 - https://github.com/google/flutter.widgets
 - https://github.com/flutter/packages
+- https://github.com/flutter/plugins
