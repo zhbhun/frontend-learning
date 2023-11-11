@@ -3,3 +3,4 @@
 - [react-sortablejs](https://github.com/SortableJS/react-sortablejs)
 - [react-dragula](https://github.com/bevacqua/react-dragula)
 - https://github.com/clauderic/dnd-kit
+- [react-resizable-panels](https://github.com/bvaughn/react-resizable-panels)
