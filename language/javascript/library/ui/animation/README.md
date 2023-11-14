@@ -6,6 +6,9 @@
 ### JS
 
 - [anime](https://github.com/juliangarnier/anime) - JavaScript animation engine
+
+  - https://codepen.io/collection/XLebem/?cursor=eyJwYWdlIjoyfQ==
+
 - [velocity](https://github.com/julianshapiro/velocity) - Accelerated JavaScript animation.
 - [popmotion](https://github.com/popmotion/popmotion) - Simple animation libraries for delightful user interfaces
 - [tween.js](https://github.com/tweenjs/tween.js) - JavaScript/TypeScript animation engine
