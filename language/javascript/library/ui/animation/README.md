@@ -15,6 +15,7 @@
 - [scenejs](https://github.com/daybrush/scenejs) - Scene.js is JavaScript & CSS timeline-based animation library
 - [AniJS](http://anijs.github.io/) - Our final library is interesting for its unique approach. AniJS is an animation library that allows you to add animations to elements in a simple ‘sentence-like’ structure. Take the following format:
 - [motion-canvas](https://github.com/motion-canvas/motion-canvas) - Visualize Your Ideas With Code
+- [mojs](https://github.com/mojs) - The motion graphics toolbelt for the web
 
 ### CSS
 
