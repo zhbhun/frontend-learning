@@ -2,3 +2,8 @@
 - [8 CSS Snippets That Demonstrate the Power of Shadow Effects](https://speckyboy.com/css-snippets-shadow-effects/)
 - [CSS Shadow Gradients](https://alvarotrigo.com/shadow-gradients/)
 - [你所不知道的 CSS 阴影技巧与细节](https://www.cnblogs.com/coco1s/p/9913885.html)
+
+## 工具
+
+- https://lingdaima.com/shadow/
+- https://box-shadow.art/
