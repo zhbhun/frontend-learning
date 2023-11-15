@@ -9,6 +9,7 @@
 
   - https://codepen.io/collection/XLebem/?cursor=eyJwYWdlIjoyfQ==
 
+- https://motioncanvas.io/
 - [velocity](https://github.com/julianshapiro/velocity) - Accelerated JavaScript animation.
 - [popmotion](https://github.com/popmotion/popmotion) - Simple animation libraries for delightful user interfaces
 - [tween.js](https://github.com/tweenjs/tween.js) - JavaScript/TypeScript animation engine
