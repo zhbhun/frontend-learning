@@ -1,6 +1,10 @@
 ## 产品
 
 - https://www.framer.com/ai
+- [draw-a-ui](https://github.com/SawyerHood/draw-a-ui) - Draw a mockup and generate html for it
+
+  - https://makereal.tldraw.com/
+
 - [bifrost](https://www.bifrost.so/) - Use AI to turn your Figma designs into clean React code — automatically.
 - https://theresanaiforthat.com/website-building/
 - https://60sec.site/ - Create site in 60 seconds with No-Code and AI
