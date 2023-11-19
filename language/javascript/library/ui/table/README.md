@@ -5,6 +5,7 @@
 - [tabulator](https://github.com/olifolkerd/tabulator) - Interactive Tables and Data Grids for JavaScript
 - [tabulator](https://github.com/olifolkerd/tabulator) - Interactive Tables and Data Grids for JavaScript
 - [tui.grid](https://github.com/nhn/tui.grid) - The Powerful Component to Display and Edit Data. Experience the Ultimate Data Transformer!w
+- [VTable](https://github.com/VisActor/VTable) / https://zhuanlan.zhihu.com/p/660261038
 
 ---
 
