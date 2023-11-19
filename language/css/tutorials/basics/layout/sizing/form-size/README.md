@@ -1,0 +1,1 @@
+- [Textareas with auto-increasing height using CSS](https://www.amitmerchant.com/textarea-auto-increase-height/)
