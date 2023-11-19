@@ -1,2 +1,3 @@
 - [eruda](https://github.com/liriliri/eruda)
+- [page-spy-web](https://github.com/HuolalaTech/page-spy-web) - Debug remotely and easily like chrome devtools.
 - [基于 Chrome Dev Tools 的现代前端工作流](https://www.youtube.com/watch?v=v5r_n6Tq0uk)
