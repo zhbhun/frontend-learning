@@ -5,6 +5,8 @@
 
   - https://makereal.tldraw.com/
 
+- https://build.typedream.com/
+- https://durable.co/
 - [screenshot-to-code](https://github.com/abi/screenshot-to-code) - Drop in a screenshot and convert it to clean HTML/Tailwind/JS code
 - [bifrost](https://www.bifrost.so/) - Use AI to turn your Figma designs into clean React code — automatically.
 - https://theresanaiforthat.com/website-building/
