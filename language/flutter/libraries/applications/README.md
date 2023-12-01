@@ -1,3 +1,4 @@
+- [FlutterDouBan](https://github.com/kaina404/FlutterDouBan) - Flutter 豆瓣客户端
 - [BlackHole](https://github.com/Sangwan5688/BlackHole) - 6K Star, A Music Player App made with Flutter
 - [gallery](https://github.com/flutter/gallery) - 5.5K Star, Flutter Gallery is a resource to help developers evaluate and use Flutter
 - [fluttergram](https://github.com/mdanics/fluttergram) - 2.2K Star, A fully functional Instagram clone written in Flutter using Firebase / Firestore

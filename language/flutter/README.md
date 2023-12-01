@@ -85,7 +85,7 @@
 
     ps：如果多个父级存在相同方向不同大小的多重限制，以满足所有条件为准。
     
-    - 基础布局
+    - 大小限制
       
       - ConstrainedBox + BoxConstraints
 
@@ -107,6 +107,7 @@
       - LimitedBox：指定最大宽高
       - AspectRatio：指定子组件的长宽比
       - FractionallySizedBox：根据父容器宽高的百分比来设置子组件宽高等
+      - IntrinsicWidth / IntrinsicHeight
 
     - 线性布局：
 
@@ -339,8 +340,18 @@
 
   - Utils
 
-    - FutureBuilder
-    - StreamBuilder
+    - Builder
+
+      - FutureBuilder
+      - StreamBuilder
+
+    - Clip
+
+      - CustomClipper
+      - ClipRect
+      - ClipRRect
+      - ClipOval
+      - ClipPath
 
   - Display
 
