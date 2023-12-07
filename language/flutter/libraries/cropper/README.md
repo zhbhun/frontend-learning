@@ -1,0 +1,5 @@
+- https://fluttergems.dev/crop-image/
+- [image_cropper](https://pub.dev/packages/image_cropper)
+- [flutter-custom-image-crop](https://github.com/icapps/flutter-custom-image-crop)
+- [croppy](https://github.com/kekland/croppy)
+- [flutter_cropperx](https://github.com/speedkodi/flutter_cropperx)
