@@ -1,8 +1,9 @@
-- https://fluttergems.dev/packages/custom_image_crop/
 - https://fluttergems.dev/crop-image/
-- [flutter_crop](https://github.com/xclud/flutter_crop/) - Crop any widget/image in Android, iOS, Web and Desktop with fancy and customizable UI, in pure Dart code.
-- [image_cropper](https://pub.dev/packages/image_cropper)
-- [flutter-custom-image-crop](https://github.com/icapps/flutter-custom-image-crop)
+- https://github.com/hnvn/flutter_image_cropper
 - [croppy](https://github.com/kekland/croppy)
+- [image_cropper](https://pub.dev/packages/image_cropper)
+- [flutter_crop](https://github.com/xclud/flutter_crop/) - Crop any widget/image in Android, iOS, Web and Desktop with fancy and customizable UI, in pure Dart code.
+- [flutter-custom-image-crop](https://github.com/icapps/flutter-custom-image-crop)
 - [flutter_cropperx](https://github.com/speedkodi/flutter_cropperx)
 - [flutter-custom-image-crop](https://github.com/icapps/flutter-custom-image-crop)
+- https://github.com/godaangel/flutter_crop_box

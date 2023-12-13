@@ -1,0 +1,3 @@
+- [flutter_boost](https://github.com/alibaba/flutter_boost)
+- [Flutter Boost3.0初探](https://zhuanlan.zhihu.com/p/362662962)
+- [Flutter Boost 混合开发实践与源码解析（以 Android 为例）](https://zhuanlan.zhihu.com/p/111783390?utm_psn=1717857506678956032)
