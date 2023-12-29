@@ -49,3 +49,7 @@
     - `parseInt('0xa')`：`10` / `parseInt('0o12', 10)`：`0` / `parseInt('0b1010')`：`0`
 
         在基数为 undefined，或者基数为 0 或者没有指定的情况下。如果字符串 string 以"0x"或者"0X"开头, 则基数是16 (16进制)。如果字符串 string 以"0"开头, 基数是8（八进制）或者10（十进制），那么具体是哪个基数由实现环境决定。如果字符串 string 以其它任何值开头，则基数是10 (十进制)。
+
+## 精度问题
+
+[JavaScript 中精度问题以及解决方案](https://www.runoob.com/w3cnote/js-precision-problem-and-solution.html)
