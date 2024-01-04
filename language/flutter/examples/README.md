@@ -14,3 +14,18 @@
 ## AI
 
 - [aidea](https://github.com/mylxsw/aidea) - AIdea 是一款支持 GPT 以及国产大语言模型通义千问、文心一言等，支持 Stable Diffusion 文生图、图生图、 SDXL1.0、超分辨率、图片上色的全能型 APP。
+
+
+## Music
+
+- [spotube](https://github.com/KRTirtho/spotube) - Open source Spotify client that doesn't require Premium nor uses Electron! Available for both desktop & mobile!
+
+
+## Efficiency
+
+- [reqable-app](https://github.com/reqable/reqable-app) - Reqable issue track repo
+- [gopeed](https://github.com/GopeedLab/gopeed) - A modern download manager that supports all platforms. Built with Golang and Flutter.
+
+## Web
+
+- https://flutterweb-wasm.web.app/
