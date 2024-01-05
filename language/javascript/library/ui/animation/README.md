@@ -20,13 +20,19 @@
 - [AniJS](http://anijs.github.io/) - Our final library is interesting for its unique approach. AniJS is an animation library that allows you to add animations to elements in a simple ‘sentence-like’ structure. Take the following format:
 - [motion-canvas](https://github.com/motion-canvas/motion-canvas) - Visualize Your Ideas With Code
 - [mojs](https://github.com/mojs) - The motion graphics toolbelt for the web
+- https://github.com/visionmedia/move.js
 
 ### CSS
 
 - [Animate.css](https://animate.style/) - Animate.css is one of the smallest and easiest-to-use CSS animation libraries. It’s refined, efficient, well-maintained since its 2013 release.
 - [Magic Animations](https://www.minimamente.com/project/magic/) - Magic Animations has been one of the most impressive animation libraries available. It has many different animations, many of which are quite unique to this library. As with Animate.css, you can implement Magic by simply importing the CSS file. You can also implement the animations using jQuery. This project offers a particularly cool demo application.
 - [animista](https://animista.net/) - on-demand css animations library
-
+- https://github.com/miniMAC/magic
+- https://elrumordelaluz.github.io/csshake/
+- https://ianlunn.github.io/Hover/
+- https://github.com/Martz90/vivify - Vivify is free CSS animation library.
+- https://h5bp.org/Effeckt.css/
+- https://wowjs.uk/
 
 ## 效果
 
