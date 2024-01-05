@@ -2,6 +2,7 @@
 
 - [facebook/draft-js](https://github.com/facebook/draft-js)
 - [ianstormtaylor/slate](https://github.com/ianstormtaylor/slate)
+- [plate](https://github.com/udecode/plate)
 - [tui.editor](https://github.com/nhn/tui.editor/tree/master/apps/react-editor)
 - [react-quill](https://github.com/zenoamaro/react-quill)
 - [remirror](https://github.com/remirror/remirror) - ProseMirror toolkit for React
