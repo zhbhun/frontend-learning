@@ -13,6 +13,7 @@
 
 ## 全文检索
 
+- [minisearch](https://github.com/lucaong/minisearch) - Tiny and powerful JavaScript full-text search engine for browser and Node
 - [flexsearch](https://github.com/nextapps-de/flexsearch/) - Next-Generation full text search library for Browser and Node.js.
 - [wade](https://github.com/kbrsh/wade) - Blazing fast 1kb search library
 - [js-search](https://github.com/bvaughn/js-search) - JS Search is an efficient, client-side search library for JavaScript and JSON objects
