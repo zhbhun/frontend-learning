@@ -29,6 +29,7 @@
 - [tui.image-editor](https://github.com/nhn/tui.image-editor) - Full-featured photo image editor using canvas. It is really easy, and it comes with great filters.
 - [filerobot-image-editor](https://github.com/scaleflex/filerobot-image-editor)
 - [pixelapp](https://github.com/alenaksu/pixelapp)
+- [fabritor-web](https://github.com/sleepy-zone/fabritor-web) - A creative editor based on fabricjs
 
 ## Relight
 
