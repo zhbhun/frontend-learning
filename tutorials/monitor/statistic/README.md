@@ -31,12 +31,13 @@
 - [matomo](https://github.com/matomo-org/matomo) - Matomo（以前称为 Piwik）是一款开源的 Web 分析工具，可以帮助企业收集和分析其网站的访问数据。Matomo 提供了一些功能，如实时数据报告、用户行为分析、自定义报告和可视化工具。
 - [posthog](https://github.com/PostHog/posthog) - PostHog 是一款开源的产品分析平台，它可以帮助企业收集、分析和可视化用户行为数据，从而更好地理解用户行为，优化产品体验，提升产品转化率。
 - [Countly](https://github.com/Countly) - Countly 是一款开源的产品分析平台，可以帮助企业收集、分析和可视化用户行为数据。Countly 提供了一些功能，如实时数据报告、漏斗分析、事件路径分析和用户留存分析。
-- [Plausible](https://plausible.io/) - Plausible is lightweight and open source web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. Made and hosted in the EU, powered by European-owned cloud infrastructure
+- [Plausible](https://plausible.io/) / https://github.com/plausible/analytics - Plausible is lightweight and open source web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. Made and hosted in the EU, powered by European-owned cloud infrastructure
 - [Keen](https://github.com/keen) - Keen 是一款开源的云端分析平台，可以帮助企业收集和分析其用户行为数据。Keen 提供了一些功能，如自定义事件收集、数据可视化、实时数据报告和 A/B 测试工具。
 - [snowplow-javascript-tracker](https://github.com/snowplow/snowplow-javascript-tracker) - Snowplow event tracker for client-side and server-side JavaScript. Add analytics to your websites, web apps and servers.
 - [segmentio analytics.js](https://github.com/segmentio/analytics.js/) - Analytics.js makes it easy to collect customer data and send it to many different tools using a single, unified API.
 - [Amplitude](https://amplitude.com/) - Amplitude 是一款面向企业级客户的数据分析平台，提供了一种强大的方式来收集、分析和可视化您的用户数据。Amplitude 通过 JavaScript 库来收集事件和用户行为数据，并将其发送到后端进行处理和分析。
 - [mixpanel](https://mixpanel.com/) - Mixpanel 是另一款强大的数据分析平台，专注于用户行为分析和转化跟踪。Mixpanel 提供了一种称为“Mixpanel.js”的 JavaScript 库，可用于在 Web 应用程序中捕获事件和用户行为数据，并将其发送到后端进行分析。
+- https://beamanalytics.io/
 
 ## 参考文献
 
