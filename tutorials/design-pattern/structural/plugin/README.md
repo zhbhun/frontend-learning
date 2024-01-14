@@ -31,6 +31,7 @@
 - 观察者模式：事件机制就是一种观察模式的实现，通过在特定的事件钩子上注册回调函数来干预核心处理机制
 
 - [插件式可扩展架构设计心得](https://zhuanlan.zhihu.com/p/372381276)
+- [【第3165期】谈谈如何设计一个插件（Plugin）体系](https://mp.weixin.qq.com/s/cVh8NabfN5b5nJqP8I7-aQ)
 
 ## 案例分析
 
