@@ -5,6 +5,7 @@
 ## 2023
 
 - [Pushing Interop Forward in 2023](https://webkit.org/blog/13706/interop-2023/)
+- [2023 JavaScript Rising Stars](https://risingstars.js.org/2023/en)
 
 ## 2022
 
