@@ -1,0 +1,4 @@
+- [card_swiper](https://github.com/TheAnkurPanchani/card_swiper)
+- [flutter_swiper](https://github.com/best-flutter/flutter_swiper)
+- [appinio_swiper](https://github.com/appinioGmbH/flutter_packages/tree/main/packages/appinio_swiper)
+- [flutter_card_swiper](https://github.com/ricardodalarme/flutter_card_swiper)
