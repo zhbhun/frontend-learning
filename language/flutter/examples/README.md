@@ -20,11 +20,15 @@
 
 - [spotube](https://github.com/KRTirtho/spotube) - Open source Spotify client that doesn't require Premium nor uses Electron! Available for both desktop & mobile!
 
+## Notebook
+
+- [AppFlowy](https://github.com/AppFlowy-IO/AppFlowy)
 
 ## Efficiency
 
 - [reqable-app](https://github.com/reqable/reqable-app) - Reqable issue track repo
 - [gopeed](https://github.com/GopeedLab/gopeed) - A modern download manager that supports all platforms. Built with Golang and Flutter.
+- https://github.com/rustdesk/rustdesk
 
 ## Web
 

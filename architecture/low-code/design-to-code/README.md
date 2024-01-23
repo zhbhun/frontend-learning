@@ -7,6 +7,7 @@
 - [Sketch2Code (Documentation)](https://github.com/Microsoft/ailab/tree/master/Sketch2Code) - Sketch2Code is a solution that uses AI to transform a handwritten user interface design from a picture to valid HTML markup code.
 - [Picasso](https://github.com/wuba/Picasso) - Picasso是58同城推出的一款sketch设计稿解析插件，可将sketch设计稿自动解析成还原精准，可用度高的前端代码。
 - [pagedraw](https://github.com/Pagedraw/pagedraw) - a UI builder for React web apps
+- [海豹 D2C](https://music.163.com/st/seal/)
 
 ## 商业
 
