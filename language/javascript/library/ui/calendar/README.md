@@ -1,2 +1,3 @@
 - [tui.calendar](https://github.com/nhn/tui.calendar)
 - [schedule-x](https://github.com/schedule-x/schedule-x) - Material design event calendar and date picker
+- [calendar-remark](https://github.com/xyxc0673/calendar-remark) - A simple calendar with nice design for remarking a date
