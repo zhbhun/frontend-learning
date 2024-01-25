@@ -1,0 +1,1 @@
+- [video_player](https://github.com/flutter/packages/tree/main/packages/video_player/video_player) - Video Player plugin for Flutter
