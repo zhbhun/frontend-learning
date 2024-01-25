@@ -49,6 +49,7 @@
     生成网页内容。
 
 - [Aspenai](https://www.getaspenai.com/) - Aspen is an AI-powered low-code platform for building generative web apps. It enables developers to quickly and easily build AI applications without the need for extensive coding.
+- [Durable](https://durable.co/)
 
 ## 文章
 
