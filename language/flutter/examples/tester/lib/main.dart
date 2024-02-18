@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'generated/l10n.dart';
-import 'widgets/index.dart';
-import 'pages/app/index.dart';
-import 'pages/widget/index.dart';
-import 'pages/utils/main.dart';
 
-final List<Demo> demos = [AppPage.demo, WidgetPage.demo, UtilsTester.demo];
+import 'generated/l10n.dart';
+import 'pages/app/index.dart';
+import 'pages/utils/main.dart';
+import 'pages/vendor/main.dart';
+import 'pages/widget/index.dart';
+import 'widgets/index.dart';
+
+final List<Demo> demos = [
+  AppPage.demo,
+  WidgetPage.demo,
+  UtilsTester.demo,
+  VendorPage.demo,
+];
 
 void main() {
   runApp(const App());
