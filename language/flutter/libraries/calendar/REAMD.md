@@ -1,0 +1,2 @@
+- [table_calendar](https://pub.dev/packages/table_calendar) - 2K LIKES, Highly customizable, feature-packed calendar widget for Flutter.
+- [syncfusion_flutter_calendar](https://pub.dev/packages/syncfusion_flutter_calendar) - 1.2K LIKES, The Flutter Calendar widget has nine built-in configurable views that provide basic functionalities for scheduling and representing appointments/events efficiently.

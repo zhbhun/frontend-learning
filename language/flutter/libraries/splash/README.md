@@ -1,0 +1,2 @@
+- [splash](https://pub.dev/packages/flutter_native_splash) - 7K LIKES, Customize Flutter's default white native splash screen with background color and splash image. Supports dark mode, full screen, and more.
+- [introduction_screen](https://pub.dev/packages/introduction_screen) - 2K LIKES, Introduction/Onboarding package for flutter app with some customizations possibilities

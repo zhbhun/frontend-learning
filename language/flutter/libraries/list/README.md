@@ -1,0 +1,1 @@
+- [grouped_list](https://pub.dev/packages/grouped_list) - 1.2K LIKES, A Flutter ListView where the list items can be grouped into sections.

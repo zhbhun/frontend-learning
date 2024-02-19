@@ -1,0 +1,2 @@
+- [flutter_spinkit](https://pub.dev/packages/flutter_spinkit) - 3k LIKES, A collection of loading indicators animated with flutter.
+- [flutter_easyloading](https://pub.dev/packages/flutter_easyloading) - 2K LIKES, A clean and lightweight loading/toast widget for Flutter, Easy to use without context, Support iOS、Android and Web.

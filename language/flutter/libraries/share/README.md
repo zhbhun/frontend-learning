@@ -1,0 +1,1 @@
+- [share_plus](https://pub.dev/packages/share_plus) - 2K LIKES, Flutter plugin for sharing content via the platform share UI, using the ACTION_SEND intent on Android and UIActivityViewController on iOS.

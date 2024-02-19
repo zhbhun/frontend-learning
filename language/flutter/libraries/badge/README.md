@@ -1,0 +1,1 @@
+- [badges](https://pub.dev/packages/badges) - 3K LIKES - A package for creating badges. Badges can be used for an additional marker for any widget, e.g. show a number of items in a shopping cart.

@@ -1,0 +1,1 @@
+- [logger](https://pub.dev/packages/logger) - Small, easy to use and extensible logger which prints beautiful logs.

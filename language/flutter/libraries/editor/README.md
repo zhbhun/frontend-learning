@@ -1,0 +1,1 @@
+- [flutter_quill](https://pub.dev/packages/flutter_quill) - 1K LIKES, A rich text editor built for the modern Android, iOS, web and desktop platforms. It is the WYSIWYG editor and a Quill component for Flutter.

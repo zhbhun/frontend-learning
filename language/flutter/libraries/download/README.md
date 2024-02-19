@@ -1,0 +1,1 @@
+- [flutter_downloader](https://pub.dev/packages/flutter_downloader) - 1K LIKES, A plugin for creating and managing download tasks. Supports iOS and Android.

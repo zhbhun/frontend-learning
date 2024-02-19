@@ -1,4 +1,7 @@
-- [card_swiper](https://github.com/TheAnkurPanchani/card_swiper)
+- [carousel_slider](https://pub.dev/packages/carousel_slider) - 5K LIKES, A carousel slider widget.
+- [smooth_page_indicator](https://pub.dev/packages/smooth_page_indicator) - 3K LIKES, Customizable animated page indicator with a set of built-in effects.
+- [card_swiper](https://github.com/TheAnkurPanchani/card_swiper) - 1K LIKES
 - [flutter_swiper](https://github.com/best-flutter/flutter_swiper)
 - [appinio_swiper](https://github.com/appinioGmbH/flutter_packages/tree/main/packages/appinio_swiper)
 - [flutter_card_swiper](https://github.com/ricardodalarme/flutter_card_swiper)
+- https://pub.dev/packages/flutter_swiper

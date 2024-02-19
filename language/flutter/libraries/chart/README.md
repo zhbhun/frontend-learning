@@ -1,0 +1,2 @@
+- [fl_chart](https://pub.dev/packages/fl_chart) - 5K LIKES, A highly customizable Flutter chart library that supports Line Chart, Bar Chart, Pie Chart, Scatter Chart, and Radar Chart.
+- [syncfusion_flutter_charts](https://pub.dev/packages/syncfusion_flutter_charts) - 3K LIKES, A Flutter Charts library which includes data visualization widgets such as cartesian and circular charts, to create real-time, interactive, high-performance, animated charts.

@@ -1,0 +1,1 @@
+- [font_awesome_flutter](https://pub.dev/packages/font_awesome_flutter) - 4K LIKES, The Font Awesome Icon pack available as Flutter Icons. Provides 2000 additional icons to use in your apps.

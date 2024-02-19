@@ -1,1 +1,1 @@
-- [flutter_html](https://pub.dev/packages/flutter_html)
+- [flutter_html](https://pub.dev/packages/flutter_html) - 2K LIKES, A Flutter widget rendering static HTML and CSS as Flutter widgets.

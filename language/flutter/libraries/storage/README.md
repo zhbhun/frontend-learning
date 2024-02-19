@@ -1,0 +1,10 @@
+- [shared_preferences](https://pub.dev/packages/shared_preferences) - 8K LIKES, Wraps platform-specific persistent storage for simple data (NSUserDefaults on iOS and macOS, SharedPreferences on Android, etc.). Data may be persisted to disk asynchronously, and there is no guarantee that writes will be persisted to disk after returning, so this plugin must not be used for storing critical data.
+- [hive](https://pub.dev/packages/hive) - 5K LIKES, Hive is a lightweight and blazing fast key-value database written in pure Dart. Inspired by Bitcask.
+- [sqflite](https://pub.dev/packages/sqflite) - 4K LIKES, Flutter plugin for SQLite, a self-contained, high-reliability, embedded, SQL database engine.
+- [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) - 3K LIKES, Flutter Secure Storage provides API to store data in secure storage. Keychain is used in iOS, KeyStore based solution is used in Android.
+- [isar](https://pub.dev/packages/isar) - 2K LIKES, Extremely fast, easy to use, and fully async NoSQL database for Flutter
+- [objectbox](https://pub.dev/packages/objectbox) - 1K LIKES, Flutter database for Dart-native objects.
+- [drift](https://pub.dev/packages/drift) - 1K LIKES,Drift is a reactive persistence library for Flutter and Dart, built on top of SQLite.
+- [get_storage](https://pub.dev/packages/get_storage) - 1K LIKES, A fast, extra light and synchronous key-value in memory, which backs up data to disk at each operation. It is written entirely in Dart and easily integrates with Get framework of Flutter.
+- [sembast](https://pub.dev/packages/sembast) - 700 LIKES, sembast db stands for Simple Embedded Application Store database.
+- [realm](https://pub.dev/packages/realm) - 500 LIKES, Realm is a mobile database that runs directly inside phones, tablets or wearables. This repository holds the source code for the Realm SDK for Flutter™ and Dart™.

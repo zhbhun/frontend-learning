@@ -1,0 +1,1 @@
+- [google_mobile_ads](https://pub.dev/packages/google_mobile_ads) - 2K LIKES, Flutter plugin for Google Mobile Ads, supporting banner, interstitial (full-screen), rewarded and native ads

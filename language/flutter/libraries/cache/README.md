@@ -1,0 +1,1 @@
+- [flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager) - 1K LIKES, A CacheManager to download and cache files in the cache directory of the app. Various settings on how long to keep a file can be changed.

@@ -1,1 +1,6 @@
-- [cached_network_image](https://pub.dev/packages/cached_network_image)
+- [cached_network_image](https://pub.dev/packages/cached_network_image) - 5K LIKES, A flutter library to show images from the internet and keep them in the cache directory.
+- [photo_view](https://pub.dev/packages/photo_view) - 2K LIKES, Photo View provides a gesture sensitive zoomable widget. Photo View is largely used to show interactive images and other stuff such as SVG.
+- [extended_image](https://pub.dev/packages/extended_image) - 2K LIKES, Official extension image, support placeholder(loading)/ failed state, cache network, zoom/pan, photo view, slide out page, editor(crop,rotate,flip), painting etc.
+- [flutter_blurhash](https://pub.dev/packages/flutter_blurhash) - 1.3K LIKES, Compact representation of a placeholder for an image. Encode a blurry image under 30 caracters for instant display like used by Medium
+- https://pub.dev/packages/image - 1.3K LIKES, Dart Image Library provides server and web apps the ability to load, manipulate, and save images with various image file formats.
+- [flutter_image_compress](https://pub.dev/packages/flutter_image_compress) - 1.2K LIKES, Compress Pictures. Can effectively reduce the size of the transmission.

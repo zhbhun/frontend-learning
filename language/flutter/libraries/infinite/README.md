@@ -1,0 +1,2 @@
+- [infinite_scroll_pagination](https://pub.dev/packages/infinite_scroll_pagination) - 3K LIKES, Lazily load and display pages of items as the user scrolls down your screen.
+- [pull_to_refresh](https://pub.dev/packages/pull_to_refresh) - 2K LIKES, a widget provided to the flutter scroll component drop-down refresh and pull up load.

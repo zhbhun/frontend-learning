@@ -1,0 +1,1 @@
+- [flutter_rating_bar](https://pub.dev/packages/flutter_rating_bar) - 2K LIKES, A simple yet fully customizable ratingbar for flutter which also include a rating bar indicator, supporting any fraction of rating.

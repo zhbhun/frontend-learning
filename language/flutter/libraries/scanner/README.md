@@ -1,0 +1,1 @@
+- [mobile_scanner](https://pub.dev/packages/mobile_scanner) - 1K LIKES, A universal barcode and QR code scanner for Flutter based on MLKit. Uses CameraX on Android, AVFoundation on iOS and Apple Vision & AVFoundation on macOS.

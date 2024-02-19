@@ -1,5 +1,5 @@
 - [intl](https://github.com/dart-lang/i18n/tree/main/pkgs/intl)
-- [flutter_localizations](https://github.com/channdara/flutter_localization)
+- [easy_localization](https://pub.dev/packages/easy_localization) - 2K LIKES, Easy and Fast internationalizing and localization your Flutter Apps, this package simplify the internationalizing process.
 
 ## 使用
 

@@ -1,0 +1,2 @@
+- [device_info_plus](https://pub.dev/packages/device_info_plus) - 2K LIKES, Flutter plugin providing detailed information about the device (make, model, etc.), and Android or iOS version the app is running on.
+- [package_info_plus](https://pub.dev/packages/package_info_plus) - 2K LIKES, Flutter plugin for querying information about the application package, such as CFBundleVersion on iOS or versionCode on Android.

@@ -1,0 +1,2 @@
+- [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) - 5K LIKES, A cross platform plugin for displaying local notifications.
+- [awesome_notifications](https://pub.dev/packages/awesome_notifications) - 2K LIKES, A complete solution to create Local and Push Notifications, customizing buttons, images, sounds, emoticons and applying many different layouts for Flutter apps.

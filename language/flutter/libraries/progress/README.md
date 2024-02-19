@@ -1,0 +1,1 @@
+- [percent_indicator](https://pub.dev/packages/percent_indicator) - 2K LIKES, Library that allows you to display progress widgets based on percentage, can be Circular or Linear, you can also customize it to your needs.

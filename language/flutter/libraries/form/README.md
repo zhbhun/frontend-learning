@@ -1,0 +1,1 @@
+- [flutter_form_builder](https://pub.dev/packages/flutter_form_builder) - 2K LIKES, This package helps in creation of forms in Flutter by removing the boilerplate code, reusing validation, react to changes, and collect final user input.

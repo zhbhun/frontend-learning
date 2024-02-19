@@ -1,1 +1,3 @@
-- [video_player](https://github.com/flutter/packages/tree/main/packages/video_player/video_player) - Video Player plugin for Flutter
+- [video_player](https://github.com/flutter/packages/tree/main/packages/video_player/video_player) - 2K LIKES, Video Player plugin for Flutter
+- [chewie](https://pub.dev/packages/chewie) - 2K LIKES, A video player for Flutter with Cupertino and Material play controls
+- https://pub.dev/packages/youtube_player_flutter

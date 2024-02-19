@@ -1,0 +1,3 @@
+- [pinput](https://pub.dev/packages/pinput) - 2K LIKES, Pin code input (OTP) text field, iOS SMS autofill, Android SMS autofill One Time Code, Password, Passcode, Captcha, Security, Coupon, Wowcher, 2FA, Two step verification
+- [pin_code_fields](https://pub.dev/packages/pin_code_fields) - 2K LIKES, A flutter package which will help you to generate pin code fields. Can be useful for OTP for example.
+- [flutter_typeahead](https://pub.dev/packages/flutter_typeahead) - 2K LIKES, A highly customizable typeahead (autocomplete) text input field for Flutter

@@ -1,0 +1,1 @@
+- [flutter_slidable](https://pub.dev/packages/flutter_slidable) - 5K LIKES, A Flutter implementation of slidable list item with directional slide actions that can be dismissed.

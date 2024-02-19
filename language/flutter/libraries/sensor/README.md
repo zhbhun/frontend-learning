@@ -1,0 +1,3 @@
+- [geolocator](https://pub.dev/packages/geolocator) - 5K LIKES, Geolocation plugin for Flutter. This plugin provides a cross-platform (iOS, Android) API for generic location (GPS etc.) functions.
+- [location](https://pub.dev/packages/location) - 2K LIKES, Cross-platform plugin for easy access to device's location in real-time.
+- [local_auth](https://pub.dev/packages/local_auth) - 2K LIKES, Flutter plugin for Android and iOS devices to allow local authentication via fingerprint, touch ID, face ID, passcode, pin, or pattern.

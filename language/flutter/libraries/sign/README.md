@@ -1,0 +1,3 @@
+- [google_sign_in](https://pub.dev/packages/google_sign_in) - 2K LIKES, Flutter plugin for Google Sign-In, a secure authentication system for signing in with a Google account.
+- [sign_in_with_apple](https://pub.dev/packages/sign_in_with_apple) - 2K LIKES, Flutter bridge to initiate Sign in with Apple (on iOS, macOS, and Android). Includes support for keychain entries as well as signing in with an Apple ID.
+- [flutter_login](https://pub.dev/packages/flutter_login) - 1.2K, A login widget with login/signup functionalities to help speed up development.

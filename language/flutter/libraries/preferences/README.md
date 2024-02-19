@@ -1,1 +1,0 @@
-- [Shared preferences plugin](https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences)
