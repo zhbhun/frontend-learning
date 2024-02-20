@@ -6,3 +6,7 @@
 ## Format
 
 - [timeago](https://pub.dev/packages/timeago) - 1.5K LIKES, A library useful for creating fuzzy timestamps. (e.g. "15 minutes ago")
+
+## Simulator
+
+- [flutter_device_preview](https://github.com/aloisdeniel/flutter_device_preview)

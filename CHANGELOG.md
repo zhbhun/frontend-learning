@@ -6,6 +6,8 @@
 
 - [Pushing Interop Forward in 2023](https://webkit.org/blog/13706/interop-2023/)
 - [2023 JavaScript Rising Stars](https://risingstars.js.org/2023/en)
+- [第3174期】穿越时空：2023年前端技术盘点与2024年技术展望](https://mp.weixin.qq.com/s/WCsYeuFEVJIPYF7F7r5uTQ)
+- [review-2023](https://github.com/saveweb/review-2023)
 
 ## 2022
 
