@@ -1,1 +1,2 @@
 - [skeletonreact.com](https://skeletonreact.com/)
+- https://github.com/dvtng/react-loading-skeleton
