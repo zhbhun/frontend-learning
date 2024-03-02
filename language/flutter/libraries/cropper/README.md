@@ -1,7 +1,7 @@
 - https://fluttergems.dev/crop-image/
 - https://github.com/hnvn/flutter_image_cropper
-- [croppy](https://github.com/kekland/croppy)
-- [image_cropper](https://pub.dev/packages/image_cropper)
+- [croppy](https://pub.dev/packages/croppy) - 79 LIKES, A fully customizable image cropper for Flutter. Mobile-first, but supports Web and Desktop platforms.
+- [image_cropper](https://pub.dev/packages/image_cropper) - 1.9K LIKES, A Flutter plugin for Android, iOS and Web supports cropping images
 - [flutter_crop](https://github.com/xclud/flutter_crop/) - Crop any widget/image in Android, iOS, Web and Desktop with fancy and customizable UI, in pure Dart code.
 - [flutter-custom-image-crop](https://github.com/icapps/flutter-custom-image-crop)
 - [flutter_cropperx](https://github.com/speedkodi/flutter_cropperx)

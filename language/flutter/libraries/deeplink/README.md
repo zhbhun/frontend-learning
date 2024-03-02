@@ -1,1 +1,1 @@
-- https://pub.dev/packages/uni_links
+- [uni_links](https://pub.dev/packages/uni_links) - 1.4K LIKES, Flutter plugin for accepting incoming links - App/Deep Links (Android), Universal Links and Custom URL schemes (iOS).
