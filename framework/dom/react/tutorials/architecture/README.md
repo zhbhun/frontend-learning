@@ -1,1 +1,2 @@
 - [bulletproof-react](https://github.com/alan2207/bulletproof-react) - A simple, scalable, and powerful architecture for building production ready React applications.
+- [译：React 中的 Clean 架构](https://sorrycc.com/react-clean-architecture/)
