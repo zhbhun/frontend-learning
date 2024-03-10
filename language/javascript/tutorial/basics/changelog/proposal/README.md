@@ -4,3 +4,7 @@
 - [Inactive Proposals](https://github.com/tc39/proposals/blob/main/inactive-proposals.md)
 - [Stage 0 Proposals](https://github.com/tc39/proposals/blob/main/stage-0-proposals.md)
 - [Stage 1 Proposals](https://github.com/tc39/proposals/blob/main/README.md)
+
+## TODO
+
+- [Deep Cloning Objects in JavaScript, the Modern Way](https://www.builder.io/blog/structured-clone)
