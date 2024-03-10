@@ -19,6 +19,7 @@
 - [借助ffmpeg.wasm纯前端实现多音频和视频的合成](https://www.zhangxinxu.com/wordpress/2021/03/ffmpeg-wasm-audio-video-merge/)
 - [ffmpegwasm/ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
 - [IVWEB玩转wasm系列-揭秘wasm+h265直播播放器](https://juejin.cn/post/6877058224424976392)
+- [FFmpeg前端视频合成实践](https://mp.weixin.qq.com/s/yPpbBIv-RiG2Je2s4gxmyQ)
 
 ## 参考文献
 
