@@ -5,6 +5,7 @@
 
 ## 教程
 
+- https://learningseo.io/
 - [SEO 要点](https://twitter.com/meditic/status/1752845300165906613)
 - [Discover our best SEO courses led by top experts](https://www.semrush.com/academy/courses/seo/)
 - [Free SEO training: SEO for beginners](https://yoast.com/academy/free-seo-training-seo-for-beginners/)
