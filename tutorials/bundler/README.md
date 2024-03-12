@@ -1,3 +1,75 @@
+# 打包工具
+
+## 构建工具
+
+- webpack
+- rollup
+- esbuild
+- rspack
+
+| 特性\工具 | webpack | rollup | esbuild | rspack |
+| --- | --- | --- | --- | --- |
+| 模块化:输入 | 原生仅支持 JS 和 JSON，通过插件可以支持任意类型 | 同 webpack | 同 webpack，但生态有限 | 原生支持，但生态有限 |
+| 模块化:输出 | IIFE、UMD、AMD、CommonJS 和 ES Modules | 同 webpack | 同 webpack | 同 webpack | 
+| 模块化:懒加载 | 支持 | 支持 | 支持 | 支持 |
+| 模块化:别名 | 支持 | 支持 | 支持 | 支持 |
+| 打包:压缩优化 | 支持 | 支持 | 支持 | 支持 |
+| 打包:代码分割 | import、多 entry、SplitChunksPlugin(强大) | import、多 input  | import、多 input | 同 webpack |
+| 调试:自动刷新 | 支持 | 靠社区插件 rollup-plugin-serve 和 rollup-plugin-livereload 实现 | 支持 | 支持 |
+| 调试:热重载 | 支持 | 支持 | 支持 | 支持 |
+| 调试:历史记录回退 | 支持 | 支持 | 支持 |
+| 调试:接口代理 | 支持 | 同上 | 不支持 | 不支持 |
+| 调试:HTTPS | 支持 | 同上 | 不支持 | 不支持 |
+| 调试:自定义中间件 | 支持 | 同上 | 不支持 | 不支持 |
+
+## 构建框架
+
+- parcel
+- vite
+- rsbuild
+
+## 应用框架
+
+- umi.js
+- next.js
+- rspress
+- vitepress
+- ...
+
+### 底层
+
+
+- vite
+- esbuild
+- [rspack](https://github.com/web-infra-dev/rspack)
+- [farm](https://github.com/farm-fe/farm)
+- swc
+- turborepo
+- Nx
+- Rome
+- https://webpack.js.org/
+- http://browserify.org/
+- https://rollupjs.org/guide/en
+- https://parceljs.org/
+
+    - [packer-cli](https://github.com/yohangz/packer-cli) - Full-fledged CLI tool to generate and package node modules compliant with Browser and NodeJS. Packer CLI support all modern style, unit test and script transpiler tools.
+
+- [rollup](https://github.com/rollup/rollup) - Next-generation ES module bundler
+- https://github.com/lukeed/pwa
+- [moon](https://github.com/moonrepo/moon) - A build system for the JavaScript ecosystem, written in Rust.
+
+## 分析工具
+
+- [Bundlephobia]( https://bundlephobia.com/ ) -  Bundlephobia helps you find the performance impact of adding a npm package to your front-end bundle. 
+
+## 参考文献
+
+- [精读《新一代前端构建工具对比》](https://segmentfault.com/a/1190000040010523?_ea=131700627)
+- [Is It Time To Say Goodbye To Webpack?](https://javascript.plainenglish.io/time-to-say-goodbye-to-webpack-5bf06ff48823)
+
+
+--- 
+
 - [rome](https://github.com/rome/tools) - Unified developer tools for JavaScript, TypeScript, and the web
 - [Rspack](https://mp.weixin.qq.com/s/R-tjPrj2N2DKMO8_cPsp9Q) - Rspack 是由 ByteDance Web Infra 团队孵化的基于 Rust 语言开发的 Web 构建工具，拥有高性能、兼容 Webpack 生态、定制性强等多种优点，解决了我们在业务场景中遇到的非常多的问题，让很多开发者的体验有了质的提升。
 - [farm](https://github.com/farm-fe/farm) - Super fast web build tool written in Rust
