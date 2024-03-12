@@ -31,3 +31,4 @@
 ## 参考文献
 
 - [Deep dive into React Native’s New Architecture](https://medium.com/coox-tech/deep-dive-into-react-natives-new-architecture-fb67ae615ccd)
+- https://github.com/reactwg/react-native-new-architecture
