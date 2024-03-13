@@ -1,0 +1,1 @@
+const template = `${'Hello'} ${'World!'}`;

@@ -7,20 +7,20 @@
 - esbuild
 - rspack
 
-| 特性\工具 | webpack | rollup | esbuild | rspack |
-| --- | --- | --- | --- | --- |
-| 模块化:输入 | 原生仅支持 JS 和 JSON，通过插件可以支持任意类型 | 同 webpack | 同 webpack，但生态有限 | 原生支持，但生态有限 |
-| 模块化:输出 | IIFE、UMD、AMD、CommonJS 和 ES Modules | 同 webpack | 同 webpack | 同 webpack | 
-| 模块化:懒加载 | 支持 | 支持 | 支持 | 支持 |
-| 模块化:别名 | 支持 | 支持 | 支持 | 支持 |
-| 打包:压缩优化 | 支持 | 支持 | 支持 | 支持 |
-| 打包:代码分割 | import、多 entry、SplitChunksPlugin(强大) | import、多 input  | import、多 input | 同 webpack |
-| 调试:自动刷新 | 支持 | 靠社区插件 rollup-plugin-serve 和 rollup-plugin-livereload 实现 | 支持 | 支持 |
-| 调试:热重载 | 支持 | 支持 | 支持 | 支持 |
-| 调试:历史记录回退 | 支持 | 支持 | 支持 |
-| 调试:接口代理 | 支持 | 同上 | 不支持 | 不支持 |
-| 调试:HTTPS | 支持 | 同上 | 不支持 | 不支持 |
-| 调试:自定义中间件 | 支持 | 同上 | 不支持 | 不支持 |
+| 特性\工具 | webpack | rollup | esbuild | rspack | rolldown |
+| --- | --- | --- | --- | --- | --- |
+| 模块化:输入 | 原生仅支持 JS 和 JSON，通过插件可以支持任意类型 | 同 webpack | 同 webpack，但生态有限 | 原生支持，但生态有限 | / |
+| 模块化:输出 | IIFE、UMD、AMD、CommonJS 和 ES Modules | 同 webpack | 同 webpack | 同 webpack | / |
+| 模块化:懒加载 | 支持 | 支持 | 支持 | 支持 | / |
+| 模块化:别名 | 支持 | 支持 | 支持 | 支持 | / |
+| 打包:压缩优化 | 支持 | 支持 | 支持 | 支持 | / |
+| 打包:代码分割 | import、多 entry、SplitChunksPlugin(强大) | import、多 input  | import、多 input | 同 webpack | / |
+| 调试:自动刷新 | 支持 | 靠社区插件 rollup-plugin-serve 和 rollup-plugin-livereload 实现 | 支持 | 支持 | / |
+| 调试:热重载 | 支持 | 支持 | 支持 | 支持 | / |
+| 调试:历史记录回退 | 支持 | 支持 | 支持 | / |
+| 调试:接口代理 | 支持 | 同上 | 不支持 | 不支持 | / |
+| 调试:HTTPS | 支持 | 同上 | 不支持 | 不支持 | / |
+| 调试:自定义中间件 | 支持 | 同上 | 不支持 | 不支持 | / |
 
 ## 构建框架
 

@@ -1,0 +1,69 @@
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime-corejs2/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime-corejs2/regenerator"));
+
+var _now = _interopRequireDefault(require("@babel/runtime-corejs2/core-js/date/now"));
+
+var _promise = _interopRequireDefault(require("@babel/runtime-corejs2/core-js/promise"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/asyncToGenerator"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/createClass"));
+
+var Point =
+/*#__PURE__*/
+function () {
+  function Point(x, y) {
+    (0, _classCallCheck2.default)(this, Point);
+    this.x = x;
+    this.y = y;
+  }
+
+  (0, _createClass2.default)(Point, [{
+    key: "toString",
+    value: function toString() {
+      return "(".concat(this.x, ", ").concat(this.y, ")");
+    }
+  }, {
+    key: "load",
+    value: function () {
+      var _load = (0, _asyncToGenerator2.default)(
+      /*#__PURE__*/
+      _regenerator.default.mark(function _callee() {
+        return _regenerator.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _promise.default.resolve();
+
+              case 2:
+                return _context.abrupt("return", (0, _now.default)());
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      return function load() {
+        return _load.apply(this, arguments);
+      };
+    }()
+  }]);
+  return Point;
+}();
+
+var _default = Point;
+exports.default = _default;
