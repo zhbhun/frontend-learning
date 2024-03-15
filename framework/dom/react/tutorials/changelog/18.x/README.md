@@ -1,16 +1,23 @@
 # 18.x
 
-- Automatic Batching
-- Transitions
-- Suspense
 - New Client and Server Rendering APIs
-- Strict Effect Mode
+- Strict Mode
+- Automatic Batching
+- Concurrent Rendering
+
+  Suspense, transitions, and streaming server rendering 等功能都是基于 Concurrent Rendering 实现的。
+
+  ps：只有在使用 New Client API 创建的应用才支持新特性。
+
+- Suspense on the server
+- Transitions API
 - New Hook API
 
-    - useId
-    - useDeferredValue
-    - useSyncExternalStore
-    - useInsertionEffect
+    - useId：用于在客户端和服务器上生成唯一 ID，避免 hydration 时不一致；
+    - useTransition 和 startTransition：将某些状态标记为不紧急；
+    - useDeferredValue：类似于防抖，延迟渲染费紧急的部分；
+    - useSyncExternalStore：用于同步外部的状态管理库；
+    - useInsertionEffect：解决  CSS-in-JS 库解决在渲染中注入样式的问题。
 
 ## 参考文献
 
