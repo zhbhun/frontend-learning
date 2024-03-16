@@ -1,1 +1,2 @@
 - [Winduum](https://dev.to/lubomirblazekcz/announcing-winduum-10-framework-agnostic-component-library-for-tailwindcss-4gp1)
+- [langui](https://github.com/ahmadbilaldev/langui) - UI for your AI. Open Source Tailwind components tailored for your GPT, generative AI, and LLM projects.
