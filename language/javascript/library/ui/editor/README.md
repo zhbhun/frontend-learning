@@ -105,6 +105,8 @@
 - [pen](https://github.com/sofish/pen) - 5K Star, enjoy live editing (+markdown)
 - [bytemd](https://github.com/bytedance/bytemd) - 4K Star, Hackable Markdown editor and viewer
 - [markdown-editor](https://github.com/jbt/markdown-editor) - 3K Star, Live (Github-flavored) Markdown Editor
+- https://github.com/tk04/Marker - A Desktop App for Easily Viewing and Editing Markdown Files
+- https://github.com/1943time/bluestone - A WYSIWYG Markdown editor, improve reading and editing experience. and generate your Markdown files into online documents in the easiest and fastest way.
 
 ## 代码
 
