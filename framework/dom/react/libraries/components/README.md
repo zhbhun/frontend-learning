@@ -2,6 +2,8 @@
 
 - [awesome-react-components](https://github.com/brillout/awesome-react-components)
 - [2023 年 React 组件库 与 相关库 推荐](https://zhuanlan.zhihu.com/p/546697951)
+- [The top React UI libraries and kits in 2023](https://blog.logrocket.com/top-react-ui-libraries-kits/)
+- [Best 15 React UI Component Libraries of 2024](https://prismic.io/blog/react-component-libraries#summary)
 
 ## 响应式
 
