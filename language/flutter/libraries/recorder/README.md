@@ -1,0 +1,2 @@
+- [flutter_sound](https://pub.dev/packages/flutter_sound) - Flutter Sound is a Flutter package.
+- [speech_to_text](https://pub.dev/packages/speech_to_text)
