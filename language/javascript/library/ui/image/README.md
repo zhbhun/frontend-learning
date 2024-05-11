@@ -30,6 +30,7 @@
 - [filerobot-image-editor](https://github.com/scaleflex/filerobot-image-editor)
 - [pixelapp](https://github.com/alenaksu/pixelapp)
 - [fabritor-web](https://github.com/sleepy-zone/fabritor-web) - A creative editor based on fabricjs
+- [IMaker](https://github.com/slince-zero/IMaker) - Create striking covers effortlessly with our easy-to-use IMaker.
 
 ## Relight
 
