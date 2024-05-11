@@ -1,2 +1,4 @@
-- [flutter_sound](https://pub.dev/packages/flutter_sound) - Flutter Sound is a Flutter package.
 - [speech_to_text](https://pub.dev/packages/speech_to_text)
+- [flutter_sound](https://pub.dev/packages/flutter_sound) - Flutter Sound is a Flutter package.
+- [record](https://pub.dev/packages/record) - 500 Likes, Audio recorder from microphone to a given file path or stream.
+- [audio_waveforms](https://pub.dev/packages/audio_waveforms) - 500 LIKES, Use this plugin to generate waveforms while recording audio in any file formats supported by given encoders or from audio files. We can use gestures to scroll through the waveforms or seek to any position while playing audio and also style waveforms.
