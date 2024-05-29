@@ -1,0 +1,1 @@
+- [awesome-tensorflow-lite](https://github.com/margaretmz/awesome-tensorflow-lite?tab=readme-ov-file#speech)
