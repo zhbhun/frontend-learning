@@ -4,6 +4,7 @@
 - https://github.com/chenglou/react-motion
 - https://github.com/sghall/react-move
 - [react-text-transition](https://github.com/WinterCore/react-text-transition) - Animate your text changes
+- [magicui](https://github.com/magicuidesign/magicui) - UI Library for Design Engineers. Animated components and effects you can copy and paste into your apps. Free. Open Source.
 
 ---
 
