@@ -4,3 +4,4 @@
 ## 辅助工具
 
 - [LowFruits](https://lowfruits.io/) - This tool will help you analyze SERPs, in bulk, to reveal the real weak keywords.
+- https://buildthekeyword.com/
