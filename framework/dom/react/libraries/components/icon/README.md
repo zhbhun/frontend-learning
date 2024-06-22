@@ -1,2 +1,3 @@
 - [mdi-react](https://github.com/levrik/mdi-react) - Material Design Icons for React/Preact packaged as single components
 - https://lucide.dev/
+- [react-icons](https://github.com/react-icons/react-icons)
