@@ -26,6 +26,7 @@
 - [20minJS](https://podcast.20minjs.com/) - A podcast covering the JavaScript language and more broadly web and frontend technologies, with guests from the open-source community. Hosted by OpenReplay, an open-source session replay tool for developers.
 - [freeCodeCamp](https://github.com/freeCodeCamp/freeCodeCamp) - freeCodeCamp.org's open-source codebase and curriculum. Learn to code for free.
 - [重新理解 Web](https://zhuanlan.zhihu.com/p/581977751)
+- [path-to-senior-engineer-handbook](https://github.com/jordan-cutler/path-to-senior-engineer-handbook)
 
 ## 会议
 
