@@ -1,0 +1,1 @@
+- [CSS shapes examples, click to copy](https://getcssscan.com/css-shapes)
