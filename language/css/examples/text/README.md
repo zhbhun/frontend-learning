@@ -1,0 +1,1 @@
+- [45 CSS Text Animation Examples You Can Use](https://wpdean.com/css-text-animation/)
