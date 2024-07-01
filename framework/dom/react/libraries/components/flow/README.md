@@ -1,0 +1,4 @@
+- [Flowise](https://github.com/FlowiseAI/Flowise) - Drag & drop UI to build your customized LLM flow
+- [xyflow](https://github.com/xyflow/xyflow) - React Flow | Svelte Flow - Powerful open source libraries for building node-based UIs with React (https://reactflow.dev) or Svelte (https://svelteflow.dev). Ready out-of-the-box and infinitely customizable.
+- [Drawflow](https://github.com/jerosoler/Drawflow) - Simple flow library
+- [omnichain](https://github.com/zenoverflow/omnichain) - OmniChain - efficient self-updating visual workflows for large language models - build automations, chatbots, agents, and integrate with existing frameworks
