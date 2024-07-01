@@ -1,0 +1,1 @@
+- [Beautiful CSS checkboxes examples](https://getcssscan.com/css-checkboxes-examples)
