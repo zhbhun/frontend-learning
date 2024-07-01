@@ -48,3 +48,4 @@
 ### 文字
 
 - [Splitting](https://github.com/shshaw/Splitting)
+- [Blotter](https://github.com/bradley/Blotter) - A JavaScript API for drawing unconventional text effects on the web
