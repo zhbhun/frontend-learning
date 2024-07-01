@@ -1,1 +1,2 @@
 - [magicui](https://github.com/magicuidesign/magicui)
+- [cult-ui](https://github.com/nolly-studio/cult-ui)
