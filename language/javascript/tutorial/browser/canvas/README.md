@@ -16,3 +16,7 @@
 
 - [It's always been you, Canvas2D](https://developer.chrome.com/blog/canvas2d/#round-rect)
 - [JavaScript of Halftone (半色调) Printing](http://anderoonies.github.io/projects/halftone/)
+
+## 常见问题
+
+- [前端生成海报图技术选型与问题解决](https://zhuanlan.zhihu.com/p/701919912?utm_medium=social&utm_psn=1787252752595943424&utm_source=ZHShareTargetIDMore)
