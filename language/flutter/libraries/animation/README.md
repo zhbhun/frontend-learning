@@ -1,3 +1,4 @@
+- [rive](https://pub.dev/packages/rive)
 - [animations](https://pub.dev/packages/animations) - 5K LIKES, This package contains pre-canned animations for commonly-desired effects. The animations can be customized with your content and dropped into your application to delight your users.
 - [animated_text_kit](https://pub.dev/packages/animated_text_kit) - 4K LIKES, A flutter package project which contains a collection of cool and beautiful text animations.
 - [animate_do](https://pub.dev/packages/animate_do) - 3K LIKES, Beautiful animations inspired on Animate.css, every animation is a customizable widget.
