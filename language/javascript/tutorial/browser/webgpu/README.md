@@ -1,5 +1,6 @@
 ## 教程
 
+- [Google WebGPU](https://developer.chrome.com/docs/web-platform/webgpu?hl=zh-cn)
 - [WebGPU 理论基础](https://webgpufundamentals.org/webgpu/lessons/zh_cn/) - https://github.com/gfxfundamentals/webgpufundamentals
 
 ## 应用
