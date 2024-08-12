@@ -1,0 +1,3 @@
+- [Using the View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API/Using)
+- [使用 View Transition API 实现平滑过渡](https://developer.chrome.com/docs/web-platform/view-transitions?hl=zh-cn#cross-document_view_transitions)
+- [The View Transitions API And Delightful UI Animations (Part 1)](https://www.smashingmagazine.com/2023/12/view-transitions-api-ui-animations-part1/)
