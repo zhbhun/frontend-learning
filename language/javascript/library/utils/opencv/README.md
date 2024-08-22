@@ -4,6 +4,12 @@
 - [headtrackr](https://github.com/auduno/headtrackr)
 - https://github.com/liuliu/ccv
 
+## 应用
+
+### 文档扫描
+
+- [jscanify](https://github.com/puffinsoft/jscanify?tab=readme-ov-file) - Open-source Javascript mobile document scanner.
+
 ## 参考
 
 - [OpenCV.js 入门](https://github.com/allenGKC/Blog/issues/9)
