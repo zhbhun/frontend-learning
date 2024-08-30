@@ -2,6 +2,8 @@
 
 - [Swift](https://developer.apple.com/documentation/swift)
 - [The Swift Programming Language](https://docs.swift.org/swift-book/documentation/the-swift-programming-language)
+- [《The Swift Programming Language》in Chinese](https://gitbook.swiftgg.team/swift)
+- [Swift Documentation Index](https://github.com/swiftlang/swift/tree/main/docs)
 
 ## 资源
 
