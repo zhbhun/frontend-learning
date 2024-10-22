@@ -10,7 +10,7 @@ import Foundation
 import SnapKit
 import UIKit
 
-class TextStylePlayground: UITableViewController {
+class TextPlayground: UITableViewController {
 	
 	let cellIdentifier = "cell"
 	let faker = Faker(locale: "en")
@@ -22,18 +22,27 @@ class TextStylePlayground: UITableViewController {
 		title = "Text"
 		
 		demos = [
-			("设置文本",{ (label: UILabel) in
+			("简单文本",{ (label: UILabel) in
 				label.text = self.faker.lorem.paragraphs(amount: 1)
+			}),
+			("富文本",{ (label: UILabel) in
+				let attributedString = NSMutableAttributedString(string: self.faker.lorem.paragraphs(amount: 1))
+				attributedString.addAttribute(.foregroundColor, value: UIColor.blue, range: NSRange(location: 0, length: 5))
+				label.attributedText = attributedString
 			}),
 			("文字大小",{ (label: UILabel) in
 				label.text = self.faker.lorem.paragraphs(amount: 1)
 				label.font = UIFont.boldSystemFont(ofSize: 18)
 			}),
-			("文字类型",{ (label: UILabel) in
+			("文字字体",{ (label: UILabel) in
 				label.text = self.faker.lorem.paragraphs(amount: 1)
 				if let customFont = UIFont(name: "Arial-BoldMT", size: 18) {
 					label.font = customFont
 				}
+			}),
+			("文字样式",{ (label: UILabel) in
+				label.text = self.faker.lorem.paragraphs(amount: 1)
+				label.font = UIFont.boldSystemFont(ofSize: 20)
 			}),
 			("文本颜色", { (label: UILabel) in
 				label.text = self.faker.lorem.paragraphs(amount: 1)
@@ -98,7 +107,7 @@ class TextStylePlayground: UITableViewController {
 			}),
 		]
 		
-		tableView.register(TextStyleTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+		tableView.register(TextTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
 	}
 	
 	
@@ -108,10 +117,10 @@ class TextStylePlayground: UITableViewController {
 		return demos.count
 	}
 	
-	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> TextStyleTableViewCell {
+	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> TextTableViewCell {
 		// 为了避免样式冲突，这里选择不重用样式
-		// let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TextStyleTableViewCell
-		let cell = TextStyleTableViewCell(style: .default, reuseIdentifier: cellIdentifier)
+		// let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! TextTableViewCell
+		let cell = TextTableViewCell(style: .default, reuseIdentifier: cellIdentifier)
 		let (title, process) = demos[indexPath.row]
 		cell.title.text = title
 		process(cell.content)
@@ -120,7 +129,7 @@ class TextStylePlayground: UITableViewController {
   
 }
 
-class TextStyleTableViewCell: UITableViewCell {
+class TextTableViewCell: UITableViewCell {
 	let title: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.boldSystemFont(ofSize: 16)

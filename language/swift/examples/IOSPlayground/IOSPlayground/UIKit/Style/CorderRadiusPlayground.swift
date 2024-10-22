@@ -10,7 +10,7 @@ import Foundation
 import SnapKit
 import UIKit
 
-class ShadowPlayground: UITableViewController {
+class CorderRadiusPlayground: UITableViewController {
 	
 	let cellIdentifier = "cell"
 	var demos: [(String,(_ label: UIView) -> Void)] = []
@@ -18,19 +18,27 @@ class ShadowPlayground: UITableViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		title = "Border"
+		title = "Corner Radius"
 		
 		demos = [
-			("Default",{ (view: UIView) in
-				view.layer.shadowColor = UIColor.red.cgColor
-				view.layer.shadowOpacity = 0.5
-				view.layer.shadowOffset = CGSize(width: 5, height: 5)
-				view.layer.shadowRadius = 10
-				
+			("All",{ (view: UIView) in
+				view.layer.cornerRadius = 10
+			}),
+			("Single",{ (view: UIView) in
+				view.layer.cornerRadius = 10
+				view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+			}),
+			("Circular",{ (view: UIView) in
+				view.layer.cornerRadius = 50
+				view.layer.cornerCurve = .circular
+			}),
+			("Continuous",{ (view: UIView) in
+				view.layer.cornerRadius = 50
+				view.layer.cornerCurve = .continuous
 			}),
 		]
 		
-		tableView.register(ShadowTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
+		tableView.register(CornerRadiusTableViewCell.self, forCellReuseIdentifier: cellIdentifier)
 	}
 	
 	
@@ -40,8 +48,8 @@ class ShadowPlayground: UITableViewController {
 		return demos.count
 	}
 	
-	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> ShadowTableViewCell {
-		let cell = ShadowTableViewCell(style: .default, reuseIdentifier: cellIdentifier)
+	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> CornerRadiusTableViewCell {
+		let cell = CornerRadiusTableViewCell(style: .default, reuseIdentifier: cellIdentifier)
 		let (title, process) = demos[indexPath.row]
 		cell.title.text = title
 		process(cell.content)
@@ -50,7 +58,7 @@ class ShadowPlayground: UITableViewController {
 	
 }
 
-class ShadowTableViewCell: UITableViewCell {
+class CornerRadiusTableViewCell: UITableViewCell {
 	let title: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.boldSystemFont(ofSize: 16)

@@ -10,13 +10,25 @@ import UIKit
 class ViewController: UITableViewController {
     
     let demoControllers: [(String, UIViewController.Type)] = [
+		("ImageViewer", ImageViewerPlayground.self),
+		("UIView", UIViewPlayground.self),
         ("UIColor", UIColorPlayground.self),
         ("UILabel", UILabelPlayground.self),
+        ("UIImageView", UIImageViewPlayground.self),
         ("UIStackView", UIStackViewPlayground.self),
         ("NSLayoutConstraint", NSLayoutConstraintPlayground.self),
         ("FlexLayout", FlexLayoutPlayground.self),
         ("UITapGestureRecognizer", UITapGestureRecognizerPlayground.self),
-        ("UILongPressGestureRecognizer", UILongPressGestureRecognizerPlayground.self)
+        ("UILongPressGestureRecognizer", UILongPressGestureRecognizerPlayground.self),
+		("Margin", MarginPlayground.self),
+		("Background", BackgroundPlayground.self),
+		("Border", BorderPlayground.self),
+		("Shadow", ShadowPlayground.self),
+		("Corner Radius", CorderRadiusPlayground.self),
+		("Text", TextPlayground.self),
+		("Opacity", OpacityPlayground.self),
+		("Visible", VisiblePlayground.self),
+		("Transform", TransformPlayground.self),
         // 添加更多示例控制器
     ]
     
@@ -29,8 +41,6 @@ class ViewController: UITableViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
     
-    // MARK: - UITableViewDataSource
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return demoControllers.count
     }
@@ -40,8 +50,6 @@ class ViewController: UITableViewController {
         cell.textLabel?.text = demoControllers[indexPath.row].0
         return cell
     }
-    
-    // MARK: - UITableViewDelegate
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
