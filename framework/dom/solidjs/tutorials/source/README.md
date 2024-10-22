@@ -4,42 +4,34 @@
   import { render } from "solid-js/web";
   import { createSignal } from "solid-js";
 
-  function PropsTetser(props: any) {
+  interface ValueProps {
+    content: number;
+  }
+
+  function Value(props: ValueProps) {
     return (
-      <>
-      <div>{PropsTester.value}</div>
-      <div>{PropsTester.value + 1}</div>
-      </>
+      <span
+        style={{
+          color: props.content % 2 == 0 ? "#f00" : "#00f",
+          "background-color": "#eee",
+        }}
+      >
+        {props.content}
+      </span>
     );
   }
 
-  function Counter(props: any) {
-    const [count, setCount] = createSignal();
+  function App(props: any) {
+    const [count, setCount] = createSignal(0);
     const increment = () => setCount(count() + 1);
     return (
-      <>
-        <button name={counter()} type="button" onClick={increment}>
-          {count()}
-        </button>
-        <div name={count() + 1}>
-          {count() + 1}
-        </div>
-      </>
+      <button type="button" onClick={increment}>
+        <Value content={count()} />
+      </button>
     );
   }
 
-  function App() {
-    const [value, setValue] = createSignal(0);
-    return (
-      <>
-        <PropsTester value={value() + 1} />
-        <Counter />
-      </>
-    );
-  }
-
-  render(() => <Counter />, document.getElementById("app")!);
-
+  render(() => <App />, document.getElementById("app")!);
   ```
 
 - output
@@ -48,48 +40,35 @@
   import { template as _$template } from "solid-js/web";
   import { delegateEvents as _$delegateEvents } from "solid-js/web";
   import { createComponent as _$createComponent } from "solid-js/web";
-  import { setAttribute as _$setAttribute } from "solid-js/web";
   import { effect as _$effect } from "solid-js/web";
   import { insert as _$insert } from "solid-js/web";
-  var _tmpl$ = /*#__PURE__*/_$template(`<div>`),
+  var _tmpl$ = /*#__PURE__*/_$template(`<span>`),
     _tmpl$2 = /*#__PURE__*/_$template(`<button type=button>`);
   import { render } from "solid-js/web";
   import { createSignal } from "solid-js";
-  function PropsTetser(props) {
-    return [(() => {
+  function Value(props) {
+    return (() => {
       var _el$ = _tmpl$();
-      _$insert(_el$, () => PropsTester.value);
+      _el$.style.setProperty("background-color", "#eee");
+      _$insert(_el$, () => props.content);
+      _$effect(_$p => (_$p = props.content % 2 == 0 ? "#f00" : "#00f") != null ? _el$.style.setProperty("color", _$p) : _el$.style.removeProperty("color"));
       return _el$;
-    })(), (() => {
-      var _el$2 = _tmpl$();
-      _$insert(_el$2, () => PropsTester.value + 1);
-      return _el$2;
-    })()];
+    })();
   }
-  function Counter(props) {
-    const [count, setCount] = createSignal();
+  function App(props) {
+    const [count, setCount] = createSignal(0);
     const increment = () => setCount(count() + 1);
-    return [(() => {
-      var _el$3 = _tmpl$2();
-      _el$3.$$click = increment;
-      _$insert(_el$3, count);
-      _$effect(() => _$setAttribute(_el$3, "name", counter()));
-      return _el$3;
-    })(), (() => {
-      var _el$4 = _tmpl$();
-      _$insert(_el$4, () => count() + 1);
-      _$effect(() => _$setAttribute(_el$4, "name", count() + 1));
-      return _el$4;
-    })()];
+    return (() => {
+      var _el$2 = _tmpl$2();
+      _el$2.$$click = increment;
+      _$insert(_el$2, _$createComponent(Value, {
+        get content() {
+          return count();
+        }
+      }));
+      return _el$2;
+    })();
   }
-  function App() {
-    const [value, setValue] = createSignal(0);
-    return [_$createComponent(PropsTester, {
-      get value() {
-        return value() + 1;
-      }
-    }), _$createComponent(Counter, {})];
-  }
-  render(() => _$createComponent(Counter, {}), document.getElementById("app"));
+  render(() => _$createComponent(App, {}), document.getElementById("app"));
   _$delegateEvents(["click"]);
   ```
