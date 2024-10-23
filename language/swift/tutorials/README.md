@@ -1,9 +1,11 @@
 # Tutorial
 
 - [Swift](https://developer.apple.com/documentation/swift)
+- [Foundation](https://developer.apple.com/documentation/foundation)
 - [The Swift Programming Language](https://docs.swift.org/swift-book/documentation/the-swift-programming-language)
 - [《The Swift Programming Language》in Chinese](https://gitbook.swiftgg.team/swift)
 - [Swift Documentation Index](https://github.com/swiftlang/swift/tree/main/docs)
+- [Swiftly](https://swiftly.dev/)
 
 ## 资源
 

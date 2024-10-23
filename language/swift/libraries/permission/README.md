@@ -1,0 +1,1 @@
+- [PermissionsKit](https://github.com/sparrowcode/PermissionsKit) - Universal API for request permission and get its statuses.

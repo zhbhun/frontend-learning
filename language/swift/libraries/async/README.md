@@ -1,0 +1,1 @@
+- [PromiseKit](https://github.com/mxcl/PromiseKit) - Promises for Swift & ObjC.
