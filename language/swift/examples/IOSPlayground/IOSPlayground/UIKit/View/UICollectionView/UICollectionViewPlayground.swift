@@ -11,8 +11,12 @@ import UIKit
 class UICollectionViewPlayground: ListViewController {
 	override init() {
 		super.init(controllers: [
-			("UICollectionViewDiffableDataSource", UICollectionViewDiffableDataSourcePlayground.self),
 			("UICollectionViewDataSource", UICollectionViewDataSourcePlayground.self),
+			("UICollectionViewDiffableDataSource", UICollectionViewDiffableDataSourcePlayground.self),
+			("UICollectionViewDelegateFlowLayout", UICollectionViewDelegateFlowLayoutPlayground.self),
+			("UICollectionView.CellRegistration", UICollectionViewCellRegistrationPlayground.self),
+			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),
+			("Waterfall", WaterfallViewController.self),
 		])
 	}
 	

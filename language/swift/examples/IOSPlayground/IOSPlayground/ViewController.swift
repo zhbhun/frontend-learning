@@ -25,6 +25,7 @@ class ViewController: UICollectionViewController {
 	]
 	
 	let styleControllers: [(String, UIViewController.Type)] = [
+		("Frame", FramePlayground.self),
 		("Margin", MarginPlayground.self),
 		("Background", BackgroundPlayground.self),
 		("Border", BorderPlayground.self),

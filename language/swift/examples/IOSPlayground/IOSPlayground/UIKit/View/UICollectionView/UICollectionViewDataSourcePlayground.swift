@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDataSource {
 	
 	enum Section: Int, CaseIterable {
 		case first
@@ -57,9 +57,8 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 		collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
 		collectionView.backgroundColor = .systemBackground
 		collectionView.dataSource = self
-		collectionView.delegate = self
-		collectionView.register(FirstCell.self, forCellWithReuseIdentifier: "FirstCell")
-		collectionView.register(SecondCell.self, forCellWithReuseIdentifier: "SecondCell")
+		collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "FirstCell")
+		collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "SecondCell")
 		collectionView.register(CustomHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
 		
 		view.addSubview(collectionView)
@@ -150,10 +149,12 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 	
 	// MARK: - UICollectionViewDataSource
 	
+	// 有多少个 Section
 	func numberOfSections(in collectionView: UICollectionView) -> Int {
 		return Section.allCases.count
 	}
 	
+	// 每个 Section 有多少 Item
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		let sectionType = Section(rawValue: section)
 		switch sectionType {
@@ -166,49 +167,46 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 		}
 	}
 	
+	// Item 构造
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let sectionType = Section(rawValue: indexPath.section)
 		switch sectionType {
 		case .first:
-			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FirstCell", for: indexPath) as! FirstCell
+			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FirstCell", for: indexPath) as? CustomCell
+			guard let cell = cell else {
+				return UICollectionViewCell()
+			}
 			cell.label.text = itemsFirstSection[indexPath.item].title
+			cell.contentView.backgroundColor = .blue
 			return cell
 		case .second:
-			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SecondCell", for: indexPath) as! SecondCell
+			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SecondCell", for: indexPath) as? CustomCell
+			guard let cell = cell else {
+				return UICollectionViewCell()
+			}
 			cell.label.text = itemsSecondSection[indexPath.item].title
+			cell.contentView.backgroundColor = .red
 			return cell
 		default:
 			return UICollectionViewCell()
 		}
 	}
 	
+	// Section 头/尾构造
 	func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 		guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-		let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! CustomHeader
+		let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? CustomHeader
+		guard let header = header else {
+			return UICollectionReusableView()
+		}
 		header.label.text = Section.allCases[indexPath.section].title
 		return header
 	}
-	
-	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		let sectionType = Section(rawValue: indexPath.section)
-		let selectedItem: Item
-		switch sectionType {
-		case .first:
-			selectedItem = itemsFirstSection[indexPath.item]
-		case .second:
-			selectedItem = itemsSecondSection[indexPath.item]
-		default:
-			return
-		}
-		
-		// 打印点击的项信息
-		print("Selected item in \(sectionType?.title ?? "Unknown Section"): \(selectedItem.title), ID: \(selectedItem.id)")
-	}
 }
 
 
-// 自定义第一种单元格
-fileprivate class FirstCell: UICollectionViewCell {
+// 自定义单元格
+fileprivate class CustomCell: UICollectionViewCell {
 	let label: UILabel = {
 		let label = UILabel()
 		label.textAlignment = .center
@@ -219,7 +217,6 @@ fileprivate class FirstCell: UICollectionViewCell {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		contentView.addSubview(label)
-		contentView.backgroundColor = .blue
 		label.snp.makeConstraints { make in
 			make.centerY.equalToSuperview()
 			make.left.equalToSuperview().offset(15)
@@ -232,30 +229,6 @@ fileprivate class FirstCell: UICollectionViewCell {
 	}
 }
 
-// 自定义第二种单元格
-fileprivate class SecondCell: UICollectionViewCell {
-	let label: UILabel = {
-		let label = UILabel()
-		label.textAlignment = .center
-		label.textColor = .white
-		return label
-	}()
-	
-	override init(frame: CGRect) {
-		super.init(frame: frame)
-		contentView.addSubview(label)
-		contentView.backgroundColor = .red
-		label.snp.makeConstraints { make in
-			make.centerY.equalToSuperview()
-			make.left.equalToSuperview().offset(15)
-			make.right.equalToSuperview().offset(-15)
-		}
-	}
-	
-	required init?(coder: NSCoder) {
-		super.init(coder: coder)
-	}
-}
 
 // 自定义头部视图
 fileprivate class CustomHeader: UICollectionReusableView {
