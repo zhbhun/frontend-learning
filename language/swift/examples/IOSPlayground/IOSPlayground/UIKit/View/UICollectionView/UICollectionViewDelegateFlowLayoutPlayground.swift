@@ -64,8 +64,8 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 	
 	// 配置初始数据
 	private func applyInitialData() {
-		itemsFirstSection = (1...10).map { Item(id: UUID(), title: "First Section Item \($0)") }
-		itemsSecondSection = (1...10).map { Item(id: UUID(), title: "Second Section Item \($0)") }
+		itemsFirstSection = (1...10).map { Item(id: UUID(), title: "\($0)") }
+		itemsSecondSection = (1...10).map { Item(id: UUID(), title: "\($0)") }
 		collectionView.reloadData()
 	}
 
@@ -93,9 +93,9 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 		let sectionType = Section(rawValue: section)
 		switch sectionType {
 		case .first:
-			return UIEdgeInsets(top: 100, left: 10, bottom: 30, right: 10)
-		case .second:
 			return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+		case .second:
+			return UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
 		default:
 			return UIEdgeInsets.zero
 		}
@@ -118,22 +118,35 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 		let sectionType = Section(rawValue: indexPath.section)
 		switch sectionType {
 		case .first:
-			return CGSize(width: UIScreen.main.bounds.width - 30, height: 200)
+			return CGSize(width: (UIScreen.main.bounds.width - 20 - 10) / 2, height: 100)
 		case .second:
-			return CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+			return CGSize(width: (UIScreen.main.bounds.width - 20 * 2 - 20 * 2) / 3, height: 200)
 		default:
-			return CGSize(width: UIScreen.main.bounds.width - 30, height: 100)
+			return CGSize(width: UIScreen.main.bounds.width, height: 0)
 		}
 	}
 	
 	// 行间距
+	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+		let sectionType = Section(rawValue: section)
+		switch sectionType {
+		case .first:
+			return 10
+		case .second:
+			return 20
+		default:
+			return 0
+		}
+	}
+	
+	// 列间距
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
 		let sectionType = Section(rawValue: section)
 		switch sectionType {
 		case .first:
-			return 100
+			return 10
 		case .second:
-			return 50
+			return 20
 		default:
 			return 0
 		}

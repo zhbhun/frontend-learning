@@ -15,6 +15,7 @@ class UICollectionViewPlayground: ListViewController {
 			("UICollectionViewDiffableDataSource", UICollectionViewDiffableDataSourcePlayground.self),
 			("UICollectionViewDelegateFlowLayout", UICollectionViewDelegateFlowLayoutPlayground.self),
 			("UICollectionView.CellRegistration", UICollectionViewCellRegistrationPlayground.self),
+			("UICollectionViewDelegate", UICollectionViewDelegatePlayground.self),
 			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),
 			("Waterfall", WaterfallViewController.self),
 		])

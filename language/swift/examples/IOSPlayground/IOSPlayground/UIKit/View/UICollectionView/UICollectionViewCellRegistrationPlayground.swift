@@ -28,7 +28,7 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 		}
 	}
 
-	struct Item: Identifiable {
+	class Item: Hashable {
 		let id: UUID
 		var title: String
 		
@@ -36,11 +36,18 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 			self.id = id
 			self.title = title
 		}
+		
+		func hash(into hasher: inout Hasher) {
+			hasher.combine(id)
+		}
+		
+		static func == (lhs: Item, rhs: Item) -> Bool {
+			return lhs.id == rhs.id
+		}
 	}
 
-	var items: [UUID : Item]!
 	var collectionView: UICollectionView! = nil
-	var diffableDataSource: UICollectionViewDiffableDataSource<Section, Item.ID>! = nil
+	var diffableDataSource: UICollectionViewDiffableDataSource<Section, Item>! = nil
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -75,10 +82,9 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 			cell.contentView.backgroundColor = .blue
 		}
 
-		diffableDataSource = UICollectionViewDiffableDataSource<Section, Item.ID>(collectionView: collectionView) {
-			(collectionView, indexPath, itemID) -> UICollectionViewCell? in
-			
-			guard let item = self.items[itemID] else { return nil }
+		diffableDataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) {
+			(collectionView, indexPath, item) -> UICollectionViewCell? in
+
 			let section = Section.allCases[indexPath.section]
 			
 			switch section {
@@ -100,23 +106,15 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 
 	// 应用初始快照
 	private func applyInitialSnapshot() {
-		var snapshot = NSDiffableDataSourceSnapshot<Section, Item.ID>()
+		var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 		snapshot.appendSections([.first, .second])
 		
 		// 创建并添加初始数据
 		let firstItems = (1...10).map { Item(id: UUID(), title: "First Section Item \($0)") }
 		let secondItems = (1...10).map { Item(id: UUID(), title: "Second Section Item \($0)") }
-		
-		// 将初始数据添加到字典中
-		items = [:]
-		firstItems.forEach { items[$0.id] = $0 }
-		secondItems.forEach { items[$0.id] = $0 }
-		
-		let firstItemIds = firstItems.map { $0.id }
-		let secondItemIds = secondItems.map { $0.id }
-		
-		snapshot.appendItems(firstItemIds, toSection: .first)
-		snapshot.appendItems(secondItemIds, toSection: .second)
+
+		snapshot.appendItems(firstItems, toSection: .first)
+		snapshot.appendItems(secondItems, toSection: .second)
 		
 		diffableDataSource.applySnapshotUsingReloadData(snapshot)
 	}
