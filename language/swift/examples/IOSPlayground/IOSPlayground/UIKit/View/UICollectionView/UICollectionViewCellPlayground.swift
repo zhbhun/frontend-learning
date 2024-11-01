@@ -7,7 +7,7 @@
 import UIKit
 import SnapKit
 
-class UICollectionViewDelegatePlayground: UIViewController {
+class UICollectionViewCellPlayground: UIViewController {
 	enum Section: Int, CaseIterable {
 		case main
 	}
@@ -35,9 +35,9 @@ class UICollectionViewDelegatePlayground: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		title = "UICollectionViewDelegate"
-		
+
+		title = "UICollectionViewCell"
+
 		configureCollectionView()
 		configureDataSource()
 		applyInitialSnapshot()
@@ -46,7 +46,7 @@ class UICollectionViewDelegatePlayground: UIViewController {
 	
 }
 
-extension UICollectionViewDelegatePlayground {
+extension UICollectionViewCellPlayground {
 	private func configureCollectionView() {
 		let layout = UICollectionViewFlowLayout()
 		layout.minimumLineSpacing = 10
@@ -56,7 +56,6 @@ extension UICollectionViewDelegatePlayground {
 		
 		collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
 		collectionView.backgroundColor = .systemBackground
-		collectionView.delegate = self
 		view.addSubview(collectionView)
 	}
 
@@ -85,68 +84,21 @@ extension UICollectionViewDelegatePlayground {
 	}
 }
 
-extension UICollectionViewDelegatePlayground: UICollectionViewDelegate {
-	
-	/// - Tag: highlight
-	func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-		return (indexPath.item % 3) <= 1
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
-		if let cell = collectionView.cellForItem(at: indexPath) {
-			cell.contentView.backgroundColor = .blue
-		}
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-		if let cell = collectionView.cellForItem(at: indexPath) {
-			cell.contentView.backgroundColor = .red
-		}
-	}
-	
-	/// - Tag: selection
-	func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-		return (indexPath.item % 3) == 0 || (indexPath.item % 3) == 2
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		if let cell = collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
-			cell.showIcon()
-		}
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-		if let cell = collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
-			cell.hideIcon()
-		}
-	}
-}
-
-
 fileprivate class CustomCollectionViewCell: UICollectionViewCell {
 	var icon: UIImageView!
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)
-		icon = UIImageView(image: UIImage(systemName: "play"))
-		icon.alpha = 0.0
-		contentView.addSubview(icon)
-		icon.snp.makeConstraints { make in
-			make.center.equalToSuperview()
-			make.width.height.equalTo(24)
-		}
-		contentView.backgroundColor = .red
+		let bv = UIView()
+		bv.backgroundColor = .red
+		backgroundView = bv
+		
+		let sbv = UIView()
+		sbv.backgroundColor = .blue
+		selectedBackgroundView = sbv
 	}
 
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
-	}
-
-	func showIcon() {
-		icon.alpha = 1.0
-	}
-	
-	func hideIcon() {
-		icon.alpha = 0.0
 	}
 }
