@@ -23,6 +23,7 @@ class UICVCLPlayground: ListViewController {
 			("Section pinned boundarySupplementaryItems", UICVCLSectionPinnedBoundarySupplementaryItemsPlayground.self),
 			("Section decorationItems", UICVCLSectionDecorationItemsPlayground.self),
 			("Section orthogonalScrollingBehavior", UICVCLSectionOrthogonalScrollingBehaviorPlayground.self),
+			("Section visibleItemsInvalidationHandler", UICVCLSectionVisibleItemsInvalidationHandlerPlayground.self),
 		])
 	}
 	

@@ -92,6 +92,17 @@ extension UICVCLSectionOrthogonalScrollingBehaviorPlayground {
 
 			let section = NSCollectionLayoutSection(group: containerGroup)
 			section.orthogonalScrollingBehavior = sectionKind.orthogonalScrollingBehavior()
+			section.visibleItemsInvalidationHandler = {(visibleItems, offset, environment) in
+				visibleItems.forEach { item in
+				   if item.representedElementCategory == .cell {
+					   let distanceFromCenter = abs((item.frame.midX - offset.x) - environment.container.contentSize.width / 2.0)
+					   let min: CGFloat = 0.7
+					   let max: CGFloat = 1.1
+					   let scale = CGFloat.maximum(max - (distanceFromCenter / environment.container.contentSize.width), min)
+					   item.transform = CGAffineTransform(scaleX: scale, y: scale)
+				   }
+				}
+			}
 			
 			let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
 				layoutSize: NSCollectionLayoutSize(
