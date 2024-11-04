@@ -24,6 +24,7 @@ class UICVCLPlayground: ListViewController {
 			("Section decorationItems", UICVCLSectionDecorationItemsPlayground.self),
 			("Section orthogonalScrollingBehavior", UICVCLSectionOrthogonalScrollingBehaviorPlayground.self),
 			("Section visibleItemsInvalidationHandler", UICVCLSectionVisibleItemsInvalidationHandlerPlayground.self),
+			("Waterfall", UICVCLWaterfallPlayground.self),
 		])
 	}
 	

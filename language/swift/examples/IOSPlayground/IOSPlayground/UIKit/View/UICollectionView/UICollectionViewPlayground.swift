@@ -18,7 +18,7 @@ class UICollectionViewPlayground: ListViewController {
 			("UICollectionViewCell", UICollectionViewCellPlayground.self),
 			("UICollectionViewDelegate", UICollectionViewDelegatePlayground.self),
 			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),
-			("Waterfall", WaterfallViewController.self),
+			("UICollectionViewWaterfallLayout", UICollectionViewWaterfallLayoutPlayground.self),
 		])
 	}
 	
