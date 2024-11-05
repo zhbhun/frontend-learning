@@ -93,11 +93,16 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 		let updateButton = UIButton(type: .system)
 		updateButton.setTitle("Update", for: .normal)
 		updateButton.addTarget(self, action: #selector(updateItem), for: .touchUpInside)
+
+		let batchUpdateButton = UIButton(type: .system)
+		batchUpdateButton.setTitle("Batch", for: .normal)
+		batchUpdateButton.addTarget(self, action: #selector(batchUpdateItem), for: .touchUpInside)
 		
 		buttonStack.addArrangedSubview(insertButton)
 		buttonStack.addArrangedSubview(deleteButton)
 		buttonStack.addArrangedSubview(moveButton)
 		buttonStack.addArrangedSubview(updateButton)
+		buttonStack.addArrangedSubview(batchUpdateButton)
 		
 		let container = UIView()
 		container.backgroundColor = .white
@@ -122,7 +127,9 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 	@objc private func insertItem() {
 		let newItem = Item(id: UUID(), title: "New Item")
 		itemsFirstSection.insert(newItem, at: 0)
-		collectionView.insertItems(at: [IndexPath(item: 0, section: Section.first.rawValue)])
+		UIView.performWithoutAnimation {
+			collectionView.insertItems(at: [IndexPath(item: 0, section: Section.first.rawValue)])
+		}
 	}
 	
 	// 删除项
@@ -136,8 +143,8 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 	@objc private func moveItem() {
 		guard itemsFirstSection.count > 1 else { return }
 		let itemToMove = itemsFirstSection.removeFirst()
-		itemsFirstSection.append(itemToMove)
-		collectionView.moveItem(at: IndexPath(item: 0, section: Section.first.rawValue), to: IndexPath(item: itemsFirstSection.count - 1, section: Section.first.rawValue))
+		itemsFirstSection.insert(contentsOf: [itemToMove], at: 1)
+		collectionView.moveItem(at: IndexPath(item: 0, section: Section.first.rawValue), to: IndexPath(item: 1, section: Section.first.rawValue))
 	}
 	
 	// 更新项
@@ -145,6 +152,18 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 		guard !itemsFirstSection.isEmpty else { return }
 		itemsFirstSection[0].title = "Updated \(itemsFirstSection[0].title)"
 		collectionView.reloadItems(at: [IndexPath(item: 0, section: Section.first.rawValue)])
+	}
+
+	// 批量更新
+	@objc private func batchUpdateItem() {
+		guard !itemsFirstSection.isEmpty else { return }
+		collectionView.performBatchUpdates {
+			let itemToMove = itemsFirstSection.removeFirst()
+			itemsFirstSection.insert(contentsOf: [itemToMove], at: 1)
+			collectionView.moveItem(at: IndexPath(item: 0, section: Section.first.rawValue), to: IndexPath(item: 1, section: Section.first.rawValue))
+			itemsFirstSection.remove(at: 2) // 如果删除的是第一项，会出错（attempt to perform a delete and a move from the same index path ）
+			collectionView.deleteItems(at: [IndexPath(item: 2, section: Section.first.rawValue)])
+		}
 	}
 	
 	// MARK: - UICollectionViewDataSource

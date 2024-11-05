@@ -12,11 +12,15 @@ class UICollectionViewPlayground: ListViewController {
 	override init() {
 		super.init(controllers: [
 			("UICollectionViewDataSource", UICollectionViewDataSourcePlayground.self),
+			("UICollectionViewController", UICollectionViewControllerPlayground.self),
 			("UICollectionViewDiffableDataSource", UICollectionViewDiffableDataSourcePlayground.self),
 			("UICollectionViewDelegateFlowLayout", UICollectionViewDelegateFlowLayoutPlayground.self),
 			("UICollectionView.CellRegistration", UICollectionViewCellRegistrationPlayground.self),
+			("UICollectionView.SupplementaryRegistration", UICollectionViewSupplementaryRegistrationPlayground.self),
 			("UICollectionViewCell", UICollectionViewCellPlayground.self),
 			("UICollectionViewDelegate", UICollectionViewDelegatePlayground.self),
+			("Drag and Drop", UICollectionViewDragPlayground.self),
+			("UICollectionViewDataSourcePrefetching", UICollectionViewDataSourcePrefetchingPlayground.self),
 			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),
 			("UICollectionViewWaterfallLayout", UICollectionViewWaterfallLayoutPlayground.self),
 		])

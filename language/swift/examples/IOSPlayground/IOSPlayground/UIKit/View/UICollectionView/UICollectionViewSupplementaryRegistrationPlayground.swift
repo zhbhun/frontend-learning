@@ -7,13 +7,7 @@
 import SnapKit
 import UIKit
 
-/**
- * UICollectionView.CellRegistration
- * 1. 简化单元格配置：通过 CellRegistration，开发者可以在创建单元格的同时定义其外观和内容。这样可以减少在 cellForItemAt 方法中重复配置单元格的代码。
- * 2. 支持类型安全：CellRegistration 使用泛型来指定单元格的类型和数据类型。这使得单元格的配置更加类型安全，不会因为错误的类型转换导致运行时错误。
- * 3. 注册和配置的统一：使用传统的 UICollectionView 时，需要先注册单元格，然后在 cellForItemAt 中配置。但使用 CellRegistration，注册和配置合并在一起，开发者可以直接在数据源中配置单元格。
- */
-class UICollectionViewCellRegistrationPlayground: UIViewController {
+class UICollectionViewSupplementaryRegistrationPlayground: UIViewController {
 	enum Section: Int, CaseIterable {
 		case first
 		case second
@@ -52,7 +46,7 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		title = "CellRegistration"
+		title = "SupplementaryRegistration"
 		
 		configureCollectionView()
 		configureDataSource()
@@ -94,13 +88,20 @@ class UICollectionViewCellRegistrationPlayground: UIViewController {
 				return collectionView.dequeueConfiguredReusableCell(using: secondCellRegistration, for: indexPath, item: item)
 			}
 		}
+		
+		// 配置头部视图
+		let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader>(
+			elementKind: UICollectionView.elementKindSectionHeader
+		) { (headerView, elementKind, indexPath) in
+			headerView.label.text = "Section \(indexPath.section)"
+		}
 
 		// 配置 section 头部视图
 		diffableDataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) in
-			guard kind == UICollectionView.elementKindSectionHeader else { return nil }
-			let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? CustomHeader
-			header?.label.text = Section.allCases[indexPath.section].title
-			return header
+			return collectionView.dequeueConfiguredReusableSupplementary(
+				using: headerRegistration,
+				for: indexPath
+			)
 		}
 	}
 

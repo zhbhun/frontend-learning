@@ -77,7 +77,6 @@ class UICollectionViewWaterfallLayoutPlayground: UIViewController {
 		collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
 		collectionView.backgroundColor = .white
 		collectionView.delegate = self
-		collectionView.prefetchDataSource = self
 		collectionView.register(WaterfallCell.self, forCellWithReuseIdentifier: WaterfallCell.identifier)
 		collectionView.register(WaterfallHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: WaterfallHeader.identifier)
 		view.addSubview(collectionView)
@@ -147,19 +146,18 @@ extension UICollectionViewWaterfallLayoutPlayground: UICollectionViewWaterfallDe
 			return 1
 		}
 	}
-}
-
-// MARK: - UICollectionViewDataSourcePrefetching
-extension UICollectionViewWaterfallLayoutPlayground: UICollectionViewDataSourcePrefetching {
-	func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-		let snapshot = dataSource.snapshot()
-		let items = snapshot.itemIdentifiers(inSection: .two)
-		if indexPaths.contains(where: { $0.item >= items.count - 1 }) {
+	
+	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		let offsetY = scrollView.contentOffset.y
+		let contentHeight = scrollView.contentSize.height
+		let frameHeight = scrollView.frame.size.height
+		
+		if offsetY > contentHeight - frameHeight - 300 {
 			loadMoreItems()
 		}
 	}
 	
-	private func loadMoreItems() {
+	func loadMoreItems() {
 		var snapshot = dataSource.snapshot()
 		let items = snapshot.itemIdentifiers(inSection: .two)
 		guard let lastItem = items.last else { return }

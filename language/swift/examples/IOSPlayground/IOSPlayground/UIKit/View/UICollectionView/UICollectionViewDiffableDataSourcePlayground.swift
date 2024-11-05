@@ -8,7 +8,7 @@ import SnapKit
 import UIKit
 
 /**
- * UICollectionViewDiffableDataSource
+ * UICollectionViewDiffableDataSource 引入了快照机制，通过增量更新来简化数据管理，提供更高效的动画更新支持，尤其适合需要频繁变更数据的场景。
  * - 管理数据：初始化、新增、修改和删除
  * - 管理视图：Section、Cell
  */
@@ -149,10 +149,15 @@ class UICollectionViewDiffableDataSourcePlayground: UIViewController {
 		updateButton.setTitle("Update", for: .normal)
 		updateButton.addTarget(self, action: #selector(updateItem), for: .touchUpInside)
 
+		let batchUpdateButton = UIButton(type: .system)
+		batchUpdateButton.setTitle("Batch", for: .normal)
+		batchUpdateButton.addTarget(self, action: #selector(batchUpdateItem), for: .touchUpInside)
+
 		buttonStack.addArrangedSubview(insertButton)
 		buttonStack.addArrangedSubview(deleteButton)
 		buttonStack.addArrangedSubview(moveButton)
 		buttonStack.addArrangedSubview(updateButton)
+		buttonStack.addArrangedSubview(batchUpdateButton)
 
 		let container = UIView()
 		container.backgroundColor = .white
@@ -203,9 +208,28 @@ class UICollectionViewDiffableDataSourcePlayground: UIViewController {
 	// 更新项
 	@objc private func updateItem() {
 		var snapshot = diffableDataSource.snapshot()
-		guard var firstItem = snapshot.itemIdentifiers(inSection: .first).first else { return }
+		guard let firstItem = snapshot.itemIdentifiers(inSection: .first).first else { return }
 		firstItem.title = "1"
 		snapshot.reloadItems([firstItem])
+		diffableDataSource.apply(snapshot, animatingDifferences: true)
+	}
+
+	// 批量更新
+	@objc private func batchUpdateItem() {
+		var snapshot = diffableDataSource.snapshot()
+		let firstItems = snapshot.itemIdentifiers(inSection: .first)
+		
+		// 移动
+		guard firstItems.count > 1 else { return }
+		let firstItem = firstItems[0]
+		let secondItem = firstItems[1]
+		snapshot.moveItem(firstItem, afterItem: secondItem)
+		
+		// 删除
+		guard firstItems.count > 2 else { return }
+		let thirdItem = firstItems[2]
+		snapshot.deleteItems([thirdItem])
+
 		diffableDataSource.apply(snapshot, animatingDifferences: true)
 	}
 }
