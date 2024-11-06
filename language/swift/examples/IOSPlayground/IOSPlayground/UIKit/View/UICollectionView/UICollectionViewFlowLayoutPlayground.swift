@@ -85,7 +85,7 @@ class UICollectionViewFlowLayoutPlayground: UIViewController, UICollectionViewDe
 	private func applyInitialData() {
 		var snapshot = NSDiffableDataSourceSnapshot<Int, Item>()
 		snapshot.appendSections([0])
-		let items = (1...100).map { Item(id: UUID(), title: "\($0)", height: Int.random(in: 100...300)) }
+		let items = (1...1000).map { Item(id: UUID(), title: "\($0)", height: Int.random(in: 100...300)) }
 		snapshot.appendItems(items, toSection: 0)
 		diffableDataSource.applySnapshotUsingReloadData(snapshot)
 	}
@@ -250,24 +250,37 @@ fileprivate class CustomCell: UICollectionViewCell {
 
 /**
  * ## 初始化
- * 1. prepare()
- * 2. collectionViewContentSize - Size: (393.0, 21877.0)
- * 3. layoutAttributesForElements(in:) - Rect: (0.0, -852.0, 393.0, 1704.0)
+ * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x...>
+ * 2. invalidateLayout()
+ * 3. prepare()
  * 4. collectionViewContentSize - Size: (393.0, 21877.0)
+ * 5. layoutAttributesForElements(in:) - Rect: (0.0, -852.0, 393.0, 1704.0)
+ * 6. collectionViewContentSize - Size: (393.0, 21877.0)
  *
  * ## 滑动
- * 1. shouldInvalidateLayout(forBoundsChange:) - NewBounds: (0.0, -96, 393.0, 852.0), ShouldInvalidate: false — 滑动期间频繁调用来判断是否要刷新布局
- * 2. layoutAttributesForElements(in:) - Rect: (0.0, 0.0, 393.0, 1704.0) - 不一定调用，再需要时会调用
- * 3. collectionViewContentSize - Size: (393.0, 21877.0) - layoutAttributesForElements 调用后会再次调用该方法
- * 4. targetContentOffset(forProposedContentOffset:withScrollingVelocity:) - ProposedContentOffset: (0.0, -73.), Velocity: (0.0, 0.0), TargetOffset: (0.0, -73) - 返回最终停靠位置（滚动结束的位置）
+ * shouldInvalidateLayout(forBoundsChange:) - NewBounds: (0.0, -96, 393.0, 852.0), ShouldInvalidate: false — 滑动期间频繁调用来判断是否要刷新布局（返回 true 的会会重新执行 prepare）
+ *   - false:
+ *     1. layoutAttributesForElements(in:) - Rect: (0.0, 0.0, 393.0, 1704.0) - 不一定调用，collectionView 会在需要时会调用。如果 shouldInvalidateLayout 返回 true 的话，重新布局后一定会调用。
+ * 	   2. collectionViewContentSize - Size: (393.0, 21877.0) - layoutAttributesForElements 调用后会再次调用该方法
+ *     3. targetContentOffset(forProposedContentOffset:withScrollingVelocity:) - ProposedContentOffset: (0.0, -73.), Velocity: (0.0, 0.0), TargetOffset: (0.0, -73) - 返回最终停靠位置（滚动结束的位置）
+ *   - true:
+ *     1. invalidationContext(forBoundsChange:)
+ *     2. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x600003018000>
+ *     3. invalidateLayout()
+ *     4. prepare()
+ *     5. collectionViewContentSize
+ *     6. layoutAttributesForElements(in:)
+ *     7. collectionViewContentSize
  *
  * ## 数据：插入、删除、移动和更新
- * 1. prepare()
- * 2. collectionViewContentSize - Size: (393.0, 21570.0)
- * 3. prepare(forCollectionViewUpdates:) - UpdateItems: [INS(0-100)]
- * 4. layoutAttributesForElements(in:) - Rect: (0.0, -852.0, 393.0, 1704.0)
- * 5. collectionViewContentSize - Size: (393.0, 21570.0)
- * 6. finalizeCollectionViewUpdates()
+ * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x...>
+ * 2. invalidateLayout()
+ * 3. prepare()
+ * 4. collectionViewContentSize - Size: (393.0, 21570.0)
+ * 5. prepare(forCollectionViewUpdates:) - UpdateItems: [INS(0-100)]
+ * 6. layoutAttributesForElements(in:) - Rect: (0.0, -852.0, 393.0, 1704.0)
+ * 7. collectionViewContentSize - Size: (393.0, 21570.0)
+ * 8. finalizeCollectionViewUpdates()
  */
 fileprivate class LoggingCollectionViewFlowLayout: UICollectionViewFlowLayout {
 	
@@ -316,7 +329,7 @@ fileprivate class LoggingCollectionViewFlowLayout: UICollectionViewFlowLayout {
 	override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
 		let shouldInvalidate = super.shouldInvalidateLayout(forBoundsChange: newBounds)
 		print(">> shouldInvalidateLayout(forBoundsChange:) - NewBounds: \(newBounds), ShouldInvalidate: \(shouldInvalidate)")
-		return shouldInvalidate
+		return shouldInvalidate || true
 	}
 	
 	/// 返回无效化上下文，用于指定在 bounds 发生变化时哪些部分需要更新。
@@ -324,6 +337,16 @@ fileprivate class LoggingCollectionViewFlowLayout: UICollectionViewFlowLayout {
 		let context = super.invalidationContext(forBoundsChange: newBounds)
 		print(">> invalidationContext(forBoundsChange:) - NewBounds: \(newBounds)")
 		return context
+	}
+	
+	override func invalidateLayout() {
+		super.invalidateLayout();
+		print(">> invalidateLayout()")
+	}
+	
+	override func invalidateLayout(with context: UICollectionViewLayoutInvalidationContext) {
+		super.invalidateLayout(with: context)
+		 print(">> invalidateLayout(with:) - context: \(context)")
 	}
 	
 	/// 在进行插入、删除、移动等更新操作之前调用，提供更新所需的布局准备工作。
