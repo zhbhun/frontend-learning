@@ -19,6 +19,7 @@ class UICollectionViewPlayground: ListViewController {
 			("UICollectionView.SupplementaryRegistration", UICollectionViewSupplementaryRegistrationPlayground.self),
 			("UICollectionViewCell", UICollectionViewCellPlayground.self),
 			("UICollectionViewDelegate", UICollectionViewDelegatePlayground.self),
+			("UICollectionViewFlowLayout", UICollectionViewFlowLayoutPlayground.self),
 			("Drag and Drop", UICollectionViewDragPlayground.self),
 			("UICollectionViewDataSourcePrefetching", UICollectionViewDataSourcePrefetchingPlayground.self),
 			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),

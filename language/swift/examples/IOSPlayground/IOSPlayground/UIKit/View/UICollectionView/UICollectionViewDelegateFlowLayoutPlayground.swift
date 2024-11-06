@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
 	
 	enum Section: Int, CaseIterable {
 		case first
@@ -27,10 +27,12 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 	class Item {
 		let id: UUID
 		var title: String
+		var height: Int
 		
-		init(id: UUID, title: String) {
+		init(id: UUID, title: String, height: Int) {
 			self.id = id
 			self.title = title
+			self.height = height
 		}
 	}
 	
@@ -64,8 +66,8 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 	
 	// 配置初始数据
 	private func applyInitialData() {
-		itemsFirstSection = (1...10).map { Item(id: UUID(), title: "\($0)") }
-		itemsSecondSection = (1...10).map { Item(id: UUID(), title: "\($0)") }
+		itemsFirstSection = (1...10).map { Item(id: UUID(), title: "\($0)", height: Int.random(in: 50...100)) }
+		itemsSecondSection = (1...10).map { Item(id: UUID(), title: "\($0)", height: Int.random(in: 50...100)) }
 		collectionView.reloadData()
 	}
 
@@ -184,6 +186,10 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 		}
 		header.label.text = Section.allCases[indexPath.section].title
 		return header
+	}
+	
+	func collectionView(_ collectionView: UICollectionView, performPrimaryActionForItemAt indexPath: IndexPath) {
+		print(">> performPrimaryActionForItemAt: section=\(indexPath.section + 1), item=\(indexPath.item + 1)")
 	}
 }
 

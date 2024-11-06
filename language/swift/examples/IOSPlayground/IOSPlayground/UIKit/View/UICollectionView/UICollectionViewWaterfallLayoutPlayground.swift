@@ -30,8 +30,8 @@ class UICollectionViewWaterfallLayoutPlayground: UIViewController {
 	class Item: Hashable {
 		let id = UUID()  // 唯一标识符
 		let index: Int
-		let color: UIColor
-		let ratio: CGFloat
+		var color: UIColor
+		var ratio: CGFloat
 		
 		init(index: Int, color: UIColor, ratio: CGFloat) {
 			self.index = index
@@ -69,6 +69,7 @@ class UICollectionViewWaterfallLayoutPlayground: UIViewController {
 		super.viewDidLoad()
 		setupCollectionView()
 		setupDataSource()
+		setupActionButtons()
 	}
 	
 	private func setupCollectionView() {
@@ -90,7 +91,7 @@ class UICollectionViewWaterfallLayoutPlayground: UIViewController {
 		dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { collectionView, indexPath, item in
 			return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)
 		}
-
+		
 		dataSource.supplementaryViewProvider = { (collectionView, kind, indexPath) in
 			guard kind == UICollectionView.elementKindSectionHeader else { return nil }
 			let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: WaterfallHeader.identifier, for: indexPath) as? WaterfallHeader
@@ -167,9 +168,106 @@ extension UICollectionViewWaterfallLayoutPlayground: UICollectionViewWaterfallDe
 	}
 }
 
+extension UICollectionViewWaterfallLayoutPlayground {
+	// 设置操作按钮
+	private func setupActionButtons() {
+		let buttonStack = UIStackView()
+		buttonStack.axis = .horizontal
+		buttonStack.spacing = 10
+		buttonStack.distribution = .fillEqually
+		
+		let insertButton = UIButton(type: .system)
+		insertButton.setTitle("Insert", for: .normal)
+		insertButton.addTarget(self, action: #selector(insertItem), for: .touchUpInside)
+		
+		let deleteButton = UIButton(type: .system)
+		deleteButton.setTitle("Delete", for: .normal)
+		deleteButton.addTarget(self, action: #selector(deleteItem), for: .touchUpInside)
+		
+		let moveButton = UIButton(type: .system)
+		moveButton.setTitle("Move", for: .normal)
+		moveButton.addTarget(self, action: #selector(moveItem), for: .touchUpInside)
+		
+		let updateButton = UIButton(type: .system)
+		updateButton.setTitle("Update", for: .normal)
+		updateButton.addTarget(self, action: #selector(updateItem), for: .touchUpInside)
+		
+		buttonStack.addArrangedSubview(insertButton)
+		buttonStack.addArrangedSubview(deleteButton)
+		buttonStack.addArrangedSubview(moveButton)
+		buttonStack.addArrangedSubview(updateButton)
+		
+		let container = UIView()
+		container.backgroundColor = .white
+		container.addSubview(buttonStack)
+		view.addSubview(container)
+		
+		container.snp.makeConstraints{ make in
+			make.bottom.equalToSuperview()
+			make.leading.equalToSuperview()
+			make.trailing.equalToSuperview()
+		}
+		
+		buttonStack.snp.makeConstraints { make in
+			make.top.equalToSuperview().offset(10)
+			make.bottom.equalToSuperview().offset(-34)
+			make.leading.equalToSuperview().offset(15)
+			make.trailing.equalToSuperview().offset(-15)
+		}
+	}
+	
+	// 插入新项
+	@objc private func insertItem() {
+		var snapshot = dataSource.snapshot()
+		guard let firstItem = snapshot.itemIdentifiers(inSection: .one).first else { return }
+		let newItem = Item(index: Int.random(in: 1000...1000000), color: UIColor(
+			red: CGFloat.random(in: 0...1),
+			green: CGFloat.random(in: 0...1),
+			blue: CGFloat.random(in: 0...1),
+			alpha: 1.0
+		), ratio: CGFloat.random(in: 0.5...1.5))
+		snapshot.insertItems([newItem], beforeItem: firstItem)
+		dataSource.apply(snapshot, animatingDifferences: true)
+	}
+	
+	// 删除项
+	@objc private func deleteItem() {
+		var snapshot = dataSource.snapshot()
+		guard let firstItem = snapshot.itemIdentifiers(inSection: .one).first else { return }
+		snapshot.deleteItems([firstItem])
+		dataSource.apply(snapshot, animatingDifferences: true)
+	}
+	
+	// 移动项
+	@objc private func moveItem() {
+		var snapshot = dataSource.snapshot()
+		let firstItems = snapshot.itemIdentifiers(inSection: .one)
+		guard firstItems.count > 1 else { return }
+		let firstItem = firstItems[0]
+		let secondItem = firstItems[1]
+		snapshot.moveItem(firstItem, afterItem: secondItem)
+		dataSource.apply(snapshot, animatingDifferences: true)
+	}
+	
+	// 更新项
+	@objc private func updateItem() {
+		var snapshot = dataSource.snapshot()
+		guard let firstItem = snapshot.itemIdentifiers(inSection: .one).first else { return }
+		firstItem.color = UIColor(
+			red: CGFloat.random(in: 0...1),
+			green: CGFloat.random(in: 0...1),
+			blue: CGFloat.random(in: 0...1),
+			alpha: 1.0
+		)
+		firstItem.ratio = CGFloat.random(in: 0.5...1.5)
+		snapshot.reloadItems([firstItem])
+		dataSource.apply(snapshot, animatingDifferences: true)
+	}
+}
+
 fileprivate class WaterfallHeader: UICollectionReusableView {
 	static let identifier = "WaterfallHeader"
-
+	
 	let label: UILabel = {
 		let label = UILabel()
 		label.textAlignment = .center
@@ -387,6 +485,11 @@ fileprivate class UICollectionViewWaterfallLayout: UICollectionViewLayout {
 		return floor((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columnCount))
 	}
 	
+	/**
+	 * prepare() 是布局的初始化方法，在每次布局更新前调用。
+	 * - 时机：每次布局无效化时都会调用 prepare()，例如在屏幕旋转、数据源更新或手动调用 invalidateLayout() 时。
+	 * - 用法：：在 prepare() 中计算全局的布局信息，比如每个单元格的位置、大小，分区的边界等。通常会将这些数据缓存起来，以提高 layoutAttributesForItem(at:) 和其他方法的访问效率。
+	 */
 	override public func prepare() {
 		super.prepare()
 		
@@ -480,10 +583,20 @@ fileprivate class UICollectionViewWaterfallLayout: UICollectionViewLayout {
 		return .zero
 	}
 	
+	/**
+	 * layoutAttributesForItem(at:) 返回指定 IndexPath 的单个单元格的布局属性。
+	 * - 时机：通常由 layoutAttributesForElements(in:) 调用，来获取某个单元格的布局信息，也可能直接被 UICollectionView 用于获取特定单元格的布局。
+	 * - 用法：返回单个单元格的位置、大小等布局信息。通常从 prepare() 预计算的数据中读取属性，构造并返回一个 UICollectionViewLayoutAttributes 对象。
+	 */
 	override public func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
 		return sectionItemAttributes[indexPath.section][indexPath.item]
 	}
 	
+	/**
+	 * 返回指定类型（如页眉或页脚）和 IndexPath 的补充视图的布局属性。
+	 * - 时机：在 layoutAttributesForElements(in:) 中被调用，或者在 UICollectionView 需要某个补充视图的布局属性时调用。
+	 * - 用法：返回一个 UICollectionViewLayoutAttributes 对象，定义补充视图的布局。补充视图通常是页眉、页脚，或者其他自定义的辅助视图。
+	 */
 	override public func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
 		if elementKind == UICollectionView.elementKindSectionHeader {
 			return headersAttributes[indexPath.section]
@@ -493,10 +606,18 @@ fileprivate class UICollectionViewWaterfallLayout: UICollectionViewLayout {
 		return nil
 	}
 	
+	/**
+	 * layoutAttributesForElements(in:) 返回指定矩形区域内的所有布局属性。
+	 * - 时机：当 UICollectionView 需要展示新的内容区域时会调用此方法，例如在滚动时。
+	 * - 用法：从缓存中获取所有在 rect 区域内的布局属性，打包成一个数组并返回。这是一个批量方法，UICollectionView 可以利用它快速获取可见区域的所有元素布局。
+	 */
 	override public func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
 		return allItemAttributes.filter { rect.intersects($0.frame) }
 	}
 	
+	/**
+	 * 当 UICollectionView 的边界发生改变时调用，返回 true 时会重新布局。例如，在屏幕旋转或视图大小改变时，此方法可用于动态适应新边界。
+	 */
 	override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
 		return newBounds.width != collectionView?.bounds.width
 	}

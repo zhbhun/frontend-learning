@@ -111,6 +111,7 @@ extension UICollectionViewDragPlayground: UICollectionViewDropDelegate {
 		}
 	}
 
+	// 提供有关拖放行为的提案
 	func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
 		return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
 	}
