@@ -3,6 +3,9 @@
 
     - [使用 apng-js 控制 apng 动画的播放](https://segmentfault.com/a/1190000040329295)
 
+- https://github.com/GoogleChromeLabs/squoosh
+- [jSquash](https://github.com/jamsinclair/jSquash)
+
 ## 处理
 
 - https://imagemagick.org/index.php
