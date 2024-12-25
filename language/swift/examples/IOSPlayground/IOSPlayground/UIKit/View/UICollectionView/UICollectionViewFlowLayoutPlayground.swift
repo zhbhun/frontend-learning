@@ -250,7 +250,7 @@ fileprivate class CustomCell: UICollectionViewCell {
 
 /**
  * ## 初始化
- * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x...>
+ * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext>
  * 2. invalidateLayout()
  * 3. prepare()
  * 4. collectionViewContentSize - Size: (393.0, 21877.0)
@@ -265,7 +265,7 @@ fileprivate class CustomCell: UICollectionViewCell {
  *     3. targetContentOffset(forProposedContentOffset:withScrollingVelocity:) - ProposedContentOffset: (0.0, -73.), Velocity: (0.0, 0.0), TargetOffset: (0.0, -73) - 返回最终停靠位置（滚动结束的位置）
  *   - true:
  *     1. invalidationContext(forBoundsChange:)
- *     2. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x600003018000>
+ *     2. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext>
  *     3. invalidateLayout()
  *     4. prepare()
  *     5. collectionViewContentSize
@@ -273,7 +273,7 @@ fileprivate class CustomCell: UICollectionViewCell {
  *     7. collectionViewContentSize
  *
  * ## 数据：插入、删除、移动和更新
- * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext: 0x...>
+ * 1. invalidateLayout(with:) - context: <UICollectionViewFlowLayoutInvalidationContext>
  * 2. invalidateLayout()
  * 3. prepare()
  * 4. collectionViewContentSize - Size: (393.0, 21570.0)

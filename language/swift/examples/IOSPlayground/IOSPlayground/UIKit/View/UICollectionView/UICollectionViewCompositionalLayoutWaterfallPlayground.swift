@@ -1,13 +1,12 @@
 //
-//  WaterfallViewPlayground.swift
+//  UICollectionViewCompositionalLayoutWaterfallPlayground.swift
 //  IOSPlayground
 //
-//  Created by zhanghuabin on 2024/10/25.
+//  Created by zhanghuabin on 2024/11/7.
 //
-
 import UIKit
 
-class UICVCLWaterfallPlayground: UIViewController {
+class UICollectionViewCompositionalLayoutWaterfallPlayground: UIViewController {
 	private var collectionView: UICollectionView!
 	private var dataSource: UICollectionViewDiffableDataSource<Section, Item>!
 	
@@ -64,7 +63,7 @@ class UICVCLWaterfallPlayground: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		title = "Waterfall"
+		title = "Waterfall by UICollectionViewCompositionalLayout"
 		setupCollectionView()
 		setupDataSource()
 	}
@@ -136,7 +135,7 @@ class UICVCLWaterfallPlayground: UIViewController {
 				self.layoutCache[sectionIndex] = section
 				return section
 			case .two:
-				let section = NSCollectionLayoutSection.custom(
+				let section = NSCollectionLayoutSection.waterfall(
 					contentInsets: NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 15),
 					numberOfItems: collectionView.numberOfItems(inSection: sectionIndex),
 					columnCount: 2,
@@ -159,7 +158,7 @@ class UICVCLWaterfallPlayground: UIViewController {
 	}
 }
 
-extension UICVCLWaterfallPlayground: UICollectionViewDelegate {
+extension UICollectionViewCompositionalLayoutWaterfallPlayground: UICollectionViewDelegate {
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		let offsetY = scrollView.contentOffset.y
 		let contentHeight = scrollView.contentSize.height
@@ -247,7 +246,7 @@ fileprivate class WaterfallCell: UICollectionViewCell {
 }
 
 extension NSCollectionLayoutSection {
-	static func custom(
+	static func waterfall(
 		contentInsets: NSDirectionalEdgeInsets,
 		numberOfItems: Int,
 		columnCount: Int,
@@ -277,3 +276,4 @@ extension NSCollectionLayoutSection {
 			return section
 		}
 }
+

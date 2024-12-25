@@ -7,7 +7,7 @@
 import UIKit
 import SnapKit
 
-class UICollectionViewDataSourcePrefetchingPlayground: UICollectionViewController, UICollectionViewDataSourcePrefetching {
+class UICollectionViewDataSourcePrefetchingPlayground: UICollectionViewController {
 	
 	var items: [Int] = []
 	
@@ -63,7 +63,9 @@ class UICollectionViewDataSourcePrefetchingPlayground: UICollectionViewControlle
 		cell.contentView.backgroundColor = .blue
 		return cell
 	}
-	
+}
+
+extension UICollectionViewDataSourcePrefetchingPlayground: UICollectionViewDataSourcePrefetching {
 	// MARK: - UICollectionViewDataSourcePrefetching
 	
 	// 预加载数据

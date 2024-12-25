@@ -22,9 +22,11 @@ class UICollectionViewPlayground: ListViewController {
 			("UICollectionViewFlowLayout", UICollectionViewFlowLayoutPlayground.self),
 			("Drag and Drop", UICollectionViewDragPlayground.self),
 			("UICollectionViewDataSourcePrefetching", UICollectionViewDataSourcePrefetchingPlayground.self),
-			("UICollectionViewCompositionalLayout", UICVCLPlayground.self),
 			("Nesting", UICollectionViewNestingPlayground.self),
 			("UICollectionViewWaterfallLayout", UICollectionViewWaterfallLayoutPlayground.self),
+			("UICollectionViewCompositionalLayout", UICollectionViewCompositionalLayoutPlayground.self),
+			("UICollectionViewCompositionalLayout...", UICVCLPlayground.self),
+			("Waterfall by UICollectionViewCompositionalLayout", UICollectionViewCompositionalLayoutWaterfallPlayground.self)
 		])
 	}
 	

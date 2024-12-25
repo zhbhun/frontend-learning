@@ -51,7 +51,7 @@ extension UICVCLSectionVisibleItemsInvalidationHandlerPlayground {
 			containerGroup.contentInsets = .init(top: 10, leading: 15, bottom: 10, trailing: 15)
 			
 			let section = NSCollectionLayoutSection(group: containerGroup)
-			section.orthogonalScrollingBehavior = UICollectionLayoutSectionOrthogonalScrollingBehavior.continuous
+			section.orthogonalScrollingBehavior = .continuous
 			section.visibleItemsInvalidationHandler = { [weak self] (visibleItems, offset, environment) in
 				guard let self = self else { return }
 				visibleItems.forEach { item in

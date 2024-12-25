@@ -1,1 +1,2 @@
 - [应用指南](https://svgontheweb.com/zh/)
+- [SVG Tutorial](https://svg-tutorial.com/)
