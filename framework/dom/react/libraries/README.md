@@ -1,3 +1,7 @@
+- [React Libraries for 2025](https://www.robinwieruch.de/react-libraries/)
+
+---
+
 - [react-vue-comparison](https://github.com/jarsbe/react-vue-comparison)
 - [MobX vs Redux: Comparing the Opposing Paradigms](https://mp.weixin.qq.com/s?__biz=MjM5MTA1MjAxMQ==&mid=2651226268&idx=1&sn=3eb78e7933ba951d1b8d6b9d69a240be&chksm=bd4959188a3ed00e1c941d8893fd2b496ed0afd648b8b1a8b7c301178ba0e5fd52f681ade723&scene=0&key=87f047796d968ecc232ede698)
 - [浅谈前端状态管理](https://zhuanlan.zhihu.com/p/25800767)
