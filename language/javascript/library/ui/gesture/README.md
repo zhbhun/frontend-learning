@@ -8,4 +8,4 @@
 - [gesto](https://github.com/daybrush/gesto) - You can set up drag, pinch events in any browser.
 - [overlap-area](https://github.com/daybrush/overlap-area) - Find the Overlap Area.
 - https://github.com/AlloyTeam/AlloyFinger
-
+- [zoompinch](https://github.com/ElyaConrad/zoompinch) - Apply a pinch-and-zoom experience that’s feels native, communicates the transform reactively and lets you project any layer on top of the transformed canvas.
