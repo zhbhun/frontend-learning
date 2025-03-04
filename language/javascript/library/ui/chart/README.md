@@ -13,7 +13,7 @@
 - [billboard.js](https://github.com/naver/billboard.js) - Re-usable, easy interface JavaScript chart library based on D3.js
 - [tui.chart](https://github.com/nhn/tui.chart) - Beautiful chart for data visualization.
 - [VChart](https://github.com/VisActor/VChart) - VChart, more than just a cross-platform charting library, but also an expressive data storyteller.
-- [apexcharts](https://apexcharts.com/) - Modern & Interactive Open-source Charts
+- [apexcharts](https://github.com/apexcharts/apexcharts.js) - Modern & Interactive Open-source Charts
 
 ## 热力图
 
