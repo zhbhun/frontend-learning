@@ -24,9 +24,16 @@ class UIViewPlayground: UITableViewController {
 			("Default",{ (view: UIView) in
 			}),
 			("Frame",{ (view: UIView) in
-				let child = UIView(frame: CGRect(x: 25, y: 25, width: 50, height: 50))
+				let child = UIView(frame: CGRect(x: 100, y: 90, width: 50, height: 50))
 				child.backgroundColor = UIColor(red: 1.0, green: 0, blue: 0, alpha: 1.0)
 				view.addSubview(child)
+				view.clipsToBounds = true
+				DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+					var current: UIView = child
+					print(">> 1 \(current.frame) \(current.bounds)")
+					var frameInSuperView = current.convert(current.bounds, to: self.view.window)
+					print(">> 2 \(frameInSuperView)")
+				})
 			}),
 			("Bounds",{ (view: UIView) in
 				let child = UIView(frame: CGRect(x: 25, y: 25, width: 50, height: 50))

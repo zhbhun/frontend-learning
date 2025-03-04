@@ -209,6 +209,10 @@ class UICollectionViewDiffableDataSourcePlayground: UIViewController {
 	@objc private func updateItem() {
 		var snapshot = diffableDataSource.snapshot()
 		guard let firstItem = snapshot.itemIdentifiers(inSection: .first).first else { return }
+		let newItem = Item(
+			id: firstItem.id,
+			title: "1"
+		)
 		firstItem.title = "1"
 		snapshot.reloadItems([firstItem])
 		diffableDataSource.apply(snapshot, animatingDifferences: true)

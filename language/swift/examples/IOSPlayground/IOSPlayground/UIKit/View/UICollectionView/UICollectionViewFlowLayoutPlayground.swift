@@ -46,7 +46,7 @@ class UICollectionViewFlowLayoutPlayground: UIViewController, UICollectionViewDe
 	// 配置 CollectionView
 	private func configureCollectionView() {
 		let layout = LoggingCollectionViewFlowLayout()
-		
+
 		collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
 		collectionView.backgroundColor = .systemBackground
 		collectionView.delegate = self

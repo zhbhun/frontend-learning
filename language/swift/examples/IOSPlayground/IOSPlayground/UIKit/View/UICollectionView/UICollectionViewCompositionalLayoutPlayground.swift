@@ -96,7 +96,7 @@ extension UICollectionViewCompositionalLayoutPlayground {
 			let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
 				layoutSize: NSCollectionLayoutSize(
 					widthDimension: .fractionalWidth(1.0),
-					heightDimension: .estimated(50)
+					heightDimension: .estimated(44)
 				),
 				elementKind: UICollectionView.elementKindSectionHeader,
 				alignment: .top
@@ -560,11 +560,12 @@ extension UICollectionViewCompositionalLayoutPlayground {
 							let minScale: CGFloat = 0.7
 							let maxScale: CGFloat = 1.1
 							let scale = CGFloat.maximum(maxScale - (distanceFromCenter / environment.container.contentSize.width), minScale)
-							item.transform = CGAffineTransform(scaleX: scale, y: scale)
 							let minAlpha: CGFloat = 0.5
 							let maxAlpha: CGFloat = 1
 							let alpha = CGFloat.maximum(maxAlpha - (distanceFromCenter / environment.container.contentSize.width), minAlpha)
-							item.alpha = alpha
+							// 这个在搭配预估大小时会有渲染问题
+//							item.transform = CGAffineTransform(scaleX: scale, y: scale)
+//							item.alpha = alpha
 							// print(">> \(item.indexPath.item) \(distanceFromCenter) \(scale) \(alpha)")
 							if let cell = self.collectionView.cellForItem(at: item.indexPath) as? TextCell {
 								cell.label.textColor = UIColor(
@@ -573,17 +574,31 @@ extension UICollectionViewCompositionalLayoutPlayground {
 									blue: 0,
 									alpha: 1
 								)
+								cell.transform = CGAffineTransform(scaleX: scale, y: scale)
+								cell.alpha = alpha
 							}
 						}
 					}
 				}
-				// 不能加 Header，加了后会有计算问题
-				// section.boundarySupplementaryItems = [sectionHeader]
+				section.boundarySupplementaryItems = [sectionHeader]
 				return section
 			default:
 				return nil
 			}
 		}
+		let configuration = UICollectionViewCompositionalLayoutConfiguration()
+		configuration.interSectionSpacing = 30
+		configuration.boundarySupplementaryItems = [
+			NSCollectionLayoutBoundarySupplementaryItem(
+				layoutSize: NSCollectionLayoutSize(
+					widthDimension: .fractionalWidth(1.0),
+					heightDimension: .estimated(44)
+				),
+				elementKind: "top",
+				alignment: .top
+			)
+		]
+		layout.configuration = configuration
 		layout.register(
 			SectionBackgroundDecorationView.self,
 			forDecorationViewOfKind: UICVCLSectionDecorationItemsPlayground.sectionBackgroundDecorationElementKind
@@ -612,6 +627,11 @@ extension UICollectionViewCompositionalLayoutPlayground {
 			return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: identifier)
 		}
 
+		let topRegistration = UICollectionView.SupplementaryRegistration
+		<HeaderView>(elementKind: "top") {
+			(supplementaryView, string, indexPath) in
+			supplementaryView.label.text = "Top"
+		}
 		let headerRegistration = UICollectionView.SupplementaryRegistration
 		<HeaderView>(elementKind: UICollectionView.elementKindSectionHeader) {
 			(supplementaryView, string, indexPath) in
@@ -635,6 +655,11 @@ extension UICollectionViewCompositionalLayoutPlayground {
 		dataSource.supplementaryViewProvider = { [weak self] (view, kind, index) in
 			guard let self = self else { return nil }
 			switch kind {
+			case "top":
+				return self.collectionView.dequeueConfiguredReusableSupplementary(
+					using: topRegistration,
+					for: index
+				)
 			case UICollectionView.elementKindSectionHeader:
 				return self.collectionView.dequeueConfiguredReusableSupplementary(
 					using: headerRegistration,

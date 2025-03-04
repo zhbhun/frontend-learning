@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollectionViewDelegate {
 	
 	enum Section: Int, CaseIterable {
 		case first
@@ -70,13 +70,61 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 		itemsSecondSection = (1...10).map { Item(id: UUID(), title: "\($0)", height: Int.random(in: 50...100)) }
 		collectionView.reloadData()
 	}
+}
 
-	// MARK: - UICollectionViewDataSource
-	
+extension UICollectionViewDelegateFlowLayoutPlayground: UICollectionViewDataSource {
 	func numberOfSections(in collectionView: UICollectionView) -> Int {
 		return Section.allCases.count
 	}
+
+	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+		let sectionType = Section(rawValue: section)
+		switch sectionType {
+		case .first:
+			return itemsFirstSection.count
+		case .second:
+			return itemsSecondSection.count
+		default:
+			return 0
+		}
+	}
+
+	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+		let sectionType = Section(rawValue: indexPath.section)
+		switch sectionType {
+		case .first:
+			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FirstCell", for: indexPath) as? CustomCell
+			guard let cell = cell else {
+				return UICollectionViewCell()
+			}
+			cell.label.text = itemsFirstSection[indexPath.item].title
+			cell.contentView.backgroundColor = .blue
+			return cell
+		case .second:
+			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SecondCell", for: indexPath) as? CustomCell
+			guard let cell = cell else {
+				return UICollectionViewCell()
+			}
+			cell.label.text = itemsSecondSection[indexPath.item].title
+			cell.contentView.backgroundColor = .red
+			return cell
+		default:
+			return UICollectionViewCell()
+		}
+	}
 	
+	func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+		guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
+		let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? CustomHeader
+		guard let header = header else {
+			return UICollectionReusableView()
+		}
+		header.label.text = Section.allCases[indexPath.section].title
+		return header
+	}
+}
+
+extension UICollectionViewDelegateFlowLayoutPlayground: UICollectionViewDelegateFlowLayout {
 	// 头大小
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
 		let sectionType = Section(rawValue: section)
@@ -103,18 +151,6 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 		}
 	}
 
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		let sectionType = Section(rawValue: section)
-		switch sectionType {
-		case .first:
-			return itemsFirstSection.count
-		case .second:
-			return itemsSecondSection.count
-		default:
-			return 0
-		}
-	}
-	
 	// 行大小
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
 		let sectionType = Section(rawValue: indexPath.section)
@@ -153,41 +189,7 @@ class UICollectionViewDelegateFlowLayoutPlayground: UIViewController, UICollecti
 			return 0
 		}
 	}
-	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		let sectionType = Section(rawValue: indexPath.section)
-		switch sectionType {
-		case .first:
-			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FirstCell", for: indexPath) as? CustomCell
-			guard let cell = cell else {
-				return UICollectionViewCell()
-			}
-			cell.label.text = itemsFirstSection[indexPath.item].title
-			cell.contentView.backgroundColor = .blue
-			return cell
-		case .second:
-			let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SecondCell", for: indexPath) as? CustomCell
-			guard let cell = cell else {
-				return UICollectionViewCell()
-			}
-			cell.label.text = itemsSecondSection[indexPath.item].title
-			cell.contentView.backgroundColor = .red
-			return cell
-		default:
-			return UICollectionViewCell()
-		}
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-		guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-		let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? CustomHeader
-		guard let header = header else {
-			return UICollectionReusableView()
-		}
-		header.label.text = Section.allCases[indexPath.section].title
-		return header
-	}
-	
+
 	func collectionView(_ collectionView: UICollectionView, performPrimaryActionForItemAt indexPath: IndexPath) {
 		print(">> performPrimaryActionForItemAt: section=\(indexPath.section + 1), item=\(indexPath.item + 1)")
 	}

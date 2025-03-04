@@ -60,7 +60,6 @@ class UICollectionViewSupplementaryRegistrationPlayground: UIViewController {
 		
 		collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
 		collectionView.backgroundColor = .systemBackground
-		collectionView.register(CustomHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
 		view.addSubview(collectionView)
 	}
 
@@ -102,6 +101,7 @@ class UICollectionViewSupplementaryRegistrationPlayground: UIViewController {
 				using: headerRegistration,
 				for: indexPath
 			)
+			return nil
 		}
 	}
 

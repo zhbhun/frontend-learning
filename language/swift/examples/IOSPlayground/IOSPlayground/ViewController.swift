@@ -12,6 +12,7 @@ class ViewController: UICollectionViewController {
 	
 	let viewControllers: [(String, UIViewController.Type)] = [
 		// ("ImageViewer", ImageViewerPlayground.self),
+		("ReactivePlayground", ReactivePlayground.self),
 		("UICollectionView", UICollectionViewPlayground.self),
 		("UIView", UIViewPlayground.self),
 		("UIColor", UIColorPlayground.self),
@@ -21,7 +22,8 @@ class ViewController: UICollectionViewController {
 		("NSLayoutConstraint", NSLayoutConstraintPlayground.self),
 		("FlexLayout", FlexLayoutPlayground.self),
 		("UITapGestureRecognizer", UITapGestureRecognizerPlayground.self),
-		("UILongPressGestureRecognizer", UILongPressGestureRecognizerPlayground.self)
+		("UILongPressGestureRecognizer", UILongPressGestureRecognizerPlayground.self),
+		("UIPageViewController", UIPageViewControllerPlayground.self)
 	]
 	
 	let styleControllers: [(String, UIViewController.Type)] = [

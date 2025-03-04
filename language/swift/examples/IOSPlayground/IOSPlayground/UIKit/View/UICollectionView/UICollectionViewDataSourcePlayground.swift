@@ -58,6 +58,7 @@ class UICollectionViewDataSourcePlayground: UIViewController, UICollectionViewDa
 		collectionView.backgroundColor = .systemBackground
 		collectionView.dataSource = self
 		collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "FirstCell")
+		collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "FirstCell")
 		collectionView.register(CustomCell.self, forCellWithReuseIdentifier: "SecondCell")
 		collectionView.register(CustomHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
 		
