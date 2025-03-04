@@ -14,6 +14,10 @@
 - [tui.chart](https://github.com/nhn/tui.chart) - Beautiful chart for data visualization.
 - [VChart](https://github.com/VisActor/VChart) - VChart, more than just a cross-platform charting library, but also an expressive data storyteller.
 
+## 热力图
+
+- [Heat.js](https://github.com/williamtroup/Heat.js) - A lightweight JavaScript library that generates customizable heat maps, charts, and statistics to visualize date-based activity and trends.
+
 ## 参考文献
 
 - [D3.js开发数据可视化，性能方面和highcharts,echarts对比区别是什么？哪个性能更好的使用在PC端](https://www.zhihu.com/question/28687373)
