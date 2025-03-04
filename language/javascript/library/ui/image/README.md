@@ -1,14 +1,17 @@
 ## 图片
 
 - [Resemble.js](https://github.com/HuddleEng/Resemble.js)
-- [pixelmatch](https://github.com/mapbox/pixelmatch)
-- [blink-diff](https://github.com/yahoo/blink-diff)
 - [yahoo/gifshot](https://github.com/yahoo/gifshot)
 
 ## 解析
 
 - [exifr](https://github.com/MikeKovarik/exifr) - The fastest and most versatile JS EXIF reading library.
 - [grade](https://github.com/benhowdle89/grade) - This JavaScript library produces complementary gradients generated from the top 2 dominant colours in supplied images.
+
+## Diff
+
+- [pixelmatch](https://github.com/mapbox/pixelmatch) - The smallest, simplest and fastest JavaScript pixel-level image comparison library
+- [blink-diff](https://github.com/yahoo/blink-diff)
 
 ## Gif
 
