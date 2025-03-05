@@ -7,6 +7,9 @@ overscroll-behavior 控制浏览器过度滚动时的表现。
 - auto：“触底”效果 + 滚动链
 - contain：“触底”效果
 - none：
+- clip
+
+    - [Overflow Clip](https://ishadeed.com/article/overflow-clip/)
 
 | 属性\效果 | “触底”效果 | 滚动链 |
 | --- | --- | --- |
