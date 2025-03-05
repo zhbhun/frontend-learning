@@ -1,6 +1,10 @@
 框架
 ========
 
+- [component-party](https://github.com/matschik/component-party.dev) - Web component JS frameworks overview by their syntax and features
+
+---
+
 - [UnsuckJS](https://unsuckjs.com/) - Progressively enhance HTML with lightweight JavaScript libraries. No build tools, no compilers, and no hassle.
 - https://www.stefankrause.net/js-frameworks-benchmark7/table.html
 - [Choo](https://choo.io/)
