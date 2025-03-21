@@ -121,7 +121,7 @@ class ViewController: UICollectionViewController {
 		let controllerClass: UIViewController.Type
 		if indexPath.section == 0 {
 			controllerClass = viewControllers[indexPath.row].1
-		} else if indexPath.section == 0 {
+		} else if indexPath.section == 1 {
 			controllerClass = styleControllers[indexPath.row].1
 		} else {
 			controllerClass = layerControllers[indexPath.row].1
