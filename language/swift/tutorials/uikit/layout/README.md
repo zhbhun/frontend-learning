@@ -20,6 +20,22 @@
     - [Texture](hhttps://github.com/TextureGroup/Texture)
     - [LayoutBox](https://github.com/layoutBox)
 
+## 教程
+
+
+- frame.origin.x/y 视图左上角在父视图中的位置 
+- frame.size.width/height 视图在父视图中的大小
+
+修改 UIView 的 transform，bounds、anchorPoint、position 都会影响 frame 的位置和大小。
+
+- bounds.orgin.x/y 子视图的坐标原点偏移量（有点像滚动容器的偏移量），默认 x:0,y:0，即原点是视图左上角，如果设置 x:100,y:100，那么子视图的的坐标原点是相对左上角的 x:-100,y:-100 位置
+- bounds.size.width/height 会影响视图在父视图中的位置和大小，修改 bounds 大小后 frame 的计算公式是 
+
+  - frame.origin.x = position.x - anchorPoint.x * bounds.width  —— 默认 anchorPoint.x 为 0.5，在没修改 bounds 大小的情况下，position.x 相当于矩形中心点的坐标
+  - frame.origin.y = position.y - anchorPoint.y * bounds.height
+  - frame.size.width = bounds.size.width
+  - frame.size.height = bounds.size.height
+
 ## UIStackView
 
 - [UIStackView 入坑指南](https://juejin.cn/post/6844903752227373064)
