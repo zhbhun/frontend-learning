@@ -38,10 +38,11 @@ class ViewController: UICollectionViewController {
 		("Opacity", OpacityPlayground.self),
 		("Visible", VisiblePlayground.self),
 		("Transform", TransformPlayground.self),
+		("CALayer", CALayerPlayground.self),
 	]
 
 	let layerControllers: [(String, UIViewController.Type)] = [
-		("CATextLayer", CATextLayerPlayground.self)
+		("CALayer", CALayerPlayground.self),
 	]
 
 	init() {

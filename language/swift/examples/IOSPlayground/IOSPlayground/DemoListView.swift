@@ -105,7 +105,7 @@ class DemoCell: UICollectionViewCell {
 			make.height.equalTo(32)
 		}
 		
-		containerView.backgroundColor = .gray.withAlphaComponent(0.3)
+		containerView.backgroundColor = .gray.withAlphaComponent(0.1)
 		contentView.addSubview(containerView)
 		containerView.snp.makeConstraints { make in
 			make.top.equalTo(title.snp.bottom)
