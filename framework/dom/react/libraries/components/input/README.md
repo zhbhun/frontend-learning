@@ -1,3 +1,4 @@
 - [react-mentions](https://github.com/signavio/react-mentions) - @mention people in a textarea
 - [react-pin-field](https://github.com/soywod/react-pin-field) - React component for entering PIN codes.
 - [react-autosuggest](https://github.com/moroshko/react-autosuggest) - WAI-ARIA compliant (柔顺) React autosuggest component
+- [search-input-query](https://github.com/williamcotton/search-input-query) - Search input query parser and React component 
