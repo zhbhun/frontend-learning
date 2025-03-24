@@ -452,6 +452,7 @@ One of the sectors in which we’ve seen some of the most powerful no-code and l
 	> 目的就是为了在同一标准下构建生态，那么只有标准统一了，拼装自然简，只有标准统一，才能实现我们的根本目的------自动化。
 
 - 低代码三五年——能得到普通标准吗
+- [Visual programming is stuck on the form](https://interjectedfuture.com/visual-programming-is-stuck-on-the-form/)
 
 ## 参考文献
 
