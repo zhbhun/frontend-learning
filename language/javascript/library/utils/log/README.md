@@ -1,0 +1,2 @@
+- [debug](https://github.com/debug-js/debug) - A tiny JavaScript debugging utility modelled after Node.js core's debugging technique. Works in Node.js and web browsers
+- [consola](https://github.com/unjs/consola) - Elegant Console Logger for Node.js and Browser
