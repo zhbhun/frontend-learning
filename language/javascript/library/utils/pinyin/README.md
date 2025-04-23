@@ -1,1 +1,2 @@
 - [pīnyīn](https://github.com/hotoo/pinyin)
+- [opencc-js](https://github.com/nk2028/opencc-js) - The JavaScript version of Open Chinese Convert (OpenCC)
