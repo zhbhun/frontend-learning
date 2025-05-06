@@ -5,6 +5,7 @@
 
 - [accounts](https://github.com/accounts-js/accounts) - Fullstack authentication and accounts-management for Javascript.
 - [next-auth](https://github.com/nextauthjs/next-auth) - NextAuth.js is a complete open source authentication solution for Next.js applications.
+- [better-auth](https://github.com/better-auth/better-auth) - The most comprehensive authentication framework for TypeScript]
 - [JSON Web Token](https://jwt.io/)
 
     JSON Web Token 是一种安全的身份验证标准。使用 JWT 可轻松实现跨平台身份验证。
