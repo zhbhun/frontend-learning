@@ -5,6 +5,10 @@
 - [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)
 - [Markdown Guide](https://www.markdownguide.org/)
 
+## 衍生语法
+
+- [quarkdown](https://github.com/iamgio/quarkdown)
+
 ## 数学公式
 
 - 希腊字母
