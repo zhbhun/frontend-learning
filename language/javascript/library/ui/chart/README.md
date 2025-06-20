@@ -19,6 +19,10 @@
 
 - [Heat.js](https://github.com/williamtroup/Heat.js) - A lightweight JavaScript library that generates customizable heat maps, charts, and statistics to visualize date-based activity and trends.
 
+## K 线图
+
+- [lightweight-charts](https://github.com/tradingview/lightweight-charts) - https://tradingview.github.io/lightweight-charts/docs
+
 ## 参考文献
 
 - [D3.js开发数据可视化，性能方面和highcharts,echarts对比区别是什么？哪个性能更好的使用在PC端](https://www.zhihu.com/question/28687373)
