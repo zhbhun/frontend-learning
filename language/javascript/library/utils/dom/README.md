@@ -17,3 +17,8 @@ DOM
 
 - [smart-toc](https://github.com/FallenMax/smart-toc)
 - [h5o-js](https://github.com/h5o/h5o-js)
+
+## Content
+
+- https://github.com/mozilla/readability
+- [defuddle](https://github.com/kepano/defuddle) - Extract the main content from web pages.
