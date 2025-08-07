@@ -84,6 +84,7 @@ sudo systemctl start docker
 
 ### 其他版本
 
+- [colima](https://github.com/abiosoft/colima) - Container runtimes on macOS (and Linux) with minimal setup
 - [minikube](https://github.com/kubernetes/minikube) - Run Kubernetes locally
 
     - [Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? MacOS](https://github.com/rancher-sandbox/rancher-desktop/issues/3296#issuecomment-1295236564)
