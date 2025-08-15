@@ -10,6 +10,11 @@
     - [用JointJS做一个简单的功能控制图](http://www.bjhee.com/jointjs.html)
 
 - [rough](https://github.com/rough-stuff/rough) - Create graphics with a hand-drawn, sketchy, appearance
+- antvis
+
+  - https://github.com/antvis/X6 - JavaScript diagramming library that uses SVG and HTML for rendering.
+  - https://github.com/antvis/F6 - F6 is a graph visualization engine which provides quick and smooth operations on mobile devices.
+  - https://github.com/antvis/G6 - A Graph Visualization Framework in JavaScript.
 
 ## 白板
 
