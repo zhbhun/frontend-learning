@@ -1,3 +1,6 @@
-- [Flowise](https://github.com/FlowiseAI/Flowise) - Drag & drop UI to build your customized LLM flow
 - [xyflow](https://github.com/xyflow/xyflow) - React Flow | Svelte Flow - Powerful open source libraries for building node-based UIs with React (https://reactflow.dev) or Svelte (https://svelteflow.dev). Ready out-of-the-box and infinitely customizable.
+- [flow](https://github.com/antvis/F6) - F6 is a graph visualization engine which provides quick and smooth operations on mobile devices.
+- [rete](https://github.com/retejs/rete) - JavaScript framework for visual programming
+- [litegraph.js](https://github.com/jagenjo/litegraph.js) - A graph node engine and editor written in Javascript similar to PD or UDK Blueprints, comes with its own editor in HTML5 Canvas2D. The engine can run client side or server side using Node. It allows to export graphs as JSONs to be included in applications independently.
+- [LogicFlow](https://github.com/didi/LogicFlow) - A flow chart editing framework focus on business customization.
 - [Drawflow](https://github.com/jerosoler/Drawflow) - Simple flow library
