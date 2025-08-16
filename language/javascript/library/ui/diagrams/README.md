@@ -17,6 +17,8 @@
   - https://github.com/antvis/G6 - A Graph Visualization Framework in JavaScript.
 
 - [moveable](https://github.com/daybrush/moveable) - Draggable refers to the ability to drag and move targets. Resizable indicates whether the target's width and height can be increased or decreased.
+- [interact.js](https://github.com/taye/interact.js) - JavaScript drag and drop, resizing and multi-touch gestures with inertia and snapping for modern browsers (and also IE9+)
+- [react-rnd](https://github.com/bokuweb/react-rnd) - 
 
 ## 白板
 
