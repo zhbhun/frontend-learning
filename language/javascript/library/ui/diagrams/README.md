@@ -16,6 +16,8 @@
   - https://github.com/antvis/F6 - F6 is a graph visualization engine which provides quick and smooth operations on mobile devices.
   - https://github.com/antvis/G6 - A Graph Visualization Framework in JavaScript.
 
+- [moveable](https://github.com/daybrush/moveable) - Draggable refers to the ability to drag and move targets. Resizable indicates whether the target's width and height can be increased or decreased.
+
 ## 白板
 
 - https://github.com/jgraph/drawio
