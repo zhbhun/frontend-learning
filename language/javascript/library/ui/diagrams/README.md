@@ -3,11 +3,12 @@
 
 ## 底层
 
+### Canvas
+
+- Konva
+- Fabric.js
 - https://github.com/d3/d3
 - [GoJS](https://github.com/NorthwoodsSoftware/GoJS) - A Web Framework for Rapidly Building Interactive Diagrams
-- [jointjs](https://github.com/clientIO/joint) - JavaScript diagramming library powering exceptional UIs, Build advanced visual and No-Code/Low-Code applications quickly and confidently with a proven library.
-
-    - [用JointJS做一个简单的功能控制图](http://www.bjhee.com/jointjs.html)
 
 - [rough](https://github.com/rough-stuff/rough) - Create graphics with a hand-drawn, sketchy, appearance
 - antvis
@@ -16,9 +17,17 @@
   - https://github.com/antvis/F6 - F6 is a graph visualization engine which provides quick and smooth operations on mobile devices.
   - https://github.com/antvis/G6 - A Graph Visualization Framework in JavaScript.
 
+### DOM
+
 - [moveable](https://github.com/daybrush/moveable) - Draggable refers to the ability to drag and move targets. Resizable indicates whether the target's width and height can be increased or decreased.
 - [interact.js](https://github.com/taye/interact.js) - JavaScript drag and drop, resizing and multi-touch gestures with inertia and snapping for modern browsers (and also IE9+)
 - [react-rnd](https://github.com/bokuweb/react-rnd) - 
+
+### SVG
+
+- [jointjs](https://github.com/clientIO/joint) - JavaScript diagramming library powering exceptional UIs, Build advanced visual and No-Code/Low-Code applications quickly and confidently with a proven library.
+
+  - [用JointJS做一个简单的功能控制图](http://www.bjhee.com/jointjs.html)
 
 ## 白板
 
