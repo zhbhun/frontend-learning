@@ -1,3 +1,5 @@
+- [OpenCut](https://github.com/OpenCut-app/OpenCut) - The open-source CapCut alternative
+
 ## 实现思路
 
 - video 标签 + webgl
