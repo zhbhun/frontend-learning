@@ -1,7 +1,12 @@
+- [SVG](https://www.joshwcomeau.com/svg/friendly-introduction-to-svg/) - https://www.joshwcomeau.com/svg/friendly-introduction-to-svg/
+
+---
+
 缩放矢量图形，即 SVG，是 W3C XML 的分支语言之一，用于标记可缩放的矢量图形。
 ========
 
 # 历史
+
 - 1999年: SVG 诞生
 - 2003年: SVG 成为 W3C 标准，并且推出了 SVG Tiny 和 SVG Basic
 
