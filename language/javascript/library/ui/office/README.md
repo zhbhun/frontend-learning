@@ -1,0 +1,2 @@
+- https://github.com/ONLYOFFICE
+- [document](https://github.com/ranuts/document) - A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.
