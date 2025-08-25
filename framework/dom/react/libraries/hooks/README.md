@@ -1,4 +1,5 @@
 - [react-use](https://github.com/streamich/react-use)
+- [react-stately](https://react-spectrum.adobe.com/react-stately/index.html) - A library of React Hooks that provides cross-platform state management for your design system.
 - [react-hook-form](https://react-hook-form.com/)
 - [ahooks](https://github.com/alibaba/hooks)
 - [awesome-react-hooks](https://github.com/rehooks/awesome-react-hooks)
