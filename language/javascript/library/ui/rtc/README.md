@@ -1,0 +1,1 @@
+- [mirotalksfu](https://github.com/miroslavpejic85/mirotalksfu) - WebRTC - SFU - Simple, Secure, Scalable Real-Time Video Conferences Up to 8k, compatible with all browsers and platforms.
