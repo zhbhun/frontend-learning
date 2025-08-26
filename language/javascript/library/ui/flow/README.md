@@ -7,6 +7,7 @@
 - [xyflow](https://github.com/xyflow/xyflow) - React Flow | Svelte Flow - Powerful open source libraries for building node-based UIs with React (https://reactflow.dev) or Svelte (https://svelteflow.dev). Ready out-of-the-box and infinitely customizable.
 - [rete](https://github.com/retejs/rete) - JavaScript framework for visual programming
 - [Drawflow](https://github.com/jerosoler/Drawflow) - Simple flow library
+- [flowgram.ai](https://github.com/bytedance/flowgram.ai)
 
 ## Canvas
 
