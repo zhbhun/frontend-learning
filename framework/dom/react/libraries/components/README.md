@@ -7,6 +7,7 @@
 
 ## 响应式
 
+- [react-bits](https://github.com/DavidHDev/react-bits) - An open source collection of animated, interactive & fully customizable React components for building memorable websites.
 - [material-ui](https://github.com/mui/material-ui) - MUI Core (formerly Material-UI) is the React UI library you always wanted. Follow your own design system, or start with Material Design.
 - [nextui](https://github.com/nextui-org/nextui) - Beautiful, fast and modern React UI library. - 非常漂亮的组件库
 - https://github.com/radix-ui/primitives - 高质量的无样式组件库
