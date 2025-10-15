@@ -1,3 +1,7 @@
+- [scribe.js](https://github.com/scribeocr/scribe.js)
+
+  https://github.com/scribeocr/scribeocr
+
 - [tesseract.js](https://github.com/naptha/tesseract.js)
 - https://github.com/antimatter15/ocrad.js
 - https://github.com/mateogianolio/ocr
