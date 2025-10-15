@@ -13,6 +13,10 @@
 - [mp4box.js](https://github.com/gpac/mp4box.js): JavaScript library to process MP4 files in the browser (and in NodeJS), with support for progressive parsing.
 - [video-dev/hls.js](https://github.com/video-dev/hls.js/)
 
+## 剪辑
+
+- [flycut-caption](https://github.com/x007xyz/flycut-caption)
+
 ## 视频处理
 
 - https://github.com/ffmpegwasm/ffmpeg.wasm
