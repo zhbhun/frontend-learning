@@ -6,6 +6,12 @@
 - https://github.com/GoogleChromeLabs/squoosh
 - [jSquash](https://github.com/jamsinclair/jSquash)
 
+## 压缩
+
+- [squoosh](https://github.com/GoogleChromeLabs/squoosh)
+- [pica](https://github.com/nodeca/pica)
+- [sharp](https://github.com/lovell/sharp) - High performance Node.js image processing, the fastest module to resize JPEG, PNG, WebP, AVIF and TIFF images. Uses the libvips library.
+
 ## 处理
 
 - https://imagemagick.org/index.php
