@@ -36,6 +36,7 @@
 
 ## 基于文本语法来描述的图表
 
+- [vega](https://github.com/vega/vega) - A visualization grammar.
 - [plantuml.js](https://github.com/plantuml/plantuml.js) / [plantuml](https://github.com/plantuml/plantuml)
 - [mermaid](https://github.com/knsv/mermaid) - Generation of diagrams like flowcharts or sequence diagrams from text in a similar manner as markdown
 
