@@ -1,2 +1,2 @@
-- [million](https://github.com/aidenybai/million) - About
-Virtual DOM into the future! 
+- [million](https://github.com/aidenybai/million) - Virtual DOM into the future! 
+- [snabbdom](https://github.com/snabbdom/snabbdom) - A virtual DOM library with focus on simplicity, modularity, powerful features and performance.
