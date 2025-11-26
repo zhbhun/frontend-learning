@@ -18,3 +18,7 @@
 - [wade](https://github.com/kbrsh/wade) - Blazing fast 1kb search library
 - [js-search](https://github.com/bvaughn/js-search) - JS Search is an efficient, client-side search library for JavaScript and JSON objects
 - [elasticlunr.js](https://github.com/weixsong/elasticlunr.js) - Based on lunr.js, but more flexible and customized.
+
+## 模糊搜索
+
+- [fuzzy](https://github.com/krisk/fuse) - Lightweight fuzzy-search, in JavaScript
