@@ -11,6 +11,7 @@
 - [hexo](https://hexo.io/zh-cn/index.html)
 - [react-static](https://github.com/nozzle/react-static)
 - [hugo](https://github.com/gohugoio/hugo)
+- [mintlify](https://www.mintlify.com/) - Meet the next generation of documentation. AI-native, beautiful out-of-the-box, and built for developers and teams.
 
 
 ## 接口
