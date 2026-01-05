@@ -15,7 +15,10 @@
 
 ## 剪辑
 
+- https://github.com/OpenCut-app/OpenCut
 - [flycut-caption](https://github.com/x007xyz/flycut-caption)
+- https://www.remotion.dev/
+- https://tools.rotato.app/app/trim
 
 ## 视频处理
 
