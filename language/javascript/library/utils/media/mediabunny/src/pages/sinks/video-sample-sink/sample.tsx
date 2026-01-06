@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { Input, ALL_FORMATS, BlobSource, VideoSampleSink } from 'mediabunny'
+import {
+  Input,
+  ALL_FORMATS,
+  BlobSource,
+  VideoSampleSink,
+  AudioBufferSink,
+  InputAudioTrack,
+} from 'mediabunny'
+
+const audioContext = new AudioContext()
 
 export default function VideoSampleSinkExample() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -13,7 +22,10 @@ export default function VideoSampleSinkExample() {
     width: number
     height: number
   } | null>(null)
-  const sinkRef = useRef<VideoSampleSink | null>(null)
+  const audioTrackRef = useRef<InputAudioTrack | null>(null)
+  const autdoSinkRef = useRef<AudioBufferSink | null>(null)
+  const audioSourcesRef = useRef<AudioBufferSourceNode[]>([])
+  const videoSinkRef = useRef<VideoSampleSink | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const timeoutRef = useRef<number | null>(null)
   const isPlayingRef = useRef<boolean>(false)
@@ -27,6 +39,12 @@ export default function VideoSampleSinkExample() {
       }
       if (timeoutRef.current !== null) {
         clearTimeout(timeoutRef.current)
+      }
+      if (audioSourcesRef.current) {
+        audioSourcesRef.current.forEach((source) => {
+          source.stop()
+        })
+        audioSourcesRef.current = []
       }
       isPlayingRef.current = false
     }
@@ -54,9 +72,14 @@ export default function VideoSampleSinkExample() {
 
       // 获取视频轨道
       const videoTrack = await input.getPrimaryVideoTrack()
-
       if (!videoTrack) {
         throw new Error('未找到视频轨道')
+      }
+      const audioTrack = await input.getPrimaryAudioTrack()
+      if (audioTrack) {
+        audioTrackRef.current = audioTrack
+        const sink = new AudioBufferSink(audioTrack)
+        autdoSinkRef.current = sink
       }
 
       const packetStats = await videoTrack.computePacketStats(50)
@@ -83,7 +106,7 @@ export default function VideoSampleSinkExample() {
 
       // 创建 VideoSampleSink
       const sink = new VideoSampleSink(videoTrack)
-      sinkRef.current = sink
+      videoSinkRef.current = sink
 
       // 初始化 Canvas
       const canvas = canvasRef.current
@@ -116,7 +139,8 @@ export default function VideoSampleSinkExample() {
   }
 
   const playVideo = async () => {
-    if (!sinkRef.current || !canvasRef.current) return
+    const videoSink = videoSinkRef.current
+    if (!videoSink || !canvasRef.current) return
 
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
@@ -128,46 +152,77 @@ export default function VideoSampleSinkExample() {
     const endTime = duration || 30 // 如果没有时长，默认播放30秒
 
     try {
-      let lastIterationTime = performance.now()
-      let lastSampleTimestamp = startTime
+      await Promise.all([
+        // 使用 samples 方法循环播放视频帧
+        (async () => {
+          let lastIterationTime = performance.now()
+          let lastSampleTimestamp = startTime * 1000
+          for await (const sample of videoSink.samples(startTime, endTime)) {
+            if (isPlayingRef.current) {
+              const sampleTimestamp = sample.timestamp * 1000
+              const sampleElapsedTime = Math.max(
+                0,
+                performance.now() - lastIterationTime
+              )
 
-      // 使用 samples 方法循环播放视频帧
-      for await (const sample of sinkRef.current.samples(startTime, endTime)) {
-        if (isPlayingRef.current) {
-          const sampleTimestamp = sample.timestamp * 1000
-          const sampleElapsedTime = Math.max(
-            0,
-            performance.now() - lastIterationTime
-          )
+              // 等待适当的时间以匹配视频帧率
+              const timeDiff =
+                sampleTimestamp - lastSampleTimestamp - sampleElapsedTime
+              if (timeDiff > 0) {
+                await new Promise((resolve) => {
+                  timeoutRef.current = window.setTimeout(resolve, timeDiff)
+                })
+              }
 
-          // 等待适当的时间以匹配视频帧率
-          const timeDiff =
-            sampleTimestamp - lastSampleTimestamp - sampleElapsedTime
-          if (timeDiff > 0) {
-            await new Promise((resolve) => {
-              timeoutRef.current = window.setTimeout(resolve, timeDiff)
-            })
+              // 更新状态
+              setCurrentTime(sample.timestamp)
+              lastSampleTimestamp = sampleTimestamp
+
+              // 清空画布并绘制新帧
+              ctx.clearRect(0, 0, canvas.width, canvas.height)
+              try {
+                sample.draw(ctx, 0, 0)
+              } catch (drawError) {
+                console.error('绘制帧失败:', drawError)
+              }
+              lastIterationTime = performance.now()
+
+              sample.close()
+            } else {
+              sample.close()
+              break
+            }
           }
-
-          // 更新状态
-          setCurrentTime(sample.timestamp)
-          lastSampleTimestamp = sampleTimestamp
-
-          // 清空画布并绘制新帧
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-          try {
-            sample.draw(ctx, 0, 0)
-          } catch (drawError) {
-            console.error('绘制帧失败:', drawError)
+        })(),
+        // 使用 buffers 方法循环播放音频帧
+        (async () => {
+          const audioTrack = audioTrackRef.current
+          if (!audioTrack) return
+          const audioSink = autdoSinkRef.current
+          if (!audioSink) return
+          const sampleTimeOffset = await audioTrack.getFirstTimestamp()
+          const sources: AudioBufferSourceNode[] = []
+          audioSourcesRef.current = sources
+          for await (const sample of audioSink.buffers(startTime, endTime)) {
+            if (!isPlayingRef.current) break
+            const source = audioContext.createBufferSource()
+            source.buffer = sample.buffer
+            source.connect(audioContext.destination)
+            source.start(
+              Math.max(
+                0,
+                audioContext.currentTime +
+                  (sample.timestamp - startTime) +
+                  sampleTimeOffset
+              )
+            )
+            source.onended = () => {
+              source.disconnect()
+            }
+            sources.push(source)
           }
-          lastIterationTime = performance.now()
-
-          sample.close()
-        } else {
-          sample.close()
-          break
-        }
-      }
+        })(),
+      ])
 
       // 播放完成
       setIsPlaying(false)
@@ -185,6 +240,7 @@ export default function VideoSampleSinkExample() {
   const pauseVideo = () => {
     setIsPlaying(false)
     isPlayingRef.current = false
+    pausedTimeRef.current = currentTime
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
       animationFrameRef.current = null
@@ -193,7 +249,13 @@ export default function VideoSampleSinkExample() {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
-    pausedTimeRef.current = currentTime
+    if (audioSourcesRef.current) {
+      audioSourcesRef.current.forEach((source) => {
+        source.disconnect()
+        source.stop()
+      })
+      audioSourcesRef.current = []
+    }
   }
 
   const togglePlayPause = () => {
@@ -208,10 +270,10 @@ export default function VideoSampleSinkExample() {
     pauseVideo()
     setCurrentTime(0)
     pausedTimeRef.current = 0
-    if (canvasRef.current && sinkRef.current) {
+    if (canvasRef.current && videoSinkRef.current) {
       const ctx = canvasRef.current.getContext('2d')
       if (ctx) {
-        sinkRef.current.getSample(0).then((sample) => {
+        videoSinkRef.current.getSample(0).then((sample) => {
           if (sample) {
             ctx.clearRect(
               0,
@@ -266,7 +328,7 @@ export default function VideoSampleSinkExample() {
         />
       </div>
 
-      {sinkRef.current && (
+      {videoSinkRef.current && (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <button
