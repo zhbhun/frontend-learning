@@ -5,3 +5,4 @@
 - [remarkjs/react-markdown](https://github.com/remarkjs/react-markdown) - Markdown component for React
 - [react-markdown](https://github.com/rexxars/react-markdown)
 - [react-markdown-github](https://github.com/godaddy/react-markdown-github)
+- [streamdown](https://github.com/vercel/streamdown) - A drop-in replacement for react-markdown, designed for AI-powered streaming.
