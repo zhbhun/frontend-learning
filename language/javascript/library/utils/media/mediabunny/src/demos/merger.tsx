@@ -12,9 +12,11 @@ import {
   AudioBufferSource,
   QUALITY_HIGH,
   InputAudioTrack,
+  Conversion,
 } from 'mediabunny'
 
 interface VideoInfo {
+  input: Input
   file: File
   sink: VideoSampleSink
   audioTrack: InputAudioTrack | null
@@ -88,6 +90,7 @@ export default function VideoMergerExample() {
         }
 
         infos.push({
+          input,
           file,
           sink,
           audioTrack,
@@ -178,14 +181,61 @@ export default function VideoMergerExample() {
           .reduce((sum, v) => sum + v.duration, 0)
 
         // 如果当前视频有音频，处理音频
-        if (info.audioSink && hasAudio) {
-          // 遍历音频缓冲区并添加到源
-          for await (const wrappedBuffer of info.audioSink.buffers(
-            0,
-            info.duration
-          )) {
-            // 添加缓冲区到音频源（时间戳需要加上之前视频的总时长）
-            await audioSource.add(wrappedBuffer.buffer)
+        if (info.audioSink && hasAudio && info.audioTrack) {
+          // 使用 Conversion 将音频转换为统一的采样率和比特率
+          const audioTarget = new BufferTarget()
+          const audioOutput = new Output({
+            target: audioTarget,
+            format: new Mp4OutputFormat(),
+          })
+
+          // 创建转换
+          const conversion = await Conversion.init({
+            input: info.input,
+            output: audioOutput,
+            audio: {
+              codec: 'aac',
+              bitrate: QUALITY_HIGH, // 128 kbps
+              sampleRate: 48000, // 统一采样率为 16 kHz
+            },
+          })
+
+          // 检查转换是否有效
+          if (!conversion.isValid) {
+            const discardedTracks = conversion.discardedTracks
+              .map((t) => `${t.track.type} (原因: ${t.reason})`)
+              .join(', ')
+            console.warn(`音频转换无效，丢弃的轨道: ${discardedTracks}`)
+            // 如果转换无效，跳过此视频的音频
+            continue
+          }
+
+          // 执行转换
+          await conversion.execute()
+
+          // 从转换后的输出中获取音频缓冲区
+          // 需要重新创建 Input 来读取转换后的音频
+          const convertedBuffer = audioTarget.buffer
+          if (convertedBuffer) {
+            const convertedInput = new Input({
+              formats: ALL_FORMATS,
+              source: new BlobSource(new Blob([convertedBuffer], { type: 'audio/mp4' })),
+            })
+
+            const convertedAudioTrack = await convertedInput.getPrimaryAudioTrack()
+            if (convertedAudioTrack) {
+              const convertedAudioSink = new AudioBufferSink(convertedAudioTrack)
+              const convertedDuration = (await convertedAudioTrack.computeDuration()) || info.duration
+
+              // 遍历转换后的音频缓冲区并添加到源
+              // AudioBufferSource 会自动管理时间戳，按顺序添加的缓冲区会按顺序播放
+              for await (const wrappedBuffer of convertedAudioSink.buffers(
+                0,
+                convertedDuration
+              )) {
+                await audioSource.add(wrappedBuffer.buffer)
+              }
+            }
           }
         }
 
