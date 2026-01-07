@@ -10,6 +10,9 @@ export default function HomePage() {
             <li>
               <Link to="/sinks/video-sample-sink/sample">VideoSampleSink</Link>
             </li>
+            <li>
+              <Link to="/sinks/video-sample-sink/videos">多视频连续播放</Link>
+            </li>
           </ul>
         </li>
       </ul>

@@ -22,6 +22,7 @@ export default function VideoSampleSinkExample() {
     width: number
     height: number
   } | null>(null)
+  const [videoUrl, setVideoUrl] = useState('')
   const audioTrackRef = useRef<InputAudioTrack | null>(null)
   const autdoSinkRef = useRef<AudioBufferSink | null>(null)
   const audioSourcesRef = useRef<AudioBufferSourceNode[]>([])
@@ -30,6 +31,30 @@ export default function VideoSampleSinkExample() {
   const timeoutRef = useRef<number | null>(null)
   const isPlayingRef = useRef<boolean>(false)
   const pausedTimeRef = useRef<number>(0)
+
+  // 初始化：读取 URL 参数
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const videoParam = params.get('video')
+    if (videoParam) {
+      setVideoUrl(videoParam)
+      // 自动加载视频
+      const loadFromUrl = async () => {
+        try {
+          const response = await fetch(videoParam)
+          if (!response.ok) {
+            throw new Error(`无法加载视频: ${response.statusText}`)
+          }
+          const blob = await response.blob()
+          await loadVideo(new BlobSource(blob))
+        } catch (err) {
+          setError(err instanceof Error ? err.message : '加载视频失败')
+          console.error('加载在线视频失败:', err)
+        }
+      }
+      loadFromUrl()
+    }
+  }, [])
 
   // 清理函数
   useEffect(() => {
@@ -50,12 +75,7 @@ export default function VideoSampleSinkExample() {
     }
   }, [])
 
-  const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
+  const loadVideo = async (source: BlobSource) => {
     setIsLoading(true)
     setError(null)
     setIsPlaying(false)
@@ -67,7 +87,7 @@ export default function VideoSampleSinkExample() {
       // 创建输入对象
       const input = new Input({
         formats: ALL_FORMATS,
-        source: new BlobSource(file),
+        source,
       })
 
       // 获取视频轨道
@@ -135,6 +155,33 @@ export default function VideoSampleSinkExample() {
       console.error('加载视频失败:', err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    await loadVideo(new BlobSource(file))
+  }
+
+  const handleUrlLoad = async () => {
+    if (!videoUrl.trim()) {
+      setError('请输入视频地址')
+      return
+    }
+
+    try {
+      const response = await fetch(videoUrl)
+      if (!response.ok) {
+        throw new Error(`无法加载视频: ${response.statusText}`)
+      }
+      const blob = await response.blob()
+      await loadVideo(new BlobSource(blob))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '加载视频失败')
+      console.error('加载在线视频失败:', err)
     }
   }
 
@@ -288,6 +335,47 @@ export default function VideoSampleSinkExample() {
     }
   }
 
+  const handleProgressClick = async (
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
+    if (!duration || !videoSinkRef.current || !canvasRef.current) return
+
+    const rect = event.currentTarget.getBoundingClientRect()
+    const clickX = event.clientX - rect.left
+    const percentage = clickX / rect.width
+    const newTime = percentage * duration
+
+    // 暂停当前播放
+    const wasPlaying = isPlaying
+    if (wasPlaying) {
+      pauseVideo()
+    }
+
+    // 跳转到新位置
+    setCurrentTime(newTime)
+    pausedTimeRef.current = newTime
+
+    // 渲染新位置的帧
+    const ctx = canvasRef.current.getContext('2d')
+    if (ctx) {
+      try {
+        const sample = await videoSinkRef.current.getSample(newTime)
+        if (sample) {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+          sample.draw(ctx, 0, 0)
+          sample.close()
+        }
+      } catch (err) {
+        console.error('跳转失败:', err)
+      }
+    }
+
+    // 如果之前在播放，继续播放
+    if (wasPlaying) {
+      playVideo()
+    }
+  }
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">VideoSampleSink 示例</h1>
@@ -301,6 +389,27 @@ export default function VideoSampleSinkExample() {
           disabled={isLoading}
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
         />
+      </div>
+
+      <div className="mb-6">
+        <label className="block mb-2 text-sm font-medium">或输入在线视频地址:</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder="https://example.com/video.mp4"
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          />
+          <button
+            onClick={handleUrlLoad}
+            disabled={isLoading || !videoUrl.trim()}
+            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            加载
+          </button>
+        </div>
       </div>
 
       {isLoading && <div className="mb-4 text-blue-600">加载中...</div>}
@@ -348,10 +457,26 @@ export default function VideoSampleSinkExample() {
           </div>
 
           {duration !== null && (
-            <div className="text-sm text-gray-600">
-              <div>帧率: {frameRate?.toFixed(2)}</div>
-              <div>
-                进度: {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
+            <div className="space-y-2">
+              {/* 进度条 */}
+              <div
+                className="relative w-full h-2 bg-gray-300 rounded-full cursor-pointer hover:h-3 transition-all"
+                onClick={handleProgressClick}
+              >
+                <div
+                  className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all"
+                  style={{
+                    width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+
+              {/* 时间和帧率信息 */}
+              <div className="flex justify-between text-sm text-gray-600">
+                <div>
+                  {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
+                </div>
+                <div>帧率: {frameRate?.toFixed(2)} fps</div>
               </div>
             </div>
           )}
