@@ -172,7 +172,10 @@ export default function VideoMergerExample() {
         setCurrentVideoIndex(videoIndex)
         const info = videoInfos[videoIndex]
 
-        let currentTime = 0
+        // 计算之前视频的总时长
+        const previousVideosDuration = videoInfos
+          .slice(0, videoIndex)
+          .reduce((sum, v) => sum + v.duration, 0)
 
         // 如果当前视频有音频，处理音频
         if (info.audioSink && hasAudio) {
@@ -186,36 +189,24 @@ export default function VideoMergerExample() {
           }
         }
 
-        // 渲染当前视频的所有帧
-        while (currentTime < info.duration) {
-          // 获取当前帧
-          const sample = await info.sink.getSample(currentTime)
-          if (!sample) break
+        // 使用 samples 方法遍历当前视频的所有帧
+        for await (const sample of info.sink.samples(0, info.duration)) {
+          // 计算当前帧在合并视频中的总时间
+          totalTime = previousVideosDuration + sample.timestamp
 
           // 清空画布
-          ctx.fillStyle = '#000000'
-          ctx.fillRect(0, 0, outputWidth, outputHeight)
+          ctx.clearRect(0, 0, outputWidth, outputHeight)
 
-          // 创建临时离屏画布来绘制视频帧
-          const tempCanvas = new OffscreenCanvas(info.width, info.height)
-          const tempCtx = tempCanvas.getContext('2d')
-
-          if (tempCtx) {
-            sample.draw(tempCtx, 0, 0)
-            // 将视频帧绘制到输出画布（居中或拉伸）
-            ctx.drawImage(tempCanvas, 0, 0, outputWidth, outputHeight)
-          }
+          // 使用 drawWithFit 的 contain 模式绘制，保持宽高比
+          sample.drawWithFit(ctx, { fit: 'contain' })
 
           sample.close()
 
           // 告诉 CanvasSource 当前帧的时间和时长
           await videoSource.add(totalTime, frameDuration)
 
-          currentTime += frameDuration
-          totalTime += frameDuration
-
           // 更新进度
-          const videoProgress = currentTime / info.duration
+          const videoProgress = sample.timestamp / info.duration
           const overallProgress =
             ((videoIndex + videoProgress) / videoInfos.length) * 100
           setProgress(overallProgress)
