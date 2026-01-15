@@ -61,6 +61,7 @@
 
     - [surmon-china/vue-quill-editor](https://github.com/surmon-china/vue-quill-editor)
 
+- [tiptap](https://github.com/ueberdosis/tiptap) - The headless rich text editor framework for web artisans.
 - [slate](https://github.com/ianstormtaylor/slate)
 - [draft-js](https://github.com/facebook/draft-js)
 - [tinymce](https://github.com/tinymce/tinymce)
