@@ -35,17 +35,19 @@ const getRandomName = () => {
 }
 
 export default function CollaborativeEditor() {
+  const [user] = useState(() => ({
+    name: getRandomName(),
+    color: getRandomColor(),
+  }))
   const [status, setStatus] = useState('连接中...')
-
-  const [root] = useState(() => new Y.Doc())
-  const [document, setDocument] = useState<Y.Doc | null>(null)
-
+  const [document] = useState(() => new Y.Doc())
+  const [fragments, setFragments] = useState<Y.XmlFragment[]>([])
   const provider = useMemo(() => {
-    console.log(root)
+    console.log(document)
     const provider = new HocuspocusProvider({
       url: 'ws://127.0.0.1:5174',
-      name: 'example-document',
-      document: root,
+      name: 'tester',
+      document: document,
       onStatus: ({ status }) => {
         setStatus(
           status === 'connected'
@@ -55,72 +57,47 @@ export default function CollaborativeEditor() {
               : '已断开',
         )
       },
-      onSynced() {
-        setDocument(root)
+      onSynced: () => {
+        const fragments = document.getMap('fragments')
+        setFragments(
+          ['a', 'b'].map((key) => {
+            if (fragments.has(key)) {
+              const fragment = fragments.get(key) as Y.XmlFragment
+              if (fragment instanceof Y.XmlFragment) {
+                return fragment
+              }
+            }
+            const fragement = new Y.XmlFragment()
+            fragments.set(key, fragement)
+            return fragement
+          }),
+        )
       },
     })
     return provider
-  }, [root])
+  }, [document])
   useEffect(() => {
     return () => {
       provider.destroy()
     }
   }, [provider])
-
+  useEffect(() => {
+    return () => {
+      document.destroy()
+    }
+  }, [document])
   if (!document) {
     return <div>加载编辑器...</div>
   }
-
   return (
-    <>
-      <Temp id="a" status={status} document={document} provider={provider} />
-      <Temp id="b" status={status} document={document} provider={provider} />
-    </>
-  )
-}
-
-function Temp({
-  id,
-  status,
-  document,
-  provider,
-}: {
-  id: string,
-  status: string
-  document: Y.Doc
-  provider: HocuspocusProvider
-}) {
-  const [userName] = useState(getRandomName())
-  const [userColor] = useState(getRandomColor())
-  const extensions: Extensions = useMemo(() => {
-    return [
-      StarterKit.configure({
-        undoRedo: false,
-      }),
-      Collaboration.configure({
-        document: document,
-        field: id,
-        provider,
-      }),
-      CollaborationCaret.configure({
-        provider,
-        user: { name: userName, color: userColor },
-      }),
-    ]
-  }, [id, document, provider, userName, userColor])
-  const editor = useEditor({
-    extensions,
-    content: '<p>开始协同编辑...</p>',
-  })
-  return (
-    <div className="flex flex-col gap-4">
+    <div>
       <div className="flex items-center justify-between p-4 bg-[#fff8f1] rounded-lg border border-[#c9c1b9]">
         <div className="flex items-center gap-3">
           <div
             className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: userColor }}
+            style={{ backgroundColor: user.color }}
           />
-          <span className="font-medium">{userName}</span>
+          <span className="font-medium">{user.name}</span>
         </div>
         <div className="flex items-center gap-2">
           <div
@@ -129,13 +106,59 @@ function Temp({
           <span className="text-sm text-gray-600">{status}</span>
         </div>
       </div>
-
-      <div className="prose max-w-none">
-        <EditorContent
-          editor={editor}
-          className="border border-[#c9c1b9] rounded-lg p-4 min-h-[400px] bg-white focus-within:border-[#1f1f1f] transition-colors"
+      {fragments.map((fragment, index) => (
+        <Temp
+          key={index}
+          document={document}
+          fragment={fragment}
+          provider={provider}
+          user={user}
         />
-      </div>
+      ))}
+    </div>
+  )
+}
+
+function Temp({
+  document,
+  fragment,
+  provider,
+  user,
+}: {
+  document: Y.Doc
+  fragment: Y.XmlFragment
+  provider: HocuspocusProvider
+  user: {
+    name: string
+    color: string
+  }
+}) {
+  const extensions: Extensions = useMemo(() => {
+    return [
+      StarterKit.configure({
+        undoRedo: false,
+      }),
+      Collaboration.configure({
+        document: document,
+        fragment,
+        provider,
+      }),
+      CollaborationCaret.configure({
+        provider,
+        user,
+      }),
+    ]
+  }, [document, fragment, provider, user])
+  const editor = useEditor({
+    extensions,
+    content: '<p>开始协同编辑...</p>',
+  })
+  return (
+    <div className="prose max-w-none">
+      <EditorContent
+        editor={editor}
+        className="border border-[#c9c1b9] rounded-lg p-4 min-h-[400px] bg-white focus-within:border-[#1f1f1f] transition-colors"
+      />
     </div>
   )
 }
