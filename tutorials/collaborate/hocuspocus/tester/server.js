@@ -10,12 +10,12 @@ const hocuspocus = new Hocuspocus({
   debounce: 5000,
   maxDebounce: 30000,
   quiet: true,
-  // extensions: [
-  //   new Logger(),
-  //   new SQLite({
-  //     database: 'db.sqlite',
-  //   })(),
-  // ],
+  extensions: [
+    new Logger(),
+    new SQLite({
+      database: 'db.sqlite',
+    }),
+  ],
 })
 
 const { app } = expressWebsockets(express())
