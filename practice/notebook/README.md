@@ -1,1 +1,2 @@
 - [note-gen](https://besttraveltranslator.com/)
+- [Lumina-Note](https://github.com/blueberrycongee/Lumina-Note)
