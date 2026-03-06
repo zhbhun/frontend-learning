@@ -1,6 +1,7 @@
 - https://www.remotion.dev/
 - [OpenCut](https://github.com/OpenCut-app/OpenCut) - The open-source CapCut alternative
 - https://github.com/x007xyz/flycut-caption
+- https://github.com/msgbyte/cutia
 
 ## 实现思路
 
