@@ -95,6 +95,7 @@
 - [wangEditor](https://github.com/wangeditor-team/wangEditor)
 - https://github.com/papyrs/stylo
 - [novel](https://github.com/steven-tey/novel) - Notion-style WYSIWYG editor with AI-powered autocompletion.
+- https://github.com/codex-team/editor.js
 
 ## Markdown
 
