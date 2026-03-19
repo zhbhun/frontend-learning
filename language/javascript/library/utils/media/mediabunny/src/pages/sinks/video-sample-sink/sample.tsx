@@ -6,6 +6,7 @@ import {
   VideoSampleSink,
   AudioBufferSink,
   InputAudioTrack,
+  ReadableStreamSource,
 } from 'mediabunny'
 
 const audioContext = new AudioContext()
@@ -46,7 +47,8 @@ export default function VideoSampleSinkExample() {
             throw new Error(`无法加载视频: ${response.statusText}`)
           }
           const blob = await response.blob()
-          await loadVideo(new BlobSource(blob))
+          // await loadVideo(new BlobSource(blob))
+          await loadVideo(new ReadableStreamSource(blob.stream()))
         } catch (err) {
           setError(err instanceof Error ? err.message : '加载视频失败')
           console.error('加载在线视频失败:', err)
@@ -178,7 +180,8 @@ export default function VideoSampleSinkExample() {
         throw new Error(`无法加载视频: ${response.statusText}`)
       }
       const blob = await response.blob()
-      await loadVideo(new BlobSource(blob))
+      // await loadVideo(new BlobSource(blob))
+      await loadVideo(new ReadableStreamSource(blob.stream()))
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载视频失败')
       console.error('加载在线视频失败:', err)
