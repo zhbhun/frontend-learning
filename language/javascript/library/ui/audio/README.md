@@ -2,3 +2,4 @@
 - [peaks.js](https://github.com/b3bc/peaks.js) - JavaScript UI component for interacting with audio waveforms
 - https://github.com/foobar404/Wave.js
 - https://howlerjs.com/
+- [waveform-data.js](https://github.com/bbc/waveform-data.js)
