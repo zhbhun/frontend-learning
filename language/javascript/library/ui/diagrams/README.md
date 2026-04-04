@@ -46,6 +46,7 @@
     - 类图
     - git
 
+- [graphviz](https://graphviz.org/)
 - [penrose](https://github.com/penrose/penrose)
 - [flowchart.js](https://github.com/adrai/flowchart.js) - Draws simple SVG flow chart diagrams from textual representation of the diagram
 - [pintora](https://github.com/hikerpig/pintora) - An extensible text-to-diagrams library that works in both browser and node.js
