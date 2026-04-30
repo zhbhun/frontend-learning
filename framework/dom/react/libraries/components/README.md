@@ -12,6 +12,7 @@
 - [nextui](https://github.com/nextui-org/nextui) - Beautiful, fast and modern React UI library. - 非常漂亮的组件库
 - https://github.com/radix-ui/primitives - 高质量的无样式组件库
 - https://github.com/shadcn-ui/ui
+- [daisyui](https://github.com/saadeghi/daisyui) - The most popular, free and open-source Tailwind CSS component library
 - [react-bootstrap](https://github.com/react-bootstrap/react-bootstrap) - Bootstrap 3 components built with React. 8570 ★
 
     - [react-bootstrap-table](https://github.com/AllenFang/react-bootstrap-table) - It's a react table for bootstrap. 1016 ★
