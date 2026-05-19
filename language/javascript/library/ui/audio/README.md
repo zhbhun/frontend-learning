@@ -3,3 +3,4 @@
 - https://github.com/foobar404/Wave.js
 - https://howlerjs.com/
 - [waveform-data.js](https://github.com/bbc/waveform-data.js)
+- [wave-resampler](https://github.com/rochars/wave-resampler) - Browser Harness | Self-healing harness that enables LLMs to complete any task.
