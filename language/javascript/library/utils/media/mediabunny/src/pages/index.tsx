@@ -31,6 +31,14 @@ export default function HomePage() {
             </li>
           </ul>
         </li>
+        <li>
+          <div>audio</div>
+          <ul className="flex flex-col gap-2 list-disc pl-4">
+            <li>
+              <Link to="/audio/volume">音量调节</Link>
+            </li>
+          </ul>
+        </li>
       </ul>
     </div>
   )

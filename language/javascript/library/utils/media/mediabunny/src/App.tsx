@@ -7,6 +7,7 @@ import MultipleVideosPlayer from './pages/sinks/video-sample-sink/videos'
 import VideoTrackReader from './pages/tracks/video'
 import VideoCompressionExample from './pages/conversion/compression'
 import AudioExtractionExample from './pages/output/audio'
+import AudioVolumeExample from './pages/audio/volume'
 import VideoMergerExample from './demos/merger'
 
 function App() {
@@ -33,6 +34,10 @@ function App() {
         <Route
           path="output/audio"
           element={<AudioExtractionExample />}
+        />
+        <Route
+          path="audio/volume"
+          element={<AudioVolumeExample />}
         />
         <Route
           path="demos/merger"
