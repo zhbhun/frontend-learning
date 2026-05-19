@@ -9,6 +9,7 @@ import VideoCompressionExample from './pages/conversion/compression'
 import AudioExtractionExample from './pages/output/audio'
 import AudioVolumeExample from './pages/audio/volume'
 import VideoMergerExample from './demos/merger'
+import TimelinePage from './pages/timeline'
 
 function App() {
   return (
@@ -42,6 +43,10 @@ function App() {
         <Route
           path="demos/merger"
           element={<VideoMergerExample />}
+        />
+        <Route
+          path="audio/timeline"
+          element={<TimelinePage />}
         />
       </Routes>
     </BrowserRouter>

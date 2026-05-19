@@ -37,6 +37,9 @@ export default function HomePage() {
             <li>
               <Link to="/audio/volume">音量调节</Link>
             </li>
+            <li>
+              <Link to="/audio/timeline">视频时间轴编辑器</Link>
+            </li>
           </ul>
         </li>
       </ul>
