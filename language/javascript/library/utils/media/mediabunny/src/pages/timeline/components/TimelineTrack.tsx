@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useTimelineStore } from '../store/timelineStore'
 import {
   timeToPixel,
@@ -18,6 +18,8 @@ export default function TimelineTrack() {
   const setSelectedSegmentId = useTimelineStore((s) => s.setSelectedSegmentId)
   const updateTrim = useTimelineStore((s) => s.updateTrim)
 
+  const [isDraggingPlayhead, setIsDraggingPlayhead] = useState(false)
+
   const totalDuration = useMemo(
     () => getTimelineDuration(segments),
     [segments]
@@ -34,11 +36,45 @@ export default function TimelineTrack() {
   )
 
   const handleTrackClick = (e: React.MouseEvent) => {
+    if (isDraggingPlayhead) return
     const rect = e.currentTarget.getBoundingClientRect()
     const clickX = e.clientX - rect.left + (trackRef.current?.scrollLeft || 0)
     const time = clickX / zoomLevel
     setCurrentTime(Math.max(0, Math.min(totalDuration, time)))
   }
+
+  const handlePlayheadMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setIsDraggingPlayhead(true)
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (!isDraggingPlayhead) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!trackRef.current) return
+      const rect = trackRef.current.getBoundingClientRect()
+      const clickX =
+        e.clientX - rect.left + (trackRef.current.scrollLeft || 0)
+      const time = clickX / zoomLevel
+      setCurrentTime(Math.max(0, Math.min(totalDuration, time)))
+    }
+
+    const handleMouseUp = () => {
+      setIsDraggingPlayhead(false)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDraggingPlayhead, zoomLevel, totalDuration, setCurrentTime])
 
   const segmentOffsets = useMemo(() => {
     const offsets: number[] = []
@@ -80,11 +116,16 @@ export default function TimelineTrack() {
           ))}
 
           <div
-            className="absolute top-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+            className={`absolute top-0 w-0.5 bg-red-500 z-20 ${
+              isDraggingPlayhead
+                ? 'cursor-grabbing'
+                : 'cursor-grab'
+            }`}
             style={{
               left: `${playheadX}px`,
               height: '100%',
             }}
+            onMouseDown={handlePlayheadMouseDown}
           >
             <div className="w-3 h-3 bg-red-500 rounded-full -ml-[5px] -mt-1.5" />
           </div>

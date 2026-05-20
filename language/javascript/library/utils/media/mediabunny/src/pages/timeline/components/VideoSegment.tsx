@@ -90,15 +90,40 @@ export default function VideoSegment({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    canvas.width = canvasRef.current.clientWidth
-    canvas.height = canvasRef.current.clientHeight
+    const dpr = window.devicePixelRatio || 1
+    const displayWidth = canvasRef.current.clientWidth
+    const displayHeight = canvasRef.current.clientHeight
+    canvas.width = displayWidth * dpr
+    canvas.height = displayHeight * dpr
+    ctx.scale(dpr, dpr)
 
-    segment.videoSink.getSample(segment.trimStart).then((sample) => {
-      if (!sample) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      sample.drawWithFit(ctx, { fit: 'cover' })
-      sample.close()
-    })
+    const videoAspect = segment.width / segment.height
+    const thumbWidth = displayHeight * videoAspect
+
+    if (thumbWidth <= 0) return
+
+    const count = Math.ceil(displayWidth / thumbWidth) + 1
+    const promises: Promise<void>[] = []
+
+    ctx.clearRect(0, 0, displayWidth, displayHeight)
+
+    for (let i = 0; i < count; i++) {
+      const x = i * thumbWidth
+      const timePosition =
+        segment.trimStart +
+        (i / Math.max(count - 1, 1)) *
+          (segment.trimEnd - segment.trimStart)
+
+      promises.push(
+        segment.videoSink.getSample(timePosition).then((sample) => {
+          if (!sample) return
+          sample.draw(ctx, x, 0, thumbWidth, displayHeight)
+          sample.close()
+        })
+      )
+    }
+
+    Promise.all(promises)
   }, [segment, segmentWidth])
 
   return (
@@ -110,8 +135,7 @@ export default function VideoSegment({
         left: `${left}px`,
         width: `${segmentWidth}px`,
       }}
-      onClick={(e) => {
-        e.stopPropagation()
+      onClick={() => {
         onSelect(segment.id)
       }}
     >
