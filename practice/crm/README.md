@@ -1,0 +1,1 @@
+- [twenty](https://github.com/twentyhq/twenty) - The open alternative to Salesforce, designed for AI.
