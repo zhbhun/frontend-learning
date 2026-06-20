@@ -1,0 +1,3 @@
+- [fontsource](https://github.com/fontsource/fontsource) - Self-host Open Source fonts in neatly bundled NPM packages.
+- [glyphhanger](https://github.com/zachleat/glyphhanger) - Your web font utility belt. It can subset web fonts. It can find unicode-ranges for you automatically. It makes julienne fries.
+- [fonttools](https://github.com/fonttools/fonttools) - A library to manipulate font files from Python.
