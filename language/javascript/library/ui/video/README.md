@@ -11,6 +11,7 @@
 ## 剪辑
 
 - [OpenCut](https://github.com/OpenCut-app/OpenCut)
+- [openreel-video](https://github.com/Augani/openreel-video) - OpenReel Video - Professional browser-based video editor. Open source CapCut alternative. 100% browser-based, no installation, no cloud uploads, no watermarks.
 - [flycut-caption](https://github.com/x007xyz/flycut-caption)
 - [remotion](https://www.remotion.dev/)
 - https://tools.rotato.app/app/trim
