@@ -1,13 +1,8 @@
-# three.js
+# Three.js 学习工作区
 
-## 扩展
+系统学习 three.js，从零开始快速上手浏览器 3D 开发，并形成一套长期可查阅、可扩展的学习资料。
 
-### Gaussian
-
-- [GaussianSplats3D](https://github.com/mkkellogg/GaussianSplats3D) - Three.js-based implementation of 3D Gaussian splatting
-- [spark](https://github.com/sparkjsdev/spark) - An advanced 3D Gaussian Splatting renderer for THREE.js
-- [gsplat.js](https://github.com/huggingface/gsplat.js/) - JavaScript Gaussian Splatting library.
-
-## 示例
-
-- [使用Three.js制作一个专属3D奖牌🥇](https://segmentfault.com/a/1190000041311954)
+- [学习路线](CHEATSHEET.md)
+- [学习使命](MISSION.md)
+- [学习笔记](NOTE.md)
+- [资源清单](RESOURCES.md)
