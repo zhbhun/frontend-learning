@@ -17,18 +17,44 @@
 
 ## 框架
 
-- [babylon.js](https://www.babylonjs.com/)
-- [three.js](https://threejs.org/)
-- [Pixi.js](https://pixijs.com/)
-- [gl-matrix](https://github.com/toji/gl-matrix) - 创建高性能WebGL应用的JavaScript矩阵矢量库。
-- [PhiloGL]() - 一个用于数据可视化、创意编程和游戏开发的WebGL库。
-- [PlayCanvas](https://playcanvas.com/) - 是一个开源游戏引擎。
-- [Sylvester](http://sylvester.jcoglan.com/) - 是一个用于处理向量和矩阵的开源库。尚未针对WebGL进行优化，但功能极其强大。
-- [Phaser](https://phaser.io/) - 是一个适用于Canvas和WebGL的浏览器游戏的快速，免费和有趣的开源框架。
-- [RedGL](https://github.com/redcamel/RedGL2) - 是一个开源3D WebGL库。
-- [vtk.js](https://kitware.github.io/vtk-js/) - 是一个JavaScript库，用于在浏览器中进行科学可视化。
-- [mapbox-gl-js](https://github.com/mapbox/mapbox-gl-js) - Interactive, thoroughly customizable maps in the browser, powered by vector tiles and WebGL
-- [Leaflet](https://github.com/Leaflet/Leaflet) - JavaScript library for mobile-friendly interactive maps.
+### 通用 Web 3D
+
+- [three.js](https://threejs.org/) - 模型展示、游戏、编辑器、数字孪生等通用 Web 3D 场景。
+- [babylon.js](https://www.babylonjs.com/) - 功能全面的 Web 3D 引擎，适合游戏、编辑器和工业应用。
+- [PlayCanvas](https://playcanvas.com/) - 开源游戏引擎与在线协作编辑器。
+- [RedGL](https://github.com/redcamel/RedGL2) - 轻量开源 3D WebGL 库。
+
+### 地球与 GIS
+
+- [CesiumJS](https://cesium.com/platform/cesiumjs/) - 三维地球、3D Tiles、城市和地理数据可视化。
+- [mapbox-gl-js](https://github.com/mapbox/mapbox-gl-js) - 基于矢量瓦片与 WebGL 的交互式可定制地图。
+- [Leaflet](https://github.com/Leaflet/Leaflet) - 移动端友好的交互式地图库。
+
+### 2D GPU 渲染
+
+- [Pixi.js](https://pixijs.com/) - 2D 游戏、互动广告、精灵与特效的 GPU 加速渲染。
+
+### WebXR
+
+- [A-Frame](https://aframe.io/) - VR/AR Web 体验框架，底层基于 Three.js。
+
+### 数据可视化
+
+- [deck.gl](https://deck.gl/) - 大规模地图与 GPU 数据可视化。
+- [vtk.js](https://kitware.github.io/vtk-js/) - 浏览器端科学可视化。
+- [PhiloGL](https://github.com/philogb/philogl) - 数据可视化、创意编程与游戏开发的 WebGL 库。
+
+### Web 游戏
+
+- [Phaser](https://phaser.io/) - 快速、免费的 Canvas/WebGL 2D 游戏框架。
+- [Pixi.js](https://pixijs.com/) - 也可作为 2D 游戏渲染层使用。
+
+### 底层 WebGL 封装
+
+- [regl](https://github.com/regl-project/regl) - 函数式 WebGL 封装，自定义程度高。
+- [TWGL](https://twgljs.org/) - 极简 WebGL 辅助库，降低样板代码。
+- [gl-matrix](https://github.com/toji/gl-matrix) - 高性能矩阵与向量运算，面向 WebGL 应用。
+- [Sylvester](http://sylvester.jcoglan.com/) - 通用向量与矩阵库，功能强大但未针对 WebGL 优化。
 
 ## 案例
 
