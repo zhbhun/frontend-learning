@@ -1,6 +1,6 @@
 # [WebGL](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API)
 
-## 基础
+## 教程
 
 - [WebGL 教程](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Tutorial)
 - [WebGL 中的数据](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Data)
@@ -12,13 +12,10 @@
 - [WebGL Academy](http://www.webglacademy.com/)
 - [webgl-examples](https://github.com/mdn/webgl-examples/tree/gh-pages/tutorial)
 - [Web 3D 从入门到跑路](https://mp.weixin.qq.com/s?__biz=MzI2MjcxNTQ0Nw==&mid=2247500863&idx=1&sn=f6c8ce03f6b58e63c9cf1c0c9f11b7db&chksm=ea446567dd33ec712362fb10eee8d8814e747c13316ae503a229fddb53e59d1607e4b415a71b&mpshare=1&scene=1&srcid=1006cOHB0iJvGjPlqdKQiXM8&sharer_sharetime=1665061296850&sharer_shareid=23bfc8f6684b676886641da1cfece5af&notreplace=true#rd)
-
-## 进阶
-
 - [WebGL 模型视图投影](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API)
 - [Web 中的矩阵运算](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Matrix_math_for_the_web)
 
-## 工具
+## 框架
 
 - [babylon.js](https://www.babylonjs.com/)
 - [three.js](https://threejs.org/)
