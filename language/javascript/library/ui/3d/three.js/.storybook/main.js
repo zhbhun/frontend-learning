@@ -19,7 +19,16 @@ const config = {
         }
       }
     }
-  ]
+  ],
+  features: {
+    backgrounds: false,
+    measure: false,
+    outline: false,
+    toolbars: false,
+    viewport: false,
+    sidebarOnboardingChecklist: false,
+    menuOnboardingChecklist: false
+  }
 };
 
 export default config;
