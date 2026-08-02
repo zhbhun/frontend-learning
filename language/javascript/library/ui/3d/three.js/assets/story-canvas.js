@@ -86,6 +86,10 @@ export function sceneStory({ create, apply, readout, captions }) {
       });
     }
 
+    // create() 里常会先 renderOnce 推一帧初始快照；若紧接着 apply 也在
+    // READOUT_INTERVAL 内 emit，读数会被节流丢掉，页面停留在“未 apply”的状态。
+    // 每次 apply 前清零，保证控件默认值和本次改动都能落到 readout。
+    lastPaint = 0;
     apply(instance, args);
     return stage;
   };

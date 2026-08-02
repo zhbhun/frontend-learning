@@ -1,9 +1,7 @@
 import cameraModelSource from './camera-model.js?raw';
-import cameraFrameSource from './camera-example-frame.js?raw';
 import cameraDirectionSource from './camera-direction.js?raw';
 import perspectiveProjectionSource from './perspective-projection.js?raw';
 import orthographicProjectionSource from './orthographic-projection.js?raw';
-import sharedSceneSource from '../../assets/shared-scene.js?raw';
 
 import { sceneStory } from '../../assets/story-canvas.js';
 import { sceneSource } from '../../assets/story-source.js';
@@ -17,13 +15,9 @@ export default {
   tags: ['!dev']
 };
 
-function sourceBundle(memberSource) {
-  return [
-    cameraModelSource,
-    sharedSceneSource,
-    cameraFrameSource,
-    memberSource
-  ].join('\n\n');
+// 主题相关核心：成员范例 + 共享相机模型。舞台 / shared-scene 是支撑外壳，不进 Show code。
+function topicSource(memberSource) {
+  return [cameraModelSource, memberSource].join('\n\n');
 }
 
 export const CameraDirection = {
@@ -63,7 +57,7 @@ export const CameraDirection = {
     }
   },
   render: sceneStory(cameraDirectionExample),
-  parameters: sceneSource(sourceBundle(cameraDirectionSource))
+  parameters: sceneSource(topicSource(cameraDirectionSource))
 };
 
 export const PerspectiveProjection = {
@@ -103,7 +97,7 @@ export const PerspectiveProjection = {
     }
   },
   render: sceneStory(perspectiveProjectionExample),
-  parameters: sceneSource(sourceBundle(perspectiveProjectionSource))
+  parameters: sceneSource(topicSource(perspectiveProjectionSource))
 };
 
 export const OrthographicProjection = {
@@ -143,5 +137,5 @@ export const OrthographicProjection = {
     }
   },
   render: sceneStory(orthographicProjectionExample),
-  parameters: sceneSource(sourceBundle(orthographicProjectionSource))
+  parameters: sceneSource(topicSource(orthographicProjectionSource))
 };
