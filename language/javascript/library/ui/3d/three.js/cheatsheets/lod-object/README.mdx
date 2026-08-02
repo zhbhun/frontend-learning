@@ -1,0 +1,194 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as LodStories from './lod-object.stories.js';
+
+<Meta of={LodStories} name="Docs" />
+
+# LOD
+
+`LOD`（Level of Detail，细节层级）让你为同一个对象准备多档不同细节的版本，再让 renderer 按"相机到对象的世界距离"自动切换可见层级。它解决两类问题：远处用低面数模型减少三角面提交量；切到近距离时再换回高细节版本，让画面保持锐利。
+
+LOD 继承自 `Object3D`，内部用 `levels` 数组按 distance 升序保存每一层 `{ distance, hysteresis, object }`。每次 `addLevel(object, distance, hysteresis)` 都会把一个独立 Mesh 挂到 LOD 下；调用 `update(camera)` 时，LOD 比较相机与自身的世界距离，只把当前匹配层级的 `object.visible` 置 `true`，其他层级一律 `false`。
+
+LOD 不改写几何内容，也不替你生成"低面数版本"。它只按距离控制可见性。所以正确使用的前提是：每一层都是独立 Mesh，且按"由近到远、细节由高到低"提供。
+
+## 快速上手
+
+为同一对象准备几档细节，按 distance 从小到大登记进 LOD：
+
+```js
+const material = new THREE.MeshStandardMaterial({ color: '#3d73d9', roughness: 0.35 });
+
+const lod = new THREE.LOD();
+lod.addLevel(new THREE.Mesh(new THREE.IcosahedronGeometry(0.85, 5), material), 0); // 高细节
+lod.addLevel(new THREE.Mesh(new THREE.IcosahedronGeometry(0.85, 1), material), 4); // 中细节
+lod.addLevel(new THREE.Mesh(new THREE.IcosahedronGeometry(0.85, 0), material), 8); // 低细节
+scene.add(lod);
+
+// autoUpdate 默认 true：renderer.render() 会自动调用 lod.update(camera)。
+// 关闭后必须由应用每帧调用 update(camera)，否则层级不会随距离变化。
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `addLevel(object, distance, hysteresis)` | `distance=0, hysteresis=0` | `distance` 是相机到 LOD 的世界距离；按升序自动插入 |
+| `levels` 顺序 | 升序（按 distance） | 同 distance 时按调用顺序排；推荐从近到远添加 |
+| `autoUpdate` | `true` | renderer 在 projectObject 阶段调用 `update(camera)`；为 `false` 时应用必须每帧调用 |
+| `update(camera)` 距离 | `camera.matrixWorld` 到 `lod.matrixWorld` | 算出的距离会除以 `camera.zoom`；zoom≠1 时阈值按比例缩放 |
+| 每层 `object` | 独立 `Object3D`（通常是 Mesh） | 切换时只改 `visible`；几何与材质由应用管理 |
+| `hysteresis` | `0` | 取该层 `distance` 的比例，在阈值附近形成死区避免抖动 |
+
+## 添加层级
+
+`addLevel(object, distance, hysteresis)` 把一个对象登记到 LOD，并按 distance 升序插入 `levels` 数组。`distance` 是相机到 LOD 的世界距离：`distance=0` 表示"相机贴着 LOD 时仍要显示这一层"，distance 越大表示"相机远到这个距离后才切到这一层"。
+
+```js
+lod.addLevel(highDetail, 0); // 相机距离 [0, 4) 时显示
+lod.addLevel(midDetail, 4);  // 相机距离 [4, 8) 时显示
+lod.addLevel(lowDetail, 8);  // 相机距离 >=8 时显示
+```
+
+`addLevel` 内部用 `Math.abs(distance)`，所以传负数也能工作；但实践上推荐直接写非负值，便于阅读。它不要求你按顺序调用——内部按 distance 插入排序——但顺序错乱会让"细节由高到低"的意图不直观，建议养成"从近到远、由精到粗"的添加习惯。
+
+| 成员 | 解决的问题 | 边界 |
+| --- | --- | --- |
+| `addLevel(object, distance, hysteresis)` | 登记一层细节 | 同一对象不要重复登记到不同层 |
+| `removeLevel(distance)` | 按距离移除一层 | 内部用 `===` 比较 distance；用浮点累加值调用会找不到 |
+| `levels` | 直接检视全部层级 | 直接修改数组不会同步父子关系；用 `addLevel` / `removeLevel` |
+| `getObjectForDistance(distance)` | 查"这个距离会切到哪个对象" | 只读查询，不改可见性 |
+| `getCurrentLevel()` | 读取当前活动层索引 | 返回 `_currentLevel`，由 `update()` 写入 |
+
+`levels` 中每项是 `{ distance, hysteresis, object }`；`object` 同时也是 LOD 的子级（`addLevel` 内部调用 `this.add(object)`）。
+
+## 切换与可见层级
+
+`update(camera)` 是 LOD 真正做切换的地方。它从第 0 层开始按 distance 升序逐层比较：如果当前相机距离大于等于该层 distance（计入 hysteresis 调整），就把上一层 `visible=false`、当前层 `visible=true`，并继续看下一层；遇到第一个不满足的层就停止。最终 `_currentLevel` 记录匹配的索引，其后所有层的 `object.visible` 全部置 `false`。
+
+```js
+function animate() {
+  // autoUpdate=true 时 renderer.render() 会在 projectObject 阶段
+  // 自动调用 lod.update(camera)。这里不需要手动调用。
+  renderer.render(scene, camera);
+}
+
+// 关闭 autoUpdate 时，应用负责每帧切换：
+lod.autoUpdate = false;
+function animateManual() {
+  lod.update(camera);
+  renderer.render(scene, camera);
+}
+```
+
+只有"当前 level 对应的 object"会进入 render list——其他层虽然挂在场景树下，但 `visible=false` 会让 renderer 在 projectObject 入口直接跳过它。所以一个配了 3 层的 LOD 每帧只产生一次 draw call。
+
+`autoUpdate=true` 时，renderer 在场景树遍历中遇到 LOD 会自动调用 `update(camera)`；`autoUpdate=false` 时必须应用自己调用。如果你的相机由控制器移动、但应用走按需渲染（只在交互时调 `renderer.render()`），关闭 `autoUpdate` 又忘记手动 `update(camera)` 是最常见的"距离变了但 LOD 不切换"的原因。
+
+下面实例把同一份几何登记成三档细节，distance 阈值是 4 和 8。推动"相机到 LOD 的距离"控件跨越阈值时观察：当前 level、当前几何的顶点数与本帧三角形会一起跳变（约 2160 顶点 / 240 顶点 / 60 顶点）；增大 hysteresis 后阈值附近的来回推动不再立刻切换。
+
+<Canvas of={LodStories.DistanceSwitch} />
+
+<Controls of={LodStories.DistanceSwitch} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。地面上的红环画在 distance=4 与 distance=8 处，对应 `levels[1].distance` 与 `levels[2].distance`；相机沿 +Z 推拉时正好穿过它们。读数里"本帧三角形"会跟随当前 level 跳变（约 720 / 80 / 20），证明只有当前层在提交。
+
+## hysteresis 与切换抖动
+
+当相机在阈值附近来回推动时（控制器抖动、动画回放、相机停在边界），LOD 可能在两层之间反复切换，造成画面闪烁与不必要的可见性切换。`hysteresis` 给每个层级一个"迟滞死区"。
+
+`hysteresis` 是 **该层 distance 的比例**：当某层当前可见时，切换到下一层所需的 levelDistance 会减去 `levelDistance * hysteresis`。结果是"切过去"和"切回来"使用不同阈值，相机必须在阈值两侧走得更远才会触发切换。
+
+```js
+// 阈值附近增加 ~10% 的死区，减少抖动。
+lod.addLevel(highDetail, 0, 0);
+lod.addLevel(midDetail, 4, 0.1);  // 切到中细节仍需 distance >= 4
+                                  // 切回高细节需 distance < 4 - 0.4 = 3.6
+lod.addLevel(lowDetail, 8, 0.1);
+```
+
+`hysteresis=0`（默认）时切换没有迟滞，距离刚好等于阈值就可能来回切。开启后切换会"滞后"一点点，代价是物体在某些距离上使用了相对低细节的版本——通常这是值得的取舍。在主范例中把 hysteresis 滑到 0.15 左右再让相机在 4 或 8 附近来回推，能直接看到"切过去"与"切回来"的滞后差。
+
+## 释放与子对象
+
+每一层 `object` 是 LOD 的子级。`scene.remove(lod)` 会把整棵子树移出场景，但不会释放这些子级引用的 GPU 资源：
+
+```js
+scene.remove(lod);
+
+const materials = new Set();
+lod.levels.forEach((level) => {
+  level.object.geometry?.dispose();
+  // 多层共享同一份 material 时只 dispose 一次：用 Set 收集后统一释放。
+  if (level.object.material) {
+    materials.add(level.object.material);
+  }
+});
+materials.forEach((material) => material.dispose());
+```
+
+层之间共享 material 是常见做法（外观一致、只换细节），dispose 时要用 Set 之类去重，避免重复释放。共享 geometry 一般不推荐——不同细节本就是不同顶点数据；如果两层的 geometry 实际相同，把它们合并成一层更合理。
+
+`removeLevel(distance)` 按 distance 移除一层；它内部会同步调用 `this.remove(object)`，但不会 dispose geometry 或 material，需要应用接着处理。
+
+`clone()` 会深拷贝每一层（调用 `level.object.clone()`），所以克隆后的 LOD 与原 LOD 不共享 geometry / material 实例——除非子对象的 `clone()` 又被改写。
+
+## 与其他对象的边界
+
+LOD 是"同一对象的不同细节版本"，不是"多个对象的批渲染"。选错类别会让性能与画面同时出问题。
+
+| 目标 | 推荐对象 | 边界入口 |
+| --- | --- | --- |
+| 同一物体在不同距离用不同细节 | `LOD` | 本课 |
+| 大量相同物体的批量渲染 | `InstancedMesh` | [2.1.12 InstancedMesh](?path=/docs/instanced-mesh-object--docs) |
+| 单个始终面向相机的标签 / 图标 | `Sprite` | [2.1.10 Sprite](?path=/docs/sprite-billboard--docs) |
+| 复杂角色与蒙皮动画 | `SkinnedMesh` | [2.1.14 SkinnedMesh](?path=/docs/skinned-mesh-and-bones--docs) |
+| 自定义着色器粒子 / 大规模点云 | `Points` + 自定义着色器 | [6.1.3 粒子](?path=/docs/points-particles-instancing--docs) |
+
+LOD 与 InstancedMesh 可以组合：每一层用 InstancedMesh 渲染远处的重复物体，再按距离切换密度。但这种组合需要在 InstancedMesh 的实例数据上自行处理，不是 LOD 的内建能力。
+
+## 最佳实践
+
+- 一开始就把"由近到远、细节由高到低"作为添加顺序约定；`addLevel` 内部排序，但顺序错乱会让 `levels` 数组难以阅读。
+- `distance` 取值要结合场景尺度：相机通常离物体 5~50 单位时，阈值用 10/25 比用 1/2 更合理；过小的阈值会让所有层级挤在一起，等于没分。
+- 同一组 LOD 内共享 material，外观一致且 dispose 简单；不同层用不同 material 时切换不仅换几何，也可能换 program，可能抵消 LOD 节省的开销。
+- 默认保留 `autoUpdate=true`，除非你用按需渲染（`renderer.render()` 只在交互时调用）或自定义渲染管线；这种情况下关闭 `autoUpdate` 并显式调用 `update(camera)`，可以避免"相机移动后 LOD 没切"的隐蔽 bug。
+- 阈值附近出现抖动时优先调 `hysteresis`（0.05~0.2）；不要靠手动条件判断伪造迟滞。
+- 把 LOD 当作"渲染优化"而非"动画切换器"：用它做"远处简化"，不要用它做"形态变化"。需要形态切换用 morph targets 或独立对象加显式 `visible` 控制。
+- 释放时遍历 `levels`，用 Set 去重收集 material，避免共享对象被多次 dispose。
+
+## 常见问题
+
+- 为什么相机远近移动时 LOD 没有切换？
+  检查 `lod.autoUpdate`：默认 `true` 时 `renderer.render()` 会自动调 `update(camera)`；为 `false` 时应用必须在每帧 render 之前手动调用 `lod.update(camera)`。
+- 为什么画面上看起来三角面数没变？
+  只有当前 level 的 `object.visible=true`；如果某层 Mesh 被外部代码强行设回 `visible=true`，它仍会被渲染。检查是否在外部修改了 level 对象的 `visible`。
+- 为什么距离数值与 `levels[i].distance` 对不上？
+  `update()` 算的是 LOD `matrixWorld` 与相机 `matrixWorld` 的距离，再除以 `camera.zoom`；OrthographicCamera 或 zoom≠1 时阈值会按比例缩放。
+- 为什么阈值附近画面在两层之间反复闪烁？
+  相机停在阈值附近时距离微小波动会触发频繁切换；给该层设非零 `hysteresis`（如 `0.1`），让"切过去"和"切回来"使用不同阈值。
+- 为什么从场景移除 LOD 后显存没下降？
+  `scene.remove(lod)` 只解除父子关系；遍历 `lod.levels` 分别 dispose `object.geometry`，并按是否共享用 Set 收集 material 后统一 dispose。
+- 能否用 LOD 切换完全不同的物体（近处是树、远处是石头）？
+  技术上可以，但 LOD 的语义是"同一对象的不同细节"。形态切换会让远处画面与近处不一致；这种场景更适合用 Group + 显式 `visible` 控制，或拆成独立对象按距离加载/卸载。
+
+## 总结回顾
+
+摘要：
+
+LOD 用 `levels` 数组按 distance 升序登记同一对象的多个细节版本；`addLevel(object, distance, hysteresis)` 把每个 Mesh 同时挂为子级。`update(camera)` 比较相机与 LOD 的世界距离（除以 `camera.zoom`）挑选唯一可见层，其余层的 `visible` 被置 `false`。`autoUpdate=true`（默认）时 `renderer.render()` 自动调用 update；关闭后应用必须每帧手动调用。`hysteresis` 取该层 distance 的比例，在阈值附近形成死区避免抖动。
+
+一句话：
+
+> LOD 不是"渲染多个对象"，而是按相机距离让同一对象只显示一个细节层；切换由 update(camera) 决定，默认每帧由 renderer 自动调用。
+
+知识要点：
+
+- `addLevel()` 的 `distance` 是什么距离？为什么要从近到远登记？
+- `update(camera)` 内部用什么距离挑选当前 level？什么情况下需要应用手动调用？
+- 关闭 `autoUpdate` 后，"相机移动了但 LOD 没切换"是哪个步骤缺失？
+- `hysteresis` 怎样避免阈值附近的来回切换？它和 distance 是什么关系？
+- 多层 LOD 共享 material 时，释放要怎样避免重复 dispose？
+
+## 参考资料
+
+- [Three.js Docs：LOD](https://threejs.org/docs/pages/LOD.html)
+- [Three.js Manual：How to update things](https://threejs.org/manual/en/how-to-update-things.html)
+- [Three.js Examples：webgl_lod](https://threejs.org/examples/?q=lod#webgl_lod)

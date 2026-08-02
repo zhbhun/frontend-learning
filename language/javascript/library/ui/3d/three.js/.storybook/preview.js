@@ -1,22 +1,78 @@
 import '../assets/docs-layout.css';
 import '../assets/story-canvas.css';
 
+import { MermaidDocsContainer } from './mermaid-docs-container.js';
+
 /** @type {import('@storybook/html-vite').Preview} */
 const preview = {
   parameters: {
     // expanded 让 Controls 面板显示说明和默认值，这样它同时充当参数表。
     controls: { expanded: true },
     docs: {
+      container: MermaidDocsContainer,
       // headingSelector 默认只抓 h3，而条目小节用的是 h2，不指定的话目录会是空的。
       toc: { title: '本页目录', headingSelector: 'h2, h3' },
-      // 关掉 Canvas 的源码展开：html 渲染器只能给出渲染后的 DOM 字符串，对读者没有价值，
-      // 需要展示的代码由正文自己的代码块负责。
-      canvas: { sourceState: 'none' },
+      // 所有 Canvas 默认提供源码入口；各 story 显式映射真实范例文件，避免显示渲染后的 DOM。
+      canvas: { sourceState: 'hidden' },
       codePanel: false
     },
     options: {
       storySort: {
-        order: ['快速启动', '核心系统', '纹理与模型', '动画与交互', '质量与交付', '进阶分支']
+        order: [
+          '快速启动',
+          ['安装', '第一幅画面', '循环与尺寸', '坐标与单位', '*'],
+          '核心系统',
+          [
+            '空间与对象',
+            [
+              'Object3D',
+              'Scene',
+              '相机',
+              '相机控制器',
+              'Mesh',
+              'Group',
+              'Helper',
+              'Line',
+              'Points',
+              'Sprite',
+              'Light',
+              'InstancedMesh',
+              'LOD',
+              'SkinnedMesh',
+              '特殊对象',
+              '*'
+            ],
+            '形状与表面',
+            ['几何', '材质', '明暗与阴影', '*'],
+            '*'
+          ],
+          '纹理与模型',
+          ['纹理', '模型', '查看器', '资产', '*'],
+          '动画与交互',
+          [
+            '时间与动画',
+            ['时间', '动画', '*'],
+            '交互与调试',
+            ['拾取', 'TransformControls', '调试', '*'],
+            '*'
+          ],
+          '质量与交付',
+          [
+            '视觉质量',
+            ['PBR', '后处理', '*'],
+            '交付质量',
+            ['性能', '页面', '*'],
+            '*'
+          ],
+          '进阶分支',
+          [
+            '渲染技术',
+            ['Shader', 'WebGPU', '粒子', 'Splatting', '*'],
+            '应用生态',
+            ['框架', 'WebXR', '物理', '*'],
+            '*'
+          ]
+        ]
       }
     }
   }

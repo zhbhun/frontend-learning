@@ -1,5 +1,7 @@
 import remarkGfm from 'remark-gfm';
 
+import rehypeMermaidFences from './rehype-mermaid-fences.js';
+
 /** @type {import('@storybook/html-vite').StorybookConfig} */
 const config = {
   framework: '@storybook/html-vite',
@@ -14,7 +16,8 @@ const config = {
         // MDX 默认只支持 CommonMark，课程里的表格需要 GFM 才会渲染。
         mdxPluginOptions: {
           mdxCompileOptions: {
-            remarkPlugins: [remarkGfm]
+            remarkPlugins: [remarkGfm],
+            rehypePlugins: [rehypeMermaidFences]
           }
         }
       }

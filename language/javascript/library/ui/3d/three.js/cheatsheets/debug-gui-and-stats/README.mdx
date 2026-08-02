@@ -1,0 +1,256 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as DebugStories from './debug-gui-and-stats.stories.js';
+
+<Meta of={DebugStories} name="Docs" />
+
+# 调试
+
+调试 three.js 不是凭感觉改参数，而是建立一个可观察的反馈环：改动某个值，立刻在画面、读数或控制台看到结果。本课把日常调试归纳为五种互补的反馈渠道——它们各自回答不同的问题，组合起来才能快速定位"为什么画面不对"或"为什么卡"。
+
+反馈环由五条相互独立的渠道组成，出问题时先分清走哪一条：
+
+- **helper 把抽象概念画出来。** 坐标轴、网格、包围盒、视锥、光源方向——把不可见的空间关系变成线框。helper 的完整用法（构造、`update()`、`dispose()`、各类型对照）在 [Helper](?path=/docs/helpers-and-debug-objects--docs) 课展开，本课不重复。
+- **调参面板试参数。** `lil-gui` 是 three.js 社区事实标准，把对象属性双向绑定成滑块、下拉和颜色选择器；本课的范例用 Storybook Controls 复现同一思路。
+- **帧率与渲染统计看性能。** `stats.js` 看时间维度（FPS、单帧毫秒），`renderer.info` 看空间维度（draw calls、triangles、geometries、textures）。
+- **控制台查对象状态。** `console.log`、`debugger`、`scene.traverse` 按类型计数，用来确认对象真的在场景树里、属性真的改了。
+- **最小复现隔离问题。** 把问题从大场景里剥出来，换基础材质、移除后处理、用 helper 对照数值，直到原因唯一。
+
+## 快速上手
+
+最小调试闭环：给场景加坐标轴和网格，让一个 `BoxHelper` 跟踪中心对象，在渲染循环里读 `renderer.info` 看 draw calls 与三角形数。这一段同时点亮 helper 和渲染统计两条渠道。
+
+```js
+import * as THREE from 'three';
+
+const scene = new THREE.Scene();
+scene.add(new THREE.AxesHelper(2));
+scene.add(new THREE.GridHelper(20, 20));
+
+const mesh = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(0.9, 1),
+  new THREE.MeshStandardMaterial({ color: '#3d73d9' })
+);
+mesh.position.y = 0.9;
+scene.add(mesh);
+
+const boxHelper = new THREE.BoxHelper(mesh, '#ffd23f');
+scene.add(boxHelper);
+
+renderer.setAnimationLoop(() => {
+  mesh.rotation.y += 0.01;
+  boxHelper.update(); // 被辅助对象变换后刷新线框
+  renderer.render(scene, camera);
+
+  // renderer.render 之后读；info 默认每帧自动重置，读到的是这一帧的值。
+  console.log('draw calls', renderer.info.render.calls);
+  console.log('triangles', renderer.info.render.triangles);
+});
+```
+
+| 渠道 | 工具 / API | 默认值 / 起点 | 改变后要注意什么 |
+| --- | --- | --- | --- |
+| helper | `AxesHelper`、`GridHelper`、`BoxHelper` 等 | 跟踪型要 `update()` | 交付前隐藏或移除并 `dispose()`；详见 Helper 课 |
+| 调参面板 | `lil-gui` 的 `gui.add(obj, 'prop', min, max)` | 数值步长默认 1 | 数值型必须给 min/max 才会变滑块；颜色必须用 `.addColor` |
+| 帧率 | `stats.js` 的 `stats.begin()` / `stats.end()` | 左上角面板 | 必须成对调用；标签页失焦时 FPS 不可信 |
+| 渲染统计 | `renderer.info.render.calls / triangles` | 每帧自动重置 | `autoReset=true`（默认）时是上一帧的值；设为 `false` 会累加 |
+| 控制台 | `console.log`、`scene.traverse(...)`、`debugger` | — | 避免在渲染循环里高频 log；用 `debugger` 暂停比 print 更高效 |
+
+## 调参面板
+
+调参面板的核心心智模型：它不是 UI 框架，而是"对象属性的双向绑定"——`gui.add(obj, 'prop', ...)` 之后，拖滑块就等价于执行 `obj.prop = value`。你不需要写事件监听去同步显示，lil-gui 会自动把当前值写回对象。
+
+最小代码（lil-gui 未随工作区安装，仅作参考；与本课范例里 Storybook Controls 的参数模型同源）：
+
+```js
+import GUI from 'lil-gui';
+
+const gui = new GUI();
+const params = {
+  color: '#3d73d9',
+  roughness: 0.5,
+  wireframe: false,
+  mode: 'standard'
+};
+
+// 数值型：传 min/max/step 后自动变滑块
+gui.add(params, 'roughness', 0, 1, 0.01);
+// 布尔型：自动变 checkbox
+gui.add(params, 'wireframe');
+// 枚举型：传数组变下拉
+gui.add(params, 'mode', ['standard', 'basic', 'normal']);
+// 颜色：必须用 addColor，普通 add 拿不到正确格式
+gui.addColor(params, 'color');
+
+// onChange 在任意值变化时触发；按需渲染时必须在这里主动 render。
+gui.onChange(() => {
+  mesh.material.color.set(params.color);
+  mesh.material.roughness = params.roughness;
+  mesh.material.wireframe = params.wireframe;
+  renderer.render(scene, camera);
+});
+
+// 把相关参数分组：addFolder 返回一个子 GUI，同样能 add / addColor。
+const lightFolder = gui.addFolder('光照');
+lightFolder.add(keyLight, 'intensity', 0, 3, 0.05).name('主光强度');
+lightFolder.addColor(keyLight, 'color').name('主光颜色');
+```
+
+| 控制器 | 写法 | 触发时机 |
+| --- | --- | --- |
+| 数值滑块 | `gui.add(obj, 'prop', min, max, step)` | 拖动或键盘输入 |
+| 布尔开关 | `gui.add(obj, 'prop')`（值为 boolean） | 切换 checkbox |
+| 枚举下拉 | `gui.add(obj, 'prop', ['a', 'b', 'c'])` | 选中某项 |
+| 颜色 | `gui.addColor(obj, 'color')` | 拾色器关闭时；接受 string / number / array 多种格式 |
+| 文件夹 | `gui.addFolder('光照')` | 返回子 GUI；`.close()` 折叠、`.open()` 展开 |
+| 函数按钮 | `gui.add(obj, 'fnName')`（值为函数） | 点击按钮时调用 |
+
+下面范例把 Storybook Controls 当作调参面板：调整对象颜色、粗糙度、周围对象数量、helper 开关，画面和下方读数会同步变化——这正是 lil-gui 在真实项目里扮演的角色。注意颜色对应 `addColor`、粗糙度对应数值滑块、对象数量对应 `gui.add(obj, key, 0, 30, 1)`，三种控制器在这里都能看到。
+
+<Canvas of={DebugStories.Dashboard} />
+
+<Controls of={DebugStories.Dashboard} />
+
+`.onChange` 默认只在值变化时触发。持续渲染（在 `setAnimationLoop` 里）时不需要在 `onChange` 里再调 `renderer.render`——循环每帧都会画；按需渲染（事件驱动）时则必须主动 render，否则面板的值变了但画面不更新，这是"调了参数没反应"最常见的成因。
+
+## 帧率与渲染统计
+
+帧率观察有两种互补来源，一个看时间、一个看内容。
+
+**stats.js 显示实时 FPS / MS / MB**——左上角的小面板，需要 `begin()` 和 `end()` 夹住每帧的渲染代码（stats.js 未随工作区安装，仅作参考）：
+
+```js
+import Stats from 'stats.js';
+
+const stats = new Stats();
+stats.showPanel(0); // 0: FPS, 1: MS（毫秒/帧）, 2: MB（JS 堆内存）
+document.body.appendChild(stats.dom);
+
+function animate() {
+  stats.begin();
+  renderer.render(scene, camera);
+  stats.end();
+  requestAnimationFrame(animate);
+}
+```
+
+| 面板 | 显示 | 不可信的场景 |
+| --- | --- | --- |
+| FPS | 每秒帧数（颜色绿/黄/红） | 标签页失焦时 rAF 被节流到每秒 1 次，FPS 会跌到个位数；Vs 会把上限锁在 60/120 |
+| MS | 单帧耗时（毫秒） | 只包含 `begin`/`end` 之间的代码；后处理、JS 业务逻辑如果在外面就算不进去 |
+| MB | JS 堆内存（MB） | 不含 GPU 显存（纹理、geometry 缓冲）；只反映 JS 端对象分配 |
+
+**`renderer.info` 给出渲染本身的硬数字**——draw calls、三角形数、几何体数量、纹理数量。FPS 低但不知道为什么时，看这里：
+
+```js
+renderer.render(scene, camera);
+const info = renderer.info;
+
+console.log(info.render.calls);      // gl.draw* 调用次数
+console.log(info.render.triangles);  // 提交的三角形总数
+console.log(info.render.points);     // Points 顶点数
+console.log(info.render.lines);      // Line 顶点数
+console.log(info.memory.geometries); // 内部化过的 geometry 数（dispose 后递减）
+console.log(info.memory.textures);   // 内部化过的 texture 数
+console.log(info.programs);          // 编译过的 shader 程序数组
+```
+
+`renderer.info.autoReset` 默认 `true`，每帧 render 后自动清零；读到的是上一帧的值。设成 `false` 后会累加，常用于"跑 N 帧后看平均开销"。draw calls 高不一定有问题——大量独立材质或没合并的对象会拉高它；如果同材质对象合并后 draw calls 大幅下降说明可优化，否则瓶颈在别处。`memory.geometries` 和 `memory.textures` 只增不减，直到对应对象调用 `dispose()`；如果这两个数字随时间持续增长，说明有资源泄漏。
+
+上方范例读数里的 FPS（滑动平均）是手算的：取最近 30 帧 delta 的平均值再取倒数，比 stats.js 的单帧显示更稳。调整"周围对象数量"看 `triangles` 与 `geometries` 怎么随之近似线性增长；切换"显示 helper"看 `draw calls` 怎么变——每个 helper 都会占几次 draw call。
+
+## 控制台检查
+
+控制台是最低成本的反馈渠道，但要避免变成"到处 console.log"。三种有效用法：
+
+**1. 用 `scene.traverse` 分类打印**——排查"为什么这个对象没出现"或"场景里到底有多少东西"。下方范例读数里的"场景对象"就是这种做法的实时版。
+
+```js
+const counts = {};
+scene.traverse((obj) => {
+  counts[obj.type] = (counts[obj.type] || 0) + 1;
+});
+console.log(counts);
+// { Scene: 1, Mesh: 14, DirectionalLight: 1, HemisphereLight: 1,
+//   GridHelper: 1, AxesHelper: 1, BoxHelper: 1, Group: 1 }
+```
+
+**2. 用 `debugger` 暂停比 print 更高效**——在事件回调里加一行 `debugger`，让 DevTools 停在那里，然后在 Console 直接查看当前作用域的对象、矩阵、材质属性。
+
+```js
+canvas.addEventListener('pointerdown', (event) => {
+  debugger; // 停在这里，在 DevTools 里直接查看 raycaster、mesh.material
+  doPick(event);
+});
+```
+
+**3. 用 `renderer.info` 在控制台查性能**——上面已演示；适合一次性快照，不要在循环里高频 log。
+
+避免在 `setAnimationLoop` 里每帧 `console.log`——浏览器控制台会被刷爆，反而看不清。要观察随时间变化的值，用 stats.js 面板或写进范例那样的 readout 区。`obj.parent === null` 是快速判断"对象到底有没有挂到场景树"的入口；`mesh.geometry.attributes.position.count` 能确认 geometry 顶点数是否符合预期。
+
+## 最小复现
+
+three.js 的画面是 renderer × scene × material × geometry × 光照 × 后处理 × 业务代码的合成结果。当结果不对时，在大场景里改一个参数很难定位到底是哪一层出了问题。最小复现就是不断剥掉层，直到问题消失或原因唯一。
+
+剥层的常用顺序：
+
+1. **复制到独立场景。** 把出问题的对象、相机、材质单独放进一个新场景，移除所有业务代码、控制器、后处理。如果问题消失，说明原因在被移除的某一层。
+2. **换成基础材质。** `MeshBasicMaterial` 不受光照影响——换成 basic 后颜色对了，问题在光照或受光材质参数；还是不对，问题在 geometry、UV、纹理或 color space。
+3. **移除后处理。** `EffectComposer` 会改写最终颜色：bloom 让亮部更亮、tone mapping 改变色域。先把 composer 注释掉，直接看 `renderer.render` 的原始结果。
+4. **加 helper 对照数值。** `BoxHelper` 看对象真实包围是否如预期，`CameraHelper` 看视锥是否覆盖到对象，`AxesHelper` 确认朝向——视觉和数值对不上时，先信 helper。
+5. **对比官方示例。** three.js 官方 examples 是已知正确的最小工作集；把你的代码逐步替换成示例写法，哪一步问题消失就锁定那一层。
+
+这套流程比"凭直觉改参数"快得多，也是向社区提 issue 时最有效的附件——维护者没有你的项目，但能跑你的最小复现。
+
+## 最佳实践
+
+- 开发期一直开着 helper（坐标轴、网格、必要的 `BoxHelper`），交付前统一隐藏或 `dispose()`。
+- 调参面板从"最不确定的几个参数"开始暴露，不要把整个对象 dump 进去——面板越满越难调。
+- 持续渲染（`setAnimationLoop`）时 `gui.onChange` 里不必再调 render；按需渲染时必须显式 `renderer.render()`。
+- 帧率观察用 stats.js 与 `renderer.info` 互补：前者看时间维度（卡不卡），后者看空间维度（每帧干了什么）。
+- `renderer.info.memory.geometries` / `textures` 只增不减直到 `dispose()`；数字一直涨就是资源泄漏。
+- 控制台 `console.log` 用于一次性快照，不用来观察每帧变化的值；后者用 stats.js 或 readout。
+- 最小复现是定位问题的核心习惯，不是"最后没办法才用"——一开始就剥离业务和后处理。
+
+## 常见问题
+
+- 为什么 lil-gui 的颜色控件改了但材质颜色没变？
+  `addColor` 写入 `params.color`，但材质不会自动跟着变。`.onChange` 里要显式 `material.color.set(params.color)`，否则面板值变了对象不变。
+- 为什么 stats.js 的 FPS 突然跌到 1？
+  切到别的标签页或最小化窗口时，`requestAnimationFrame` 会被浏览器节流到每秒 1 次；回到页面后会恢复。这不是性能问题。
+- 为什么 `renderer.info.render.calls` 比对象数还多？
+  每个 Mesh 至少一次 draw call，此外透明对象、多个光源、阴影贴图、helper 都会额外占用；`MeshStandardMaterial` 在多光源下也会拉高 draw calls。
+- 为什么 `scene.traverse` 看不到刚加进去的对象？
+  `traverse` 只走 `children`；对象的 `parent` 不是场景树的一员（忘了 `scene.add`，或加到了脱离树的 Group）就不会被遍历。用 `obj.parent === null` 检查。
+- 为什么改了 geometry 的顶点对象还是老样子？
+  修改 `geometry.attributes` 后要置 `attribute.needsUpdate = true`；换整个 geometry 直接 `mesh.geometry = newGeometry`，但旧的要 `oldGeometry.dispose()`。
+- 为什么按需渲染下调了参数画面没反应？
+  没在 `gui.onChange` 或事件回调里调 `renderer.render(scene, camera)`。持续渲染的循环里不需要，按需渲染必须主动触发。
+- 为什么卡顿只在某些机器上出现？
+  draw calls 和三角形数在不同 GPU 上承受力差很大；用 `renderer.info` 在目标机器上读真实数字，而不是凭开发机感觉。
+
+## 总结回顾
+
+摘要：
+
+three.js 调试的本质是建立可观察的反馈环：改一个值，立刻在画面、读数或控制台看到结果。五种渠道互补——helper 把空间关系画出来、调参面板（lil-gui）双向绑定属性、stats.js 看时间维度的帧率、`renderer.info` 看空间维度的渲染开销、控制台和 `scene.traverse` 查对象实际状态。调参面板的核心是"对象属性的双向绑定"，按需渲染时必须在 `onChange` 里主动 render。定位具体问题时，最小复现——独立场景 + 基础材质 + 移除后处理 + helper 对照数值——是把多层合成结果剥到原因唯一的核心习惯。
+
+一句话：
+
+> 调试不是猜，是反馈环——helper 看空间、面板试参数、stats 看帧率、`renderer.info` 看开销、最小复现隔离原因。
+
+知识要点：
+
+- 为什么调试要建立"反馈环"而不是只 `console.log`？
+- lil-gui 的 `gui.add(obj, 'prop', min, max)` 是怎么"绑定"属性的？为什么按需渲染时 `.onChange` 里要主动 render？
+- stats.js 的 FPS / MS / MB 三块面板各代表什么？哪些场景下它们的值不可信？
+- `renderer.info` 给出哪些字段？`autoReset` 默认值是什么？draw calls 高一定是问题吗？
+- `scene.traverse` 怎么用来排查"对象为什么没出现在画面里"？
+- 为什么"最小复现"是定位 three.js 问题的核心习惯？剥层的常用顺序是什么？
+
+## 参考资料
+
+- [Three.js Docs：WebGLRenderer.info](https://threejs.org/docs/?q=WebGLRen#api/en/renderers/WebGLRenderer.info)
+- [Three.js Manual：How to update things](https://threejs.org/manual/en/how-to-update-things.html)
+- [stats.js（GitHub）](https://github.com/mrdoob/stats.js)
+- [lil-gui（官方站）](https://lil-gui.georgealways.com/)
+- [Three.js Examples：webgl / materials / texture](https://threejs.org/examples/?q=info#webgl_materials_texture_anisotropy)

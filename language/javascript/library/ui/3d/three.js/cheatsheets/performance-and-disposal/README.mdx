@@ -1,0 +1,304 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as PerformanceStories from './performance-and-disposal.stories.js';
+
+<Meta of={PerformanceStories} name="Docs" />
+
+# 性能
+
+three.js 的性能问题不是"画面卡了就改参数"，而是测量驱动的工程：先用客观读数定位瓶颈在哪一类——是 draw calls 太多（CPU 提交次数）、是 triangles 太多（GPU 顶点处理）、是纹理占满显存、是资源没释放导致泄漏、还是静态场景下白白跑着动画循环。定位准了再选对应手段；定位错了，再多的"优化"也只是猜。
+
+性能测量有三组互补读数，回答不同问题：
+
+- **时间维度：FPS 与单帧毫秒**（stats.js 或自算滑动平均）。回答"卡不卡"。Vsync 锁帧、标签页失焦时 FPS 不可信。
+- **空间维度：`renderer.info`** 的 `render.calls` / `triangles` / `points` / `lines`。回答"每帧画了什么、提交了几次"。
+- **内存维度：`renderer.info.memory.geometries` / `textures`** 与 `programs`。回答"显存里堆了多少、有没有泄漏"。它们只增不减直到 `dispose()`；JS 堆内存（stats.js 的 MB 面板）不含 GPU 显存。
+
+把瓶颈降下来靠三类手段，各回答一类问题：
+
+- **少提交：** draw call 贵在每次提交前的状态切换（shader program、材质 uniform、纹理绑定）。靠合并几何（`BufferGeometryUtils.mergeGeometries`）、[`InstancedMesh`](?path=/docs/instanced-mesh-object--docs) 和共享 material 把 N 次提交压成 1 次。
+- **少算：** triangles 靠 [`LOD`](?path=/docs/lod-object--docs) 按距离降细节、简化 `BufferGeometry`、收窄相机 `far` 让远处少进入渲染。
+- **少驻留：** 显存靠限制纹理尺寸（必要时用 KTX2 压缩纹理）、`dispose()` 释放不再用的资源；CPU 靠按需渲染（静态时停掉 `setAnimationLoop`，事件触发再画）。
+
+## 快速上手
+
+最小测量闭环：在渲染循环里读 `renderer.info` 并手算 FPS，立刻看到每帧画了多少东西、卡不卡：
+
+```js
+const deltas = [];
+let lastTime = 0;
+
+renderer.setAnimationLoop((time) => {
+  const delta = lastTime ? (time - lastTime) / 1000 : 0;
+  lastTime = time;
+
+  renderer.render(scene, camera);
+
+  // FPS 滑动平均：取最近 30 帧 delta 倒数，比单帧显示更稳。
+  if (delta > 0) {
+    deltas.push(delta);
+    if (deltas.length > 30) deltas.shift();
+  }
+  const avg = deltas.reduce((s, d) => s + d, 0) / Math.max(deltas.length, 1);
+  const fps = avg > 0 ? Math.round(1 / avg) : 0;
+
+  // renderer.info 在 autoReset=true（默认）下，render 后读到的是这一帧的硬数字。
+  const info = renderer.info;
+  console.log(
+    `fps=${fps} calls=${info.render.calls} tris=${info.render.triangles} ` +
+      `geos=${info.memory.geometries} tex=${info.memory.textures}`
+  );
+});
+```
+
+| 关心的问题 | 读什么 | 常用手段 | 不可信 / 注意 |
+| --- | --- | --- | --- |
+| 卡不卡？ | FPS / 单帧毫秒 | 减少每帧工作量 | Vsync 把上限锁在 60/120；标签页失焦时 rAF 被节流到每秒 1 次 |
+| 每帧画了多少？ | `info.render.calls` / `triangles` | 合并、实例化、LOD | draw calls 高不一定有问题；多光源/阴影/透明体会拉高 |
+| 资源泄漏了吗？ | `info.memory.geometries` / `textures` | `dispose()` + 解除引用 | 只增不减直到 dispose；JS 堆内存不含 GPU 显存 |
+| 编译了多少 shader？ | `info.programs.length` | 减少材质种类、共享 material | 仍是 WebGLProgram；首次渲染时编译卡顿常源于此 |
+| 静态时还在烧 CPU？ | render 次数 / 秒 | 按需渲染（事件驱动） | 持续渲染下永远是显示器刷新率 |
+| 纹理占多少显存？ | 无直接读数 | 限制尺寸、压缩纹理、共享 | `MAX_TEXTURE_SIZE` 是上限不是建议值 |
+
+## 测量优先
+
+优化前先建立反馈环，避免凭直觉改参数。`renderer.info` 是最直接的硬数字来源：
+
+```js
+renderer.render(scene, camera);
+const info = renderer.info;
+
+info.render.calls;       // gl.draw* 调用次数（draw calls）
+info.render.triangles;   // 提交的三角形总数
+info.render.points;      // Points 顶点数
+info.render.lines;       // Line 顶点数
+info.memory.geometries;  // 内部化过的 geometry 数（dispose 后递减）
+info.memory.textures;    // 内部化过的 texture 数
+info.programs;           // 编译过的 shader 程序数组；programs.length 是种类数
+```
+
+| 字段 | 回答的问题 | 怎么用 |
+| --- | --- | --- |
+| `render.calls` | CPU 提交次数 | 数百以上常是瓶颈；合并/实例化后下降说明可优化 |
+| `render.triangles` | GPU 顶点处理量 | 远处用 LOD 或收 `camera.far`；过细的几何用 `SimplifyModifier` 或 Blender 减面 |
+| `memory.geometries` | 显存里几何体数 | 只增不减直到 `dispose()`；持续增长即泄漏 |
+| `memory.textures` | 显存里纹理数 | 同上；切场景时旧纹理没释放是常见泄漏 |
+| `programs.length` | shader 程序种类 | 太多说明材质过于分散；统一材质种类或共享实例 |
+
+`renderer.info.autoReset` 默认 `true`，每次 `render()` 后自动清零，读到的是上一帧的值；设成 `false` 后会累加，常用于"跑 N 帧后看平均开销"。配合 stats.js（FPS / MS / MB 面板）能同时覆盖时间、空间、内存三个维度——具体接入见[调试课](?path=/docs/debug-gui-and-stats--docs)。`info` 只反映 WebGL 状态，WebGPU 渲染器的统计字段以实现为准。
+
+## draw calls 与状态切换
+
+draw call 是 CPU 通知 GPU "画一次"的提交。每次提交前，renderer 要把当前的 shader program、材质 uniform、纹理绑定、blend / depth 状态切换到目标值——这些状态切换才是真正贵的部分，不是几何本身。所以两个 Mesh 共享同一份 geometry + material 时，renderer 有机会按顺序提交而不切状态；用 N 份不同 material 时，每次切换都要重新绑 uniform 和纹理。
+
+减少 draw calls 的三条路线，从弱到强：
+
+| 手段 | 适用 | draw calls |
+| --- | --- | --- |
+| 共享 material | 多个对象外观一致 | N 次，但状态切换少 |
+| `mergeGeometries` 合并几何 | 静态、不再单独变换 | 1 次（合并后是单个 Mesh） |
+| `InstancedMesh` | 大量结构相同的重复物体 | 1 次，每实例矩阵/颜色由 attribute 提供 |
+
+```js
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// 合并：把多个独立几何缝成一个 BufferGeometry，作为单个 Mesh 渲染。
+// 合并后丢失"每对象独立变换"——需要单独移动的子部件不能合并。
+const merged = mergeGeometries([boxGeoA, boxGeoB, boxGeoC]);
+const mesh = new THREE.Mesh(merged, sharedMaterial);
+```
+
+合并几何适合"摆好就不动"的静态场景（建筑、地形装饰）；需要每实例独立变换或拾取时用 `InstancedMesh`。完整的实例化对比、`setMatrixAt`、视锥剔除注意事项在 [InstancedMesh 课](?path=/docs/instanced-mesh-object--docs)，本课不重复。一个常见误判是看到 `render.calls` 高就以为一定有问题——多光源、阴影贴图、透明对象排序、helper 都会占 draw call；只有同材质对象合并后 calls 大幅下降，才说明这里曾是瓶颈。
+
+## 三角面与 LOD
+
+GPU 顶点处理量随三角形总数线性增长。降低 triangles 的两条路线：
+
+- **简化几何：** 在 Blender 等工具里减面后导出，运行时只是少画；适合所有距离都能看到的主物体。
+- **LOD 按距离切换：** 近处用高细节版本、远处用低面数版本，由 [`LOD`](?path=/docs/lod-object--docs) 按相机距离自动切换可见层。
+
+```js
+const lod = new THREE.LOD();
+lod.addLevel(new THREE.Mesh(highDetailGeo, material), 0);  // 近：相机距离 [0, 4)
+lod.addLevel(new THREE.Mesh(midDetailGeo, material), 4);   // 中：[4, 8)
+lod.addLevel(new THREE.Mesh(lowDetailGeo, material), 8);   // 远：>= 8
+scene.add(lod);
+```
+
+只有当前层级的 `object.visible=true`，其它层被置 false 后不进入 render list；所以一个三档 LOD 每帧只产生一次 draw call。完整的 `addLevel` / `hysteresis` / `autoUpdate` 注意事项见 [LOD 课](?path=/docs/lod-object--docs)。
+
+LOD 之外的两个便宜优化：收窄 `camera.far`（远裁切面），让远处对象整体被视锥剔除；置 `mesh.frustumCulled = true`（默认）让视锥外的对象不进入提交。`InstancedMesh` 在实例分布显著变化后要 `computeBoundingSphere()`，否则包围球过期会让整个对象被错误剔除——这点容易漏。
+
+## 纹理尺寸与显存
+
+纹理是显存占用的大头。一张 4096×4096 的 RGBA 纹理 uncompressed 时占 `4096×4096×4 ≈ 67 MB`，再算 mipmap 链约 +33%，单张就接近 90 MB。十个这样的纹理就能把移动端 GPU 的显存预算吃光。
+
+```js
+// 上限：查目标设备 / 浏览器的最大纹理尺寸。
+const max = renderer.capabilities.getMaxTextureSize();
+console.log('MAX_TEXTURE_SIZE', max); // 桌面常见 16384；移动端可能 4096 或更小
+
+// 实际选择按"目标显示尺寸"决定，不要无脑用 4K：
+// 一个 1m × 1m 的墙面贴图，相机最近距离 2m、屏幕 1080p 时，2048 已经过剩。
+```
+
+| 选择 | 何时用 | 代价 |
+| --- | --- | --- |
+| 2 的幂尺寸（256/512/1024/2048/4096） | WebGL1 必需；WebGL2 非必需但仍是 mipmap 兼容性最稳的选择 | — |
+| 非 2 的幂尺寸 | WebGL2 下可用；但部分平台对非 2 的幂 + mipmap 仍有限制 | 兼容性风险 |
+| KTX2 压缩纹理（`KTX2Loader`） | 移动端、显存紧张、大量纹理 | 需要 basis 转码工具链；GPU 端解压几乎免费 |
+| `generateMipmaps = false` | UI sprite、屏幕填满的全屏图、`NearestFilter` 像素画 | 缩小时闪烁/摩尔纹，需要更高的原图分辨率补偿 |
+
+纹理在多个材质间复用时共享同一个 `Texture` 实例（或同一个 `Source`），新建多份只是复制显存。纹理的 `colorSpace`、过滤、mipmap 详细配置在[纹理课](?path=/docs/textures-and-maps--docs)；资产侧的尺寸与压缩决策在[资产课](?path=/docs/asset-pipeline-checklist--docs)。
+
+## dispose 与资源复用
+
+`renderer.info.memory.geometries` 与 `textures` 只增不减，直到对应对象调用 `dispose()`。仅从场景树移除节点不会释放 GPU 资源——`scene.remove(mesh)` 只解除父子关系，geometry 和 texture 仍占显存。这是资源泄漏的最常见形态。
+
+下面范例用同一个池子演示三种状态：减小对象数时是否 dispose、是否共享 geometry，对照 `memory.geometries` 的差。
+
+<Canvas of={PerformanceStories.ResourceLifecycle} />
+
+<Controls of={PerformanceStories.ResourceLifecycle} />
+
+切换"共享 geometry"后 `memory.geometries` 始终是 1，无论对象数多大；切回独占时随对象数线性增长。关闭"移除时 dispose"再减小对象数：节点离开了场景树，`memory.geometries` 却只增不减——这就是泄漏。完整的 dispose 调用清单：
+
+```js
+// 单个 mesh 释放：geometry 与 material 分别 dispose，texture 按引用去重。
+mesh.geometry.dispose();
+if (Array.isArray(mesh.material)) {
+  mesh.material.forEach((m) => m.dispose());
+} else {
+  mesh.material.dispose();
+}
+
+// 材质引用的纹理：多个材质共享同一 texture 时用 Set 收集，避免重复 dispose。
+const textures = new Set();
+scene.traverse((obj) => {
+  if (obj.material) {
+    (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach((m) => {
+      Object.values(m).forEach((v) => {
+        if (v?.isTexture) textures.add(v);
+      });
+    });
+  }
+});
+textures.forEach((t) => t.dispose());
+
+// InstancedMesh 还要释放实例缓冲（instanceMatrix / instanceColor）。
+instancedMesh.dispose();
+
+// 整页卸载时：renderer.dispose() 释放内部 WebGL 资源。
+renderer.dispose();
+```
+
+| 对象 | dispose 方法 | 释放了什么 | 不释放什么 |
+| --- | --- | --- | --- |
+| `Geometry` / `BufferGeometry` | `geometry.dispose()` | GPU 顶点/索引缓冲 | 不影响材质与纹理 |
+| `Material` | `material.dispose()` | shader program 引用（无其它材质引用时） | 不影响它引用的 texture |
+| `Texture` | `texture.dispose()` | GPU 纹理与 mipmap | 不影响原图像 / `Source` |
+| `InstancedMesh` | `instancedMesh.dispose()` | instanceMatrix / instanceColor 缓冲 | 共享的 geometry 与 material |
+| `WebGLRenderer` | `renderer.dispose()` | 内部 WebGL 上下文资源 | 不释放 forceContextLoss 后才彻底重建 |
+
+dispose 之外还要解除 JS 引用：从场景树 `remove`、清空闭包里的数组、置 `null`。否则即使 GPU 资源释放了，JS 堆里仍留着对象壳，无法被 GC。GLTFLoader 加载的整个模型释放时，要 `gltf.scene.traverse(...)` 逐对象 dispose；模型里的 texture 引用关系复杂，建议用 Set 去重。
+
+## 按需渲染
+
+`renderer.setAnimationLoop(fn)` 每帧都调用 `fn`，无论场景有没有变化——这在持续动画（角色、粒子、相机移动）下是对的，但在静态场景（调整完参数停下来的查看器、点击切换前不动的展厅）下白白烧 CPU 与电量。按需渲染（on-demand rendering）改成事件驱动：只在状态变化时调一次 `renderer.render(scene, camera)`，空闲时完全停止。
+
+```js
+// 持续渲染：动画场景用。
+renderer.setAnimationLoop(() => {
+  // 更新动画 / 控制器 / 物理状态…
+  renderer.render(scene, camera);
+});
+
+// 按需渲染：静态场景用。
+// 1. 不要 setAnimationLoop；有也要 setAnimationLoop(null) 停掉。
+renderer.setAnimationLoop(null);
+
+// 2. 在所有可能改变画面的入口主动 render 一次。
+function renderOnce() {
+  // 控制器更新：OrbitControls.update() 在 dampingEnabled=true 时会持续需要动画循环；
+  // 静态查看器建议关掉 damping，或只在交互期间短暂开循环。
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+controls.addEventListener('change', renderOnce);  // 相机移动
+window.addEventListener('resize', renderOnce);     // 画布尺寸变化
+gui.onChange(renderOnce);                          // 参数面板变化
+scene.userData.dirty = true;                       // 业务侧标记变化时
+```
+
+下面范例切换连续渲染与按需渲染，对照每秒 render 次数与累计 render 次数。拖动"对象 Y 旋转"控件触发 args 变化——连续模式下每帧都画，按需模式下只在拖动时画一帧，松手后立刻归零。
+
+<Canvas of={PerformanceStories.OnDemandRender} />
+
+<Controls of={PerformanceStories.OnDemandRender} />
+
+按需模式空闲时"每秒 render 次数"稳定在 0，对应"这一秒里 CPU 与 GPU 都不再为这个场景工作"。连续模式下则是显示器刷新率（约 60 或 120）。代价是按需模式要自己在每个变化入口主动 `renderer.render()`——`OrbitControls` 的 `change` 事件、`ResizeObserver`、`gui.onChange`、`AnimationMixer` 的 `update` 都要接进来；控制器开了 `enableDamping` 时仍要短暂运行循环，否则阻尼回弹不会推进。
+
+混合策略也常见：交互期间（拖动、动画播放）开循环，结束后切回按需。LOD 在按需渲染下要 `autoUpdate=false` 并在每次 render 前手动 `lod.update(camera)`，否则相机移动后 LOD 不切——见 [LOD 课](?path=/docs/lod-object--docs)。
+
+## 最佳实践
+
+- 优化前先测：FPS 看时间、`renderer.info.render` 看每帧内容、`renderer.info.memory` 看资源增长；不测就优化是在猜。
+- draw calls 高时优先合并或实例化同材质对象；不同材质的合并反而可能让 shader 复杂化。
+- `memory.geometries` / `textures` 持续增长即泄漏：检查是否有 `scene.remove` 后漏 `dispose()`，或 GLTFLoader 模型重复加载。
+- 纹理按目标显示尺寸选分辨率，移动端单独压一档；多用共享 `Texture` 实例，少复制。
+- dispose 与解除引用成对出现：`geometry.dispose()` 后让闭包不再持有它；`scene.remove(mesh)` 之后立刻处理它引用的资源。
+- 静态场景用按需渲染：把 `controls.change` / `resize` / `gui.onChange` 都接进 `renderOnce`；阻尼期间短暂开循环。
+- 持续渲染下 `gui.onChange` 不必再调 render；按需渲染必须显式调，这是"调了参数没反应"最常见的成因。
+- 多实例或长滚动页面用 `IntersectionObserver` 让画布离开视口时停循环（工作区的 `createRenderLoop` 已经做了）。
+- `OrbitControls.enableDamping` 与按需渲染天然冲突：要么关掉阻尼，要么在交互期间临时切回持续渲染。
+
+## 常见问题
+
+- 为什么 `renderer.info.render.calls` 比对象数还多？
+  每个 Mesh 至少一次 draw call；多光源、阴影贴图、透明对象排序、helper 都会额外占；`MeshStandardMaterial` 在多光源下也会拉高。
+- 为什么 `memory.geometries` 一直涨，从不下降？
+  只从场景树移除节点不释放显存；要 `mesh.geometry.dispose()`，并解除闭包里的引用。范例里关掉"移除时 dispose"再减小对象数能直接看到这个现象。
+- 为什么共享 geometry 后 `memory.geometries` 还是涨？
+  共享只在引用同一 `geometry` 实例时成立；`new THREE.IcosahedronGeometry(...)` 每次都新建，传给 Mesh 不算共享。范例里切换"共享 geometry"前会整体重建，确保所有 mesh 引用同一份。
+- 为什么按需渲染下调了参数画面没反应？
+  没在 `gui.onChange` 或事件回调里调 `renderer.render(scene, camera)`。持续渲染循环里不需要，按需渲染必须主动触发。
+- 为什么 OrbitControls 的阻尼在按需渲染下不回弹？
+  `enableDamping=true` 时 `controls.update()` 每帧都要调用才能推进阻尼；按需渲染停掉了循环。要么关 `enableDamping`，要么在 `'start'` 事件里临时开循环、`'end'` 事件里停。
+- 为什么关掉标签页再回来 FPS 跌到个位数？
+  浏览器把不可见标签页的 `requestAnimationFrame` 节流到每秒 1 次；回到页面会恢复，不是性能问题。
+- 为什么同样的场景在移动端比桌面卡得多？
+  draw calls 和 triangles 在不同 GPU 上承受力差很大；移动端还有更小的 `MAX_TEXTURE_SIZE` 和更紧张的显存。在目标设备上用 `renderer.info` 读真实数字，不要凭开发机感觉。
+- 为什么第一次渲染卡顿明显？
+  shader 首次编译是同步的；材质种类越多越明显。可以预编译：把场景中会用到的材质挂到一次性 mesh 上 render 一帧后再卸载（"shader warmup"）。
+
+## 总结回顾
+
+摘要：
+
+性能优化是测量驱动的工程：先用 `renderer.info` 的 `render` 与 `memory` 字段、FPS 滑动平均和 shader programs 数量定位瓶颈类别，再按类别选手段。draw calls 贵在状态切换，靠合并几何、`InstancedMesh` 和共享 material 把 N 次提交压成 1 次。triangles 靠 LOD 按距离降细节和简化几何。显存靠限制纹理尺寸、共享 `Texture` 和压缩纹理。`memory.geometries` / `textures` 只增不减直到 `dispose()`——`scene.remove` 不释放 GPU 资源，必须显式 dispose 并解除 JS 引用。静态场景下用按需渲染替代 `setAnimationLoop`，事件触发再 render，能让空闲时 render 次数归零、CPU 与电量都不再为场景工作。
+
+一句话：
+
+> 先测再优：用 `renderer.info` 定位瓶颈类别，再选合并 / 实例化 / LOD / 纹理压缩 / dispose / 按需渲染里对应的那一个。
+
+知识要点：
+
+- 性能优化为什么必须先测量再动手？`renderer.info` 的哪些字段分别回答时间、空间、内存三类问题？
+- draw call 真正贵的是什么？合并几何、`InstancedMesh` 和共享 material 各把 draw calls 压到多少？
+- `memory.geometries` / `textures` 在什么条件下才会下降？只 `scene.remove(mesh)` 会发生什么？
+- 共享 geometry / material / texture 时，dispose 要怎样避免重复释放或泄漏？
+- 按需渲染在哪些事件入口必须主动调 `renderer.render()`？为什么 `OrbitControls.enableDamping` 与按需渲染天然冲突？
+- 纹理尺寸选择为什么不是越大越好？`MAX_TEXTURE_SIZE` 给的是什么限制？
+
+## 参考资料
+
+- [Three.js Manual：Performance](https://threejs.org/manual/en/performance.html)
+- [Three.js Manual：WebGLRenderer.info](https://threejs.org/manual/en/renderers.html)
+- [Three.js Docs：WebGLRenderer.info](https://threejs.org/docs/?q=WebGLRen#api/en/renderers/WebGLRenderer.info)
+- [Three.js Docs：WebGLRenderer.dispose](https://threejs.org/docs/?q=WebGLRen#api/en/renderers/WebGLRenderer.dispose)
+- [Three.js Docs：BufferGeometry.dispose](https://threejs.org/docs/?q=BufferGeo#api/en/core/BufferGeometry.dispose)
+- [Three.js Docs：Material.dispose](https://threejs.org/docs/?q=Material#api/en/materials/Material.dispose)
+- [Three.js Docs：Texture.dispose](https://threejs.org/docs/?q=Texture#api/en/textures/Texture.dispose)
+- [Three.js Examples：webgl / buffergeometry / merge](https://threejs.org/examples/?q=merge#webgl_buffergeometry_merge)
+- [KTX2Loader（addons）](https://threejs.org/docs/?q=KTX2#examples/en/loaders/KTX2Loader)
+- [stats.js（GitHub）](https://github.com/mrdoob/stats.js)

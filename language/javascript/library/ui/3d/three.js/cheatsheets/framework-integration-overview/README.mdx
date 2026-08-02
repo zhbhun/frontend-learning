@@ -1,0 +1,444 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="framework-integration-overview" title="进阶分支/应用生态/框架" name="Docs" />
+
+# 框架
+
+three.js 本身是**命令式（imperative）** API：你直接 `scene.add(mesh)`、`mesh.position.x = 1`、`renderer.render(scene, camera)`，每一步都由你显式触发，时机完全可控。React/Vue 是**声明式（declarative）** UI 框架：你声明 UI 应该长什么样（`<div className="card">...</div>` 或 `<Card :open="true" />`），框架负责把声明 diff 后同步到真实 DOM。
+
+两者相遇时会出现一个核心冲突：three.js 的场景图（Scene → Mesh → Geometry/Material）**不是 DOM**，它有自己的对象树和渲染通道。把 three 对象塞进 React/Vue 的声明式状态树，会让框架每次 reconciliation 都试图 diff 这些不该被 diff 的对象，轻则性能崩溃，重则行为异常。本课回答的不是一个写法问题，而是一个**边界问题**：什么状态由框架声明式管理更划算，什么必须留在 three 的命令式循环里；以及要不要用 React Three Fiber（R3F）/TresJS 这类**声明式封装**把 three 对象翻译成框架组件。
+
+判断入口是三条独立的边界，分别决定不同问题：
+
+- **对象边界。** three 的 `Scene`、`Mesh`、`Geometry`、`Material`、`Renderer` 是命令式对象，生命周期由 mount/unmount 钩子管理，不进 React state / Vue reactive；UI 控件、路由参数、表单状态是声明式状态，由框架管。
+- **更新边界。** 性能敏感更新（动画循环里的位置、旋转、uniform）走 three 的命令式 API（`mesh.position.x = ...`），不经过框架 re-render；UI 状态变化（按钮点击、参数面板调参）走框架，再通过 ref/watch 桥接进 three。
+- **循环边界。** `renderer.setAnimationLoop` 是独立的渲染通道，不属于框架的 reconciliation；在循环里触发 `setState` / 改 reactive 会让框架每帧 re-render，与 three 的渲染脱钩且浪费性能。
+
+把这三条边界分清，是判断"要不要上声明式封装"的入口。本课不教 R3F/TresJS 的具体用法（NOTE.md 已声明它们不是入门主线），而是讲清边界与选型，让你能判断什么项目用哪种模式。
+
+## 快速上手
+
+最常见的起点是**命令式嵌入**：在 React 的 `useRef` + `useEffect`（或 Vue 的 `ref` + `onMounted`）里创建 three 对象，挂到容器 DOM 节点上，组件卸载时按 [页面](?path=/docs/page-integration-and-deploy--docs) 的卸载顺序释放。three 对象**不进**声明式状态，状态变化通过 ref 直接调用 three API。
+
+React 最小骨架：
+
+```jsx
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+
+export function Viewer({ rotationSpeed }) {
+  const containerRef = useRef(null);     // 容器 DOM
+  const stateRef = useRef({});            // 持有 three 对象，不进 React state
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 4);
+
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshStandardMaterial({ color: 0x4488ff })
+    );
+    scene.add(mesh);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6), new THREE.DirectionalLight(0xffffff, 1));
+
+    // 把 three 对象存进 ref，供状态同步和清理使用。
+    stateRef.current = { renderer, scene, camera, mesh };
+
+    const resize = () => {
+      const w = Math.max(1, container.clientWidth);
+      const h = Math.max(1, container.clientHeight);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(container);
+    resize();
+
+    renderer.setAnimationLoop(() => {
+      // 性能敏感更新直接走命令式 API，不调 setState。
+      mesh.rotation.y += rotationSpeed * 0.016;
+      renderer.render(scene, camera);
+    });
+
+    return () => {
+      // 卸载顺序：停循环 → 释放资源 → renderer.dispose → 断开 observer。
+      renderer.setAnimationLoop(null);
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      renderer.dispose();
+      ro.disconnect();
+      container.removeChild(renderer.domElement);
+    };
+  }, []);  // 空依赖：three 对象只在挂载时创建一次
+
+  // 状态变化通过 effect 同步到 three，不在主 effect 里重建对象。
+  useEffect(() => {
+    const { mesh } = stateRef.current;
+    if (mesh) mesh.userData.rotationSpeed = rotationSpeed;
+  }, [rotationSpeed]);
+
+  return <div ref={containerRef} style={{ width: '100%', aspectRatio: '16 / 9' }} />;
+}
+```
+
+Vue 等价骨架（Composition API）：
+
+```vue
+<script setup>
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import * as THREE from 'three';
+
+const props = defineProps({ rotationSpeed: { type: Number, default: 1 } });
+const containerRef = ref(null);
+let three = {};  // 普通 JS 对象，不用 reactive/ref 包裹
+
+onMounted(() => {
+  const container = containerRef.value;
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 4);
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(),
+    new THREE.MeshStandardMaterial({ color: 0x4488ff })
+  );
+  scene.add(mesh);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6), new THREE.DirectionalLight(0xffffff, 1));
+  three = { renderer, scene, camera, mesh };
+
+  const resize = () => {
+    const w = Math.max(1, container.clientWidth);
+    const h = Math.max(1, container.clientHeight);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  };
+  const ro = new ResizeObserver(resize);
+  ro.observe(container);
+  resize();
+
+  renderer.setAnimationLoop(() => {
+    mesh.rotation.y += (mesh.userData.rotationSpeed ?? props.rotationSpeed) * 0.016;
+    renderer.render(scene, camera);
+  });
+
+  onBeforeUnmount(() => {
+    renderer.setAnimationLoop(null);
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    renderer.dispose();
+    ro.disconnect();
+    container.removeChild(renderer.domElement);
+  });
+});
+
+// 状态变化通过 watch 同步到 three 对象。
+watch(() => props.rotationSpeed, (v) => {
+  if (three.mesh) three.mesh.userData.rotationSpeed = v;
+});
+</script>
+
+<template>
+  <div ref="containerRef" style="width: 100%; aspect-ratio: 16 / 9;" />
+</template>
+```
+
+| 输入或决策 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| three 对象归属 | 存进 `useRef` / 闭包普通对象，不进 state / reactive | 放进 React state 或 `reactive(mesh)` 会触发每帧 re-render 或 watcher 风暴 |
+| 容器 DOM | `useRef(null)` + `ref={containerRef}` / Vue `ref` | mount 钩子里访问 `containerRef.current`，组件未挂载时为 `null` |
+| 创建时机 | `useEffect(..., [])` / `onMounted` | 只在挂载时创建一次；空依赖保证不重复构造 |
+| 销毁时机 | `useEffect` 的 cleanup / `onBeforeUnmount` | 漏掉会让 SPA 路由切换后旧 WebGL 上下文继续占显存 |
+| 状态同步 | 单独的 `useEffect` / `watch` 把 props 写进 three 对象 | 在主 effect 里读 props 会让 props 变化时整个场景重建 |
+| 渲染循环 | `renderer.setAnimationLoop(cb)` 放在 mount 钩子里 | 循环里不要调 `setState` / 改 reactive，否则框架每帧 re-render |
+| 初始 mode | 命令式嵌入（最常见、最可控） | 只有 UI 复杂到一定规模或团队已熟悉 R3F 才考虑迁移 |
+
+## 命令式与声明式
+
+理解边界前，先看清两条心智模型的差异：
+
+| 维度 | 命令式（three.js 原生） | 声明式（React / Vue） |
+| --- | --- | --- |
+| 写法 | `scene.add(mesh); mesh.position.x = 1;` | `<mesh position-x={1} />` / `<TresMesh :position-x="1" />` |
+| 谁决定时机 | 你——显式调用每一步 | 框架——根据状态 diff 决定何时创建/更新/销毁 |
+| 状态来源 | 你的 JS 变量、循环、事件回调 | 框架的 state / reactive / props |
+| 更新方式 | 直接赋值，立即生效 | 状态变化 → 框架 diff → 提交到目标对象 |
+| 渲染通道 | `renderer.render()` 你显式触发 | 框架不参与 three 渲染；three 有自己的 `setAnimationLoop` |
+| 对象树 | Scene graph（Scene → Mesh → Geometry/Material） | React 元素树 / Vue 虚拟 DOM（与 Scene graph 平行） |
+
+关键认识：**Scene graph 不是 DOM 的子树**。React 的 reconciliation 在 diff 元素树时，会按"类型变化 → 销毁旧节点 → 创建新节点"或"props 变化 → 提交更新"操作目标对象。如果你把 `mesh` 直接塞进 React state：
+
+```jsx
+// 反例：three 对象进 React state
+const [mesh] = useState(() => new THREE.Mesh(...));
+const [position, setPosition] = useState(0);
+// 每次 setPosition 都让组件 re-render；虽然 mesh 引用不变，但所有依赖 mesh 的子组件都会 re-render；
+// mesh.position 也不会因为 state 变化自动更新——你还得在 effect 里手动写 mesh.position.x = position。
+```
+
+React 不知道 `mesh.position.x` 是什么，它只比较 state 引用。让 mesh 引用进 state 唯一的效果是触发多余的 re-render，并不会自动同步 three 属性。Vue 用 `reactive()` 包 three 对象更糟——Vue 会给 mesh 的每个属性装 Proxy，three 内部很多字段（如 `Matrix4.elements`、`Vector3`）在每帧被引擎自己读写，全部被 Vue 的 watcher 拦截，轻则性能下降一个数量级，重则破坏 three 的内部不变量。
+
+正确做法是承认两条独立的更新通道：
+
+- **框架通道** 管 UI、表单、路由参数、加载状态。这些状态变化频繁由用户交互触发，框架的 diff 能帮你高效同步到 DOM。
+- **three 通道** 管场景图、动画循环、几何/材质/纹理。这些对象在每帧被 `setAnimationLoop` 内部读写，必须留在命令式 API。
+
+两条通道之间用**最小桥接**连接：框架状态变化时，在 `useEffect` / `watch` 里调用一次 `mesh.position.x = newValue`；three 内部事件（如 Raycaster 选中）想反映到 UI，通过 `onSelect` 回调或 `useState` 写一次。
+
+## 三种集成模式
+
+把 three 接入 React/Vue 有三种成熟模式，差别在"three 对象由谁创建/更新/销毁"：
+
+| 模式 | three 对象归属 | 状态同步方式 | 适用场景 | 代价 |
+| --- | --- | --- | --- | --- |
+| 命令式嵌入 | 你自己 `new` 并 `scene.add`，存在 ref/闭包里 | `useEffect` / `watch` 把 props 写进 three 对象 | 单一查看器、控件简单的页面、性能敏感场景 | UI 和 three 各写一套，桥接代码自己维护 |
+| 声明式封装（R3F / TresJS） | reconciler 根据 JSX/模板自动创建/销毁 | 框架 props 直接映射到 three 属性 | 重 UI、大量控件、团队已熟悉 React/Vue | 抽象层开销、与 imperative 库需要 bridge、掌控弱 |
+| 混合 | three 对象自己持有，UI 控件由框架渲染 | 框架事件 / ref / 自定义事件双向通信 | 查看器 + 复杂侧栏、配置面板、可编辑场景 | 双向通信容易写乱，需要明确数据流方向 |
+
+三种模式没有"哪个更先进"，只有"哪个匹配你的工程约束"。下面三节分别展开。
+
+## 命令式嵌入
+
+命令式嵌入是默认起点：你自己写 `new WebGLRenderer()`、`scene.add(mesh)`、`renderer.setAnimationLoop(cb)`，框架只负责提供容器 DOM 和管理生命周期。three 对象存进 `useRef` / 闭包普通对象，**绝不**进 React state / Vue reactive。
+
+最小骨架已在 [快速上手](#快速上手) 给出。这里聚焦三个工程要点：
+
+**1. 状态进入 three 不重建对象。** props/state 变化时，用单独的 effect/watch 把值写进 three 对象的属性，而不是让主 effect 依赖 props（否则 props 变化会让整个场景重建）：
+
+```jsx
+// React：状态同步单独 effect
+useEffect(() => {
+  const { mesh } = stateRef.current;
+  if (mesh) mesh.material.color.set(props.color);  // 命令式赋值，不重建 mesh
+}, [props.color]);
+```
+
+```js
+// Vue：watch 同步
+watch(() => props.color, (c) => {
+  if (three.mesh) three.mesh.material.color.set(c);
+});
+```
+
+**2. 暴露 three 对象给父组件用 ref + useImperativeHandle / defineExpose。** 子组件把受控 API 暴露给父，避免父直接读内部 three 对象：
+
+```jsx
+// React：useImperativeHandle 把受控 API 暴露给父
+const Viewer = forwardRef((props, ref) => {
+  const stateRef = useRef({});
+  useImperativeHandle(ref, () => ({
+    focusOn: (target) => stateRef.current.controls.target.copy(target),
+    exportPNG: () => stateRef.current.renderer.domElement.toDataURL('image/png'),
+  }));
+  // ...
+});
+```
+
+```js
+// Vue：defineExpose
+defineExpose({
+  focusOn: (target) => three.controls?.target.copy(target),
+  exportPNG: () => three.renderer?.domElement.toDataURL('image/png'),
+});
+```
+
+**3. 混合模式作为命令式嵌入的延伸。** UI 侧栏（按钮、表单、参数面板）由 React/Vue 渲染，three 场景由 mount 钩子创建；两条通道通过 ref + 事件桥接——UI 改参数 → 调暴露的方法；three 选中对象 → 通过 props 回调上抛 id。
+
+```jsx
+// UI → three：父组件调子暴露的方法
+const viewerRef = useRef();
+<button onClick={() => viewerRef.current?.focusOn([0, 1, 0])}>聚焦原点上方</button>
+
+// three → UI：Raycaster 选中后通过 onChange 上抛 id
+function handleClick(event) {
+  const hit = raycaster.intersectObjects(scene.children)[0];
+  if (hit) props.onSelect(hit.object.uuid);
+}
+```
+
+混合模式的关键是**单向数据流**：UI 状态作为 props 流向 three（通过 effect/watch 写进对象），three 内部事件作为回调流向 UI（通过 props.onXxx）。不要让两条通道互相直接修改对方的状态。
+
+## 声明式封装
+
+声明式封装用专门的 reconciler 把 three 对象变成框架组件。React 生态是 [React Three Fiber](https://r3f.docs.pmnd.rs/)（R3F），Vue 生态是 [TresJS](https://tresjs.org/)。它们的核心是把 JSX/模板里的 `<mesh>`、`<boxGeometry>`、`<meshStandardMaterial>` 翻译成对应的 three API 调用（`new THREE.Mesh()` → `scene.add(mesh)`，props 变化 → `mesh.position.x = value`）。
+
+React Three Fiber 范例：
+
+```jsx
+import { Canvas } from '@react-three/fiber';
+
+function Box({ position, color }) {
+  // 声明式：mesh、geometry、material 由 reconciler 自动创建/销毁
+  return (
+    <mesh position={position}>
+      <boxGeometry />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
+
+export function Scene() {
+  return (
+    <Canvas camera={{ position: [0, 0, 4] }}>
+      <ambientLight intensity={0.6} />
+      <directionalLight intensity={1} />
+      <Box position={[0, 0, 0]} color="#4488ff" />
+    </Canvas>
+  );
+}
+```
+
+TresJS（Vue）范例：
+
+```vue
+<script setup>
+import { TresCanvas } from '@tresjs/core';
+</script>
+
+<template>
+  <TresCanvas :camera="{ position: [0, 0, 4] }">
+    <TresAmbientLight :intensity="0.6" />
+    <TresDirectionalLight :intensity="1" />
+    <TresMesh :position="[0, 0, 0]">
+      <TresBoxGeometry />
+      <TresMeshStandardMaterial color="#4488ff" />
+    </TresMesh>
+  </TresCanvas>
+</template>
+```
+
+**心智模型变化。** 你不再写 `scene.add(mesh)`，而是声明场景"应该是什么样"，reconciler 负责把它翻译成 three API。props 变化时 reconciler 自动 diff 并提交更新——这和 React diff DOM 是同一套机制，只是目标是 three 对象。每帧动画通过 `useFrame`（R3F）或 `useRenderLoop`（TresJS）钩子注册回调，独立于框架的 reconciliation。
+
+**生态收益。** R3F 周边有 [drei](https://github.com/pmndrs/drei)（大量 helper：OrbitControls、Environment、useGLTF、PostProcessing 等）、[pmndrs/xr](https://github.com/pmndrs/xr)（VR/AR）、[postprocessing](https://github.com/pmndrs/postprocessing) 等；TresJS 也有自己的 module 生态。这些库把常见 imperative 模式（加载 GLTF、设置环境贴图、添加后处理）封装成声明式组件，开发体验接近写普通 React/Vue 应用。
+
+**取舍。** 声明式封装不是纯收益：
+
+| 收益 | 代价 |
+| --- | --- |
+| 声明式 UI、HMR、组件复用、TypeScript 推断 | reconciler 每次 props 变化都 diff three 对象，高频更新有开销 |
+| 自动 dispose（组件卸载时 reconciler 释放资源） | 自动 dispose 在共享资源、手动 dispose、复杂场景下可能不彻底，需要 bridge |
+| 生态库（drei 等）开箱即用 | 部分 imperative 库（如某些 loader、post-processing、自定义 ShaderMaterial）需要 `useThree` / `useEffect` 桥接 |
+| 团队熟悉 React/Vue，上手快 | 对 three 生命周期的掌控变弱，调试时要同时理解 React 树和 three 树 |
+| 状态/UI/路由用同一套框架 | 包体积增加（react、react-dom、@react-three/fiber、drei 累计可达 MB 级） |
+
+什么时候 R3F 的代价值得付出：UI 控件多到命令式嵌入的桥接代码难以维护、团队已熟悉 React、需要大量复用 React 生态（路由、状态管理、UI 库）、性能要求不是极限（普通查看器、配置器、数据可视化都够用）。什么时候不值：单一查看器、性能敏感（百万顶点、复杂 shader）、需要精确控制 dispose、对 bundle 体积严格。
+
+## 选型判断
+
+选哪种模式不是技术先进性问题，是工程约束匹配问题。下面决策表覆盖常见维度：
+
+| 维度 | 命令式嵌入 | 声明式封装（R3F/TresJS） | 混合 |
+| --- | --- | --- | --- |
+| UI 复杂度 | 单一查看器、少量控件 | 重 UI、多面板、表单、可编辑场景 | 查看器 + 复杂侧栏 |
+| 团队熟悉度 | 不熟 React/Vue 也能写 | 必须熟 React（R3F）或 Vue（TresJS） | 熟悉对应框架 |
+| 性能要求 | 极限（百万顶点、复杂 shader） | 中等（普通查看器、配置器） | 中等到高 |
+| dispose 控制 | 必须精确控制 | 自动 dispose 够用，特殊场景需 bridge | 手动控制 three 部分 |
+| bundle 体积 | 严格（移动端、首屏敏感） | 宽松（桌面应用、内部工具） | 中等 |
+| 复用 React/Vue 生态 | 不需要 | 路由、状态管理、UI 库都复用 | 部分复用 |
+| imperative 库依赖 | 多（自定义 loader、shader、post-processing） | 少（用生态库覆盖） | 中等 |
+
+推荐路径：
+
+- **新项目，团队不熟 React/Vue，或性能/dispose/体积敏感** → 命令式嵌入。先跑通最小查看器，UI 用原生 DOM 或轻量库。
+- **新项目，团队熟 React/Vue，UI 重，性能中等** → R3F（React）或 TresJS（Vue）。直接用声明式封装，享受生态。
+- **已有 React/Vue 项目里加 three** → 命令式嵌入起步（最小侵入），UI 复杂到桥接代码失控再迁移到 R3F/TresJS。
+- **已有 three 项目想加 React/Vue UI** → 混合模式。three 代码保留，UI 用框架渲染，通过 ref/事件桥接。
+
+不要因为"R3F 是现代写法"就盲目迁移。迁移成本包括：重写所有场景构造代码、重新学习 reconciler 行为、调试两套对象树、可能引入新的性能问题。命令式嵌入在大量生产项目里就是最优解。
+
+## 渲染循环归属
+
+无论哪种模式，three 的渲染循环都是独立通道，**不属于框架的 reconciliation**。理解这一点能避免一类高频性能问题：在循环里触发框架 re-render。
+
+| 模式 | 循环由谁启动 | 循环里写什么 | 不能写什么 |
+| --- | --- | --- | --- |
+| 命令式嵌入 | 你在 mount 钩子里 `renderer.setAnimationLoop(cb)` | `mesh.rotation.x += delta`、`renderer.render()` | `setState` / 改 reactive（每帧 re-render） |
+| R3F | `<Canvas>` 自动启动 `setAnimationLoop` | `useFrame((state, delta) => { mesh.rotation.x += delta })` | 在 `useFrame` 里调 `setState`（除非用 `useRef` 桥接） |
+| TresJS | `<TresCanvas>` 自动启动 | `useRenderLoop(({ delta }) => { ... })` | 在循环里改 reactive ref |
+
+反例——在循环里调 setState 会让 React 每帧 re-render：
+
+```jsx
+// 反例：循环里触发框架 re-render
+renderer.setAnimationLoop(() => {
+  setRotation(prev => prev + 0.016);  // 每帧触发 React re-render，60fps 下每秒 60 次
+  mesh.rotation.y = rotation;          // 还得手动同步，state 没帮上忙
+  renderer.render(scene, camera);
+});
+```
+
+正确做法是把动画状态留在 three 对象里，循环里只读写 three 属性；只有需要让 UI 反映某个低频状态（如 FPS、当前选中对象）时，才用节流后的 `setState`（如每 500ms 一次）。详细的 delta/elapsed 时间语义见 [时间](?path=/docs/clock-and-animation-loop--docs)。
+
+R3F 的 `useFrame` 已经把这件事封装好——回调在 three 的渲染通道里执行，不会触发 React reconciliation；但你在回调里自己调 `setState` 就绕过了这个保护。命令式嵌入没有这种约束，全靠你自觉。
+
+## 最佳实践
+
+- three 对象（Scene、Mesh、Geometry、Material、Renderer、Controls）绝不进 React state / Vue reactive；用 `useRef` / 闭包普通对象持有，命令式赋值。
+- 组件挂载时创建 three 对象，卸载时按 [页面](?path=/docs/page-integration-and-deploy--docs) 的顺序 dispose：停 `setAnimationLoop` → 释放 geometry/material/texture → `renderer.dispose()` → 断开 ResizeObserver。
+- 状态进入 three 用独立的 `useEffect` / `watch`，不要让主 mount effect 依赖 props——否则 props 变化会重建整个场景。
+- 渲染循环是独立通道，循环里只读写 three 对象属性，不调 `setState` / 不改 reactive；UI 反映低频状态时用节流后的 setState。
+- 子组件用 `useImperativeHandle` / `defineExpose` 暴露受控 API（如 `focusOn`、`exportPNG`），不要让父组件直接读内部 three 对象。
+- 混合模式保持单向数据流：UI 状态作为 props 流向 three，three 事件作为回调流向 UI；不要让两条通道互相直接改对方状态。
+- 新项目性能/体积/dispose 敏感或不熟 React/Vue，命令式嵌入起步；UI 重且团队熟 React/Vue，直接用 R3F/TresJS；不要因为"现代写法"盲目迁移。
+- 用 R3F/TresJS 时，imperative 库（自定义 loader、复杂 ShaderMaterial、post-processing）通过 `useThree` / `useEffect` 桥接，不要假装它们不存在。
+
+## 常见问题
+
+- 为什么把 `mesh` 放进 React state 后页面越来越卡？
+  React state 触发 re-render 时，依赖 mesh 的所有子组件都 re-render；mesh 引用不变只是避免了重建，但 React 还是做了 diff。把 mesh 存进 `useRef`，命令式赋值。
+- 为什么 Vue 的 `reactive(mesh)` 让 three 行为异常或性能崩溃？
+  Vue 给 mesh 每个属性装 Proxy，three 内部每帧读写 `Matrix4.elements`、`Vector3` 都被 watcher 拦截，破坏内部不变量。three 对象用普通 JS 对象持有，不要用 `reactive` / `ref` 包裹。
+- 为什么 props 变化后 three 场景重建了？
+  mount effect 的依赖数组里写了 props，props 变化时整个 effect 重新执行，重建 renderer/scene/mesh。把状态同步拆到单独的 `useEffect` / `watch`，主 effect 用空依赖。
+- R3F 的 `<Canvas>` 和我自己写的 `useEffect` 有什么区别？
+  `<Canvas>` 内部自动启动 `setAnimationLoop`、创建 renderer/scene/camera、处理 resize、提供 `useFrame` / `useThree` 钩子；你自己写的 effect 要手动做这些。代价是 R3F 的抽象层开销和 bundle 体积。
+- 怎么在 R3F 里用 imperative three 库（如 EffectComposer、自定义 GLTFLoader）？
+  用 `useThree` 拿到 renderer/scene/camera，在 `useEffect` 里创建 imperative 对象，在 `useFrame` 里手动 update；卸载时在 cleanup 里 dispose。drei 已经把常见模式封装成组件，先查 drei 有没有现成的。
+- 命令式嵌入下，React state 变化怎么同步到 three 对象？
+  用单独的 `useEffect(() => { mesh.position.x = value }, [value])`，把 state 写进 three 对象属性；不要把 state 放进主 mount effect 的依赖数组。
+- R3F 项目里 dispose 不彻底，内存还在涨？
+  R3F 的自动 dispose 在共享资源（同一份 geometry/material 被多处用）和手动 `dispose()` 调用并存时可能冲突；用 `<primitive object={sharedResource}>` 标记不归 R3F 管理的对象，手动控制其生命周期。
+- 命令式嵌入里怎么把 Raycaster 选中的对象 id 反映到 UI？
+  Raycaster 选中后通过 props 回调上抛（如 `props.onSelect(hit.object.uuid)`），UI 用 `useState` 接收；不要每帧上抛，只在选中事件触发时调一次。
+- 为什么 R3F 的 `useFrame` 里调了 `setState` 后帧率掉一半？
+  `useFrame` 回调在 three 渲染通道执行，调 `setState` 会让 React re-render，每帧都跑 reconciliation。把动画状态留在 `useRef` 里，UI 需要的值用节流后的 setState（如 500ms 一次）。
+
+## 总结回顾
+
+摘要：
+
+three.js 是命令式 API（`scene.add`、`mesh.position.x =`、`renderer.render`），React/Vue 是声明式 UI 框架（声明状态、框架 diff 后同步到 DOM）。两者集成时有三种模式：命令式嵌入（在 ref/mount 钩子里自己 new three 对象，状态通过 effect/watch 桥接，最常见最可控起点）、声明式封装（R3F 把 three 对象变成 JSX 组件、TresJS 对应 Vue，reconciler 自动创建/更新/销毁，DX 好但有抽象层开销和掌控弱化的代价）、混合（UI 由框架渲染、场景由 three 管，通过 ref/事件双向通信）。无论哪种模式，three 对象绝不进 React state / Vue reactive——前者触发多余 re-render，后者给 three 内部字段装 Proxy 破坏不变量。渲染循环是独立通道，循环里只读写 three 属性，不调 setState / 不改 reactive。选型不是先进性问题：性能/dispose/体积敏感或团队不熟 React/Vue 用命令式嵌入，UI 重且团队熟 React/Vue 用 R3F/TresJS，已有项目加 three 用混合；不要因为"现代写法"盲目迁移。
+
+一句话：
+
+> three 对象不进声明式状态，渲染循环不进 reconciliation；选模式看工程约束，不看先进性。
+
+知识要点：
+
+- three.js 的命令式模型和 React/Vue 的声明式模型在对象树、更新时机、渲染通道上分别有什么本质差异？
+- 为什么把 `mesh` 放进 React state 不会让 `mesh.position.x` 自动更新？为什么 Vue 的 `reactive(mesh)` 会破坏 three？
+- 命令式嵌入、声明式封装、混合三种模式分别把"three 对象由谁创建/更新/销毁"交给谁？
+- 命令式嵌入下，props/state 变化怎样同步到 three 对象，又怎样避免主 effect 依赖 props 导致场景重建？
+- R3F/TresJS 的 reconciler 在 props变化时做什么？`useFrame` / `useRenderLoop` 钩子和 React reconciliation 是同一条通道吗？
+- 为什么在渲染循环里调 `setState` 会让帧率掉一半？正确做法是什么？
+- 选型时哪些工程约束决定用命令式嵌入还是声明式封装？为什么不能盲目迁移到 R3F/TresJS？
+
+## 参考资料
+
+- [Three.js Manual：Creating a scene](https://threejs.org/manual/en/creating-a-scene.html)
+- [Three.js Manual：How to use React](https://threejs.org/manual/en/react.html)（官方对 React 集成的简短建议）
+- [React Three Fiber 官方文档](https://r3f.docs.pmnd.rs/)
+- [TresJS 官方文档](https://tresjs.org/)
+- [pmndrs/drei](https://github.com/pmndrs/drei)（R3F 生态 helper 集合）
+- [pmndrs/xr](https://github.com/pmndrs/xr)（R3F 的 VR/AR 库，RESOURCES.md 已收录）
+- [Three.js Forum：React Three Fiber 板块](https://discourse.threejs.org/c/8)（社区经验与版本适配）

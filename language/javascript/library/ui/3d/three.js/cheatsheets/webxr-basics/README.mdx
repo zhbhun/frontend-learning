@@ -1,0 +1,319 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="webxr-basics" title="进阶分支/应用生态/WebXR" name="Docs" />
+
+# WebXR
+
+WebXR 把 three.js 的渲染输出从浏览器的 2D Canvas 转交给 XR 设备——VR 头显的左右眼双目视图、AR 设备的真实环境叠加。three.js 没有为 WebXR 单独做渲染器：你仍然用 `WebGLRenderer`，只是把它切到 **XR 模式**。切换由两行核心代码完成——`renderer.xr.enabled = true`，把渲染循环换成 `renderer.setAnimationLoop(cb)`。后者是 XR 的硬性前提：沉浸式会话期间，浏览器把 `requestAnimationFrame` 暂停，帧由 `XRSession` 驱动；three.js 内部用 `setAnimationLoop` 把回调绑定到会话帧节奏，不切换会导致画面停在第一帧。详见 [时间](?path=/docs/clock-and-animation-loop--docs) 课的"requestAnimationFrame 还是 setAnimationLoop"。
+
+理解 WebXR 的运行模型，关键是分清四条相互独立的线：
+
+- **会话（XRSession）：** 浏览器与 XR 设备之间的活动连接。模式有三种——`immersive-vr`（VR 头显）、`immersive-ar`（AR 头显或手机 AR）、`inline`（页面内嵌，不戴设备）。模式决定视野、参考空间类型和能否拿到控制器。
+- **渲染循环：** `setAnimationLoop` 的回调每帧由会话触发，回调签名是 `(time, frame)`——`time` 仍是毫秒时间戳（与 [时间](?path=/docs/clock-and-animation-loop--docs) 课同源），`frame` 是 `XRFrame`，会话外为 `null`。姿势、输入源、hit test 都从 `frame` 取。
+- **相机：** `renderer.xr.getCamera()` 返回一个 `ArrayCamera`，包含左右眼两个 `PerspectiveCamera`。投影矩阵和视图矩阵由 three.js 每帧从 XR pose 写入，不要手动改其位置或调 `updateProjectionMatrix`。
+- **控制器输入：** `renderer.xr.getController(i)` 给出每只手的目标射线空间（指针起点），监听 `selectstart` / `select` / `selectend` / `squeezestart` / `squeeze` / `squeezeend` / `move` 事件；`getControllerGrip(i)` 给出握把空间，挂上模型就能看到手柄。射线拾取在 XR 里同样适用，只是起点从鼠标换成控制器——见 [拾取](?path=/docs/raycaster-pointer-interaction--docs)。
+
+WebXR 不能在 Storybook 沙箱里可靠运行——沉浸式会话需要 XR 设备或浏览器 WebXR 模拟器扩展，且必须由用户手势触发。本课是 **docs-only**：贴出关键代码片段和判断表，运行和验证需要真实设备或本地项目（HTTPS + WebXR 模拟器扩展）。无法嵌入运行时的情况下，按规范只贴关键代码，不伪造 Canvas。
+
+## 快速上手
+
+VR 入口的最小代码（`VRButton` 自动处理 `requestSession` 与 `setSession`）：
+
+```js
+import * as THREE from 'three';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+renderer.xr.enabled = true;        // ← 启用 XR 模式（默认 false）
+document.body.appendChild(renderer.domElement);
+
+// 入口按钮：内部用 navigator.xr.requestSession('immersive-vr') 发起会话。
+document.body.appendChild(VRButton.createButton(renderer));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 100);
+
+renderer.setAnimationLoop((time, frame) => {  // ← XR 必须用 setAnimationLoop
+  const dt = (time - lastTime) / 1000 || 0;
+  lastTime = time;
+
+  cube.rotation.y += angularSpeed * dt;       // 仍按"每秒多少"乘 delta 推进
+  renderer.render(scene, camera);             // XR 模式下渲染到设备双眼
+});
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `renderer.xr.enabled` | `false` | `true` 后渲染目标由会话决定；无会话时仍渲染到 Canvas |
+| `renderer.setAnimationLoop(cb)` | 替代 `requestAnimationFrame` | 不切换会让沉浸式会话画面停在第一帧 |
+| `cb` 第二参数 `frame` | 会话外是 `null`；会话内是 `XRFrame` | 查 pose、输入源、hit test 都从它来 |
+| `VRButton.createButton(renderer)` | 自动 `requestSession('immersive-vr')` | 必须由按钮点击（用户手势）触发，不能在页面加载时自动调 |
+| `renderer.xr.getCamera()` | 返回 `ArrayCamera`，每眼一个 `PerspectiveCamera` | 不要手改其位置或投影；姿势由 XR pose 写入 |
+| `renderer.xr.getController(i)` | `i = 0/1` 表示左右手 | 监听 `select*` / `squeeze*`；没有设备时不触发事件 |
+| `renderer.xr.getControllerGrip(i)` | 返回握把空间 | 用 `.add(controllerModel)` 挂手柄模型 |
+| `renderer.xr.setReferenceSpaceType('local')` | 默认 `'local'` | 改 `'local-floor'` / `'bounded-floor'` / `'unbounded'` 影响坐标系原点 |
+
+## XR 渲染循环
+
+WebXR 会话一旦开始，浏览器**暂停**页面原有的 `requestAnimationFrame`——沉浸式渲染走的是 XR 设备的显示器，频率由设备决定（Quest 默认 72/90/120 Hz，Vision Pro 90 Hz），与桌面屏幕无关。three.js 在 `renderer.xr.enabled = true` 后会把 `setAnimationLoop` 的回调注册到 `XRSession.requestAnimationFrame`，因此同一份渲染循环在桌面预览（inline/无会话）走浏览器 rAF，进入沉浸式会话后切到设备 rAF。
+
+回调签名是 `(time, frame)`：
+
+```js
+renderer.setAnimationLoop((time, frame) => {
+  // time：与 performance.now() 同源的毫秒时间戳；用 Timer.update(time) / 手动相减转秒。
+  // frame：XRFrame，会话外为 null。需要查 pose 或输入源时才用到它。
+
+  renderer.render(scene, camera);  // XR 模式下渲染到设备双眼缓冲
+});
+```
+
+| 处理方式 | 适合场景 | 注意 |
+| --- | --- | --- |
+| `setAnimationLoop(cb)` | three.js 渲染循环默认选择，**XR 唯一可行** | 传 `null` 停止；切换会话时 three.js 自动重新绑定 |
+| 手动 `requestAnimationFrame(loop)` | 不接入 XR 的纯桌面项目 | WebXR 场景必须改回 `setAnimationLoop`，否则沉浸式期间不刷新 |
+| `frame` 参数 | 需要读 pose、输入源、hit test 时 | 不需要时可以忽略；用 `if (renderer.xr.isPresenting)` 判断当前是否在会话中 |
+
+业务状态推进仍然遵守 [时间](?path=/docs/clock-and-animation-loop--docs) 课的规则：把速度写成"每秒多少"，再乘秒制 delta。XR 会话期间帧率可能更高（90 Hz、120 Hz），按帧数推进会直接被放大成 1.5–2 倍速度，**delta 推进的纪律在 XR 里比桌面更硬性**。
+
+## 会话模式与生命周期
+
+`navigator.xr.requestSession(mode, options)` 返回 `Promise<XRSession>`，模式与对应能力：
+
+| 模式 | 设备 | 视野 | 典型用途 |
+| --- | --- | --- | --- |
+| `'immersive-vr'` | VR 头显（Quest、Vision Pro、PCVR） | 完全替代现实视野，双眼立体渲染 | VR 体验、沉浸式查看器 |
+| `'immersive-ar'` | AR 头显或支持 ARCore/ARKit 的手机 | 透传相机背景 + 虚拟物体叠加 | AR 试戴、空间摆放、导航 |
+| `'inline'` | 任意设备（无头显） | 在页面 Canvas 内，普通 2D 渲染 | 桌面预览、滚动 3D、入门门槛最低 |
+
+`inline` 不需要设备就能创建会话，常用于"无设备时仍以 XR API 跑一遍逻辑"或把 3D 内容嵌入普通页面。
+
+`options` 携带**参考空间特征**和扩展能力。特征分必填（`requiredFeatures`）和可选（`optionalFeatures`）：
+
+```js
+const session = await navigator.xr.requestSession('immersive-vr', {
+  requiredFeatures: ['local-floor'],          // 必须支持，否则 requestSession 抛异常
+  optionalFeatures: ['bounded-floor', 'hand-tracking']  // 尽量支持，没有也不报错
+});
+```
+
+| 参考空间 | 原点位置 | 边界 | 适合 |
+| --- | --- | --- | --- |
+| `'viewer'` | 用户头部当前位置 | 不能移动 | 输入射线、inline 预览；总是可用 |
+| `'local'` | 会话开始时的头部位置，Y 轴朝上 | 没有显式地面 | 坐姿体验、桌面预览 |
+| `'local-floor'` | 地面高度，原点在用户脚边 | 没有边界 | 站立/坐姿体验的稳妥默认 |
+| `'bounded-floor'` | 地面高度 | 提供安全边界 `boundsGeometry` | 房间级体验（需用户划定边界） |
+| `'unbounded'` | 大世界，原点会随用户移动 | 没有边界 | 大场景漫游（Quest/Vision Pro） |
+
+`VRButton.createButton(renderer)` 默认走 `'immersive-vr'` + `'local-floor'`；`ARButton`（`three/addons/webxr/ARButton.js`）默认走 `'immersive-ar'` + `['hit-test', 'anchors']`。新的统一入口 `XRButton`（`three/addons/webxr/XRButton.js`）接受参数切换两者。
+
+如果不用入口按钮，手动管理会话生命周期：
+
+```js
+const session = await navigator.xr.requestSession('immersive-vr', {
+  optionalFeatures: ['local-floor', 'bounded-floor']
+});
+await renderer.xr.setSession(session);              // 把会话交给渲染器
+
+session.addEventListener('end', () => {
+  renderer.xr.setSession(null);                      // 清空，渲染回到 Canvas
+  // 恢复桌面相机姿势、UI 状态
+});
+
+// 主动结束（响应用户点"退出"按钮）：
+session.end();
+```
+
+| 阶段 | API | 注意 |
+| --- | --- | --- |
+| 探测能力 | `navigator.xr.isSessionSupported('immersive-vr')` | 返回 `Promise<boolean>`；用来决定要不要显示入口按钮 |
+| 发起会话 | `navigator.xr.requestSession(mode, options)` | **必须由用户手势触发**（点击/触摸），不能在 `onload` 里自动调 |
+| 绑定渲染器 | `renderer.xr.setSession(session)` | 异步；解析参考空间后才算就绪 |
+| 监听退出 | `session.addEventListener('end', ...)` | 用户摘下头显、系统断开或主动 `session.end()` 都会触发 |
+| 主动结束 | `session.end()` | 返回 `Promise`；之后渲染回到 Canvas |
+
+## XR 相机
+
+`renderer.xr.getCamera()` 返回一个 `ArrayCamera`——three.js 把它当成"双目相机组"。`ArrayCamera.cameras[0]` 是左眼 `PerspectiveCamera`，`cameras[1]` 是右眼；每帧 three.js 从 XR pose 写入它们的 `projectionMatrix` 和 `matrixWorld`，再让 WebGLRenderer 渲染两次到设备的双目缓冲。
+
+```js
+const camera = renderer.xr.getCamera();   // ArrayCamera
+
+renderer.setAnimationLoop(() => {
+  // 不要：camera.position.set(...) / camera.rotation.set(...) / camera.updateProjectionMatrix()
+  // 这些都由 XR pose 写入；手改会被下一帧覆盖，或破坏立体感。
+  renderer.render(scene, camera);
+});
+```
+
+| 操作 | 桌面（无会话） | XR 会话中 |
+| --- | --- | --- |
+| `camera.position` / `rotation` | 由你或控制器写入 | 由 XR pose 写入，**不要手改** |
+| `camera.updateProjectionMatrix()` | resize、改 fov 时必调 | three.js 每帧从 XR 写入，**调用无效** |
+| 视锥、FOV、瞳距 | 来自 PerspectiveCamera 参数 | 来自设备 profile，**无法改** |
+| `camera` 来源 | 你 new 的 PerspectiveCamera | `renderer.xr.getCamera()`（仍是 PerspectiveCamera，但 pose 不归你管） |
+
+实战写法：保留**同一个** `camera` 变量贯穿桌面和 XR 模式。会话未开始时它是你 new 的桌面相机，进入会话后 three.js 内部把 `renderer.render(scene, camera)` 改用 `ArrayCamera` 路径——但你的代码不需要分支。**位置移动交给控制器或参考空间**：VR 里"用户走动"是头部追踪改 pose，不是你改 `camera.position`；要让虚拟角色移动，改的是角色 Object3D，相机由 XR 跟随用户头部。
+
+桌面预览期需要相机控制器（[相机控制器](?path=/docs/camera-controls--docs)）时，仅在 `!renderer.xr.isPresenting` 时启用；进入会话前调 `controls.dispose()` 或 `controls.disconnect()`，避免 OrbitControls 在 XR 期间继续写桌面相机的位置。
+
+## 控制器输入
+
+`renderer.xr.getController(i)` 返回一个 `XRTargetRaySpace`（继承自 `Object3D`），代表"指针射线"的起点和方向——`position` / `quaternion` 由 XR 输入源 pose 写入。把它 `add` 到场景，再附加一根线就能看到激光：
+
+```js
+const controller = renderer.xr.getController(0);
+
+// 加一根可视化射线（指向 -Z）。
+const line = new THREE.Line(
+  new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)])
+);
+line.scale.z = 5;
+controller.add(line);
+
+controller.addEventListener('selectstart', onSelectStart);
+controller.addEventListener('selectend', onSelectEnd);
+controller.addEventListener('squeezestart', onSqueezeStart);
+scene.add(controller);
+
+// 用控制器作为射线起点拾取场景对象（与桌面 Raycaster 同一套命中逻辑）。
+const raycaster = new THREE.Raycaster();
+function onSelectStart() {
+  raycaster.setFromXRController(controller);    // ← XR 控制器专用的 setFromCamera 替代
+  const hits = raycaster.intersectObjects(pickables, true);
+  if (hits.length > 0) selectObject(hits[0].object);
+}
+```
+
+| 事件 | 触发 | 常见映射 |
+| --- | --- | --- |
+| `selectstart` | 主按钮按下（扳机/触摸板点击） | 开始拖拽、按下持续态 |
+| `select` | 主按钮完整按下（`selectstart` 与 `selectend` 之间的一次性触发） | 类似 click，单次确认 |
+| `selectend` | 主按钮松开 | 结束拖拽、提交 |
+| `squeezestart` / `squeeze` / `squeezeend` | 挤捏轴（握把） | 抓取物体、副操作 |
+| `move` | 控制器 pose 变化（每帧） | 实时悬停、激光跟随 |
+
+`renderer.xr.getControllerGrip(i)` 返回 `XRGripSpace`，代表握把（手柄）的姿势——和 `getController` 的差别是它指向"用户握住手柄"的姿势，更适合挂手柄模型：
+
+```js
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+
+const factory = new XRControllerModelFactory();
+const grip = renderer.xr.getControllerGrip(0);
+grip.add(factory.createControllerModel(grip));   // 自动从 XR profile 加载手柄 3D 模型
+scene.add(grip);
+```
+
+| 控制器类型 | 获取入口 | 用途 |
+| --- | --- | --- |
+| 目标射线（target ray） | `renderer.xr.getController(i)` | 指针、拾取、激光可视化 |
+| 握把（grip） | `renderer.xr.getControllerGrip(i)` | 挂手柄模型、抓取物体的握持姿势 |
+| 手部关节（hand） | `renderer.xr.getHand(i)`（需 `optionalFeatures: ['hand-tracking']`） | 手指级交互，需手柄/裸手追踪设备 |
+
+桌面预览期控制器没有事件——但场景树里的 controller 对象仍然存在，可以用来显示激光。开发者本地调试时建议安装 [WebXR 模拟器](https://github.com/MozillaReality/WebXR-emulator)（Chrome/Firefox 扩展）模拟控制器 pose 和按钮。
+
+## 设备限制与降级
+
+WebXR 跑在真实硬件上时，限制和桌面预览完全不同。每个方向都要单独评估：
+
+| 维度 | 桌面预览 / inline | VR 沉浸式 | AR 沉浸式 |
+| --- | --- | --- | --- |
+| 帧率 | 浏览器 rAF，60–240 Hz | 设备 rAF，72/90/120 Hz（**低于阈值会引发不适**） | 设备 rAF，通常 60 Hz |
+| 渲染分辨率 | Canvas 像素 | 双目缓冲（Quest 3 单眼约 2064×2208） | 相机透传 + 双目叠加 |
+| CPU/GPU 预算 | 宽松 | 紧张——丢帧=用户晕动症 | 移动端最紧张 |
+| 真实环境 | 无 | 无 | 透传相机、平面检测、hit test、锚点 |
+| 用户移动 | 鼠标/键盘 | 头部追踪 + 控制器 + 边界 | 头部追踪 + 控制器 + 真实空间 |
+| 舒适度约束 | 无 | 平滑移动易晕；推荐瞬移 | 不遮挡危险区域 |
+
+**舒适度（VR 专用）：** 任何让用户感觉"视觉移动但身体没动"的操作（平滑移动、加速、镜头切换）都可能引发晕动症。优先级：瞬移 > 抓取拖动世界 > 平滑移动；加速度恒定优于突变；必要时给"舒适模式"开关（瞬移 + 隧道视野）。低于设备目标帧率（如 Quest 设定 72 Hz）会直接触发应用被系统警告甚至终止，性能预算要按**双目全分辨率**估，不是桌面单 Canvas。
+
+**真实环境融合（AR 专用）：** AR 模式下背景由相机透传占据，three.js 把它作为 framebuffer 处理，不要手动加 scene.background。要让虚拟物体放在真实表面上，用 `session.requestHitTestSource()` 拿到 hit test 源，每帧 `frame.getHitTestResults(hitTestSource)` 得到候选姿态；ARButton 已经把 `hit-test` 列进 `optionalFeatures`。锚点（`'anchors'` feature）让物体在多帧之间稳定固定。
+
+**浏览器支持（截至 2026 年 8 月）：**
+
+| 平台 | 状态 | 备注 |
+| --- | --- | --- |
+| Chrome / Edge（桌面 & Android） | 稳定 | VR 与 AR（Android via ARCore）齐全；生产主战场 |
+| Meta Quest Browser / Pico Browser | 稳定 | VR 头显内置浏览器的标配运行环境 |
+| Apple Vision Pro（Safari） | 稳定 | immersive-vr 支持 WebXR；immersive-ar 通过特殊模式 |
+| Safari（macOS） | 部分 | 自 Safari 16 起支持 immersive-vr；需要连接 VR 头显 |
+| Safari（iOS） | 受限 | 不支持沉浸式 WebXR；AR 走 Quick Look（独立 API，非 WebXR） |
+| Firefox | 默认关闭 | 桌面端需在 `about:config` 开启 |
+
+**降级到桌面预览：** 检测到不支持时，不要让入口按钮出现，而是显示"您的浏览器不支持沉浸式 XR，使用桌面浏览"的提示；保留普通 WebGL 渲染路径即可。`navigator.xr.isSessionSupported(mode)` 是判断的标准方法：
+
+```js
+const supported = await navigator.xr.isSessionSupported('immersive-vr');
+if (supported) {
+  document.body.appendChild(VRButton.createButton(renderer));
+} else {
+  showFallbackMessage();   // 隐藏 XR 入口，继续桌面渲染
+}
+```
+
+## 最佳实践
+
+- 项目只要可能接入 XR，渲染循环就**始终用 `renderer.setAnimationLoop(cb)`**，不要图省事写 `requestAnimationFrame`——后期切换到 XR 是破坏性改动。详见 [时间](?path=/docs/clock-and-animation-loop--docs)。
+- 业务状态推进仍按"每秒多少 × delta"，XR 设备帧率（90/120 Hz）比桌面高，按帧数推进会成倍提速。
+- 入口按钮**必须由用户手势触发** `requestSession`；不要在 `DOMContentLoaded` 或 `onload` 里自动调用，会被浏览器拒绝。
+- 进入 XR 会话前断开桌面相机控制器（`controls.disconnect()`），避免它继续写已被 XR pose 占用的相机变换；退出会话时再 `connect()`。
+- 控制器、握把、手部三类空间不要混用：`getController` 是指针起点（拾取/激光），`getControllerGrip` 是握持姿势（挂模型/抓取物体），`getHand` 是关节级追踪（需 `hand-tracking` feature）。
+- VR 体验的舒适度优先：默认瞬移而非平滑移动；任何加速度恒定优于突变；性能预算按双目全分辨率估，目标帧率达不到 72 Hz 之前不要上线。
+- 检测设备能力用 `navigator.xr.isSessionSupported(mode)`；不支持时隐藏入口按钮并保留桌面 WebGL 渲染路径作为降级。
+- 部署必须走 HTTPS（WebXR API 仅在安全上下文或 `localhost` 可用），且沉浸式会话需要用户已佩戴并配对设备。
+- 控制器模型用 `XRControllerModelFactory` 从 XR profile 自动加载；不要硬编码某款手柄的几何，跨设备会失配。
+- 会话结束时清理订阅与状态：监听 `session.addEventListener('end', ...)`，恢复桌面相机姿势、UI、控制器模型引用计数。
+
+## 常见问题
+
+- 进入沉浸式会话后画面停在第一帧，桌面 Canvas 不再更新？
+  渲染循环还在用 `requestAnimationFrame`；沉浸式会话期间浏览器暂停页面 rAF，必须改 `renderer.setAnimationLoop(cb)`。
+- 入口按钮点了没反应，或控制台报 `requestSession` 被拒绝？
+  检查三点：页面是否 HTTPS（或 `localhost`）；目标模式浏览器是否支持（用 `isSessionSupported` 探测）；按钮是否真的响应用户手势（不能在异步链路里被节流掉）。
+- 能不能不显示入口按钮，进入页面就直接进 VR？
+  不能。浏览器规范要求 `requestSession` 由用户手势（点击/触摸/按键）触发，自动调用会被拒绝；VRButton/XRButton 就是为了承载这个手势。
+- 控制器没有任何事件触发？
+  确认 `renderer.xr.getController(i)` 返回的对象已经 `scene.add()` 进场景——它需要进入场景图才能每帧更新 pose，并接收输入源事件；另外确认设备/模拟器真的报告了输入源。
+- `camera.position.set(...)` 在 XR 里不生效？
+  会话期间相机姿势由 XR pose 写入，手改会被下一帧覆盖或破坏立体感。要让用户移动，改虚拟角色或场景对象的变换；头部追踪的相机归 XR 管。
+- 控制器拾取没命中任何对象？
+  和桌面拾取同一套规则——`raycaster.setFromXRController(controller)` 后用 `intersectObjects(pickables, true)`；容器场景必须传 `recursive = true`，详见 [拾取](?path=/docs/raycaster-pointer-interaction--docs)。
+- AR 模式下背景一片黑或盖住了相机画面？
+  AR 会话的 framebuffer 由浏览器合成相机透传与 WebGL 输出，不要给 `scene.background` 设颜色或贴图；如果想加虚拟天空盒，改用 sky dome mesh。
+- WebXR 在 Storybook / iframe 里跑不起来？
+  WebXR API 受限：iframe 需要 `allow="xr-spatial-tracking"`，且 Storybook 沙箱通常没有用户手势上下文。本地起 HTTPS 服务 + 直接打开页面，或在真实部署环境验证。
+- 移动端 AR 画面卡顿严重？
+  AR 走在手机 GPU 上，预算比桌面紧。降复杂度：减少 draw call、贴图尺寸、光源数量；关闭后处理或换成更便宜的实现；目标稳定 60 Hz。
+
+## 总结回顾
+
+摘要：
+
+WebXR 把 three.js 的渲染输出从浏览器 Canvas 转交给 XR 设备，启用它的核心是 `renderer.xr.enabled = true` 加 `renderer.setAnimationLoop(cb)`——后者是硬性前提，沉浸式会话期间浏览器暂停页面 `requestAnimationFrame`，帧由 `XRSession` 驱动，不切换会导致画面不更新。会话有 `immersive-vr` / `immersive-ar` / `inline` 三种模式，由 `navigator.xr.requestSession(mode, options)` 发起，必须由用户手势触发；VRButton / ARButton / XRButton 自动封装了 `requestSession` + `setSession` + `session.end`。相机用 `renderer.xr.getCamera()` 返回的 `ArrayCamera`，姿势由 XR pose 写入，不要手改。控制器通过 `renderer.xr.getController(i)` 拿到目标射线空间，监听 `select*` / `squeeze*` / `move` 事件，配合 `raycaster.setFromXRController` 复用桌面拾取逻辑；握把空间 `getControllerGrip(i)` 挂手柄模型。真实设备的限制包括双目全分辨率渲染、VR 舒适度（推荐瞬移、稳定帧率）、AR 真实环境融合（hit test、anchors）和浏览器覆盖（Chrome/Edge 稳定、Quest/Pico 浏览器稳定、Safari iOS 不支持、Firefox 默认关闭）；用 `isSessionSupported` 检测后隐藏入口按钮并保留桌面 WebGL 降级路径。
+
+一句话：
+
+> WebXR 不是新渲染器，而是把 `WebGLRenderer` 切到 XR 模式：`renderer.xr.enabled = true` 加 `renderer.setAnimationLoop(cb)`，相机和控制器由 `XRSession` 驱动，入口按钮必须由用户手势触发，并按 VR 舒适度、AR 真实环境与浏览器覆盖的限制规划降级。
+
+知识要点：
+
+- 为什么沉浸式会话必须用 `renderer.setAnimationLoop(cb)` 而不是 `requestAnimationFrame`？
+- 三种会话模式 `immersive-vr` / `immersive-ar` / `inline` 各自适合什么场景？参考空间类型 `local` / `local-floor` / `bounded-floor` / `unbounded` 有什么差别？
+- `navigator.xr.requestSession` 为什么必须由用户手势触发？VRButton/XRButton 在这条约束下做了什么？
+- `renderer.xr.getCamera()` 返回什么？为什么不能手改 `camera.position` 或调 `updateProjectionMatrix`？
+- `getController(i)` 和 `getControllerGrip(i)` 的差别是什么？拾取时怎样把射线起点换成控制器？
+- VR 体验为什么要优先瞬移而非平滑移动？AR 模式下背景为什么不能由 `scene.background` 设置？
+- 怎样检测浏览器是否支持沉浸式 XR，并安排桌面 WebGL 降级路径？
+
+## 参考资料
+
+- [three.js Manual：WebXR - Creating VR content](https://threejs.org/manual/en/webxr.html)
+- [three.js Docs：WebXRManager（renderer.xr）](https://threejs.org/docs/?q=webxr)
+- [three.js Examples：webxr](https://threejs.org/examples/?q=webxr)
+- [three.js addons/webxr（VRButton / ARButton / XRButton / XRControllerModelFactory）](https://github.com/mrdoob/three.js/tree/master/examples/jsm/webxr)
+- [MDN：WebXR Device API](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)
+- [Immersive Web Working Group（规范与示例）](https://www.w3.org/groups/wg/immersive-web)
+- [WebXR 示例与 API 入口（immersive-web.github.io）](https://immersive-web.github.io/webxr-samples/)
+- [Mozilla WebXR Emulator（本地调试扩展）](https://github.com/MozillaReality/WebXR-emulator)

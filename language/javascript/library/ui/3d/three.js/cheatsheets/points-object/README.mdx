@@ -1,0 +1,207 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as PointsStories from './points-object.stories.js';
+
+<Meta of={PointsStories} name="Docs" />
+
+# Points
+
+`Points` 是 three.js 中"用一组顶点批量渲染点"的对象。它继承 `Object3D`，可以像 Mesh 一样移动、旋转、缩放；不同的是 renderer 不会把顶点连成三角形，而是把 `BufferGeometry` 的 `position` attribute 里每一个顶点单独画成一个方块或贴图点。1500 个顶点一次 draw call 就画完——这正是它做点云、调试可视化和粒子基础形态的原因。
+
+Points 的画面由三条相互独立的链共同决定：`BufferGeometry` 提供"点在哪里"，`PointsMaterial` 决定"每个点长什么样"，Object3D 变换控制"整片点云在世界中的位置"。改 `geometry.attributes.position` 改的是分布；改 `material.size`、`sizeAttenuation`、`color`、`map` 改的是外观；改 `points.position` 整片点云一起移动。三条链路独立，排查空画面、点太大或点不透明时先分清是哪一层。
+
+本课只讲 Points 的基础形态：构造、尺寸与衰减、颜色与顶点色、用贴图做非方块点、拾取和资源释放。深入的自定义着色器粒子、InstancedMesh 大量实例和 Gaussian Splatting 属于路线 [6.1.3 粒子](?path=/docs/points-particles-instancing--docs)。
+
+## 快速上手
+
+准备 `position` 顶点，构造几何与材质，再把它们交给 `Points`：
+
+```js
+const positions = [];
+for (let i = 0; i < 1500; i++) {
+  positions.push(
+    THREE.MathUtils.randFloatSpread(4),
+    THREE.MathUtils.randFloatSpread(4),
+    THREE.MathUtils.randFloatSpread(4)
+  );
+}
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+const material = new THREE.PointsMaterial({
+  color: '#3d73d9',
+  size: 0.15
+});
+
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+```
+
+`new THREE.Points(geometry, material)` 的两个参数都有默认值（空 `BufferGeometry` 和默认 `PointsMaterial`），但默认状态下没有任何顶点，画面是空的——`Points` 本身不会自动生成顶点。
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `geometry.attributes.position` | 空 | 决定每个点出现在哪里；动态改后调 `computeBoundingSphere()` |
+| `material.size` | `1` | 单位由 `sizeAttenuation` 决定，两者必须一起看 |
+| `material.sizeAttenuation` | `true` | `true` 时 size 是世界单位（透视下近大远小）；`false` 时是屏幕像素 |
+| `material.color` | `(1,1,1)` 白色 | 与 `map` 颜色相乘；用顶点色时另开 `vertexColors: true` |
+| `material.map` | `null` | 用纹理做非方块点时必须配合 `transparent` 或 `alphaTest` |
+| `points.position / rotation / scale` | Object3D 默认值 | 整片点云一起变换；scale 还会进入拾取 threshold 换算 |
+| `raycaster.params.Points.threshold` | `1` | 拾取命中半径（世界单位）；按场景尺度调整，否则"点不到" |
+
+## 点的尺寸与衰减
+
+`PointsMaterial.size` 的单位依赖 `sizeAttenuation`：默认 `true` 时，size 是世界单位，配合透视相机会形成"近大远小"；设为 `false` 时，每个点按固定屏幕像素渲染，远近看起来一样大。
+
+```js
+material.size = 0.2;
+material.sizeAttenuation = true;  // 世界单位，受透视影响
+
+// 切到屏幕像素模式：size 数值意义完全不同
+material.sizeAttenuation = false;
+material.size = 8;                // 像素
+```
+
+`sizeAttenuation = false` 时硬件会限制单点最大像素尺寸（`gl.ALIASED_POINT_SIZE_RANGE`），过大的 `size` 会被钳制；想让远点也保持可读大小时才用这种模式，否则更建议保留默认衰减。
+
+下面实例固定一份球状分布的点云，只切 `sizeAttenuation`、对应模式的 `size` 与相机距离：靠近的点明显大于远处的点；关掉衰减后所有点变成相同像素的方块，相机推拉也不再改变它们的大小。
+
+<Canvas of={PointsStories.SizeAndAttenuation} />
+
+<Controls of={PointsStories.SizeAndAttenuation} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。读数里的"当前单位"会随开关切换；draw calls 始终是 1，说明 1500 个顶点被批量成一次提交。
+
+## 颜色与顶点色
+
+`material.color` 给整片点云一个全局色；想给每个点单独配色，要在 geometry 上加 `color` attribute，并把 `material.vertexColors` 设为 `true`。两者会相乘——全局色为 `(0.5, 0.5, 0.5)` 时顶点色会被压暗一半。
+
+```js
+const colors = new Float32Array(count * 3);
+// 按顶点写入 r,g,b...
+geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+const material = new THREE.PointsMaterial({
+  size: 0.2,
+  vertexColors: true
+});
+```
+
+顶点色 attribute 名字必须是 `color`，且每个分量按线性存储（与 `material.color` 内部使用的 `LinearSRGBColorSpace` 一致）；不要把 sRGB 数值直接写进去，否则颜色会偏亮。
+
+## 用贴图做非方块点
+
+`PointsMaterial` 默认把每个点画成方块。要做圆形、星形或图像粒子，需要给 `material.map` 一张带 alpha 通道的纹理，并通过透明组合让 alpha 生效——否则纹理的 RGB 仍占满整个方块，看起来仍是方块。
+
+| 目标 | 必须设置 | 边界 |
+| --- | --- | --- |
+| 圆形 / 不规则点 | `map` + `transparent: true` | 半透明边缘会与场景混合；`depthWrite` 常置 `false` 避免遮挡错误 |
+| 硬边裁剪点 | `map` + `alphaTest`（如 `0.5`） | 不进透明排序、性能更好；边缘锯齿明显 |
+| 整片半透明 | `transparent: true` + `opacity` | 影响所有点；与 `map` 的 alpha 相乘 |
+| 按位置控透明度 | `alphaMap`（灰度纹理）+ `transparent: true` | 只取绿通道/luminance；不影响颜色，可单独叠加在 `map` 之上 |
+| 纯方块点（默认） | 不设 `map` | `transparent` / `alphaTest` 都不会改变形状 |
+
+`alphaMap` 与 `map` 互不冲突：`map` 控制颜色，`alphaMap` 用灰度单独控制透明度。两者都用 `transparent: true` 才能让 alpha 真正参与混合。
+
+下面实例用同一张圆形 alpha 纹理做对照：把 `material.map` 切到"null"会回到默认方块；切到"圆形 alpha 纹理"再把 `transparent` 关掉，能看到圆形周围的"黑方块"伪影（纹理 RGB 仍占满整个点）；最后打开 `transparent` 才让边缘真正透明。
+
+<Canvas of={PointsStories.PointTexture} />
+
+<Controls of={PointsStories.PointTexture} />
+
+读数里的"能否显示透明边缘"是派生判断：`map` 不为空且（`transparent` 为 `true` 或 `alphaTest > 0`）。`alphaTest` 适合硬边粒子（火花、像素图标），`transparent` 适合需要柔和边缘的烟尘或光晕。
+
+## 射线拾取
+
+`Raycaster.intersectObject(points)` 按"射线到点的距离"判定命中，阈值由 `raycaster.params.Points.threshold` 控制，单位是世界空间。默认 `1` 对很小的点云常常太大（命中范围比视觉点还大），对很大的点云又显得"点不到"——必须按场景尺度调整。
+
+```js
+const raycaster = new THREE.Raycaster();
+raycaster.params.Points.threshold = 0.15;
+
+raycaster.setFromCamera(pointer, camera);
+const hits = raycaster.intersectObject(points);
+// hits[i].index 对应 position attribute 中的顶点序号
+// hits[i].distanceToRay 是射线到该点的最近距离
+```
+
+`threshold` 在拾取时会除以 `points.scale` 的平均值换算到局部空间，所以缩放整片点云不需要同步改 threshold。
+
+## 资源释放
+
+从 Scene 移除 Points 不会释放 GPU 资源。不再使用时按 geometry、material、texture 的顺序释放：
+
+```js
+scene.remove(points);
+points.geometry.dispose();
+points.material.dispose();
+points.material.map?.dispose();
+points.material.alphaMap?.dispose();
+```
+
+共享 geometry 或 material 时先确认没有其他 Points / Mesh 在用；贴图也要单独 `dispose()`，`material.dispose()` 不会替你释放它引用的 Texture。
+
+## 与 Mesh、Sprite 的边界
+
+`Points` 是顶点批量渲染的基础形态，但它不是唯一一种"用简单图元画大量对象"的方式。选错类别会让后续特效、动画或拾取都绕弯路。
+
+| 对象 | 图元 | 适用 | 边界入口 |
+| --- | --- | --- | --- |
+| `Points` | 每顶点一个方块 / 贴图点 | 点云、粒子基础形态、调试可视化 | 本课 |
+| `Mesh` | 三角形 | 实心物体、有形状的几何 | [2.1.5 Mesh](?path=/docs/mesh-geometry-material--docs) |
+| `Sprite` | 单个始终面向相机的纹理面片 | 标签、图标、单个广告牌 | [2.1.10 Sprite](?path=/docs/sprite-billboard--docs) |
+| `InstancedMesh` | 同一几何的大量实例 | 大量重复物体、独立变换 | [2.1.12 InstancedMesh](?path=/docs/instanced-mesh-object--docs) |
+| `Points` + 自定义着色器 | 每点独立旋转、动画、size | 高级粒子特效 | [6.1.3 粒子](?path=/docs/points-particles-instancing--docs) |
+
+Sprite 和 Points 都能用贴图，但 Sprite 是"单个始终面向相机的纹理面片"，每个 Sprite 是独立对象、独立 draw call；Points 是"一批顶点、一次 draw call"，且每个点不会单独朝向相机——它只是按顶点位置渲染。
+
+## 最佳实践
+
+- 把 Points 当作"批"来用：所有顶点共享同一个 material；想分组外观就拆成多个 Points，不要为每点单建材质。
+- 调点大小时同时看 `size` 与 `sizeAttenuation`，两者一起决定视觉尺寸；只改一个常会得到意料外的结果。
+- 用贴图做非方块点时优先 `alphaTest`，能减少半透明排序问题；只有需要柔和边缘时才用 `transparent` + `depthWrite: false`。
+- 拾取前显式设 `raycaster.params.Points.threshold`，按场景尺度估算；默认值很少刚好合适。
+- 改 `position` attribute 后调 `geometry.computeBoundingSphere()`，否则视锥剔除可能用旧包围体把整片点云裁掉。
+- `PointsMaterial` 默认 `fog: true`，点会受 `Scene.fog` 影响；调试点云在远处突然变淡或消失时，除视锥剔除外也检查场景雾效，需要原始尺寸观察时把 `material.fog` 设为 `false`。
+- 数万以上的点要考虑是否进入 [6.1.3 粒子](?path=/docs/points-particles-instancing--docs) 的自定义着色器路径；基础 Points 的批渲染在大规模下仍受 CPU 顶点循环约束。
+
+## 常见问题
+
+- 为什么 `Points` 加进场景后什么都没有？
+  geometry 没有 `position` attribute 或 attribute 为空；构造时省略参数会拿到空 `BufferGeometry`，必须自己写入顶点。
+- 为什么所有点都是方块，看不出贴图？
+  `material.map` 已设但没处理 alpha：把 `transparent` 设为 `true`（半透明边缘）或把 `alphaTest` 设为 `0.5`（硬边裁剪）。
+- 为什么 `size` 数值看起来不起作用？
+  `size` 单位依赖 `sizeAttenuation`：`true` 是世界单位，`false` 是屏幕像素；同一条数值在两种模式下意义完全不同，调一个参数时要把另一个也一起看。
+- 为什么 `sizeAttenuation = false` 时 `size` 调得很大仍被钳成方块？
+  硬件对屏幕像素点尺寸有上限（`ALIASED_POINT_SIZE_RANGE`），过大的 `size` 会被钳制；保留 `sizeAttenuation = true` 走透视衰减路径可绕过该限制。
+- 为什么拾取不到 Points？
+  `raycaster.params.Points.threshold` 太小，按场景尺度调大；同时确认 `points.frustumCulled` 没有因为旧包围体过早剔除。
+- 为什么改了顶点后画面没变或整片点云突然消失？
+  改 `position` attribute 数组后设 `attribute.needsUpdate = true`，并调 `geometry.computeBoundingSphere()`；旧包围体会让视锥剔除判断错误。
+
+## 总结回顾
+
+摘要：
+
+Points 用一份 `BufferGeometry` 的 `position` attribute 提供顶点位置，用 `PointsMaterial` 决定每个点画成什么样。`size` 的单位随 `sizeAttenuation` 切换——世界单位时透视相机会"近大远小"，屏幕像素时大小恒定但受硬件上限钳制。用贴图做非方块点必须同时处理 alpha：`transparent` 给柔和边缘、`alphaTest` 给硬边裁剪。拾取由 `raycaster.params.Points.threshold` 决定命中半径，释放时按 geometry、material、texture 的顺序 `dispose()`。
+
+一句话：
+
+> 排查 Points 画面时分清三条链：geometry 决定"点在哪"，material 决定"点长什么样"，Object3D 变换决定"整片点云在哪"。
+
+知识要点：
+
+- 一组顶点怎样被 Points 渲染成画面上的点？
+- `size` 与 `sizeAttenuation` 在透视相机下分别控制什么？
+- 用纹理做非方块点需要哪几个材质开关组合？
+- 拾取 Points 时 `threshold` 为什么必须按场景尺度设置？
+- Points 与 Sprite、InstancedMesh 在使用上各有什么边界？
+
+## 参考资料
+
+- [Three.js Docs：Points](https://threejs.org/docs/pages/Points.html)
+- [Three.js Docs：PointsMaterial](https://threejs.org/docs/pages/PointsMaterial.html)
+- [Three.js Docs：BufferGeometry](https://threejs.org/docs/pages/BufferGeometry.html)
+- [Three.js Manual：Custom BufferGeometry](https://threejs.org/manual/en/custom-buffergeometry.html)
+- [Three.js Examples：interactive points](https://threejs.org/examples/?q=points#webgl_interactive_points)

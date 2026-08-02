@@ -1,0 +1,326 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as PageIntegrationStories from './page-integration-and-deploy.stories.js';
+
+<Meta of={PageIntegrationStories} name="Docs" />
+
+# 页面
+
+three.js 画出来的 canvas 不是悬浮在真空里——它最终是页面里的一个 DOM 节点，要和兄弟元素、CSS、UI 控件、路由和构建产物共存。本课不重复 [循环与尺寸](?path=/docs/render-loop-and-resize--docs) 讲过的 resize 与 pixel ratio，也不重讲 [性能](?path=/docs/performance-and-disposal--docs) 中的 dispose 策略；它回答的是 canvas 进入真实页面后才会出现的工程问题：怎样和 DOM 共存、怎样和 CSS 协作、怎样接收事件、怎样在 SPA 路由切换时干净离开、怎样不撑爆 bundle。
+
+出问题时先分清是哪一条独立链路：
+
+- **布局链路。** canvas 在 DOM 中的位置、容器的 CSS 尺寸、移动端的 viewport 共同决定它"画多大"。布局变化由 CSS 或 `ResizeObserver` 反馈给 renderer，而不是反过来由 renderer 写死像素决定页面布局。
+- **事件链路。** OrbitControls、Raycaster 等"挂在 canvas 上"的输入监听，依赖 canvas 是事件目标。一旦 DOM 叠层挡在 canvas 上方，事件落点就由 `pointer-events` 和 `z-index` 决定——叠层 `pointer-events: auto` 时事件被它捕获，canvas 收不到。
+- **生命周期链路。** SPA 切换路由时如果不释放 renderer，旧 WebGL 上下文会继续占显存；浏览器对每标签页 WebGL 上下文数量有上限（约 16 个），超过会被强制丢失。
+- **构建链路。** `import * as THREE from 'three'` 让 tree-shaking 处理未使用模块；addons 走子路径导入（`three/addons/...`）只打包实际用到的 loader / controls。bundle 体积直接影响首屏。
+
+把这几条分开看，是判断"页面集成"问题的入口。
+
+## 快速上手
+
+最小骨架：一个容器 div + 一个 canvas + 一组叠层控件 + 卸载时清理。容器尺寸由 CSS 决定，canvas 填满容器，叠层用 `position: absolute` 浮在 canvas 上方。
+
+```css
+/* 容器决定 canvas 在页面里的位置和大小；canvas 填满容器。 */
+.viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.viewer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 阻止浏览器默认触摸手势（滚动、双指缩放）抢走 canvas 上的指针。 */
+  touch-action: none;
+}
+/* 叠层用绝对定位浮在 canvas 上方；pointer-events 决定事件是否穿透。 */
+.viewer .panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  pointer-events: auto;
+}
+```
+
+```js
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const container = document.querySelector('.viewer');
+const canvas = container.querySelector('canvas');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 1, 4);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+
+function resize() {
+  const width = Math.max(1, container.clientWidth);
+  const height = Math.max(1, container.clientHeight);
+  renderer.setSize(width, height, false); // false: 不让 renderer 反向覆盖 CSS
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(container);
+resize();
+
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+});
+
+// 卸载（路由切换、组件销毁）时按顺序释放：controls → 渲染循环 → renderer。
+function dispose() {
+  controls.dispose();
+  renderer.setAnimationLoop(null);
+  renderer.dispose();
+}
+```
+
+| 输入或决策 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| 容器 CSS 尺寸 | `aspect-ratio: 16 / 9` 或固定高度 | 由 CSS 控制；JS 不要在 setSize 里覆盖 |
+| `renderer.setSize(w, h, false)` | 第三个参数 `false` | `true` 会让 renderer 写 canvas 的 style，反向覆盖 CSS |
+| canvas 的 `display` | `block` | 默认 `inline` 会留下基线空白 |
+| canvas 的 `touch-action` | `none`（沉浸式 / 全屏必加） | 默认值让浏览器触摸手势抢走 pointer |
+| 叠层 `pointer-events` | `auto` | 设 `none` 时叠层不接收事件，事件穿透到 canvas |
+| 叠层 `z-index` | 高于 canvas | canvas 默认 `z-index: auto`；叠层在 DOM 顺序里后绘制就在它上方 |
+| addons 导入 | `three/addons/controls/OrbitControls.js` | 子路径导入让 tree-shaking 只打包用到的 |
+| 卸载顺序 | `controls.dispose()` → 停循环 → `renderer.dispose()` | 漏掉 `controls.dispose()` 后旧 canvas 仍响应输入 |
+
+## 画布与容器
+
+canvas 是一个普通的 DOM 节点，和周围的标题、侧栏、按钮一起参与布局，并不是"全屏覆盖"的特殊元素。最常见的工程错误是用 JS 给 canvas 写死像素尺寸，让它在不同屏幕上要么溢出要么留白。
+
+正确做法：用一个容器 div 决定 canvas 在页面里的位置和大小，canvas 用 `width: 100%; height: 100%` 填满容器。容器尺寸由 CSS（`aspect-ratio`、`flex`、`grid` 或固定高度）控制，JS 只读取容器尺寸再调用 `renderer.setSize()`。
+
+```html
+<div class="viewer">
+  <canvas></canvas>
+</div>
+```
+
+容器尺寸变化由 CSS 触发，JS 通过 `ResizeObserver` 监听容器并同步 renderer 与相机。`window.resize` 只在 canvas 占满整个窗口时才够用——侧栏开合、字体缩放、布局断点切换都不会触发它。详细的同步步骤和 `setSize` 第三参数的语义见 [循环与尺寸](?path=/docs/render-loop-and-resize--docs)。
+
+如果 canvas 必须全屏覆盖（沉浸式查看器、WebXR 入口），用 `position: fixed; inset: 0`，并把 `touch-action: none` 也放在 canvas 上，否则移动端的下拉刷新、双指缩放会抢走手势。
+
+## CSS 协作
+
+canvas 的默认 `display: inline` 会留下行内基线空白；`display: block` 是必需的样式。其他 CSS 属性按"页面是否需要"加上：
+
+| CSS 属性 | 推荐值 | 作用 |
+| --- | --- | --- |
+| `display` | `block` | 消除行内基线空白 |
+| `width` / `height` | `100%`（容器决定具体值） | canvas 填满容器，避免像素写死 |
+| `touch-action` | `none`（全屏 / 沉浸式必加） | 阻止浏览器触摸手势抢走 pointer 事件 |
+| `outline` | `none` | canvas 一般不需要焦点框；加了 tabIndex 后避免默认焦点框 |
+| `background` | 与场景背景一致或 `transparent` | 模型加载前用户看到的占位色 |
+
+容器 CSS 尺寸与 renderer drawing buffer 是两层：CSS 尺寸决定页面布局，drawing buffer 由 `renderer.setSize(width, height, false)` 配合 `setPixelRatio()` 决定。两者可以不同——一个 `640 × 360` CSS 像素、pixel ratio 为 2 的 canvas，drawing buffer 通常是 `1280 × 720`。完整的尺寸链路见 [循环与尺寸](?path=/docs/render-loop-and-resize--docs)。
+
+canvas 不需要也不应该承担"页面布局"职责。把样式控制权留在 CSS、把像素控制权交给 renderer，是最不容易出错的角色分工。
+
+## 叠层与事件
+
+UI 控件叠在 canvas 上方是常见需求：参数面板、加载条、提示文字、教程遮罩。它们用 `position: absolute` 浮在 canvas 上方，靠 `pointer-events` 决定是否拦截事件：
+
+- `pointer-events: auto`（默认）：叠层接收事件，canvas 不收到。读者可以点按钮、拖滑块；但拖动叠层下方区域不会旋转相机。
+- `pointer-events: none`：叠层不接收事件，pointer 穿透到下方的 canvas。OrbitControls、Raycaster 等照常响应；但叠层里的按钮也点不到。
+
+这是页面集成中最容易踩的坑：开发者把"信息提示卡片"放上去，整片区域就再也拖不动相机；或者反过来，想让提示文字穿透，却把卡片里的按钮也连带 `none` 掉。下面范例把同一个叠层在两种模式间切换，可以直接观察事件落点。
+
+<Canvas of={PageIntegrationStories.DomOverlay} />
+
+<Controls of={PageIntegrationStories.DomOverlay} />
+
+读数里的"上一次 pointerdown 接收者"会告诉你事件究竟落到了哪一层：把叠层切到 `auto`，在面板上拖动不会旋转相机（canvas 收到次数不动），按钮可以点（按钮 click 次数增加）；切到 `none`，面板上的拖动开始旋转相机（相机方位角变化），按钮再也点不到。这是 `pointer-events` 在叠层与 canvas 之间的完整效果。
+
+如果既要"信息卡片穿透"又要"按钮可点"：只把卡片本身的 `pointer-events` 设为 `none`，再把卡片里的按钮单独设回 `auto`。子元素可以"重新启用"被父级关闭的事件：
+
+```css
+.panel-hint { pointer-events: none; }        /* 提示文字穿透 */
+.panel-hint button { pointer-events: auto; } /* 按钮重新可点 */
+```
+
+OrbitControls 在 `renderer.domElement` 上注册 `pointerdown` 监听。如果叠层吞掉了事件，canvas 永远收不到 `pointerdown`，控制器不会响应——这不是 OrbitControls 的 bug，而是 DOM 事件路由的结果。Raycaster 等"自己监听 canvas 事件"的输入也一样，详见 [拾取](?path=/docs/raycaster-pointer-interaction--docs)。
+
+## 路由与卸载
+
+SPA 在路由切换时通常会卸载组件 DOM。如果只移除 canvas 元素而不释放 renderer，旧的 WebGL 上下文仍然占着显存——浏览器检测到上下文过多时会强制丢失最早的一个，正在使用的查看器会突然黑屏并触发 `webglcontextlost` 事件。
+
+正确卸载顺序：
+
+```js
+function unmountViewer() {
+  // 1. 移除控制器 DOM 监听，避免释放后的 canvas 仍响应输入。
+  controls.dispose();
+
+  // 2. 停渲染循环，防止下一帧访问已 dispose 的资源。
+  renderer.setAnimationLoop(null);
+
+  // 3. 释放模型资源（geometry / material / texture），用 Set 去重共享资源。
+  const disposed = new Set();
+  scene.traverse((child) => {
+    if (child.geometry) child.geometry.dispose();
+    const m = child.material;
+    const list = Array.isArray(m) ? m : [m];
+    list.forEach((mat) => {
+      if (!mat || disposed.has(mat)) return;
+      disposed.add(mat);
+      for (const v of Object.values(mat)) {
+        if (v && v.isTexture) v.dispose();
+      }
+      mat.dispose();
+    });
+  });
+
+  // 4. 释放 WebGL 上下文。
+  renderer.dispose();
+
+  // 5. 断开 observer、移除应用自身的事件监听和 canvas 元素。
+  resizeObserver.disconnect();
+  container.remove();
+}
+```
+
+| 步骤 | 漏掉的后果 |
+| --- | --- |
+| `controls.dispose()` | 旧 canvas 仍响应键盘 / 鼠标，可能触发已销毁对象的方法 |
+| `renderer.setAnimationLoop(null)` | 循环继续跑，访问已 dispose 的资源 |
+| 资源 `traverse + dispose` | GPU 显存持续占用，反复进出路由会累积 |
+| `renderer.dispose()` | WebGL 上下文不释放，撞到上限后丢失最早的一个 |
+| `resizeObserver.disconnect()` | observer 持有对 container 的引用，妨碍 GC |
+
+切回路由时按相同顺序重建：构造 renderer → scene → camera → controls → loader → resize 同步 → 渲染循环。不要试图"复用"上一个路由的 renderer 实例——它的 canvas 已经从 DOM 移除，重新挂回去要重新接 ResizeObserver、事件监听和 `setAnimationLoop`，比新建一个更脆弱。
+
+`renderer.forceContextLoss()` 可以更早释放 WebGL 上下文（部分浏览器需要这一步才会真正释放），但它是"请求"而非"立即"；不要在它之后立刻 `new WebGLRenderer()`，新上下文可能仍命中浏览器内部上限。生产里更稳妥的做法是延迟新建（用 `requestIdleCallback` 或下一帧），让浏览器完成清理。
+
+监听 `webglcontextlost` 可以在上下文被浏览器强制丢失时降级（隐藏 canvas、提示用户刷新）；它和主动 dispose 是互补的两条路径——主动 dispose 控制你自己创建的上下文，`contextlost` 兜底你没法控制的那些。
+
+## 构建产物
+
+three.js 用 ES Module 组织，配合 tree-shaking 后只打包实际用到的部分。但要让它正确生效，导入方式必须规范：
+
+```js
+// 推荐：命名导入让 tree-shaking 移除未用类。
+import { Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, Mesh } from 'three';
+
+// 也可：命名空间导入，主流 bundlers 仍能按用法 tree-shake。
+import * as THREE from 'three';
+```
+
+两种写法在 Vite / Rollup / webpack 5+ / esbuild 下都支持 tree-shaking。要避免的是从子路径直接导入内部文件（如 `three/src/...`）——它绕过了 `three` 包入口的导出契约，升级版本时容易破坏。
+
+addons 走独立子路径：
+
+```js
+// 用到的 loader / controls / pass 各自独立导入；只打包实际用到的 addon。
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+```
+
+`three/addons/*` 是 `examples/jsm/*` 的稳定别名（在 `three` 包的 `exports` 字段里定义）。只导入用到的 addon，让 bundlers 按需打包；不要为了"省事"把整个 `examples/jsm` 拉进来。
+
+bundle 体积意识：
+
+| 部分 | 大致体积（minified，未 gzip） | 影响 |
+| --- | --- | --- |
+| `three` 核心 | 约 600 KB（minified） | 首屏 JS 主体；tree-shake 后实际打包的更小 |
+| 单个 addon（如 OrbitControls） | 约 10–30 KB | 按实际用到的累加 |
+| 解码器 WASM（Draco / KTX2） | 100–300 KB（独立文件，按需懒加载） | 不进入主 bundle；首次需要时才下载 |
+
+具体数字按 three.js 版本变化，参考 [three.js releases](https://github.com/mrdoob/three.js/releases)。把 WASM 解码器放在静态目录，由 `setDecoderPath` 指向；不要 import 成 JS 字符串再执行，那样会撑大主 bundle 并破坏 Web Worker 解码。部署细节见 [资产](?path=/docs/asset-pipeline-checklist--docs)。
+
+每标签页 WebGL 上下文数量上限约 16 个（不同浏览器和 GPU 略有差异）。同一个 canvas 用 `WebGLRenderer` 只创建一次上下文；多查看器页面共用 renderer 不现实（renderer 与 canvas 一一对应），改为让离屏 canvas 暂停渲染（`IntersectionObserver`）+ 卸载时 `renderer.dispose()` 释放上下文。一页挂 5 个以上持续渲染的 canvas 时就要警惕上下文耗尽，按视口分批启动。
+
+## 移动端
+
+移动端的三条要点：viewport、触摸手势、DPR。
+
+```html
+<!-- 沉浸式查看器才推荐禁用缩放；一般页面保留 user-scalable 让用户可访问。 -->
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+```
+
+| 关注点 | 推荐做法 | 不这样做的后果 |
+| --- | --- | --- |
+| viewport meta | `width=device-width, initial-scale=1` | 默认布局视口会让 canvas 在小屏上变小、被滚动条挤开 |
+| canvas `touch-action` | `none`（全屏 / 沉浸式） | 浏览器触摸手势（下拉刷新、双指缩放）抢走 pointer |
+| pixel ratio | `min(devicePixelRatio, 2)` | 不设上限时移动端高 DPR 屏幕 drawing buffer 像素按面积爆炸 |
+| 单击延迟 | 用 `pointerdown` / `pointerup` 而非 `click` | 移动浏览器对 `click` 在历史上有 300ms 延迟（现代浏览器在 viewport 正确时已基本消失） |
+| 容器响应式 | 用 `aspect-ratio` + `max-width` / `max-height` | 写死 `width: 800px` 会在小屏溢出 |
+
+移动端 GPU 的纹理尺寸上限常为 4096，部分老设备更低；贴图按目标设备选 1024 或 2048，详见 [资产](?path=/docs/asset-pipeline-checklist--docs)。低端移动 GPU 的填充率有限，重场景可以考虑动态降低 pixel ratio 或缩减后处理分辨率。
+
+## 最佳实践
+
+- 让 CSS 决定 canvas 的布局尺寸，JS 只读 `clientWidth/clientHeight` 调用 `renderer.setSize(w, h, false)`；保留第三个参数 `false` 不让 renderer 反向覆盖样式。
+- canvas 上加 `display: block` 消除行内空白；全屏 / 沉浸式查看器加 `touch-action: none`。
+- 叠层用 `position: absolute` + `pointer-events` 控制：信息提示穿透设 `none`，控件接收事件设 `auto`；想"卡片穿透但按钮可点"就在子元素上把 `pointer-events` 改回 `auto`。
+- SPA 切换路由按 `controls.dispose()` → 停渲染循环 → 资源 `traverse + dispose` → `renderer.dispose()` → 断开 observer 顺序清理；切回时按构造顺序重建，不要复用旧 renderer。
+- 监听 `webglcontextlost` 作为兜底降级；它和主动 dispose 互补，分别覆盖"自己创建的上下文"和"浏览器强制丢失"。
+- 一页多个 canvas 时用 `IntersectionObserver` 让离屏画布暂停，配合 `renderer.dispose()` 控制活跃 WebGL 上下文数量。
+- 用 `import * as THREE from 'three'` 或命名导入让 tree-shaking 生效；addons 走 `three/addons/*` 子路径，只导入用到的。
+- 解码器 WASM 放静态目录由 `setDecoderPath` 指向，不进入主 bundle；CDN 上的 three.js 版本必须与本地严格一致。
+- 移动端 viewport meta 正确，canvas `touch-action: none`，pixel ratio 设上限；贴图尺寸按目标设备选择。
+
+## 常见问题
+
+- 为什么 canvas 下面有一条几像素的空白？
+  canvas 默认 `display: inline`，行内基线在底部留空白。CSS 上加 `canvas { display: block; }` 即可。
+- 为什么侧栏开合后画布尺寸没更新？
+  没监听真正控制布局的容器。用 `ResizeObserver` 监听 canvas 的父容器，不要只监听 `window.resize`——侧栏、字体或布局断点变化不触发窗口 resize。
+- 为什么 DOM 控件叠上去之后，OrbitControls 拖不动了？
+  控件叠层的 `pointer-events` 默认是 `auto`，整片区域把事件拦截，canvas 收不到 `pointerdown`。要么让叠层 `pointer-events: none`，要么只让提示文字穿透、按钮保持 `auto`。
+- 为什么叠层 `pointer-events: none` 后按钮也点不到？
+  父级 `pointer-events: none` 会让所有子元素也不接收事件；在按钮上单独写 `pointer-events: auto` 重新启用。
+- 为什么路由切换几次后画面突然黑屏或控制台报 `Lost WebGL context`？
+  旧 renderer 的 WebGL 上下文没释放，撞到浏览器的上下文数量上限。卸载时调用 `renderer.dispose()`（必要时 `forceContextLoss()`），并断开 ResizeObserver / 事件监听。
+- 为什么 SPA 切换路由后旧 canvas 还响应键盘？
+  卸载时漏了 `controls.dispose()`，控制器注册的 DOM 监听仍挂着。它是卸载流程的第一步。
+- 为什么 bundle 体积比预期大很多？
+  检查是否从 `three/src/...` 等内部路径导入（绕过包入口破坏 tree-shaking），或无意识从一个聚合入口拉了所有 addon。规范用 `import * as THREE from 'three'` 与 `three/addons/*` 子路径。
+- 为什么部署后 Draco / KTX2 解码器加载失败？
+  解码器 WASM 没复制到静态目录，或 `setDecoderPath` 末尾漏了 `/`；详见 [资产](?path=/docs/asset-pipeline-checklist--docs)。
+- 为什么移动端拖动 canvas 时浏览器在滚动？
+  canvas 上没加 `touch-action: none`；浏览器默认触摸手势优先消费了 pointer。
+
+## 总结回顾
+
+摘要：
+
+three.js canvas 是页面里的普通 DOM 节点，需要按布局、事件、生命周期、构建四条链路和页面协作。容器 CSS 决定 canvas 在页面里的位置和大小，canvas 用 `display: block` + `width/height: 100%` 填满，`touch-action: none` 让移动端不抢手势；drawing buffer 仍由 renderer 与 `setPixelRatio` 决定。叠层用 `pointer-events` 控制事件落点——`auto` 拦截给控件，`none` 穿透给 canvas；子元素可以重新启用事件。SPA 路由切换必须按 `controls.dispose()` → 停循环 → 资源 dispose → `renderer.dispose()` → 断开 observer 顺序释放，每标签页 WebGL 上下文上限约 16 个，超出会触发 `webglcontextlost`。导入用 `import * as THREE from 'three'` 或命名导入让 tree-shaking 生效，addons 走 `three/addons/*` 子路径，解码器 WASM 放静态目录。
+
+一句话：
+
+> CSS 决定 canvas 多大，pointer-events 决定谁能拿到事件，dispose 决定能不能干净离开，addons 子路径决定打包多少。
+
+知识要点：
+
+- canvas 与容器怎样分工？为什么不能在 JS 里写死 canvas 的像素尺寸？
+- canvas 的 `display: block` 和 `touch-action: none` 各解决什么问题？
+- DOM 叠层的 `pointer-events` 在 `auto` 与 `none` 时，事件分别落到哪里？怎样"卡片穿透但按钮可点"？
+- SPA 路由切换时为什么不释放 renderer 会出问题？正确的卸载顺序是什么？
+- 浏览器对 WebGL 上下文数量有什么限制？多查看器页面怎样避免撞上限？
+- `import * as THREE from 'three'` 与 `three/addons/*` 子路径导入怎样影响 bundle 体积？
+- 移动端部署 three.js 时需要检查哪几件事？
+
+## 参考资料
+
+- [Three.js Manual：Responsive Design](https://threejs.org/manual/en/responsive.html)
+- [Three.js Manual：Loading a 3D model](https://threejs.org/manual/en/load-gltf.html)
+- [Three.js Docs：WebGLRenderer](https://threejs.org/docs/pages/WebGLRenderer.html)
+- [Three.js Docs：OrbitControls](https://threejs.org/docs/pages/OrbitControls.html)
+- [Three.js Migration Guide](https://github.com/mrdoob/three.js/wiki/Migration-Guide)
+- [Three.js Releases](https://github.com/mrdoob/three.js/releases)
+- [MDN：touch-action](https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action)
+- [MDN：pointer-events](https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events)
+- [MDN：ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)
+- [MDN：Handling WebGL context loss](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/lose_context)

@@ -1,0 +1,255 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as RaycasterStories from './raycaster-pointer-interaction.stories.js';
+
+<Meta of={RaycasterStories} name="Docs" />
+
+# 拾取
+
+`THREE.Raycaster` 把屏幕上的鼠标位置变成 3D 空间里的一条射线，再和场景中的对象求交，得到一个按距离排序的命中数组。它是 hover、click、选中和高亮这些交互的共同底座——不管最终给用户的反馈是什么，前半段都是同一条流水线：鼠标位置 → NDC → 射线 → 命中。
+
+拾取链路由三条相互独立的部分组成，出问题时先分清是哪一条：
+
+- **相机决定射线方向。** `raycaster.setFromCamera(pointer, camera)` 用相机的投影和视图矩阵把 NDC 点反投影到世界空间，生成起点和方向。换相机或换 pointer 都会改变射线。
+- **对象决定能否被命中。** Mesh、Line、Points、InstancedMesh 各自实现 `Object3D.raycast()`：Mesh 按三角形精确求交；Points 和 Line 用射线到点 / 线段的最短距离配合阈值判定；InstancedMesh 还会先解码每实例矩阵再走三角形求交。
+- **命中结果决定后续反馈。** `intersectObjects()` 返回的数组按 `distance` 升序排序，第 0 项就是离射线起点最近的对象；每条结果带 `object` / `point` / `distance` / `face` / `instanceId` 等字段，反馈逻辑只读这些字段。
+
+把鼠标位置准确换算成 NDC 是这条链路的入口，也是最容易踩坑的地方——画布在页面里的位置、CSS 尺寸和像素比都会影响最终坐标。
+
+## 快速上手
+
+一组可拾取对象，鼠标 hover 高亮、click 选中：
+
+```js
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function onPointerMove(event) {
+  const rect = canvas.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(pickables, true);
+  const hovered = hits.length > 0 ? hits[0].object : null;
+  applyHover(hovered); // 改 emissive 或加轮廓
+}
+
+canvas.addEventListener('pointermove', onPointerMove);
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `new THREE.Raycaster()` | origin `(0,0,0)`、direction `(0,0,0)` | 用 `setFromCamera` 或 `set` 后才有意义 |
+| `raycaster.setFromCamera(pointer, camera)` | pointer 是 NDC，x/y 范围 `[-1, 1]` | 必须在 camera 的 `updateProjectionMatrix()` 之后调用 |
+| `intersectObjects(objects, recursive)` | `recursive = false` | 容器（Group/Scene）需要 `true` 才下钻到子 Mesh |
+| `intersectObject(object, recursive)` | 单对象版本，不排序其他对象 | 想知道"是否命中这个对象"时比数组版直接 |
+| `raycaster.params.Points.threshold` | `1`（世界单位） | 拾取 Points / Line 时按场景尺度调整 |
+| `raycaster.params.Line.threshold` | `1`（世界单位） | 同上，否则线条几乎点不到 |
+| `raycaster.near / far` | `0 / Infinity` | 限制射线的有效段，常用于"只拾取相机前方一定距离" |
+| 命中结果 `distance` | 离射线起点的世界距离 | 数组按它升序排序，第 0 项是最近命中 |
+| 命中结果 `instanceId` | 仅 InstancedMesh 命中时存在 | 用 `setColorAt(instanceId, color)` 改单个实例 |
+
+## pointer 到 NDC
+
+鼠标事件给的是 `clientX` / `clientY`（CSS 像素，相对视口左上角），Raycaster 要的是 NDC（Normalized Device Coordinates，x、y 范围 `[-1, 1]`，原点在画布中央）。换算公式固定：
+
+```js
+const rect = canvas.getBoundingClientRect();
+pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+```
+
+四个容易踩的点：
+
+- **必须减 `rect.left / rect.top`。** 画布不一定贴在页面左上角：左右有侧栏、上方有标题或 padding 时，不减 offset 会让射线系统性偏移，鼠标明明指着物体却命中邻居。
+- **Y 轴取负。** DOM 的 Y 向下为正，NDC 的 Y 向上为正；漏掉负号会让上下颠倒，hover 永远落在鼠标对称的位置。
+- **不需要再除 `devicePixelRatio`。** `getBoundingClientRect()` 返回的是 CSS 像素，画布内部缓冲的像素比已经在 `renderer.setPixelRatio` 里处理过，NDC 转换用的是 CSS 尺寸，与像素比无关。
+- **画布尺寸变化时公式仍然成立。** 公式用的是 `rect.width / rect.height` 的当前值，只要 `getBoundingClientRect()` 拿到的是画布真实占据的尺寸，缩放窗口、响应式布局下都有效。
+
+`offsetX / offsetY` 是相对事件目标元素的 CSS 像素，省去减 `rect.left / rect.top` 的步骤；但触摸事件和一些合成事件不提供它，`clientX/Y + getBoundingClientRect` 是更通用的写法。
+
+## 命中结果与排序
+
+`raycaster.intersectObjects(objects, recursive)` 返回一个数组，每条命中包含：
+
+| 字段 | 类型 | 含义 |
+| --- | --- | --- |
+| `object` | `Object3D` | 被命中的对象（容器内的子 Mesh，不是容器本身） |
+| `point` | `Vector3` | 命中点在世界空间的坐标 |
+| `distance` | `number` | 命中点到射线起点的世界距离 |
+| `face` | `{ a, b, c, normal, materialIndex }` | 被命中的三角形（顶点索引、面法线） |
+| `faceIndex` | `number` | 三角形在 geometry 中的序号 |
+| `instanceId` | `number` | 仅 InstancedMesh 命中时存在，标明点中了哪个实例 |
+| `uv` / `uv1` | `Vector2` | 命中点在 geometry UV 上的位置 |
+
+数组按 `distance` 升序排序，`hits[0]` 始终是离射线起点最近的对象。重叠物体、半透明物体或包含子对象的容器场景下，这个排序是判断"用户到底想点哪个"的主要依据。
+
+`recursive` 控制是否下钻到子对象：
+
+```js
+// 拾取整个场景树下所有可命中对象
+const hits = raycaster.intersectObjects([scene], true);
+
+// 只检查顶层列表里的对象本身
+const hits = raycaster.intersectObjects(pickables, false);
+```
+
+把 `Scene` 或 `Group` 作为目标时必须传 `true`，否则容器自身没有 geometry，命中数为 0；已经把所有可拾取对象平铺成一个数组时 `false` 即可。两种写法的取舍是"维护一个 pickables 列表"还是"让 raycaster 走完整棵树"——前者更可控（可以排除不可拾取的对象），后者更省心但要承担遍历成本。
+
+`raycaster.intersectObject(object)`（单数）只对一个对象求交，用于"是否命中这个特定对象"的判断；它仍然返回数组，但不会把其他对象一起排序。
+
+## hover、click 与选中
+
+三种最常见的交互模式分别绑定不同事件：
+
+| 模式 | 事件 | 典型反馈 |
+| --- | --- | --- |
+| hover | `pointermove` | 高亮、显示 tooltip、改变光标 |
+| click | `pointerdown` + `pointerup`（同位置、短时间内） | 选中、触发动作 |
+| 选中（持续态） | 业务状态，不直接绑定事件 | 持久高亮、显示属性面板 |
+
+```js
+let press = null;
+
+canvas.addEventListener('pointermove', (event) => {
+  setPointerFromEvent(event);
+  state.pointerInView = true;
+  updateHover();
+});
+
+canvas.addEventListener('pointerdown', (event) => {
+  press = { x: event.clientX, y: event.clientY, t: performance.now() };
+});
+
+canvas.addEventListener('pointerup', (event) => {
+  const start = press;
+  press = null;
+  if (!start) return;
+  // 位移过大或时间过长都判定为拖动，不触发 click。
+  if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 5) return;
+  if (performance.now() - start.t > 500) return;
+  setPointerFromEvent(event);
+  updateSelection();
+});
+```
+
+`pointerdown` 和 `pointerup` 配合位移 / 时间阈值，是为了区分"点击"和"按下拖动再松开"。拖动相机时通常不希望误触发选中；阈值不能太大，否则快速点击会被漏掉。
+
+下面范例覆盖了这条流水线：4 个普通 Mesh 加一组 InstancedMesh，hover 时被命中的对象变黄、click 后变红（选中态保留），读数显示当前 hover、当前选中、最近 click 的命中对象名、距离、世界坐标和 `instanceId`。
+
+<Canvas of={RaycasterStories.HoverClickSelect} />
+
+<Controls of={RaycasterStories.HoverClickSelect} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。把 `intersectObjects 的 recursive` 关掉可以看到：所有可拾取对象都被装在一个 `Group` 里，`recursive=false` 时射线不会下钻到子 Mesh，hover 和 click 都拿不到任何命中——这是把容器当拾取目标时最容易踩的坑。
+
+## 高亮对象的方式
+
+拾取命中后要给用户视觉反馈，常见做法有三种：
+
+| 方式 | 适用 | 代价 / 边界 |
+| --- | --- | --- |
+| 改 `material.emissive` + `emissiveIntensity` | 受光材质（MeshStandard、MeshPhysical） | 不影响基础色；共享 material 时会同时改所有引用者 |
+| 改 `material.color` | 任意材质 | 直接覆盖基础色；共享 material 同上 |
+| `setColorAt(instanceId, color)` | InstancedMesh 单实例 | 写完置 `instanceColor.needsUpdate = true` |
+| 后处理 outline / 描边 | 需要"穿透遮挡"或独立轮廓 | 见 [5.1.2 后处理](?path=/docs/postprocessing-basics--docs) |
+
+```js
+// 受光材质的轻量高亮：只改 emissive，不改基础色
+mesh.material.emissive.set('#ffd23f');
+mesh.material.emissiveIntensity = 0.5;
+
+// 还原
+mesh.material.emissive.set('#000000');
+mesh.material.emissiveIntensity = 0;
+```
+
+共享 material 时，"只高亮一个对象"必须为该对象单独克隆一份 material，或改用 InstancedMesh 的 `setColorAt`。这是 InstancedMesh 在大量可拾取重复物体上的另一个优势——不需要克隆材质就能给单个实例换色。
+
+hover 和选中是两种独立状态，颜色不能互相覆盖。推荐顺序：先把所有对象重置到基础态，再写选中色，最后写 hover 色；同一对象同时被 hover 和选中时跳过 hover，让选中色保持可见。
+
+## InstancedMesh 与 instanceId
+
+`Raycaster.intersectObject(instancedMesh)` 默认按三角形求交，命中结果里多出一个 `instanceId` 字段，标明点中了哪个实例。用它做单个实例的高亮或选中：
+
+```js
+const hits = raycaster.intersectObject(instancedMesh);
+if (hits.length > 0) {
+  const id = hits[0].instanceId;
+  instancedMesh.setColorAt(id, highlightColor);
+  instancedMesh.instanceColor.needsUpdate = true; // 漏掉这行 GPU 拿不到新颜色
+}
+```
+
+实例矩阵变化后，InstancedMesh 的求交开销比普通 Mesh 多一次"先解码实例矩阵再变换射线"，但仍在数千实例下可以接受；数万以上时考虑空间划分（八叉树、BVH）或 GPU 拾取。实例分布动态变化后也要 `computeBoundingSphere()`，否则视锥剔除可能让整个 InstancedMesh 在 raycast 阶段就被排除——详见 [2.1.12 InstancedMesh](?path=/docs/instanced-mesh-object--docs)。
+
+## 拾取 Points 与 Line
+
+Points 和 Line 没有面积，按三角形求交几乎永远命中不了。Raycaster 对它们改用"射线到点 / 线段的最短距离"判定，距离小于阈值才算命中：
+
+```js
+raycaster.params.Points.threshold = 0.15; // 世界单位
+raycaster.params.Line.threshold = 0.15;
+
+const hits = raycaster.intersectObject(points);
+// hits[i].index     命中顶点在 position attribute 中的序号
+// hits[i].distanceToRay  射线到该点的实际距离
+```
+
+阈值是**世界单位**，必须按场景尺度估算：默认 `1` 对很小的点云常常太大（命中范围比视觉点还大），对很大的场景又显得"点不到"。Points 的 `threshold` 在拾取时会除以 `points.scale` 的平均值换算到局部空间，所以缩放整片点云不需要同步改阈值。详见 [2.1.9 Points](?path=/docs/points-object--docs)。
+
+## 最佳实践
+
+- 全程只创建一次 `Raycaster`，每次 `setFromCamera` + `intersectObjects` 复用；不要为每次事件新建。
+- 把鼠标位置准确换算成 NDC：减 `rect.left/top`、Y 取负，画布尺寸用 `getBoundingClientRect()` 的 CSS 像素。
+- 把可拾取对象维护成显式的 `pickables` 数组，避免让 raycaster 走完整棵场景树（包含 helper、UI、调试对象）；容器作为目标时记得 `recursive = true`。
+- 区分 hover、click 和选中三种状态：hover 跟随 `pointermove`、click 用 `pointerdown/up + 阈值` 判定、选中是业务状态。
+- 高亮顺序固定为"重置 → 选中 → hover"，让两种状态在视觉上能分开；同一对象同时被两种状态命中时跳过 hover。
+- 共享 material 时为单独高亮的对象克隆一份 material，或改用 InstancedMesh 的 `setColorAt`；不要让一次 hover 联动改变其他对象。
+- 拾取 Points / Line 前显式设 `raycaster.params.Points.threshold` / `Line.threshold`，按场景尺度估算。
+- 频繁拾取大场景时考虑 BVH 加速（如 `three-mesh-bvh`），或 GPU 拾取方案；基础 raycaster 在数千对象下仍够用。
+- `pointerleave` 时清空 hover，否则鼠标离开画布后最后一个对象一直保持高亮。
+
+## 常见问题
+
+- 为什么鼠标明明指着物体，hover 却没反应？
+  检查 NDC 换算：是否减了 `rect.left / rect.top`（画布不在页面左上角时这是系统性偏移）；Y 是否取负（漏掉会让上下颠倒）；`pointer` 是否在 `setFromCamera` 之前更新。
+- 为什么点 Group 里的 Mesh 拿不到命中？
+  `intersectObjects([group], false)` 不会下钻到子 Mesh；容器作为目标时必须传 `recursive = true`，或把可拾取对象平铺成数组传进去。
+- 为什么 InstancedMesh 命中后 `setColorAt` 颜色没变？
+  写完要置 `instanceColor.needsUpdate = true`，否则 GPU 缓冲拿不到新值；另外确认 `material.color` 没被压暗（它与每实例颜色相乘）。
+- 为什么 hover 高亮一闪而过，鼠标停下来反而消失了？
+  hover 状态绑定在 `pointermove` 上，鼠标停下不再触发事件；如果每帧都重置高亮，事件之间的间隙就会让对象回到基础态。把"当前 hover 目标"存进 state，每帧按 state 应用而不是只在事件回调里改一次。
+- 为什么点了一下，选中消失了？
+  检查"点空地清空选中"是否符合预期：点击命中数为 0 时通常用于取消选中；如果业务希望"点空地保持选中"，把这一分支去掉即可。
+- 为什么拾取 Points 总是命中太多或太少？
+  `raycaster.params.Points.threshold` 是世界单位，按场景尺度调整；默认 `1` 很少刚好合适。读取命中结果里的 `distanceToRay` 可以判断实际距离。
+- 为什么 raycaster 性能在数千对象下掉得很厉害？
+  Raycaster 对每个对象都走一次 `raycast()`，O(N) 代价；用 BVH（如 `three-mesh-bvh`）把场景组织成层次包围盒，或减少参与拾取的对象数量。GPU 拾取（把 id 编码进颜色渲染到离屏 buffer）适合极大规模场景。
+
+## 总结回顾
+
+摘要：
+
+Raycaster 把屏幕鼠标位置变成世界射线，再和场景对象求交，得到按距离排序的命中数组。`setFromCamera(pointer, camera)` 要求 pointer 是 NDC（x/y 范围 `[-1, 1]`），换算时减 `rect.left/top`、Y 取负。命中结果的 `distance` 决定排序，`object` / `point` / `face` / `instanceId` 各自承担不同反馈。hover 用 `pointermove`、click 用 `pointerdown/up` 同位置短时间判定、选中是业务状态；高亮顺序固定为重置 → 选中 → hover，让两种状态可分辨。Points / Line 拾取要设 `threshold`；InstancedMesh 命中靠 `instanceId` 定位单实例。
+
+一句话：
+
+> 拾取链路是 pointer → NDC → 射线 → 命中数组，hover / click / 选中都从同一条链路取结果，区别只在事件和状态。
+
+知识要点：
+
+- 为什么 pointer 必须先换算成 NDC，常见偏移和方向错误各由什么引起？
+- `intersectObjects` 返回的命中数组按什么排序？第 0 项代表什么？
+- hover、click、选中分别绑定什么事件，click 判定为什么要用位移和时间阈值？
+- 同一对象同时被 hover 和选中时，高亮顺序怎样安排才不会互相覆盖？
+- 拾取 Points / Line 为什么必须设 `threshold`，单位是什么？
+- InstancedMesh 命中结果里多出哪个字段？怎样用它做单实例高亮？
+
+## 参考资料
+
+- [Three.js Docs：Raycaster](https://threejs.org/docs/pages/Raycaster.html)
+- [Three.js Docs：Object3D.raycast](https://threejs.org/docs/pages/Object3D.html)
+- [Three.js Manual：Picking](https://threejs.org/manual/en/picking.html)
+- [Three.js Examples：interactive / raycasting](https://threejs.org/examples/?q=rayc#webgl_interactive_cubes)
+- [Three.js Examples：interactive instancing](https://threejs.org/examples/?q=instanc#webgl_instancing_raycast)

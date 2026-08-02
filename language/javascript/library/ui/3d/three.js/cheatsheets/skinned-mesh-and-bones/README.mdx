@@ -1,0 +1,232 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as SkinnedStories from './skinned-mesh-and-bones.stories.js';
+
+<Meta of={SkinnedStories} name="Docs" />
+
+# SkinnedMesh
+
+`SkinnedMesh` 是 `Mesh` 的子类，让一组骨骼（`Bone`）的变换驱动几何顶点变形——这就是蒙皮（skinning）。它解决的是"刚体 Mesh 整体平移旋转之外"的形变需求：角色肢体随关节弯曲、披风随骨架摆动、面部随骨骼做表情。同一个网格表面可以随骨骼连续弯曲而保持光滑，比每个关节另开一个 Mesh 自然得多。
+
+蒙皮由四件事共同决定，先分清它们的作用：
+
+- **骨骼层级**：每根 `Bone` 是普通 `Object3D`，按父子层级组织；旋转一根 bone，它的子级 bone 也跟着旋转，与 [Object3D](?path=/docs/object3d-transform-hierarchy--docs) 课讲的世界矩阵传递一致。
+- **Skeleton**：把一组 `Bone` 收集起来，记录每根 bone 的"绑定姿态世界矩阵的逆"（`boneInverses`），并提供把骨骼变换交给 vertex shader 用的 `boneTexture`。
+- **顶点权重属性**：geometry 上的 `skinIndex` 指出本顶点受哪几根 bone 影响，`skinWeight` 给出每根 bone 的权重；权重分配决定弯曲时哪些顶点跟随、过渡是否平滑。
+- **绑定矩阵**：`bindMatrix` / `bindMatrixInverse` 描述"骨骼空间"与"网格空间"的换算关系；`bindMode` 决定每帧是否用网格当前的世界矩阵重算这个换算。
+
+通常你不会手写这些——`GLTFLoader` 加载带骨骼的模型时会自动写好 `skinIndex` / `skinWeight` / `skeleton`，并完成 `bind()`。手工构造适合学习与最小演示，本课的范例就是手工构造一个两根 bone 的圆柱。
+
+## 快速上手
+
+最小手工闭环：构造 `Bone` 层级 → 包成 `Skeleton` → 在 geometry 上写 `skinIndex` 与 `skinWeight` → 用 `SkinnedMesh` 绑定。
+
+```js
+import * as THREE from 'three';
+
+// 1. 骨骼层级：root 在圆柱底部，elbow 是 root 的子级，位于圆柱中点。
+const root = new THREE.Bone();
+root.position.y = -2;
+const elbow = new THREE.Bone();
+elbow.position.y = 2; // 相对 root = +2，世界 y = 0（圆柱中点 = 关节）
+root.add(elbow);
+
+// 2. Skeleton 收集 bones，并自动 calculateInverses()：把每根 bone 当前的世界矩阵取逆作为绑定姿态。
+const skeleton = new THREE.Skeleton([root, elbow]);
+
+// 3. geometry 上写 skinIndex / skinWeight。每个顶点最多受 4 根 bone 影响。
+const geometry = new THREE.CylinderGeometry(0.45, 0.45, 4, 18, 28);
+const position = geometry.attributes.position;
+const skinIndices = new Float32Array(position.count * 4);
+const skinWeights = new Float32Array(position.count * 4);
+for (let i = 0; i < position.count; i++) {
+  const y = position.getY(i);
+  skinIndices[i * 4 + 0] = 0; // root
+  skinIndices[i * 4 + 1] = 1; // elbow
+  // y >= 0 的顶点完全归 elbow；y < 0 的完全归 root。
+  const elbowWeight = y >= 0 ? 1 : 0;
+  skinWeights[i * 4 + 0] = 1 - elbowWeight;
+  skinWeights[i * 4 + 1] = elbowWeight;
+}
+geometry.setAttribute('skinIndex', new THREE.BufferAttribute(skinIndices, 4));
+geometry.setAttribute('skinWeight', new THREE.BufferAttribute(skinWeights, 4));
+
+// 4. SkinnedMesh 必须把骨骼根挂进自己的子级，否则骨骼不会随网格变换更新世界矩阵。
+const mesh = new THREE.SkinnedMesh(
+  geometry,
+  new THREE.MeshStandardMaterial({ color: '#3d73d9', roughness: 0.4 })
+);
+mesh.add(skeleton.bones[0]); // 通常等价于 mesh.add(root)
+mesh.bind(skeleton);         // 用 mesh.matrixWorld 作 bindMatrix，并触发 calculateInverses()
+scene.add(mesh);
+
+// 5. 旋转一根 bone：renderer.render() 会让上半段顶点在 vertex shader 里跟随弯曲。
+elbow.rotation.x = THREE.MathUtils.degToRad(45);
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `new THREE.Skeleton(bones, boneInverses?)` | `boneInverses` 不传则 `calculateInverses()` 自动算 | 当前 bone 的世界矩阵就是"绑定姿态"；之后再动 bone 才算变形 |
+| `mesh.add(skeleton.bones[0])` | 骨骼根必须挂进 SkinnedMesh 子级 | 不挂进去骨骼不会参与 `updateMatrixWorld`，画面看不到变形 |
+| `mesh.bind(skeleton, bindMatrix?)` | `bindMatrix` 缺省为 `mesh.matrixWorld` | 调用前先让 mesh 的世界矩阵就位（已加入 scene、已设 position/rotation） |
+| `skinIndex` attribute | `Uint8`/`Float` 4 通道 | 索引指向 `skeleton.bones` 数组下标，不是 bone 的 `id` 或 `name` |
+| `skinWeight` attribute | 4 通道权重，理想和为 1 | 不归一时可用 `mesh.normalizeSkinWeights()` 校正；视觉表现会偏 |
+| `mesh.bindMode` | `'attached'`（`AttachedBindMode`） | 改成 `'detached'` 后 mesh 自身变换不再每帧同步到 `bindMatrixInverse` |
+| `mesh.skeleton.update()` | 由 `renderer.render()` 内部按帧调用 | 自定义渲染管线或离屏渲染要确认这一步发生，否则骨骼不动 |
+
+## Bone 与 Skeleton
+
+`Bone` 是 `Object3D` 的直接子类（`isBone = true`），没有额外属性或方法——它的"骨骼"身份完全靠进入 `Skeleton.bones` 数组获得。把 bone 组织成层级就和 [Group](?path=/docs/group-and-local-space--docs) 课讲的一样：父 bone 的 `matrixWorld` 影响子 bone，旋转父 bone 时整条链跟随。
+
+`Skeleton` 不参与场景树，它只是一个把 bone 数组与对应反向矩阵打包的数据结构。构造时不要求 bone 已经在场景里，但**只有当骨骼根挂进场景树后**，每帧的 `updateMatrixWorld()` 才会更新 bone 的 `matrixWorld`，蒙皮才有意义。
+
+```js
+const root = new THREE.Bone();
+const elbow = new THREE.Bone();
+root.add(elbow);
+const skeleton = new THREE.Skeleton([root, elbow]); // bones = [root, elbow]
+```
+
+| 成员 | 解决的问题 | 边界 |
+| --- | --- | --- |
+| `bones` | 顶点 `skinIndex` 引用的查找表 | 数组顺序就是 `skinIndex` 写入的下标；顺序变了蒙皮会错乱 |
+| `boneInverses` | 每根 bone 在绑定姿态下世界矩阵的逆 | 由 `calculateInverses()` 写入；构造后挪动 bone 之前必须先调它，否则"绑定姿态"已经是变形姿态 |
+| `calculateInverses()` | 用当前 bone 的 `matrixWorld` 重写 `boneInverses` | 之后修改 bone 不会自动重算；想固定绑定姿态就只调一次 |
+| `update()` | 把 `bones[i].matrixWorld × boneInverses[i]` 平铺到 `boneMatrices` | `renderer.render()` 每帧每 skeleton 调一次，不必手动调 |
+| `computeBoneTexture()` | 把 `boneMatrices` 写进 `DataTexture` 供 vertex shader | 首次需要时由 renderer 自动调；之后 `update()` 只置 `needsUpdate` |
+| `pose()` | 把所有 bone 还原到绑定姿态 | 等价于用 `boneInverses[i].invert()` 写回 `bone.matrixWorld`，再分解回 position/quaternion/scale |
+| `getBoneByName(name)` | 按 `bone.name` 查找 | 线性扫描；模型里 bone 同名会返回第一个 |
+| `clone()` | 复制 Skeleton | 共享 `bones` 与 `boneInverses` 引用——克隆出来的 Skeleton 与原 Skeleton 指向同一组 bone |
+| `dispose()` | 释放 `boneTexture` | 只释放骨架自己分配的 GPU 资源，不释放 bone 与 mesh 的 geometry / material |
+
+骨骼可视化交给 `SkeletonHelper`——它接收任意 `Object3D`，递归收集 `Bone`，用连线画出层级。它是 Helper 课的主题，[SkeletonHelper 与其它 Helper 的用法](?path=/docs/helpers-and-debug-objects--docs)在那里展开。
+
+## 蒙皮顶点属性
+
+`skinIndex` 和 `skinWeight` 是 `BufferAttribute`，每顶点 4 通道，意味着每个顶点最多受 4 根 bone 影响。`skinIndex` 指向 `skeleton.bones` 数组的下标，`skinWeight` 给出对应权重；vertex shader 内部做加权：
+
+```
+最终位置 = Σ weight[k] · boneMatrix[ skinIndex[k] ] · 原始位置      (k = 0..3)
+```
+
+其中 `boneMatrix = bone.matrixWorld × boneInverse`。所以**骨骼动了的下一帧**：renderer 在 `updateMatrixWorld` 阶段更新每根 bone 的 `matrixWorld`，再在 `WebGLObjects` 阶段调 `skeleton.update()` 把这组乘积平铺进 `boneTexture`，最后 vertex shader 用更新过的纹理重新算每个顶点。
+
+权重分配决定弯曲形态。下面这个范例用两根 bone 驱动一个圆柱：root 钉在底部、elbow 位于圆柱中点。旋转 elbow 时，"刚硬接缝"模式把 `y>=0` 的顶点完全交给 elbow、`y<0` 的完全交给 root，会在 `y=0` 处形成尖角；"平滑过渡"模式在 `|y|<0.6` 的带内做线性混合，弯曲形态变成连续圆弧。
+
+<Canvas of={SkinnedStories.BoneRotation} />
+
+<Controls of={SkinnedStories.BoneRotation} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。推动"elbow 旋转"到 60° 以上再切换权重模式：刚硬模式下接缝处的法线被打断、出现明显折线；平滑模式下圆柱沿一段圆弧连续切线。SkeletonHelper 的连线随 elbow 旋转，证明画面里的弯曲来自 bone 的 `matrixWorld`。
+
+权重理想上和为 1，不归一时模型在 vertex shader 里仍会被加权求和，但顶点位置会偏移或缩放。手写权重前可以用 `mesh.normalizeSkinWeights()` 校正：它对每个顶点用 `manhattanLength` 求和再除尽；遇到全零权重（极端情况）会回退到 `(1, 0, 0, 0)`。
+
+```js
+mesh.normalizeSkinWeights(); // 校正 skinWeight attribute，使每顶点 4 通道之和为 1
+```
+
+## 绑定与 bindMode
+
+`bind(skeleton, bindMatrix?)` 是把骨架与网格世界状态"锁死"的步骤。它做三件事：保存 `skeleton` 引用；若没传 `bindMatrix`，就调用 `mesh.updateMatrixWorld(true)` + `skeleton.calculateInverses()`，把当前 mesh 的 `matrixWorld` 当作 `bindMatrix`；最后写 `bindMatrixInverse = bindMatrix.invert()`。**调用 `bind()` 前**必须让 mesh 已经加入 scene 树并设好自身变换，否则"绑定姿态"记录的就是错的世界状态。
+
+```js
+mesh.add(skeleton.bones[0]); // 1. 先把骨骼根挂进子级
+scene.add(mesh);             // 2. 让 mesh 进入场景树，matrixWorld 准备好
+mesh.bind(skeleton);         // 3. 用当前 matrixWorld 当 bindMatrix
+```
+
+`bindMode` 决定 `bindMatrixInverse` 是否每帧重新派生。它取两个常量：`AttachedBindMode`（字符串 `'attached'`，默认）和 `DetachedBindMode`（字符串 `'detached'`）。
+
+| `bindMode` | `updateMatrixWorld()` 中的行为 | 适用场景 |
+| --- | --- | --- |
+| `'attached'`（默认） | `bindMatrixInverse.copy(this.matrixWorld).invert()` | 单个 mesh 与骨架共享同一世界空间；mesh 自身变换后骨骼跟随 |
+| `'detached'` | `bindMatrixInverse.copy(this.bindMatrix).invert()` | 多个 mesh 共享同一骨架；骨骼只在一处定义，其它 mesh 引用它而不复制 |
+
+两种模式的差异只在 mesh 自身变换后才显现。attached 模式下，移动或旋转 `SkinnedMesh` 会带着骨骼和弯曲后的网格一起走；detached 模式下，骨骼的 `matrixWorld` 仍随 mesh 变化（bone 是 mesh 的子级），但 `bindMatrixInverse` 锁定在 `bindMatrix`——相当于告诉蒙皮算法"始终按绑定时的网格空间换算"，常用于多个 mesh 共享一个骨架（例如同一身体挂多套服装）。入门读者保持默认 `'attached'` 即可。
+
+`bindMatrix` 与 `bindMatrixInverse` 在 `applyBoneTransform()`（CPU 端等价的蒙皮变换，用于 raycast 与包围体计算）中同样参与运算：顶点先乘 `bindMatrix` 进入"绑定空间"，按骨骼加权，再乘 `bindMatrixInverse` 回到"网格空间"。
+
+## 姿态更新与包围体
+
+骨骼旋转之后画面里能立刻看到弯曲，是因为 vertex shader 每帧用最新的 `boneTexture` 重算顶点。CPU 端的 `geometry.attributes.position` 没有变化——如果你需要 CPU 端的当前顶点位置（用于拾取、包围体、自定义碰撞），要调 `mesh.getVertexPosition(index, target)`，它内部会再调 `applyBoneTransform()` 应用蒙皮：
+
+```js
+const v = new THREE.Vector3();
+mesh.getVertexPosition(0, v); // 已应用 bone 变换的局部顶点位置
+// 需要世界坐标时再乘 matrixWorld
+v.applyMatrix4(mesh.matrixWorld);
+```
+
+`boundingSphere` 与 `boundingBox` 也依赖这个机制。`SkinnedMesh` 重写了 `computeBoundingSphere()` / `computeBoundingBox()`，对每个顶点调用 `getVertexPosition()` 后扩展包围。但它们**不会自动每帧重算**：动画一直在跑时，应用应当每帧（或按需）调用 `computeBoundingSphere()`，否则视锥剔除与 `raycast()` 入口的球测试都会用过期数据，导致对象过早消失或拾取失准。
+
+```js
+function animate() {
+  // ...驱动骨骼动画...
+  mesh.computeBoundingSphere(); // 让 frustum culling / raycast 跟上当前姿态
+  renderer.render(scene, camera);
+}
+```
+
+`pose()` 把骨骼还原到绑定姿态：内部对每根 bone 把 `matrixWorld` 复位为 `boneInverses[i].invert()`，再分解回 position/quaternion/scale。手写骨骼时，调用 `bind()` 后想确认"绑定姿态"是否记录正确，可以用 `pose()` 复位再观察。
+
+## 与加载、动画的边界
+
+`SkinnedMesh` 在三种典型来源里的形态不同，先认清边界能避开常见错误：
+
+- **glTF 模型**：`GLTFLoader` 加载带骨骼的 glTF 时会自动写入 `skinIndex` / `skinWeight` attribute，构造 `Skeleton`，对每个 `SkinnedMesh` 调用 `bind()`，并把骨骼根挂进场景。直接 `scene.add(gltf.scene)` 就能渲染；细节在 [模型](?path=/docs/gltf-and-gltfloader--docs) 课展开。
+- **动画播放**：让骨骼按时间动起来是 `AnimationMixer` 的工作——它驱动 `AnimationClip` 里记录的 bone 旋转、位移、缩放关键帧。蒙皮本身只负责"骨骼动了之后顶点怎么跟"，不解决"骨骼怎么动"。这是 [动画](?path=/docs/gltf-animation-mixer--docs) 课（路线 4.1.2）的主题。
+- **morph target**：与蒙皮是两套独立形变机制。morph 用顶点 attribute 的线性插值产生表情或细节形变；skinning 用骨骼驱动顶点。两者可以叠加（`mesh.getVertexPosition()` 内部会先应用 morph，再应用 bone 变换），morph 的入口在 [Mesh](?path=/docs/mesh-geometry-material--docs) 课已经提过。
+
+手写蒙皮时记住顺序：先布置 bone 层级与位置 → 把骨骼根挂进 mesh → 让 mesh 进入 scene 树 → 调 `bind()` 锁定绑定姿态 → 之后才动 bone 触发变形。颠倒会导致 `boneInverses` 记录错误姿态，画面看起来"绑定姿态就已经弯了"。
+
+## 最佳实践
+
+- 优先从 glTF 加载骨骼，手工构造只在演示、学习或自定义 rigs 时使用；手写权重工作量大，错了不易定位。
+- `bind()` 前确保 mesh 已加入场景树并设好自身变换；绑定后再挪 mesh，attached 模式会自动跟随，detached 模式需要明确意图。
+- `calculateInverses()` 只在绑定姿态确实就位时调一次；之后挪动 bone 是"动画"，不要再调它。
+- 动画驱动骨骼时按需每帧 `computeBoundingSphere()`，否则视锥剔除会让角色在镜头边缘突然消失。
+- 多个 mesh 共享同一骨架用 `bindMode = 'detached'`；入门与单体角色保持默认 `'attached'`。
+- 释放 SkinnedMesh 时除 geometry / material 外，还要 `skeleton.dispose()` 释放 `boneTexture`；骨骼本身是 Object3D，随场景树移除即可。
+- 把骨骼调试交给 `SkeletonHelper`，不要靠"网格看起来对不对"猜骨骼姿态。
+
+## 常见问题
+
+- 为什么旋转了 bone，网格没有变形？
+  骨骼根没有挂进 `SkinnedMesh` 子级（或没有进入场景树），bone 的 `matrixWorld` 一直是单位矩阵；确认 `mesh.add(skeleton.bones[0])` 与 `scene.add(mesh)`。
+- 为什么绑定姿态看起来就已经是变形的？
+  调 `bind()` 时 mesh 或 bone 的世界矩阵还没就位，`boneInverses` 记录了错误姿态。把 bone 层级和 mesh.position 先布置好，再 `bind()`；可在绑定后用 `mesh.pose()` 复位对比。
+- 为什么加载 glTF 后角色是 T-pose 不动？
+  `GLTFLoader` 只把骨架与权重建好；要骨骼动起来需用 `AnimationMixer` 播放 clip，详见 [动画](?path=/docs/gltf-animation-mixer--docs)。
+- 为什么动画在跑，角色却在镜头边缘突然消失？
+  `SkinnedMesh.boundingSphere` 不会每帧自动重算；动画驱动的角色每帧（或按需）调用 `mesh.computeBoundingSphere()`，让视锥剔除用当前姿态。
+- 为什么手写权重后模型在弯曲时整体缩小或偏移？
+  `skinWeight` 每顶点 4 通道之和理想上为 1；不归一时蒙皮仍会加权求和，但结果偏移。手写后调一次 `mesh.normalizeSkinWeights()`。
+- 为什么 `Raycaster` 拾取的位置和视觉弯曲对不上？
+  普通 `geometry.boundingSphere` 没反映骨骼变形；用 `mesh.getVertexPosition()` 或确保调过 `computeBoundingSphere()`，并理解 raycast 内部用 `applyBoneTransform()` 计算的是蒙皮后的局部坐标。
+- 为什么多个 SkinnedMesh 共享同一个 skeleton，第二个 mesh 形状错乱？
+  默认 `bindMode='attached'`，每个 mesh 各自的 `matrixWorld` 都在改 `bindMatrixInverse`，互相干扰；共享骨架时把后续 mesh 的 `bindMode` 设为 `'detached'`。
+
+## 总结回顾
+
+摘要：
+
+SkinnedMesh 是带骨架的 Mesh：Bone 是 Object3D 子类，按父子层级组织成骨骼树；Skeleton 把 bone 数组与对应的"绑定姿态世界矩阵的逆"打包，每帧由 renderer 调 `update()` 平铺进 `boneTexture`。geometry 上的 `skinIndex` 与 `skinWeight` 决定每个顶点受哪几根 bone 影响及权重，vertex shader 据此把骨骼变换加权到顶点。`bind()` 锁定绑定姿态；`bindMode='attached'` 每帧用 mesh 当前世界矩阵重派 `bindMatrixInverse`，`'detached'` 保持绑定时的取值，用于多 mesh 共享骨架。骨骼动后 CPU 端用 `getVertexPosition()` / `computeBoundingSphere()` 才能拿到反映蒙皮的当前位置。
+
+一句话：
+
+> 蒙皮是 vertex shader 用 `boneTexture × skinWeight` 把骨骼变换加到顶点；骨骼层级、绑定姿态和权重属性是它的三组输入，glTF 通常已经替你写好。
+
+知识要点：
+
+- Bone 与 Skeleton 分别承担什么职责？为什么骨骼根必须挂进 SkinnedMesh 子级？
+- `skinIndex` 与 `skinWeight` 的语义是什么？为什么一个顶点最多绑 4 根 bone？
+- `bind()` 在什么世界矩阵状态下调用才正确？为什么 `calculateInverses()` 只能调一次？
+- `bindMode` 的两种取值在 mesh 自身变换后行为有什么不同？多 mesh 共享骨架该用哪种？
+- 骨骼动了之后，视锥剔除与 raycast 为什么会用过期包围？应用应当怎么补？
+
+## 参考资料
+
+- [Three.js Docs：SkinnedMesh](https://threejs.org/docs/#api/en/objects/SkinnedMesh)
+- [Three.js Docs：Skeleton](https://threejs.org/docs/#api/en/objects/Skeleton)
+- [Three.js Docs：Bone](https://threejs.org/docs/#api/en/objects/Bone)
+- [Three.js Manual：How to update things](https://threejs.org/manual/en/how-to-update-things.html)
+- [Three.js Examples：webgl_animation_skinning_blending](https://threejs.org/examples/?q=skin#webgl_animation_skinning_blending)

@@ -1,0 +1,310 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as SpecialStories from './special-object3d-types.stories.js';
+
+<Meta of={SpecialStories} name="Docs" />
+
+# 特殊对象
+
+这五种对象都属于 `Object3D` 家族，但各自为某类渲染需求做了特化：用对类别能让性能或视觉效果都到位，用错则要么达不到效果，要么绕远路。它们之间没有共同的"基类能力"，只是被 three.js 归到"针对特殊场景"的同一节。
+
+- `BatchedMesh` 把多种不同几何合并成一次 multi-draw 提交，服务"多种形状但同一材质"的批量渲染。
+- `ClippingGroup` 把裁剪状态写进场景树，让一组后代共享同一份裁剪平面（仅 WebGPURenderer）。
+- `ArrayCamera` 把多台相机排成阵列，每台渲染画布的一部分，服务 VR 双眼或本地分屏。
+- `CubeCamera` 在场景中某点向 6 个面各渲染一次，把结果烘焙成立方环境贴图，供反射 / 折射材质采样。
+- `StereoCamera` 不是相机对象，而是基于一台 `PerspectiveCamera` 推导出左右眼投影，是红蓝 3D 与视差屏障等立体效果的基础。
+
+`BatchedMesh` 与 [InstancedMesh](?path=/docs/instanced-mesh-object--docs) 的边界、`ArrayCamera` / `CubeCamera` / `StereoCamera` 与 [相机](?path=/docs/camera--docs) 的边界放在各自小节展开。
+
+## 快速上手
+
+最常见的需求是"实时反射"——一个金属物体要映出周围动态场景。最小闭环用 `CubeCamera` 配合 `WebGLCubeRenderTarget`：
+
+```js
+import * as THREE from 'three';
+
+const cubeTarget = new THREE.WebGLCubeRenderTarget(256, {
+  generateMipmaps: true,
+  minFilter: THREE.LinearMipmapLinearFilter
+});
+const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeTarget);
+scene.add(cubeCamera);
+
+const mirror = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(0.8, 6),
+  new THREE.MeshStandardMaterial({
+    color: '#f2f2f2',
+    metalness: 1.0,
+    roughness: 0.08,
+    envMap: cubeTarget.texture // 反射和折射都从这块贴图采样
+  })
+);
+scene.add(mirror);
+
+function animate() {
+  mirror.visible = false;            // 避免反射体出现在自己的反射里
+  cubeCamera.update(renderer, scene); // 把场景烘焙进 cube target
+  mirror.visible = true;
+  renderer.render(scene, camera);
+}
+```
+
+`CubeCamera.update()` 内部是 6 次正常 `renderer.render()`，跳过它反射就冻结；忘记 `envMap` 反射干脆不出现。其余四种成员的最小用法见各自小节。
+
+按使用目标快速选型：
+
+| 目标 | 推荐对象 | 关键输入 | 默认 / 生效时机 |
+| --- | --- | --- | --- |
+| 多种不同几何合并渲染 | `BatchedMesh` | `maxInstanceCount, maxVertexCount, maxIndexCount, material` | 构造时决定容量；`addGeometry` / `addInstance` 后立即生效 |
+| 让一组对象共享裁剪平面（WebGPU） | `ClippingGroup` | `clippingPlanes`、`enabled`、`clipIntersection` | 加入场景树后对子树生效；仅 WebGPURenderer |
+| 一台主机多视角分屏 | `ArrayCamera` | 每台子相机的 `viewport` | 子相机数组在构造时传入；渲染时自动遍历 |
+| 实时反射 / 折射环境贴图 | `CubeCamera` | `near, far, WebGLCubeRenderTarget` | 每次 `update(renderer, scene)` 后 `renderTarget.texture` 可用 |
+| 双目立体投影（非 XR） | `StereoCamera` | `eyeSep`、`aspect` | `update(perspectiveCamera)` 后 `cameraL` / `cameraR` 就绪 |
+
+## BatchedMesh 合并不同几何
+
+`THREE.BatchedMesh` 把多份不同 `BufferGeometry` 的顶点数据拷贝进同一块大缓冲，再用 multi-draw 一次性提交。它和 `InstancedMesh` 解决的都是"draw call 太多"，但侧重不同：InstancedMesh 是"同一份几何的 N 个实例"，BatchedMesh 是"多种几何混排到一次提交"。一个场景里有 500 个不同形状的道具时，前者做不到，后者能合并成一次 draw call（按可见性可能更少）。
+
+构造时必须预算容量，三种缓冲各自有上限：
+
+```js
+const batched = new THREE.BatchedMesh(
+  500, // maxInstanceCount：最多多少个实例
+  20000, // maxVertexCount：所有几何顶点总和上限
+  40000, // maxIndexCount：所有几何索引总和上限（默认 = maxVertexCount * 2）
+  material
+);
+```
+
+实例化分两步：先把几何登记进 batch 拿到 `geometryId`，再按这个 id 创建实例：
+
+```js
+const boxId = batched.addGeometry(new THREE.BoxGeometry(1, 1, 1));
+const sphereId = batched.addGeometry(new THREE.SphereGeometry(0.6, 16, 12));
+
+const a = batched.addInstance(boxId); // 返回 instanceId
+const b = batched.addInstance(boxId);
+const c = batched.addInstance(sphereId);
+
+const dummy = new THREE.Object3D();
+dummy.position.set(0, 0, 0);
+dummy.updateMatrix();
+batched.setMatrixAt(a, dummy.matrix); // 写入第 a 个实例的局部矩阵
+```
+
+| 成员 | 解决的问题 | 注意 |
+| --- | --- | --- |
+| `addGeometry(geo, reservedVertexCount?, reservedIndexCount?)` | 登记一份几何并返回 `geometryId` | 所有几何的 attributes 必须同名、同 itemSize、同 normalized；index 状态必须一致 |
+| `addInstance(geometryId)` | 按 geometryId 创建实例并返回 `instanceId` | 实例数到达 `maxInstanceCount` 后抛错 |
+| `setMatrixAt(instanceId, matrix)` | 写实例的局部 4×4 矩阵 | 内部存进 data texture，调用后自动同步；不支持负缩放 |
+| `setColorAt(instanceId, color)` | 写实例颜色（与 material.color 相乘） | 首次调用后才创建内部 `_colorsTexture` |
+| `setVisibleAt(instanceId, visible)` | 切换单个实例可见性 | 影响 multi-draw 数量 |
+| `setGeometryIdAt(instanceId, geometryId)` | 让一个实例改用另一份几何 | 不需要重建 batch，用于动态形态切换 |
+| `deleteInstance(instanceId)` / `deleteGeometry(geometryId)` | 释放实例或几何 | 删 geometry 会连带删除引用它的全部实例 |
+| `optimize()` | 把存活几何向前紧凑重排，回收删除留下的碎片 | 在频繁增删后调用 |
+| `computeBoundingSphere()` | 重算整体包围球 | `perObjectFrustumCulled=true` 时分布变化后必调，否则误剔除 |
+| `perObjectFrustumCulled` / `sortObjects` | 是否逐实例做视锥剔除与深度排序 | 默认都 `true`；透明按后到前、不透明按前到后 |
+| `customSort` / `setCustomSort(fn)` | 自定义排序函数 | 设为函数后覆盖默认 sortObjects 策略 |
+| `setInstanceCount(n)` / `setGeometrySize(vtx, idx)` | 运行时扩缩容 | 缩容时若活跃数据超出范围会抛错 |
+
+`raycast()` 命中结果里返回的是 `batchId`（不是 InstancedMesh 的 `instanceId`），用法相同：用它定位被命中的实例。
+
+与 InstancedMesh 的边界选型：
+
+| 场景 | 选谁 | 原因 |
+| --- | --- | --- |
+| 几千个完全相同的小物体 | `InstancedMesh` | 顶点数据只存一份，instanceMatrix 是 attribute，开销最小 |
+| 几百个不同形状的道具 | `BatchedMesh` | 几何不同，InstancedMesh 装不下 |
+| 同一物体有多个 LOD 层级 | `LOD` + 各层 InstancedMesh | 见 [LOD](?path=/docs/lod-object--docs) |
+| 需要给每个实例独立挂子对象或事件 | `Group` + 普通 `Mesh` | 实例化与批量都不支持子对象 |
+
+## ClippingGroup 场景树裁剪
+
+`THREE.ClippingGroup`（r163 引入）继承自 `Group`，把裁剪状态写进场景树：所有挂在它下面的对象共享同一组裁剪平面，不必在每个材质上重复声明。它的属性和 `Material.clippingPlanes` 同名同义：
+
+```js
+const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.2);
+const clipGroup = new THREE.ClippingGroup();
+clipGroup.clippingPlanes = [plane];
+clipGroup.clipIntersection = false; // false=并集（任一平面外侧裁掉）；true=交集（全部外侧才裁）
+clipGroup.clipShadows = false; // 是否对阴影也裁剪
+scene.add(clipGroup);
+
+clipGroup.add(clippedMesh); // clippedMesh 与其后代都会被这组平面裁剪
+```
+
+| 属性 | 默认 | 作用 |
+| --- | --- | --- |
+| `clippingPlanes` | `[]` | 应用到子树的 `Plane` 数组 |
+| `enabled` | `true` | 设为 `false` 临时关闭整组裁剪，不动 `clippingPlanes` |
+| `clipIntersection` | `false` | 多平面取并集还是交集 |
+| `clipShadows` | `false` | 是否把裁剪应用到 shadow map 渲染 |
+
+**重要边界：源码注释明示 `ClippingGroup` 只在 `WebGPURenderer` 中工作**。在 WebGL 渲染管线中它退化为普通 `Group`，裁剪不会生效。`WebGLRenderer` 上要做局部裁剪，使用 `renderer.localClippingEnabled = true` 配合 `material.clippingPlanes`：
+
+```js
+renderer.localClippingEnabled = true;
+
+const material = new THREE.MeshStandardMaterial({
+  clippingPlanes: [new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.2)],
+  clipShadows: true
+});
+```
+
+两者差别在于"裁剪由谁驱动"：`ClippingGroup` 是场景树驱动（一处声明、子树共享），`material.clippingPlanes` 是材质驱动（每个材质独立声明）。本项目当前固定使用 `WebGLRenderer`，本课的 Canvas 范例不演示 ClippingGroup；它的 API 稳定，按上表使用即可，待切换到 WebGPURenderer 时再迁移。
+
+## ArrayCamera 多相机分屏
+
+`THREE.ArrayCamera` 继承自 `PerspectiveCamera`，自身就是一台透视相机，同时持有一个 `cameras` 数组——数组里每台子相机各渲染画布的一部分。`WebGLRenderer` 在渲染 `ArrayCamera` 时会遍历 `cameras`，按每台子相机的 `viewport` 字段（一个 `Vector4(x, y, width, height)`，单位是像素）裁出画布的一块并依次渲染。
+
+```js
+const w = canvas.clientWidth;
+const h = canvas.clientHeight;
+
+const eyeL = new THREE.PerspectiveCamera(50, w / 2 / h, 0.1, 100);
+eyeL.position.set(-0.3, 0, 5);
+eyeL.viewport = new THREE.Vector4(0, 0, w / 2, h); // 画布左半
+
+const eyeR = new THREE.PerspectiveCamera(50, w / 2 / h, 0.1, 100);
+eyeR.position.set(0.3, 0, 5);
+eyeR.viewport = new THREE.Vector4(w / 2, 0, w / 2, h); // 画布右半
+
+const arrayCam = new THREE.ArrayCamera([eyeL, eyeR]);
+renderer.render(scene, arrayCam); // 一次调用，画布被分成左右两半
+```
+
+| 成员 | 含义 | 注意 |
+| --- | --- | --- |
+| `new ArrayCamera(array?)` | 用一组 `PerspectiveCamera` 构造 | 子相机自身必须是 `PerspectiveCamera` |
+| `cameras` | 子相机数组 | 可读写；运行时增减会立即影响下一次渲染 |
+| 每台子相机的 `viewport` | `Vector4(x, y, width, height)`，像素坐标 | 不设则该子相机不渲染；多个 viewport 重叠会互相覆盖 |
+| `isArrayCamera` / `isMultiViewCamera` | 类型标记 | `isMultiViewCamera` 默认 `false`，关联多视图渲染扩展，普通分屏不用动 |
+
+**典型用途**是 VR 双眼同帧渲染（左右眼各一台子相机、viewport 各占一半画布）和本地多人分屏（每位玩家一台子相机）。它和 `StereoCamera` 的边界要分清：`StereoCamera` 只根据一台 `PerspectiveCamera` 推导左右眼投影，本身不参与渲染；要让画面真正分屏，仍需把推导出的 `cameraL` / `cameraR` 装进 `ArrayCamera`，或自行按左右半屏调用两次 `renderer.render()`。
+
+## CubeCamera 立方环境贴图
+
+`THREE.CubeCamera` 继承自 `Object3D`（不是 `Camera`），内部带 6 台 `PerspectiveCamera`，分别朝 ±X / ±Y / ±Z。每次调用 `update(renderer, scene)`，它会把当前场景从自身位置向 6 个方向各渲染一次到 `WebGLCubeRenderTarget`；这张贴图随后可作为材质的 `envMap`，用于实时反射或折射。
+
+```js
+const cubeTarget = new THREE.WebGLCubeRenderTarget(256, {
+  generateMipmaps: true,
+  minFilter: THREE.LinearMipmapLinearFilter
+});
+const cubeCamera = new THREE.CubeCamera(1, 1000, cubeTarget);
+scene.add(cubeCamera);
+
+const mirror = new THREE.Mesh(
+  geometry,
+  new THREE.MeshStandardMaterial({ metalness: 1, roughness: 0.08, envMap: cubeTarget.texture })
+);
+
+function animate() {
+  mirror.visible = false;
+  cubeCamera.position.copy(mirror.position);
+  cubeCamera.update(renderer, scene); // 把场景烘焙进 cube target
+  mirror.visible = true;
+  renderer.render(scene, camera);
+}
+```
+
+| 成员 / 参数 | 含义 | 注意 |
+| --- | --- | --- |
+| `new CubeCamera(near, far, renderTarget)` | near / far 决定 cube 子相机能"看到"多远 | renderTarget 必须是 `WebGLCubeRenderTarget` |
+| `update(renderer, scene)` | 把 scene 渲染 6 次到 renderTarget | 每次等于一次正常 `renderer.render()`；6 面全部画完才更新 envMap |
+| `renderTarget.texture` | 烘焙结果，可作 `envMap` | 折射用同一张贴图，配合 `Material.refractionRatio` |
+| `activeMipmapLevel` | 渲染到哪一级 mipmap | 默认 `0`；多级纹理流送时用 |
+| `coordinateSystem` | 当前坐标系 | 第一次 `update()` 时按 renderer 自动设置；WebGL 与 WebGPU 取向不同 |
+| 6 台子相机 | 共享 `cubeCamera.layers` | 用 `layers` 控制 cube 看到哪些对象 |
+
+主范例用金属球反射一组有色方块。开关 `CubeCamera.update` 看 envMap 是不是每帧重烘焙——关掉后反射会立刻冻结在初始画面，主场景却继续动；调金属度可以观察反射与基础色的混合比例。
+
+<Canvas of={SpecialStories.CubeCameraReflection} />
+
+<Controls of={SpecialStories.CubeCameraReflection} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。读数里 `主场景 draw calls` 只反映最后一次 `renderer.render()` 的开销；`update()` 本身额外调用 6 次 render，按"调用 / 已暂停"判断反射是否在刷新。
+
+边界：静态环境（HDR、室内）不需要每帧烘焙，预生成 PMREM 环境贴图更便宜——这一条路线见 [PBR 与环境贴图](?path=/docs/pbr-and-environment-maps--docs)。`CubeCamera` 解决的是"反射内容必须随场景动态变化"。
+
+## StereoCamera 双目立体
+
+`THREE.StereoCamera` 不是 `Object3D`，也不是 `Camera`——它是一个普通类，根据一台 `PerspectiveCamera` 的状态，按人眼瞳距推算出左右眼的投影矩阵和眼睛偏移。`update(camera)` 后，`cameraL` 和 `cameraR` 就是两台可以分别渲染的透视相机。
+
+```js
+const stereo = new THREE.StereoCamera();
+stereo.eyeSep = 0.064; // 瞳距，单位跟随场景
+stereo.aspect = canvas.clientWidth / canvas.clientHeight;
+
+stereo.update(mainCamera); // 用主相机的 fov/aspect/near/far/focus/zoom 推导左右眼
+
+// 红蓝 3D 的最简形态：左右眼各渲染一次到同一张画布
+renderer.setScissor(0, 0, canvas.clientWidth, canvas.clientHeight);
+renderer.render(scene, stereo.cameraL);
+// 再把右眼按红色通道叠加，或用 anaglyph 后处理合成……
+renderer.render(scene, stereo.cameraR);
+```
+
+| 属性 / 方法 | 含义 | 注意 |
+| --- | --- | --- |
+| `eyeSep` | 双目瞳距 | 默认 `0.064`，单位跟随场景；过大过小都会让立体感失真 |
+| `aspect` | 单眼的宽高比 | 一般等于画布宽高比；分屏渲染时按实际半屏比例 |
+| `cameraL` / `cameraR` | 推导出的左右眼相机 | 默认分别 enable layer 1 / 2；`matrixAutoUpdate=false`，由 `update()` 写入 |
+| `update(perspectiveCamera)` | 用主相机的状态重算左右眼投影和矩阵 | 主相机任何投影或位姿改变后都要再调一次 |
+
+投影用 off-axis 立体算法（不是把主相机左右各挪一下），避免近距离物体出现垂直方向错位。**典型用途**是红蓝 3D、偏振立体和视差屏障；真正的 VR / AR 不直接用它——`WebXR` 通过 `renderer.xr` 提供由设备直接给出的左右眼相机和位姿，更准确且支持位姿跟踪。VR 入门见 [WebXR](?path=/docs/webxr-basics--docs)。
+
+## 最佳实践
+
+- 先按使用目标定类别，再关心构造参数：合并多种几何用 `BatchedMesh`，同几何海量实例用 `InstancedMesh`，逐对象行为用 `Group` + `Mesh`。
+- `BatchedMesh` 容量在构造时上限，按"几何最大顶点 / 索引总和 + 实例数"留足；频繁增删后用 `optimize()` 回收碎片，避免缓冲涨爆。
+- `BatchedMesh` 分布动态变化后调 `computeBoundingSphere()`，与 `InstancedMesh` 的包围球更新是同一类坑。
+- 反射 / 折射只在反射内容确实变化时调用 `CubeCamera.update()`——每次都是 6 次完整渲染；静态环境用预烘焙的 PMREM 贴图。
+- 反射体在 `update()` 前设 `visible=false`，更新后恢复；凸体可省略，但形态复杂或非凸时是必须步骤，避免反射体出现在自己的反射里。
+- WebGL 项目做局部裁剪用 `renderer.localClippingEnabled = true` 配合 `material.clippingPlanes`，不要套用 `ClippingGroup`——它只在 WebGPURenderer 中工作。
+- 真正部署到 VR / AR 设备时用 `WebXR`，不要靠 `StereoCamera` + `ArrayCamera` 自己拼；后者只在非 XR 的桌面立体显示场景才合适。
+
+## 常见问题
+
+- 为什么 `BatchedMesh.addGeometry()` 报 "All geometries must consistently have index"？
+  同一个 batch 内几何要么都有 index、要么都没有，且 attributes 同名同 itemSize 同 normalized；把混用的几何分到不同 batch。
+- 为什么 `BatchedMesh` 实例位置不对或一直停在原点？
+  `setMatrixAt` 不支持负缩放矩阵；先消除负缩放，或换 `InstancedMesh`。
+- 为什么 WebGL 场景里 `ClippingGroup` 没有裁剪效果？
+  `ClippingGroup` 仅在 `WebGPURenderer` 中工作。WebGL 改用 `renderer.localClippingEnabled = true` 配合 `material.clippingPlanes`。
+- 为什么 `ArrayCamera` 渲染出来只有一个视角？
+  检查每台子相机的 `viewport` 是否覆盖画布的不同区域；多个子相机的 viewport 重叠会互相覆盖，未设 viewport 的子相机不会渲染。
+- 为什么金属球的反射一动不动？
+  没在动画循环里调用 `cubeCamera.update(renderer, scene)`，或调用时反射体没隐藏；envMap 是 update 时刻的快照，不是实时引用。
+- 为什么反射体里能看到自己（或出现黑色内部）？
+  update 时没把反射体设 `visible=false`；凸体可能不出现，但非凸物体或多层结构会出现自反射。
+- 为什么 `StereoCamera.update(camera)` 后立体感不正确？
+  主相机的 `focus`（默认 10）、`fov`、`aspect` 任一改变后都要再调；瞳距 `eyeSep` 单位要和场景单位一致。
+
+## 总结回顾
+
+摘要：
+
+这五种特殊对象各自服务一类特化需求：`BatchedMesh` 把多种几何合并成一次 multi-draw；`ClippingGroup` 把裁剪状态写进场景树但仅 WebGPU 可用；`ArrayCamera` 用子相机数组渲染分屏；`CubeCamera` 把场景向 6 面烘焙成 envMap 提供反射 / 折射；`StereoCamera` 由主相机推算左右眼投影。它们的共同点只是"针对一种渲染场景的特化"，选错类别要么效果出不来，要么绕远路。`BatchedMesh` 与 `InstancedMesh`、`ClippingGroup` 与 WebGL 材质级裁剪、`CubeCamera` 与静态 PMREM、`StereoCamera` 与 WebXR 之间的边界是这一课最值得记住的判断点。
+
+一句话：
+
+> 先按"使用目标"在这五种特殊对象里选对类别，再关心构造参数；选错类别是这一课里最常见的坑。
+
+知识要点：
+
+- 同一几何海量实例、多种几何批量合并、同一物体多细节层、需要独立子对象，分别选哪种对象？
+- `ClippingGroup` 在 WebGLRenderer 下为什么不生效？应改用哪种方案？
+- `CubeCamera.update()` 跳过后画面会出现什么现象？为什么反射体要在 update 前 `visible=false`？
+- `ArrayCamera` 与 `StereoCamera` 各自解决"多视角渲染"的哪一段？
+- `StereoCamera` 与 WebXR 提供的左右眼相机相比，适用场景有何差别？
+
+## 参考资料
+
+- [Three.js Docs：BatchedMesh](https://threejs.org/docs/pages/BatchedMesh.html)
+- [Three.js Docs：ClippingGroup](https://threejs.org/docs/pages/ClippingGroup.html)
+- [Three.js Docs：ArrayCamera](https://threejs.org/docs/pages/ArrayCamera.html)
+- [Three.js Docs：CubeCamera](https://threejs.org/docs/pages/CubeCamera.html)
+- [Three.js Docs：WebGLCubeRenderTarget](https://threejs.org/docs/pages/WebGLCubeRenderTarget.html)
+- [Three.js Docs：StereoCamera](https://threejs.org/docs/pages/StereoCamera.html)
+- [Three.js Examples：webgl_materials_cubemap_dynamic](https://threejs.org/examples/?q=cubecam#webgl_materials_cubemap_dynamic)
+- [Three.js Manual：Multiple cameras](https://threejs.org/manual/en/how-to-use-multiple-cameras.html)

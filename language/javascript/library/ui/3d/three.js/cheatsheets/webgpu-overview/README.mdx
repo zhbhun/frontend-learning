@@ -1,0 +1,238 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="webgpu-overview" title="进阶分支/渲染技术/WebGPU" name="Docs" />
+
+# WebGPU
+
+WebGPU 是继 WebGL 之后的**新一代 Web 图形 API**。它不再包装老一代 OpenGL ES，而是直接映射到现代 GPU 原生 API（Vulkan / Metal / D3D12），带来更低的 CPU 开销、更可控的资源管理和**计算着色器（compute shader）**能力。three.js 没有把它做成 WebGLRenderer 的一个开关，而是为 WebGPU 时代重做了一套渲染层：一个统一的 `WebGPURenderer` + 一套基于节点的材质与着色器系统（NodeMaterial / TSL）。
+
+理解 three.js 的 WebGPU 栈，关键是分清三条独立的线，它们经常被混在一起说，但各自决定不同的问题：
+
+- **后端（backend）：** 设备级图形 API。WebGPU 直接用原生 GPU 能力；浏览器不支持时，`WebGPURenderer` 会自动退回 WebGL2 后端——同一份代码能在两条路径上跑。
+- **渲染器（renderer）：** `WebGPURenderer` 是 WebGPU 时代的统一入口，内部按设备能力选择 WebGPU 或 WebGL 后端；老的 `WebGLRenderer` 是只走 WebGL 的单后端实现。
+- **材质/着色器（material / shader）：** WebGPU 时代用**节点系统（NodeMaterial / TSL）**替代"写裸 GLSL 字符串"的 `ShaderMaterial`。TSL 写成 JS 函数调用，能同时编译到 WGSL（WebGPU）和 GLSL（WebGL 后端）。
+
+> ⚠️ WebGPU 在浏览器和 three.js 内部都仍在快速演进（官方 examples 目录至今标注 `(wip)`）。本课给的是**现状判断与选型视角**，不深入实战实现；具体 API 在版本间可能调整，落地前以你当前版本的官方文档为准。
+
+NOTE 已声明本手册第一阶段不深入 WebGPU，本课是**概览**：回答"它是什么、three.js 怎么集成、现在能不能用、我该不该投入"，而不是手把手写 WebGPU 程序。直接写 GLSL 着色器见 [Shader](?path=/docs/shader-basics--docs) 课；后者是 WebGL 时代的着色器入口，本课帮你看清它和 WebGPU 节点系统的边界。
+
+## 快速上手
+
+最小闭环长这样——注意和 `WebGLRenderer` 的两处差别：导入路径换成 `three/webgpu`，并且初始化是**异步**的（要先 `await renderer.init()` 再渲染）：
+
+```js
+import * as THREE from 'three/webgpu';
+
+const renderer = new THREE.WebGPURenderer({ antialias: true });
+await renderer.init(); // 选择后端：优先 WebGPU，不可用时自动退回 WebGL2
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
+camera.position.z = 3;
+
+const mesh = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1, 0),
+  new THREE.MeshStandardNodeMaterial() // NodeMaterial 家族；也兼容老的 MeshStandardMaterial
+);
+scene.add(mesh);
+
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+```
+
+这段代码在 Chrome / Edge 上走 WebGPU，在还不支持 WebGPU 的浏览器上**自动走 WebGL2**——你不需要写分支。`forceWebGL: true` 可以强制走 WebGL 后端，用来在开发机上验证 WebGL 兼容性。
+
+WebGL 路径与 WebGPU 路径的核心差异（回访时的着陆区）：
+
+| 维度 | WebGLRenderer（`three`） | WebGPURenderer（`three/webgpu`） |
+| --- | --- | --- |
+| 导入 | `import * as THREE from 'three'` | `import * as THREE from 'three/webgpu'` |
+| 后端 | 仅 WebGL1/2 | WebGPU 优先，自动退回 WebGL2 |
+| 初始化 | 同步，`new` 完即可渲染 | 异步，必须 `await renderer.init()` |
+| 材质系统 | 内置材质 + `ShaderMaterial`（GLSL 字符串） | 节点材质（NodeMaterial 家族）+ TSL；也兼容内置材质 |
+| 自定义着色器 | 写 GLSL 字符串（[Shader](?path=/docs/shader-basics--docs)） | 写 TSL（JS 函数），编译到 WGSL / GLSL |
+| 计算着色器 | 不支持 | 支持（compute node / storage buffer） |
+| 浏览器覆盖 | 几乎全覆盖 | Chrome/Edge 稳定、Safari 部分、Firefox 默认关闭 |
+| 稳定度 | 生产默认 | API 仍在演进（examples 标注 wip） |
+
+## WebGPURenderer
+
+`WebGPURenderer` 是 WebGPU 时代的统一渲染器。它和 `WebGLRenderer` 不是"同一类的两个实现"，而是两种架构：`WebGPURenderer` 内部基于一个**抽象后端**（`src/renderers/common/Renderer.js`），同一个渲染器在初始化时按设备能力选择 `WebGPUBackend` 或 `WebGLBackend`；`WebGLRenderer` 则是把 WebGL 调用直接写死的单后端老实现。
+
+三件事决定了它的行为：
+
+**导入路径只在 `three/webgpu`。** 老的 `import * as THREE from 'three'` 拿不到 `WebGPURenderer`。`three/webgpu` 这个入口同时带入了渲染器、两个后端、TSL 和节点材质——它是一个独立的构建产物，不是从 addons 里拿。
+
+```js
+// 完整 WebGPU 栈（推荐，包含 TSL 与节点材质）
+import * as THREE from 'three/webgpu';
+
+// 只要渲染器
+import { WebGPURenderer } from 'three/webgpu';
+
+// 只要 TSL 命名空间（写自定义着色器节点时）
+import * as TSL from 'three/tsl';
+```
+
+**初始化是异步的，且必须等待。** WebGPU 的设备获取（`navigator.gpu.requestAdapter()` / `adapter.requestDevice()`）本身就是 Promise，所以 `WebGPURenderer` 把后端协商放在 `init()` 里。`new` 出来的渲染器还没选定后端，直接 `render()` 会失败。`setAnimationLoop` 里第一次 `render` 通常已经过了 `await init()`，这是和 WebGLRenderer 最容易踩的差别。
+
+```js
+const renderer = new THREE.WebGPURenderer({ antialias: true });
+await renderer.init();      // ← 关键：协商后端、创建设备
+// init() 之后才能 render
+```
+
+**后端选择是自动的，也能强制。** `init()` 先尝试 WebGPU；拿不到 adapter 或设备创建失败时，自动回退到 `WebGLBackend`（基于 WebGL2）。`forceWebGL: true` 强制走 WebGL 后端——开发期用它验证你的场景在 WebGL 路径下也正确。`forceWebGPU: true` 则强制 WebGPU，适合在已知支持的环境里避免回退掩盖问题。
+
+| 构造 / init 选项 | 默认 | 用途 |
+| --- | --- | --- |
+| `forceWebGL` | `false` | `true` 时强制走 WebGL2 后端（验证兼容性） |
+| `forceWebGPU` | `false` | `true` 时强制走 WebGPU，不回退 |
+| `antialias` | `false` | MSAA 抗锯齿 |
+| `trackTimestamp` | `false` | 打开 GPU 时间戳查询（计算 pass 耗时） |
+| `powerPreference` | `'default'` | `'high-performance'` / `'low-power'`，影响 adapter 选择 |
+
+> 提示：以上选项名以你当前 three.js 版本的 `WebGPURenderer` 文档为准；WebGPU 路径仍可能调整命名。
+
+## NodeMaterial 与 TSL
+
+WebGPU 时代 three.js 用**节点系统**重新做了材质和着色器。核心判断：节点材质把"着色器是一段字符串"换成"着色器是一张由 JS 对象拼成的图"。这张图在编译时由 three.js 翻译成目标后端的语言——WebGPU 后端出 WGSL，WebGL 后端出 GLSL。
+
+**NodeMaterial 是新的材质基类家族。** 内置材质各有节点版（`MeshStandardNodeMaterial`、`MeshBasicNodeMaterial`、`PointsNodeMaterial` 等），它们和老的 `MeshStandardMaterial` 行为一致，但允许你把自定义节点**挂进**某个槽位（如 `material.colorNode = ...`、`material.positionNode = ...`）来局部改写，而不是整段替换 shader。`NodeMaterial` 是写完全自定义节点材质的起点。
+
+**TSL（Three Shading Language）是写节点的语法。** 它不是另一门字符串语言，而是一组 JS 函数：`uv()`、`normalLocal`、`float()`、`vec3()`、`mix()`、`Fn()` 等。用 TSL 写着色器，写的是可组合的 JS 表达式，靠类型推导和 `Fn()` 编译成节点图。
+
+对比同一段"按 uv.x 做颜色混合"，两种写法的形状差异（左：[Shader](?path=/docs/shader-basics--docs) 课的 GLSL 字符串；右：TSL 的 JS 调用）：
+
+```js
+// GLSL 路径（ShaderMaterial，仅 WebGL 后端）
+new THREE.ShaderMaterial({
+  vertexShader: `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+  `,
+  fragmentShader: `
+    uniform vec3 uColorA; uniform vec3 uColorB; varying vec2 vUv;
+    void main() { gl_FragColor = vec4(mix(uColorA, uColorB, vUv.x), 1.0); }
+  `,
+  uniforms: { /* ... */ }
+});
+
+// TSL 路径（节点材质，WebGPU + WebGL 后端通用）
+import { Fn, vec2, vec3, mix, uv, uniform } from 'three/tsl';
+
+const colorA = uniform(new THREE.Color('#3d73d9'));
+const colorB = uniform(new THREE.Color('#f0a432'));
+
+const gradient = Fn(() => {
+  const coord = uv().x;            // 节点：取 uv 的 x 分量
+  return mix(colorA, colorB, coord); // 节点：线性混合
+});
+
+new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2),
+  new THREE.NodeMaterial({ colorNode: gradient() }) // 把节点图挂进 color 槽
+);
+```
+
+TSL 的关键好处不是"更短"，而是**同一份节点材质在两个后端都跑**——这是 `ShaderMaterial`（裸 GLSL，只走 WebGL）做不到的。代价是要换一套思维：不再是字符串里的 `attribute`/`varying`/`uniform`，而是 JS 对象的组合与 `Fn()` 闭包。深入 TSL 语法、计算着色器（compute node）和 storage buffer 属于 WebGPU 实战，超出本概览课，也超出本手册第一阶段。
+
+| 概念 | WebGL 时代 | WebGPU 时代 | 关系 |
+| --- | --- | --- | --- |
+| 自定义着色器入口 | `ShaderMaterial` / `RawShaderMaterial`（GLSL 字符串） | `NodeMaterial` 家族 + TSL（JS 节点） | TSL 编译到 WGSL 和 GLSL，覆盖两个后端 |
+| 局部改官方材质 | `onBeforeCompile` 注入 GLSL 片段 | 节点版材质 + `*.node` 槽位 | 节点槽位更稳定，不靠字符串替换 |
+| 着色器语言 | GLSL（顶点/片元两段） | WGSL（WebGPU）/ GLSL（回退），由 TSL 生成 | TSL 是"写一次"的源 |
+| 计算着色器 | 无 | compute node + storage buffer | WebGPU 独有能力 |
+
+## 浏览器支持现状
+
+WebGPU 的能力取决于浏览器有没有实现这个 API。**截至 2026 年 8 月**，桌面端的支持分布大致是：
+
+| 浏览器 | 状态 | 备注 |
+| --- | --- | --- |
+| Chrome / Edge（桌面 & Android） | ✅ 稳定（v113+） | 最成熟；生产可用 |
+| Safari（桌面 & iOS） | ◐ 部分（v26+） | 已落地但仍比 Chrome 滞后，部分特性受限 |
+| Firefox | ❌ 默认关闭 | 需在 `about:config` 手动开启，尚不能当生产环境 |
+| 全球覆盖率 | 约 83% | 受 Safari/Firefox 拖累，未到 WebGL 的近全覆盖 |
+
+运行前检测：`navigator.gpu` 是否存在是判断浏览器是否暴露 WebGPU API 的标准方式。`WebGPURenderer.init()` 内部已经做了 adapter 协商与回退，所以大多数应用**不需要自己写检测**——只在你想给 UI 提示"当前跑在 WebGPU 还是 WebGL"时才读 `renderer.backend.isWebGPUBackend`（属性名以版本为准）。
+
+```js
+// 仅为给用户提示而检测；正常情况下让 WebGPURenderer.init() 自动回退即可
+if ('gpu' in navigator) {
+  // 浏览器暴露了 WebGPU API（仍可能因驱动/适配器拿不到而回退）
+}
+```
+
+three.js 官方 examples 里所有 WebGPU 示例至今挂在单个分类 `webgpu (wip)` 下——`(wip)` 表示 work in progress，覆盖了 compute、tsl、materials、postprocessing、loader、lights、shadowmap、volume、xr 等方向共上百个示例。这个标签本身就是一个信号：**示例和 API 都还在打磨**，迁移到生产前要预期遇到命名调整和行为差异。
+
+值得留意的一个方向：Chrome 在推进 **WebGPU Compatibility Mode**（three.js r185 路线图相关），目标是让 WebGPU 能在大量"只支持 WebGL2、没有完整 WebGPU 硬件"的设备上运行。如果落地，WebGPU 的有效覆盖会显著扩大；但这是进行中的工作，不是现在的承诺。
+
+## 何时选用 WebGPU
+
+绝大多数 three.js 项目现在仍应以 **`WebGLRenderer` 为稳妥默认**。把是否投入 WebGPU 拆成一组可勾选的判断条件，比"看起来更先进就上"更可靠：
+
+| 你的情况 | 建议 |
+| --- | --- |
+| 目标用户大量用 Firefox 或老 Safari | 继续用 WebGLRenderer；WebGPU 回退到 WebGL2 反而比原生 WebGL 路径更不成熟 |
+| 只需要常规 3D 展示、模型查看、光照材质 | WebGLRenderer 完全够用，迁移收益小、风险大 |
+| 需要 GPU 计算着色器（大规模粒子、流体、排序、自定义物理） | 选 WebGPURenderer——compute 是 WebGL 给不了的能力 |
+| 需要超大场景、海量实例、低 CPU 开销 | 选 WebGPURenderer 并在 Chrome/Edge 上验证收益 |
+| 愿意接受 API 仍在演进、能跟进版本升级与示例变动 | 可在受控环境（内部产品、演示）投产 WebGPU |
+| 想提前布局、学习下一代材质/着色器写法 | 用 `three/webgpu` + TSL 做原型，配 `forceWebGL` 验证回退 |
+
+一个折中策略：**直接用 `WebGPURenderer`，但默认接受它回退到 WebGL2**。这样你的代码已经跑在节点系统上，未来覆盖扩大时不用重写；代价是现在要承担 WebGPU 路径偶尔的不成熟，以及团队需要学 TSL/节点材质。是否值得这笔成本，取决于上面表格里你的那一行。
+
+## 最佳实践
+
+- 新项目想用 WebGPU 时，导入 `three/webgpu` 而不是从 `three` 拿——后者根本不导出 `WebGPURenderer`。
+- `await renderer.init()` 是硬约束，别在它之前调 `render()`；顶层 await 或在 async 启动函数里完成。
+- 开发期用 `forceWebGL: true` 跑一遍，确认场景在 WebGL 后端也正确——这是你给 Firefox/老 Safari 用户的实际路径。
+- 自定义着色器优先学 TSL/NodeMaterial，而不是在 WebGPU 项目里继续写 `ShaderMaterial` 的 GLSL 字符串；前者是 WebGPU 时代的方向，且能同时服务两个后端。
+- 升级 three.js 时，优先看官方 examples 的 `webgpu (wip)` 目录和你用到的 TSL 函数有没有改名——这部分比 WebGL 路径变动更频繁。
+- 不要因为"WebGPU 更新更先进"就在生产里盲目迁移一个已经稳定的 WebGLRenderer 项目；先确认目标浏览器覆盖，再用真实场景 benchmark。
+- 引用 WebGPU 的能力（compute、storage buffer）时，在 README / 代码注释里写清楚"需要 WebGPU 后端"，避免在回退到 WebGL 时出现"为什么这个 pass 没跑"的疑问。
+
+## 常见问题
+
+- WebGPURenderer 和 WebGLRenderer 是同一个类的两个开关吗？
+  不是。`WebGPURenderer`（`three/webgpu`）是基于抽象后端的新渲染器，能走 WebGPU 也能自动回退 WebGL2；`WebGLRenderer`（`three`）是单后端的经典实现。导入路径也不同。
+- 为什么 `new WebGPURenderer()` 后直接 `render()` 报错或画面空白？
+  `init()` 还没完成。WebGPU 的设备获取是异步的，渲染器在 `await renderer.init()` 之前没有选定后端、也没有创建设备。把初始化放进 async 启动流程。
+- 我的代码在 Chrome 上是 WebGPU，到了 Firefox 上是不是就跑不了？
+  不一定。`WebGPURenderer.init()` 拿不到 WebGPU adapter 时会自动回退到 WebGL2 后端，节点材质也会编译成 GLSL。但 Firefox 的回退路径未必和原生 WebGLRenderer 一样成熟，生产前要实测。
+- 节点材质（NodeMaterial）和 ShaderMaterial 有什么区别？该学哪个？
+  `ShaderMaterial` 让你写 GLSL 字符串，只服务 WebGL 后端；`NodeMaterial` / TSL 让你用 JS 拼节点图，能同时编译到 WGSL 和 GLSL。WebGPU 时代方向是后者；只想快速跑通 WebGL 效果、不打算迁 WebGPU 的，前者门槛更低。见 [Shader](?path=/docs/shader-basics--docs) 课。
+- WebGPU 现在（2026 年）能生产用吗？
+  Chrome/Edge 桌面与 Android 上可以；Safari v26+ 部分可用但仍有差距；Firefox 默认关闭，不能当生产环境。如果你的用户里 Firefox/老 Safari 占比高，继续用 WebGLRenderer 更稳。
+- three.js 的 WebGPU API 会变吗？
+  会。官方 examples 仍归在 `webgpu (wip)` 下，TSL 函数名、NodeMaterial 槽位、构造选项在版本间偶有调整。锁定 three.js 版本、升级时对照 examples 与迁移指南。
+
+## 总结回顾
+
+摘要：
+
+WebGPU 是继任 WebGL 的新一代 Web 图形 API，直接映射 Vulkan/Metal/D3D12，带来更低 CPU 开销和计算着色器能力。three.js 为它重做了渲染层：`WebGPURenderer`（导入自 `three/webgpu`）基于抽象后端，初始化时按设备能力自动选择 WebGPU 或 WebGL2 后端——同一份代码两条路径都能跑，`forceWebGL` 可强制走 WebGL。材质与着色器侧用节点系统（NodeMaterial 家族 + TSL）替代裸 GLSL 的 ShaderMaterial：TSL 写成 JS 函数调用，编译到 WGSL（WebGPU）和 GLSL（WebGL 后端），是 WebGPU 时代的着色器方向。浏览器支持截至 2026 年 8 月：Chrome/Edge 稳定、Safari 部分、Firefox 默认关闭，全球覆盖约 83%，官方 examples 仍标注 `(wip)`。是否投入取决于目标浏览器与是否需要 compute——大多数项目 WebGLRenderer 仍是稳妥默认，需要 GPU 计算或极致性能且能接受 API 演进时再上 WebGPURenderer。
+
+一句话：
+
+> three.js 的 WebGPU 栈把"换后端"和"换着色器写法"绑在一起推进——`WebGPURenderer` + 节点材质（TSL）是 WebGPU 时代的统一入口，会自动回退 WebGL2；但 examples 仍是 wip、Firefox 未稳定，所以它是有明确收益（compute、低开销）时再投入的方向，不是所有项目的默认升级。
+
+知识要点：
+
+- WebGPU 相比 WebGL 在 API 层和能提供的能力（compute、storage buffer）上差在哪里？
+- `WebGPURenderer` 的导入路径、异步初始化和后端自动回退分别是怎样的？为什么不能 `new` 完就 `render()`？
+- `forceWebGL: true` 解决什么问题？什么时候用它？
+- NodeMaterial / TSL 与 ShaderMaterial（GLSL 字符串）的核心差别是什么？为什么说 TSL 能同时服务两个后端？
+- 截至 2026 年，Chrome / Edge / Safari / Firefox 的 WebGPU 支持分别处于什么状态？官方 examples 目录为什么标 `(wip)`？
+- 判断一个项目"现在该不该投入 WebGPU"时，要看哪些条件？
+
+## 参考资料
+
+- [three.js Docs：WebGPURenderer](https://threejs.org/docs/?q=webgpu)
+- [three.js Manual：Installation（构建产物与导入路径）](https://threejs.org/manual/#en/installation)
+- [three.js Examples：webgpu (wip)](https://threejs.org/examples/?q=webgpu)
+- [three.js GitHub：src/renderers（common / webgpu / webgl-fallback 架构）](https://github.com/mrdoob/three.js/tree/master/src/renderers)
+- [three.js Discourse：Introduction to WebGPU and TSL](https://discourse.threejs.org/t/three-js-introduction-to-webgpu-and-tsl/78205)
+- [Can I Use：WebGPU（浏览器支持状态）](https://caniuse.com/webgpu)
+- [WebGPU on the Web（W3C 规范入口）](https://www.w3.org/community/gpu/)

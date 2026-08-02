@@ -1,0 +1,275 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as HelperStories from './helpers-and-debug-objects.stories.js';
+
+<Meta of={HelperStories} name="Docs" />
+
+# Helper
+
+Helper 是 three.js 提供的一组调试用 `Object3D`，把坐标轴、网格、包围盒、相机视锥、光源方向和骨骼等不可见或抽象的概念画成线框。它和普通对象一样挂进 scene 就能看到，也继承 `position`、`visible`、`add` / `remove` 和 `dispose`；区别在于它只服务开发期调试，不参与最终画面，也不投射阴影。
+
+使用 Helper 时先分清它属于哪一类，这决定了写法：
+
+- **静态参考型**：`AxesHelper`、`GridHelper`、`PolarGridHelper`、`ArrowHelper`、`PlaneHelper`。构造时一次性生成线框，加入 scene 即可，不需要每帧更新。
+- **跟踪对象型**：`BoxHelper`、`CameraHelper`、四种光源 Helper。构造时接收被辅助的对象（mesh、camera 或 light），被辅助对象变换或参数变化后，要调用 `helper.update()` 才能让线框跟上。`SkeletonHelper` 是特例——它通过重写 `updateMatrixWorld()` 自动读取骨骼世界矩阵，挂在场景里就会跟随，不需要手动 `update()`。
+
+无论哪一类，共同的生命周期都是：构造时传入被辅助对象 → `scene.add(helper)` → 渲染循环里按需 `helper.update()` → 交付前 `scene.remove(helper)` 或 `helper.visible = false`，并调用 `helper.dispose()` 释放线框占用的 geometry 和 material。
+
+| Helper | 显示什么 | 构造输入 | 需要 `update()` |
+| --- | --- | --- | --- |
+| `AxesHelper` | X/Y/Z 坐标轴（红/绿/蓝） | `size` | 否 |
+| `GridHelper` | XZ 平面矩形网格 | `size, divisions, colorCenterLine, colorGrid` | 否 |
+| `PolarGridHelper` | 极坐标网格（同心环 + 辐射线） | `radius, sectors, rings, divisions, color1, color2` | 否 |
+| `ArrowHelper` | 方向箭头（线 + 锥头） | `dir, origin, length, color, headLength, headWidth` | 否，改方向用 `setDirection()` |
+| `PlaneHelper` | 数学 `Plane` 的矩形可视化 | `plane, size, hex` | 否 |
+| `BoxHelper` | 对象的世界 AABB（含全部子级） | `object, color` | 是 |
+| `Box3Helper` | 给定 `Box3` 的线框 | `box, color` | 否（无 `update()` 方法） |
+| `CameraHelper` | 相机视锥体线框 | `camera` | 是 |
+| `DirectionalLightHelper` | 平行光方向线与目标 | `light, size, color` | 是 |
+| `PointLightHelper` | 点光源位置（线框球） | `light, sphereSize, color` | 是 |
+| `SpotLightHelper` | 聚光灯锥体与目标线 | `light, color` | 是 |
+| `HemisphereLightHelper` | 半球光天空/地面色梯度 | `light, sphereSize, color` | 是 |
+| `SkeletonHelper` | 骨骼层级连线 | `object`（骨骼根） | 否（自动跟随） |
+
+## 快速上手
+
+最小闭环：给场景加上坐标轴和地面网格，再让一个 `BoxHelper` 跟踪一个会动的对象，并在渲染循环里调用 `update()`。
+
+```js
+import * as THREE from 'three';
+
+const scene = new THREE.Scene();
+
+// 静态参考型：构造后直接加入场景
+scene.add(new THREE.AxesHelper(2));
+scene.add(new THREE.GridHelper(20, 20));
+
+const mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshStandardMaterial({ color: '#3d73d9' })
+);
+scene.add(mesh);
+
+// 跟踪对象型：传入被辅助对象
+const boxHelper = new THREE.BoxHelper(mesh, '#ffff00');
+scene.add(boxHelper);
+
+renderer.setAnimationLoop(() => {
+  mesh.rotation.y += 0.01;
+  boxHelper.update(); // mesh 变换后刷新线框
+  renderer.render(scene, camera);
+});
+```
+
+| 步骤 | 适用对象 | 改变后要注意什么 |
+| --- | --- | --- |
+| `new Helper(...)` | 全部 | 跟踪型在构造时传入被辅助对象；之后改被辅助对象要配 `update()` |
+| `scene.add(helper)` | 全部 | Helper 是 `Object3D`，不加入场景树就不会绘制 |
+| `helper.update()` | 跟踪型（Box/Camera/Light） | 被辅助对象变换或改投影、光照参数后调用；不调用则线框停留在旧状态 |
+| `helper.visible = false` / `scene.remove(helper)` | 全部 | 交付前隐藏或移除；Helper 只服务调试 |
+| `helper.dispose()` | 全部 | 释放线框的 geometry 和 material；`CameraHelper` 和各光源 Helper 提供同名方法 |
+
+## 坐标轴与网格
+
+`AxesHelper`、`GridHelper` 和 `PolarGridHelper` 都属于静态参考型，构造时一次性生成顶点，之后不随场景变化。它们的 `position` 和 `rotation` 默认是原点和单位旋转，因此默认显示在原点；要让它跟随某个对象，就把 Helper 挂到那个对象下，或每帧同步 `position`。
+
+```js
+// 坐标轴：X 红、Y 绿、Z 蓝，参数是轴线长度
+scene.add(new THREE.AxesHelper(2));
+
+// 矩形网格：尺寸、格数、中心线色、网格色
+scene.add(new THREE.GridHelper(20, 20, 0x444444, 0x888888));
+
+// 极坐标网格：半径、辐射线数、同心环数、每环分段、两色交替
+scene.add(new THREE.PolarGridHelper(8, 16, 8, 64));
+```
+
+| 成员 | 默认参数 | 显示位置 | 颜色约定 |
+| --- | --- | --- | --- |
+| `AxesHelper(size=1)` | 三条等长线段 | 从原点沿 `+X`、`+Y`、`+Z` | X 红、Y 绿、Z 蓝；`setColors()` 可改 |
+| `GridHelper(size=10, divisions=10, colorCenterLine, colorGrid)` | 中心在原点 | XZ 平面（`y=0`） | `colorCenterLine` 高亮两条中线，`colorGrid` 画其余格线 |
+| `PolarGridHelper(radius=10, sectors=16, rings=16, divisions=64, color1, color2)` | 中心在原点 | XZ 平面 | `color1` / `color2` 交替 |
+
+三者都没有 `update()` 方法，构造后线框固定；颜色参数接受 `number`、`Color` 或 CSS 字符串。`dispose()` 会释放内部 `LineSegments` 的 geometry 和 material。
+
+## 包围盒
+
+`BoxHelper` 和 `Box3Helper` 都画世界坐标轴对齐的长方体线框，但输入和更新方式不同，混淆会导致线框对不上对象。
+
+`BoxHelper` 接收一个 `Object3D`，内部用 `Box3.setFromObject()` 计算它和全部子级的世界 AABB；对象或子级变换后必须调用 `update()`，否则线框停留在构造时的状态。`Box3Helper` 接收一个已经算好的 `Box3`，它只把那个盒子的 `min` / `max` 画出来，没有 `update()` 方法——盒子要变化时，由应用重新计算 `Box3` 并构造新 Helper，或直接修改其 geometry。
+
+```js
+// BoxHelper：跟踪对象（含子级），需要 update()
+const boxHelper = new THREE.BoxHelper(mesh, 0xffff00);
+scene.add(boxHelper);
+mesh.scale.setScalar(2);
+boxHelper.update(); // 不调用则线框不跟随
+
+// Box3Helper：可视化一个已算好的 Box3
+const region = new THREE.Box3(
+  new THREE.Vector3(-5, 0, -5),
+  new THREE.Vector3(5, 3, 5)
+);
+scene.add(new THREE.Box3Helper(region, 0x2f8b72));
+```
+
+旋转或缩放 `target`，并切换"调用 `boxHelper.update()`"：关闭后红色 `BoxHelper` 停在上一次的位置，绿色 `Box3Helper` 始终不变；读数里的"真实世界 AABB"由 `Box3.setFromObject()` 独立计算，可与画面中的红盒对照。
+
+<Canvas of={HelperStories.BoundingBox} />
+
+<Controls of={HelperStories.BoundingBox} />
+
+`BoxHelper` 要求被辅助对象有 geometry，因此对 `Sprite` 无效；对 `InstancedMesh` 也只反映其外层包围，不包含每个实例。需要实例级包围时改用 `Box3` 自行计算并以 `Box3Helper` 显示。
+
+## 相机
+
+`CameraHelper` 把一台相机的视锥体（近裁剪面、远裁剪面和四条侧棱）画成线框，常用于排查 `fov`、`near` / `far` 是否合理、相机是否朝向目标。它接收被观察的相机作为参数；被观察相机的投影或变换变化后，要调用 `helper.update()`。
+
+观察一台相机通常需要第二台相机从外部渲染整个场景：被观察的相机加入 `scene`，`CameraHelper` 也加入 `scene`，但传给 `renderer.render()` 的是外部观察相机。相机本身的属性和投影矩阵在 [相机](?path=/docs/camera--docs) 课展开。
+
+```js
+const watched = new THREE.PerspectiveCamera(50, aspect, 0.6, 7);
+scene.add(watched);
+
+const helper = new THREE.CameraHelper(watched);
+scene.add(helper);
+
+// 改了 watched 的投影后：
+watched.fov = 60;
+watched.updateProjectionMatrix();
+helper.update();
+
+renderer.render(scene, observerCamera); // 用外部相机渲染
+```
+
+调整被观察相机的 `fov` 和 `far`，并切换"调用 `helper.update()`"：关闭后视锥线停留在旧投影，而读数里的 `watched.fov` 已经变化。
+
+<Canvas of={HelperStories.CameraFrustum} />
+
+<Controls of={HelperStories.CameraFrustum} />
+
+`CameraHelper.setColors(frustum, cone, up, target, cross)` 可以分别设置视锥不同部位的颜色；默认配色已经能区分近端、远端、上方和目标方向。
+
+## 光源
+
+四种光源 Helper 分别对应四种 `Light`，构造时传入那个 Light 对象，加入 scene 后画出它的位置、方向或影响范围。它们都属于跟踪对象型——光源移动、改参数或改 `target` 后，要调用 `helper.update()`。`color` 参数可选，省略时使用光源自己的 `color`。光源本身作为 `Object3D` 进入场景树的细节在 [Light](?path=/docs/light-objects--docs) 课展开。
+
+```js
+const spot = new THREE.SpotLight('#fff3d6', 150, 10, Math.PI / 6, 0.3, 2);
+spot.position.set(3, 5.5, 3.5);
+spot.target.position.set(0, 1.3, 0);
+scene.add(spot, spot.target);
+
+const spotHelper = new THREE.SpotLightHelper(spot, '#ffd070');
+scene.add(spotHelper);
+
+// 改了 spot.angle 或移动 spot / spot.target 后：
+spotHelper.update();
+```
+
+| 成员 | 构造参数 | 画什么 | 何时 `update()` |
+| --- | --- | --- | --- |
+| `DirectionalLightHelper(light, size=1, color)` | `size` 是方向线与示意平面的尺度 | 从光源位置到 `light.target` 的连线 + 示意平面 | 移动光源或 `target`、改 `color` 后 |
+| `PointLightHelper(light, sphereSize=1, color)` | `sphereSize` 是线框球半径 | 光源位置上的线框球 | 移动光源、改 `distance` / `color` 后 |
+| `SpotLightHelper(light, color)` | 无 size 参数 | 锥体侧面 + 到 `target` 的连线 | 移动光源或 `target`、改 `angle` / `penumbra` / `distance` / `color` 后 |
+| `HemisphereLightHelper(light, sphereSize=1, color)` | `sphereSize` 是梯度球半径 | 顶半天空色、底半地面色的球 | 改 `color` / `groundColor` 后 |
+
+调整聚光灯的 `angle` 和 `penumbra`，并切换"调用 `helper.update()`"：关闭后锥体线停留在旧角度，而画面中实际照亮的范围已经随 `spot.angle` 改变。
+
+<Canvas of={HelperStories.SpotlightCone} />
+
+<Controls of={HelperStories.SpotlightCone} />
+
+`DirectionalLight` 和 `SpotLight` 的方向由 `light.target` 决定；`target` 是独立的 `Object3D`，必须加入 scene 才能正确参与世界变换，Helper 的方向线也才会对得上。
+
+## 骨骼
+
+`SkeletonHelper` 接收任意 `Object3D`（通常是 `SkinnedMesh`），递归收集其中的 `Bone`，用连线画出骨骼层级。和其他跟踪型 Helper 不同，它重写了 `updateMatrixWorld()`：renderer 每帧更新世界矩阵时会自动读取骨骼世界位置并刷新线框顶点，因此不需要手动 `update()`。
+
+```js
+const skeleton = new THREE.SkeletonHelper(skinnedMesh);
+scene.add(skeleton);
+// 之后每帧正常 renderer.render()，线框自动跟随骨骼动画
+```
+
+`setColors(color1, color2)` 为每根骨头交替设置颜色。骨骼、皮肤和动画的完整工作流在 [SkinnedMesh 与骨骼](?path=/docs/skinned-mesh-and-bones--docs) 展开；这里只需记住：Helper 自动跟随，交付前 `remove()` 或 `dispose()`。
+
+## 箭头与平面
+
+`ArrowHelper` 把一个方向向量画成带锥头的箭头，常用于调试法线、射线方向、速度或力的方向。`dir` 会被归一化，`length` 控制总长（含锥头）。改方向用 `setDirection(dir)`，改长度用 `setLength(length, headLength, headWidth)`，改颜色用 `setColor(color)`。
+
+```js
+const arrow = new THREE.ArrowHelper(
+  new THREE.Vector3(1, 1, 0).normalize(), // 方向，构造时会被归一化
+  new THREE.Vector3(0, 0, 0),              // 起点
+  2,                                       // 总长度
+  0xffff00                                 // 颜色
+);
+scene.add(arrow);
+
+arrow.setDirection(new THREE.Vector3(0, 1, 0));
+arrow.setLength(3);
+```
+
+`PlaneHelper` 接收一个数学 `Plane`（由法向量和常数定义），画出它在世界中的矩形示意，常用于调试裁剪平面（`renderer.clippingPlanes`）或反射面。
+
+| 成员 | 构造参数 | 何时用 |
+| --- | --- | --- |
+| `ArrowHelper(dir, origin, length, color, headLength, headWidth)` | `headLength` / `headWidth` 默认为 `length * 0.2` 和 `headLength * 0.2` | 可视化方向向量 |
+| `PlaneHelper(plane, size=1, hex=0xffff00)` | `size` 是矩形边长 | 可视化数学 `Plane` |
+
+两者都没有 `update()`；方向或平面变化后调用对应 setter，或重新构造。
+
+## 最佳实践
+
+- 跟踪型 Helper 在被辅助对象变换或改参数后立即 `update()`；渲染循环里每帧调用最省心，静态场景里只在变化时调用即可。
+- `BoxHelper` 跟踪的是包含全部子级的世界 AABB；要单独看某个子级，就给它单独建一个 Helper。
+- `CameraHelper` 用第二台外部相机观察；别让被观察相机同时充当渲染相机，否则看不到自己的视锥。
+- 交付前统一隐藏或移除 Helper。可用 `scene.traverse(o => o.isBoxHelper && (o.visible = false))` 按类型标记批量处理。
+- `dispose()` 在移除后调用，避免 geometry 和 material 残留在 GPU；`CameraHelper` 和各光源 Helper 自带 `dispose()`，其余按 `geometry.dispose()` / `material.dispose()` 处理。
+- 不要把 Helper 当作最终视觉的一部分——它们不受光照、不投射阴影，颜色也设置成 `toneMapped: false`，混进正式画面会显得突兀。
+
+## 常见问题
+
+- 为什么 Helper 不跟随对象移动？
+  跟踪型 Helper（`BoxHelper`、`CameraHelper`、光源 Helper）需要你在对象变换后调用 `helper.update()`；`scene.add(helper)` 只是让它进入渲染。
+- 为什么 `BoxHelper` 没有线框？
+  被辅助对象必须有 geometry；`Sprite` 和没有 geometry 的 `Object3D` 算不出包围盒。确认对象已经实例化几何体后再创建 Helper。
+- 为什么 `DirectionalLightHelper` 的方向线和实际光照方向不一致？
+  `light.target` 必须加入 scene 才能参与世界变换；只移动 `light` 而不同步 `target`，或不调用 `helper.update()`，方向线都会失准。
+- 为什么 `CameraHelper` 看不到视锥？
+  被观察相机和 `CameraHelper` 都要加入 scene，并且传给 `renderer.render()` 的必须是另一台外部观察相机；用被观察相机自己渲染只能看到它画面内的内容，看不到它的视锥线框。
+- 为什么 `SkeletonHelper` 的线框不跟着骨骼动？
+  确认骨骼根（通常是 `SkinnedMesh`）和 Helper 都在场景树里，并且 `renderer.render()` 每帧在跑；`SkeletonHelper` 依靠每帧的 `updateMatrixWorld()` 自动刷新，不手动调用。
+- 交付时怎么彻底清掉 Helper？
+  `scene.remove(helper)` 后调用 `helper.dispose()`；如果有大量 Helper，遍历场景按 `is*Helper` 类型标记批量处理。
+
+## 总结回顾
+
+摘要：
+
+Helper 是继承 `Object3D` 的调试线框，加入 scene 即可见。静态参考型（坐标轴、网格、箭头、平面）构造后不需要更新；跟踪对象型（`BoxHelper`、`CameraHelper`、光源 Helper）在被辅助对象变换或改参数后必须调用 `update()`，`SkeletonHelper` 则通过重写 `updateMatrixWorld()` 自动跟随骨骼。交付前统一隐藏或移除并 `dispose()`，避免调试线框和 GPU 资源进入正式画面。
+
+一句话：
+
+> 判断一个 Helper 怎么用，先看它属于静态参考还是跟踪对象——前者加入场景即可，后者每帧或变化后调用 `update()`。
+
+知识要点：
+
+- Helper 是 `Object3D`，加入 scene 就能看到，但调试交付前要移除或隐藏。
+- 哪些 Helper 需要手动 `update()`，哪些不需要？`SkeletonHelper` 为什么是特例？
+- `BoxHelper` 和 `Box3Helper` 的输入与更新方式有什么不同？
+- `CameraHelper` 为什么要用第二台外部相机渲染？
+- 光源 Helper 的方向线为什么依赖 `light.target`？
+
+## 参考资料
+
+- [Three.js Docs：AxesHelper](https://threejs.org/docs/pages/AxesHelper.html)
+- [Three.js Docs：GridHelper](https://threejs.org/docs/pages/GridHelper.html)
+- [Three.js Docs：PolarGridHelper](https://threejs.org/docs/pages/PolarGridHelper.html)
+- [Three.js Docs：BoxHelper](https://threejs.org/docs/pages/BoxHelper.html)
+- [Three.js Docs：Box3Helper](https://threejs.org/docs/pages/Box3Helper.html)
+- [Three.js Docs：CameraHelper](https://threejs.org/docs/pages/CameraHelper.html)
+- [Three.js Docs：DirectionalLightHelper](https://threejs.org/docs/pages/DirectionalLightHelper.html)
+- [Three.js Docs：SpotLightHelper](https://threejs.org/docs/pages/SpotLightHelper.html)
+- [Three.js Docs：SkeletonHelper](https://threejs.org/docs/pages/SkeletonHelper.html)
+- [Three.js Docs：ArrowHelper](https://threejs.org/docs/pages/ArrowHelper.html)

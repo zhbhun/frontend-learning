@@ -1,0 +1,238 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ClockStories from './clock-and-animation-loop.stories.js';
+
+<Meta of={ClockStories} name="Docs" />
+
+# 时间
+
+three.js 的动画循环把"时间"分成三层：每一帧（frame）是渲染回调的一次触发，帧与帧之间的秒数间隔是 delta time，自循环启动以来的累计秒数是 elapsed time。业务状态——角度、位置、动画权重——不应该按"第几帧"推进，而应该用 `state += speed * delta` 把速度写成"每秒多少"，这样在 60 Hz、120 Hz 或掉帧时运动速度都一致。
+
+`renderer.setAnimationLoop(callback)` 的回调参数是一个毫秒时间戳，与 `performance.now()` 同源。你可以手动相减得到秒制 delta，也可以交给 `THREE.Clock`（r183 起弃用）或推荐的 `THREE.Timer`——它们把"上次调用以来的秒数"和"累计秒数"封装成稳定 API。
+
+## 快速上手
+
+最小闭环用 `Timer.update(time)` 推进时间，再用 `getDelta()` 查询秒制 delta：
+
+```js
+import * as THREE from 'three';
+
+const timer = new THREE.Timer();
+const angularSpeed = 1.2; // 弧度/秒
+
+renderer.setAnimationLoop((time) => {
+  // 把 setAnimationLoop 的毫秒时间戳交给 Timer，再查询秒制 delta。
+  timer.update(time);
+  const delta = timer.getDelta();
+
+  cube.rotation.y += angularSpeed * delta;
+
+  renderer.render(scene, camera);
+});
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `setAnimationLoop` 回调参数 | 毫秒时间戳，与 `performance.now()` 同源 | 手动使用需除以 `1000` 转秒；首帧基准要清零 |
+| `Timer.update(timestamp)` | 每个模拟步进调用一次 | 必须在 `getDelta()` 之前调用；漏调会让 delta 停在旧值 |
+| `Timer.getDelta()` | 上次 `update()` 以来的秒数 | 同一帧多次查询返回同一值（Clock 不同） |
+| 业务速度 | 写成"每秒多少"，如 `1.2` 弧度/秒 | 每帧累加 `speed * delta`，不要写成"每帧多少" |
+| `Timer.getElapsed()` | 自首次 `update()` 以来的累计运行秒数 | 暂停期间不增长；`reset()` 后从当前时刻重新累计 |
+| `Timer.setTimescale(n)` | `1` | `0.5` 慢放、`2` 快放；直接缩放 `getDelta()` 返回值 |
+
+## 区分 frame、delta 与 elapsed
+
+四个常被混用的概念：
+
+| 概念 | 表示什么 | 单位 | 受帧率影响吗 |
+| --- | --- | --- | --- |
+| frame（帧） | 渲染回调的一次触发 | 离散次数 | 是——60 Hz 一秒约 60 次，120 Hz 约 120 次 |
+| delta time | 相邻两帧之间的时间间隔 | 秒 | 单次值波动，但每秒累计始终约为 1 |
+| elapsed time | 自启动以来的累计时间 | 秒 | 否——真实时间不随帧率变化 |
+| 业务状态 | 角度、位置、权重等你推进的量 | 取决于业务 | 仅当用 delta 推进时才与帧率解耦 |
+
+为什么不能按帧数推进？渲染回调的触发频率取决于显示器刷新率、浏览器调度和机器负载。若每帧固定加 `0.018`，60 Hz 下一秒约加 `1.08` 弧度，120 Hz 下一秒约加 `2.16` 弧度——同一个立方体在高刷新率屏幕上会快一倍。
+
+下面的实例把渲染回调按"模拟帧率"节流，左右两个立方体分别用"每帧固定加 `0.018`"和"`Timer.getDelta()` 乘角速度"推进。降低模拟帧率，观察两个立方体的角速度读数：
+
+<Canvas of={ClockStories.ClockVsFrame} />
+
+<Controls of={ClockStories.ClockVsFrame} />
+
+在 60 fps 时两者角速度一致；降到 10 fps 时，帧推进立方体的角速度大约掉到原来的六分之一，而 Timer 推进立方体仍保持每秒约 62°。本实例进入视口前 200 px 时启动，离开后停止循环并保留最后一帧，重新进入时恢复。
+
+## THREE.Clock（r183 起弃用）
+
+Clock 是 three.js 早期封装"上次调用以来的秒数"和"累计秒数"的对象，靠"调用即推进 oldTime"实现：
+
+```js
+const clock = new THREE.Clock(); // autoStart 默认 true
+
+renderer.setAnimationLoop(() => {
+  const delta = clock.getDelta();        // 上次 getDelta() 以来的秒数
+  const elapsed = clock.getElapsedTime(); // 自 start 以来的累计秒数
+
+  cube.rotation.y += angularSpeed * delta;
+  renderer.render(scene, camera);
+});
+```
+
+| 成员 | 含义 | 注意 |
+| --- | --- | --- |
+| `getDelta()` | 返回上次 `getDelta()` 或 `start()` 调用以来的秒数 | 每次调用都推进 `oldTime`；同一帧调用两次会得到不同值 |
+| `getElapsedTime()` | 返回自 `start()` 以来的累计秒数 | 内部先调一次 `getDelta()`，也会推进 `oldTime` |
+| `start()` | 记录 `startTime`、重置 `elapsedTime` | `autoStart` 为 `true` 时首次 `getDelta()` 自动调用 |
+| `stop()` | 停止计时，并把 `autoStart` 置为 `false` | 之后 `getDelta()` 返回 `0`，直到再次 `start()` |
+| `oldTime` | 上次调用时的时间戳 | 内部状态，调试时用于排查 delta 异常 |
+| `elapsedTime` | 累计运行秒数 | 由 `getDelta()` 累加 |
+| `autoStart` | 是否在首次 `getDelta()` 时自动 `start()` | 默认 `true`；`stop()` 后变为 `false` |
+
+Clock 自 r183 起标记弃用，控制台会打印 `Clock: This module has been deprecated. Please use THREE.Timer instead.`。它的核心缺陷在下一节解释；维护旧代码可继续使用，新项目请用 Timer。
+
+## THREE.Timer（推荐）
+
+Timer 是 r183 起取代 Clock 的 API，用 `update(timestamp)` 把"推进内部状态"和"查询 delta"分开：
+
+```js
+const timer = new THREE.Timer();
+
+renderer.setAnimationLoop((time) => {
+  timer.update(time);              // 先推进，用 setAnimationLoop 的时间戳
+  const delta = timer.getDelta();  // 再查询，同一帧可安全多次调用
+  const elapsed = timer.getElapsed();
+
+  cube.rotation.y += angularSpeed * delta;
+  renderer.render(scene, camera);
+});
+```
+
+| 成员 | 含义 | 注意 |
+| --- | --- | --- |
+| `update(timestamp)` | 用毫秒时间戳推进内部状态 | 每个模拟步进调用一次，且在 `getDelta()` 之前；不传则用 `performance.now()` |
+| `getDelta()` | 返回上次 `update()` 以来的秒数 | 同一帧多次返回同一值 |
+| `getElapsed()` | 返回自创建以来累计的运行秒数 | 暂停期间不增长 |
+| `setTimescale(n)` / `getTimescale()` | 时间缩放，`0.5` 慢放、`2` 快放 | 直接缩放 `getDelta()` 返回值 |
+| `reset()` | 把内部时刻对齐到当前 | 用于暂停后恢复时重置基准 |
+| `connect(document)` | 接入 Page Visibility API | 标签页隐藏时自动把 delta 置 `0`，回来时自动 `reset()` |
+| `dispose()` | 移除 `connect()` 注册的事件监听 | 配合 `connect()` 使用 |
+
+Timer 解决了 Clock 的核心缺陷：Clock 的 `getDelta()` 靠"调用即推进 oldTime"实现，同一帧里先调 `getDelta()` 再调 `getElapsedTime()` 会得到不一致的结果——后者内部又调了一次 `getDelta()`，把剩余时间切走了一小段。Timer 把推进（`update`）和查询（`getDelta`）拆成两步，查询不再修改状态，因此同一帧多次查询返回完全相同的值。
+
+## setAnimationLoop 的时间参数
+
+`renderer.setAnimationLoop(callback)` 的回调接收一个毫秒时间戳，与 `performance.now()` 同源（底层来自 `requestAnimationFrame`）。三种处理方式：
+
+```js
+let lastTime = 0;
+
+renderer.setAnimationLoop((time) => {
+  // 方式一：手动相减。首帧 delta 取 0，避免把启动前的延迟补进状态。
+  const delta = lastTime ? (time - lastTime) / 1000 : 0;
+  lastTime = time;
+
+  // 方式二：交给 Timer.update(time)，由它维护时间基准。
+  // timer.update(time); const delta = timer.getDelta();
+
+  cube.rotation.y += angularSpeed * delta;
+  renderer.render(scene, camera);
+});
+```
+
+| 处理方式 | 适合场景 | 注意 |
+| --- | --- | --- |
+| 手动 `(time - lastTime) / 1000` | 不想引入 Clock/Timer 的极简循环 | 暂停或离屏后必须把 `lastTime` 清零，并对异常大的 delta 设上限 |
+| `Timer.update(time)` | 推荐做法 | 暂停后调 `reset()` 重置基准；可配合 `connect(document)` 自动处理后台 |
+| `Clock.getDelta()` | 维护旧代码 | 注意 r183 起弃用；同一帧不要混调 `getDelta()` 与 `getElapsedTime()` |
+
+恢复循环时，无论哪种方式都要重置时间基准（`lastTime = 0`、`clock.start()` 或 `timer.reset()`），否则第一帧会把暂停时长当作 delta 一次性补进业务状态。
+
+## requestAnimationFrame 还是 setAnimationLoop
+
+`renderer.setAnimationLoop(callback)` 内部就是 `requestAnimationFrame`，但提供了统一入口和 WebXR 兼容：
+
+| 方式 | 适合场景 | 注意 |
+| --- | --- | --- |
+| `renderer.setAnimationLoop(cb)` | three.js 渲染循环的默认选择 | 传 `null` 停止；WebXR 会话期间框架用它切换到 XR 的渲染回调 |
+| 手动 `requestAnimationFrame(loop)` | 需要自己控制帧调度、或与 non-three 渲染混合 | WebXR 场景必须改回 `setAnimationLoop`，否则不会按 XR 帧率渲染 |
+
+WebXR（VR/AR）会话期间，three.js 用 `setAnimationLoop` 把回调绑定到 XR 系统的帧节奏；手写 `requestAnimationFrame` 会绕过这条链路，导致 XR 视图不更新。只要项目未来可能接入 XR，就统一用 `setAnimationLoop`。
+
+## 业务状态更新模式
+
+所有需要"随时间变化"的状态都用同一模式推进：速度写成"每秒多少"，再乘秒制 delta。
+
+```js
+// 每个模拟步进执行一次：
+timer.update(time);
+const delta = timer.getDelta();
+
+cube.rotation.y += angularSpeed * delta;       // 角度（弧度/秒）
+mesh.position.x += moveSpeed * delta;          // 位置（单位/秒）
+cooldown -= delta;                              // 倒计时（秒）
+mixer.update(delta);                            // AnimationMixer 用秒
+weight += (target - weight) * rate * delta;     // 平滑插值（每秒靠近 rate 比例）
+```
+
+| 状态类型 | 速度单位 | 推进方式 |
+| --- | --- | --- |
+| 角度 | 弧度/秒 | `rotation += angularSpeed * delta` |
+| 位置 | 单位/秒 | `position += velocity * delta` |
+| 倒计时 | 秒 | `remaining -= delta` |
+| 动画时间 | 秒 | `mixer.update(delta)` |
+| 平滑跟随 | 每秒比例 | `current += (target - current) * rate * delta` |
+
+把"每秒多少"作为唯一速度语义后，调试、换帧率、加慢放（`timer.setTimescale(0.25)`）都只改一个地方；`AnimationMixer`、物理引擎和自定义插值也能共享同一个 delta 来源。
+
+## 最佳实践
+
+- 所有速度都写成"每秒多少"，统一乘 `delta`；不要保留任何"每帧固定增量"。
+- 新项目用 `THREE.Timer`，`update(time)` 放在帧回调最前面；维护旧代码再沿用 `Clock`，并留意 r183 弃用。
+- 暂停、离屏或切到后台时停止 `setAnimationLoop`，恢复时重置时间基准（`lastTime = 0`、`clock.start()` 或 `timer.reset()`）。
+- 对异常大的单帧 delta 设上限（如 `Math.min(delta, 0.1)`），避免卡顿后对象瞬移；或用 `timer.connect(document)` 让后台 delta 自动归零。
+- `Timer.getDelta()` 同一帧可安全多次查询；`Clock.getDelta()` 不行——这是迁移到 Timer 的核心理由之一。
+- WebXR 或未来可能接入 XR 的项目，统一用 `renderer.setAnimationLoop(cb)`，不要手写 `requestAnimationFrame`。
+
+## 常见问题
+
+- 为什么动画在 120 Hz 或 144 Hz 屏幕上明显变快？
+  用了"每帧固定增量"；改成 `speed * delta`，让速度按秒解释。
+- 为什么从后台切回来，对象突然跳很远或动画快进了一截？
+  恢复循环时没重置时间基准；把 `lastTime` 清零，或对 `delta` 设上限，或用 `Timer.connect(document)` 让后台 delta 归零。
+- `Clock.getDelta()` 返回的值越来越小，或与 `getElapsedTime()` 对不上？
+  同一帧里多次调用 `getDelta()`（或先 `getDelta()` 再 `getElapsedTime()`）会重复推进 `oldTime`；每帧只查一次，或改用 `Timer`。
+- 控制台出现 `Clock: This module has been deprecated` 怎么办？
+  r183 起 `THREE.Clock` 标记弃用；新代码改用 `THREE.Timer`，`update(time)` 后再 `getDelta()`。
+- `Timer.getDelta()` 一直返回 `0`？
+  检查是否在 `update(time)` 之前查询；`update()` 必须先调用，且每个模拟步进只调一次。
+- `requestAnimationFrame` 写的循环在 WebXR 里不刷新画面？
+  WebXR 必须用 `renderer.setAnimationLoop(cb)`，让 three.js 把回调绑定到 XR 帧节奏。
+- 首帧 `delta` 特别大，对象开局就跳一下？
+  首帧要把基准清零（`lastTime = 0`）或调 `timer.reset()`，别把"循环启动前的延迟"算进状态。
+
+## 总结回顾
+
+摘要：
+
+动画推进必须基于时间。frame 是离散的渲染触发，delta 是相邻两帧的秒数间隔，elapsed 是自启动以来的累计秒数；业务状态用 `state += speed * delta` 推进，把速度统一成"每秒多少"，就能在任意帧率下保持一致。`setAnimationLoop` 的回调参数是毫秒时间戳，可以手动相减转秒，或交给 `THREE.Timer`（推荐）封装。Clock 自 r183 起弃用，其 `getDelta()` 靠"调用即推进 oldTime"实现，同一帧多次查询会得到不一致结果；Timer 用 `update(timestamp)` 把推进和查询分开，解决了这个缺陷，还提供 timescale 与 Page Visibility 支持。
+
+一句话：
+
+> 用 delta 推进状态，用 Timer 封装时间；帧率只决定每秒触发多少次，不决定运动快慢。
+
+知识要点：
+
+- 为什么"每帧固定增量"会让动画速度跟随刷新率变化？
+- frame、delta time 和 elapsed time 分别表示什么？哪个不受帧率影响？
+- `setAnimationLoop` 回调参数的单位是什么？怎样得到秒制 delta？
+- `THREE.Clock.getDelta()` 在同一帧调用两次会发生什么？Timer 怎么解决？
+- 暂停或切到后台后恢复循环，第一帧为什么要把时间基准清零？
+- WebXR 场景为什么必须用 `setAnimationLoop` 而不是 `requestAnimationFrame`？
+
+## 参考资料
+
+- [Three.js Docs：Timer](https://threejs.org/docs/pages/Timer.html)
+- [Three.js Docs：Clock（r183 起弃用）](https://threejs.org/docs/pages/Clock.html)
+- [Three.js Manual：Animation System](https://threejs.org/manual/en/animation-system.html)
+- [Three.js Manual：Creating a scene](https://threejs.org/manual/en/creating-a-scene.html)
+- [MDN：Window.requestAnimationFrame()](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame)
+- [MDN：performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now)
+- [MDN：Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)

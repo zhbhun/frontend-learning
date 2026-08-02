@@ -1,0 +1,215 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as InstancedStories from './instanced-mesh-object.stories.js';
+
+<Meta of={InstancedStories} name="Docs" />
+
+# InstancedMesh
+
+`THREE.InstancedMesh` 让一份 `BufferGeometry` 和 `Material` 一次性渲染 N 个结构相同、变换与颜色各异的实例。它解决的是"大量重复物体"的渲染成本：1000 个独立的 `Mesh` 会产生 1000 次 draw call 和 1000 份对象状态；1000 个实例的 `InstancedMesh` 只产生 1 次 draw call，几何与材质各自只占一份。
+
+每个实例的局部变换和颜色不是新的 Object3D，而是写在 `InstancedMesh` 内部的 `instanceMatrix` 与 `instanceColor` 两块 attribute 里。`setMatrixAt(i, matrix)` 写第 i 个实例的局部矩阵，`setColorAt(i, color)` 写它的颜色；写完通常要置 `instanceMatrix.needsUpdate = true` 让 GPU 拿到新数据，实例分布显著变化后还要 `computeBoundingSphere()` 让视锥剔除判断正确。
+
+它与 [Group](?path=/docs/group-and-local-space--docs) 和 [Points](?path=/docs/points-object--docs) 的边界要先分清：
+
+- Group 仍然是一棵真实对象树，每个子对象独立参与场景、拾取和事件，逐个变换逐个绘制——灵活但数量上去后 draw call 是瓶颈。
+- InstancedMesh 只有一个对象参与场景树，所有实例是 GPU 端的批量数据，不能给每个实例挂独立子对象或单独事件，但能用一次 draw call 渲染成千上万个重复物体。
+- Points 渲染的是"每顶点一个点"，没有体积和三角形；InstancedMesh 渲染的是"每实例一份完整几何"，保留形状、光照和深度。
+
+## 快速上手
+
+准备共享的几何和材质，再把实例数和每个实例的矩阵交给 `InstancedMesh`：
+
+```js
+const geometry = new THREE.IcosahedronGeometry(0.3, 0);
+const material = new THREE.MeshStandardMaterial({ color: '#3d73d9' });
+
+const count = 1000;
+const mesh = new THREE.InstancedMesh(geometry, material, count);
+
+const dummy = new THREE.Object3D();
+for (let i = 0; i < count; i++) {
+  dummy.position.set(
+    THREE.MathUtils.randFloatSpread(4),
+    THREE.MathUtils.randFloatSpread(4),
+    THREE.MathUtils.randFloatSpread(4)
+  );
+  dummy.rotation.set(0, Math.random() * Math.PI * 2, 0);
+  dummy.scale.setScalar(0.5 + Math.random() * 0.5);
+  dummy.updateMatrix();             // 把 TRS 组合成 matrix
+  mesh.setMatrixAt(i, dummy.matrix); // 写入第 i 个实例的局部矩阵
+}
+
+mesh.instanceMatrix.needsUpdate = true; // 必置，否则 GPU 拿不到新数据
+scene.add(mesh);
+```
+
+`count` 在构造时决定实例数量上限，后续把 `mesh.count` 改小可以临时只绘制前 N 个实例（不释放缓冲）。`setMatrixAt` 写入的是实例相对 `InstancedMesh` 的局部矩阵，再与 `InstancedMesh` 自身的 `matrixWorld` 相乘得到每个实例的世界变换——所以移动整个 `InstancedMesh` 会平移全部实例。
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `new THREE.InstancedMesh(geometry, material, count)` | `count` 必须 ≥ 0 | count 决定 GPU 缓冲容量；临时少画用 `mesh.count` |
+| `setMatrixAt(i, matrix)` | 第 i 个实例默认单位矩阵 | 写完置 `instanceMatrix.needsUpdate = true` |
+| `setColorAt(i, color)` | 不调用则使用 `material.color` | 首次调用后才创建 `instanceColor` attribute |
+| `instanceMatrix.setUsage` | `StaticDrawUsage` | 实例矩阵每帧变化时改为 `DynamicDrawUsage` |
+| `mesh.count` | 等于构造 count | 临时绘制数量，不改缓冲容量 |
+| `mesh.frustumCulled` | `true` | 实例分布变化后调 `computeBoundingSphere()`，否则可能误剔除 |
+| `mesh.raycast()` | 命中后返回 `instanceId` | 高亮单个实例用 `setColorAt` 改色 |
+
+## 实例变换 setMatrixAt
+
+`setMatrixAt(i, matrix)` 接收一个 4×4 局部矩阵。直接构造 `Matrix4` 太繁琐，常用做法是借用一个"哑对象" `Object3D` 当计算器：设置它的 `position` / `rotation` / `scale`，调用 `updateMatrix()` 把 TRS 组合成矩阵，再写入 `InstancedMesh`。
+
+```js
+const dummy = new THREE.Object3D();
+
+dummy.position.set(2, 0, 0);
+dummy.rotation.y = Math.PI / 4;
+dummy.scale.setScalar(1.2);
+dummy.updateMatrix();
+
+mesh.setMatrixAt(i, dummy.matrix);
+mesh.instanceMatrix.needsUpdate = true;
+```
+
+写完一定要置 `instanceMatrix.needsUpdate = true`——`setMatrixAt` 只更新了 CPU 端的 typed array，GPU 缓冲不会自动同步。漏掉这一行时，代码看起来正确，画面里实例却停在旧位置或单位矩阵位置。也可以直接构造 `Matrix4`，再用 `multiply`、`makeRotationFromEuler` 等方法组合，适合批量从外部数据（如粒子模拟结果）写入。
+
+实例矩阵每帧都变（动画、风吹草动）时，建议在构造后把 usage 改为动态：
+
+```js
+mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+```
+
+这告诉 WebGL 这块缓冲会频繁更新，驱动会选择更合适的上传策略。静态分布的实例（建筑、树林摆好后不动）保留默认 `StaticDrawUsage` 即可。
+
+## 每实例颜色 setColorAt
+
+想让每个实例有不同颜色，但又想共享同一个 `Material`，使用 `setColorAt(i, color)`：
+
+```js
+const color = new THREE.Color();
+for (let i = 0; i < count; i++) {
+  color.setHSL(i / count, 0.5, 0.55);
+  mesh.setColorAt(i, color);
+}
+mesh.instanceColor.needsUpdate = true;
+```
+
+`instanceColor` 在第一次 `setColorAt` 时才被创建（之前是 `null`），所以新建的 InstancedMesh 第一次写色后要同时置它的 `needsUpdate`。它和 `material.color` 是相乘关系：`material.color` 调暗时所有实例都会被压暗，设为白色 `(1,1,1)` 才能让每实例颜色原样显示。`MeshStandardMaterial`、`MeshBasicMaterial` 等内置材质都支持；`ShaderMaterial` 需要自己在片元着色器里读 `vInstanceColor` varying。
+
+对比之下，普通 `Mesh` 想要每实例颜色只能为每个对象 `material.clone()` 一份材质——这正是 `InstancedMesh` 在大量重复物体上的核心优势之一。
+
+## 一次 draw call 渲染大量实例
+
+InstancedMesh 把"成千上万个结构相同的物体"打包成一次 GPU 提交。下面范例固定用同一份几何和材质，切换渲染模式与实例数，观察 `renderer.info` 的 draw call 与 triangles 读数：
+
+<Canvas of={InstancedStories.InstancedVsMesh} />
+
+<Controls of={InstancedStories.InstancedVsMesh} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。读数里：
+
+- InstancedMesh 模式下，无论实例数是 500 还是 2000，draw calls 始终是 1；triangles 随实例数线性增长。
+- 切到"等量普通 Mesh"模式，draw calls 与对象数 1:1 攀升；切到"每实例颜色"还要为每个 Mesh 克隆一份 material，内存材质数也跟着涨。
+
+这就是 InstancedMesh 的价值：draw call 是 CPU 到 GPU 的提交次数，每帧数百次以上会成为瓶颈；实例化把瓶颈压回到 GPU 端的三角形吞吐量。开启"每帧重写矩阵"可以看到动态 `instanceMatrix` 的开销仍然远低于等量 draw call。
+
+## 视锥剔除与包围球
+
+InstancedMesh 默认 `frustumCulled = true`，renderer 用对象的 `boundingSphere` 判断是否整体在视锥外。麻烦在于：实例矩阵变化后，`boundingSphere` 不会自动重算——如果实例分布范围变大或整体平移，旧的包围球可能让视锥判断出错，把整个对象错误剔除。
+
+下面范例把一簇实例摆在相机视野内（X=12 附近），用 `boundingSphere` 模式模拟三种状态：
+
+<Canvas of={InstancedStories.FrustumCulling} />
+
+<Controls of={InstancedStories.FrustumCulling} />
+
+- computed：调用 `mesh.computeBoundingSphere()`，包围球覆盖实例实际分布，与视锥相交，对象正常显示。
+- stale：模拟"实例从原点移到 X=12 后没重算"，包围球仍是原点附近的小球；原点落到相机背后、视锥外，整个对象被错误剔除，画面只剩下网格和标记。
+- disabled：`mesh.frustumCulled = false`，直接跳过视锥剔除，实例显示；代价是相机背后的实例也会进入 GPU 提交（被 GPU 自己裁剪）。
+
+```js
+mesh.setMatrixAt(i, newMatrix);
+mesh.instanceMatrix.needsUpdate = true;
+mesh.computeBoundingSphere(); // 分布显著变化后重算，避免误剔除
+```
+
+实例矩阵动态变化时，每次分布显著改变后调用一次 `computeBoundingSphere()`；如果实例始终充满视野或分布稳定难出错，也可以直接 `frustumCulled = false`。
+
+## 拾取与 instanceId
+
+`Raycaster.intersectObject(instancedMesh)` 默认按三角形求交，命中结果里多出一个 `instanceId`，标明点中了哪个实例。用它做单个实例的高亮、选中或反馈：
+
+```js
+const hits = raycaster.intersectObject(instancedMesh);
+if (hits.length > 0) {
+  const id = hits[0].instanceId;
+  instancedMesh.setColorAt(id, highlightColor);
+  instancedMesh.instanceColor.needsUpdate = true;
+}
+```
+
+`setColorAt` 改单个实例颜色后同样要置 `instanceColor.needsUpdate`。Raycaster 对 InstancedMesh 的求交会比普通 Mesh 多一次"先解码实例矩阵再变换射线"的开销，数千实例下仍然可以接受；数万以上时考虑空间划分或 GPU 拾取。
+
+## 与 Group、Points 的边界
+
+大量重复物体的渲染方案不止一种，选错类别会让后续动画、拾取或性能都绕弯路：
+
+| 对象 | 渲染方式 | 适用 | 限制 |
+| --- | --- | --- | --- |
+| `Mesh` × N | N 次 draw call，独立对象 | 少量、各自独立行为 | 数量上去后 draw call 是瓶颈 |
+| `Group` + N 个 Mesh | 同上，但整体变换由父级 | 需要场景树层级 | draw call 仍是 N |
+| `InstancedMesh` | 1 次 draw call，GPU 批量 | 大量结构相同、变换各异的重复物体 | 不能给实例挂独立子对象 |
+| `Points` | 1 次 draw call，每顶点一个点 | 点云、粒子基础形态 | 没有体积和三角形 |
+| `BatchedMesh` | 合并多份几何为一次 draw call | 多种不同几何批量 | 见 [2.1.15 特殊对象](?path=/docs/special-object3d-types--docs) |
+
+InstancedMesh 是"同一几何的大量实例"的答案；多种不同几何的批量提交留给路线后续的 `BatchedMesh`，纯顶点形态留给 [Points](?path=/docs/points-object--docs)，需要独立对象行为时仍用 [Group](?path=/docs/group-and-local-space--docs)。
+
+## 最佳实践
+
+- 共享一份 geometry 和一份 material；每个实例的差异通过 `setMatrixAt` 和 `setColorAt` 写入，不要为每个实例克隆资源。
+- 写完 `setMatrixAt` / `setColorAt` 后置对应 attribute 的 `needsUpdate = true`，否则 GPU 拿不到新数据。
+- 实例矩阵每帧都变时改 `instanceMatrix.setUsage(THREE.DynamicDrawUsage)`；静态分布保留默认。
+- 实例分布范围动态变化后调 `computeBoundingSphere()`；分布稳定且常充满视野时可 `frustumCulled = false`。
+- 临时只画前 N 个实例用 `mesh.count`，不需要重建缓冲；彻底换布局才重建 `InstancedMesh`。
+- 拾取命中后用 `hits[0].instanceId` 直接定位实例，不要按世界位置反查。
+- 释放时调用 `mesh.dispose()` 释放 `instanceMatrix` / `instanceColor` 缓冲；共享的 geometry 和 material 单独 dispose。
+
+## 常见问题
+
+- 为什么 `setMatrixAt` 后画面里实例没动？
+  漏置 `instanceMatrix.needsUpdate = true`；它只更新 CPU 端 typed array，GPU 缓冲要靠 needsUpdate 同步。
+- 为什么 `setColorAt` 后所有实例颜色没变？
+  同样要置 `instanceColor.needsUpdate = true`；另外确认 `material.color` 没有被调暗——它与每实例颜色相乘。
+- 为什么相机看着实例，整个 InstancedMesh 突然消失了？
+  实例分布变化后 `boundingSphere` 过期，被视锥错误剔除。调用 `mesh.computeBoundingSphere()`，或直接 `mesh.frustumCulled = false`。
+- 为什么想给每个实例挂子对象做不到？
+  InstancedMesh 的实例只是 GPU 端的批量数据，不是 Object3D；需要独立子对象时改用 Group + Mesh，或把"子对象"烘焙进几何。
+- 为什么 `raycaster.intersectObject` 拿不到 instanceId？
+  命中点是 InstancedMesh 的整体三角形求交；确认射线确实穿过某实例的几何，并检查 `mesh.frustumCulled` 是否误剔除了整个对象。
+- 为什么释放后显存没下降？
+  `InstancedMesh.dispose()` 只释放实例缓冲；共享的 geometry、material 和它们引用的 texture 仍需单独 dispose。
+
+## 总结回顾
+
+摘要：
+
+InstancedMesh 用一份 geometry 和一份 material，把大量结构相同、变换和颜色各异的实例打包成一次 draw call。每个实例的局部矩阵和颜色通过 `setMatrixAt` 和 `setColorAt` 写入内部 attribute，写完置 needsUpdate 同步到 GPU。实例分布动态变化后要 `computeBoundingSphere()` 让视锥剔除判断正确；拾取命中后用 `instanceId` 直接定位单个实例。它服务的是"大量重复物体"场景，需要独立对象行为时仍用 Group + Mesh。
+
+一句话：
+
+> 把"结构相同、变换各异"的大量物体交给 InstancedMesh，用一次 draw call 换掉上千次提交。
+
+知识要点：
+
+- InstancedMesh 与等量普通 Mesh 在 draw call、内存和每实例颜色上各有什么差别？
+- `setMatrixAt` 后必须做什么才能让 GPU 看到新矩阵？
+- 实例分布变化后 `frustumCulled` 为什么会误剔除整个对象？
+- `setColorAt` 写入的颜色怎样与 `material.color` 组合？
+- 什么时候该用 InstancedMesh，什么时候仍要用 Group 或 Points？
+
+## 参考资料
+
+- [Three.js Docs：InstancedMesh](https://threejs.org/docs/pages/InstancedMesh.html)
+- [Three.js Manual：How to use InstancedMesh](https://threejs.org/manual/en/how-to-use-instanced-mesh.html)
+- [Three.js Examples：dynamic instanced mesh](https://threejs.org/examples/?q=instan#webgl_instancing_dynamic)
+- [Three.js Docs：Object3D](https://threejs.org/docs/pages/Object3D.html)

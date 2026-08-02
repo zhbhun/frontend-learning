@@ -1,0 +1,411 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ShaderStories from './shader-basics.stories.js';
+
+<Meta of={ShaderStories} name="Docs" />
+
+# Shader
+
+`ShaderMaterial` 是 [Material](?path=/docs/materials-and-render-states--docs) 家族之外的一条岔路：它不再选某种受光模型，而是让你**直接写两段 GLSL 字符串**——一段顶点着色器、一段片元着色器——交给 WebGL 在 GPU 上跑。其他内置材质（Basic / Lambert / Phong / Standard）底层也都是 shader，只是 shader 由 three.js 写好；ShaderMaterial 把这份控制权交给你，代价是要懂一点 GLSL。
+
+渲染管线在这里被压缩成两阶段，先建立这个心智模型，后面所有 uniform / attribute / varying 都能落到正确位置：
+
+- **顶点着色器（vertex shader）：** 对每个顶点跑一次。读 [BufferGeometry](?path=/docs/geometry-and-buffergeometry--docs) 的 attribute（`position` / `uv` / `normal` 等），算出顶点的裁剪空间坐标 `gl_Position`。它决定"形状在哪里"。
+- **片元着色器（fragment shader）：** 对光栅化后每个像素跑一次。读 vertex shader 通过 `varying` 传下来的值、JS 传下来的 `uniform`，算出该像素的颜色 `gl_FragColor`。它决定"表面是什么色"。
+
+JS 与 GPU 之间只有三类通道，记住它们就够了：
+
+| 通道 | 方向 | 含义 | 谁声明 |
+| --- | --- | --- | --- |
+| `attribute` | JS → 顶点 | 每个顶点一份的数据（位置、UV、法线、自定义权重等） | vertex shader 里 `attribute vec3 position;` |
+| `uniform` | JS → 全管线 | 整次绘制共用的全局（时间、颜色、矩阵） | vertex / fragment 两端都要声明，类型一致 |
+| `varying` | 顶点 → 片元 | vertex 算好的值插值传给 fragment | 两端都声明同名同类型 |
+
+`ShaderMaterial` 默认会自动注入 three.js 的内置 attribute 和 uniform（`position`、`uv`、`normal`、`modelViewMatrix`、`projectionMatrix` 等），所以你写的 shader 字符串里**不需要也不能**再声明它们就能直接用；`RawShaderMaterial` 不注入，全靠自己写——这是两者的核心区别。
+
+NOTE 已确认本课不深入底层 WebGL/WebGL2 API，下面所有内容都在 three.js 的 `ShaderMaterial` 层面展开。
+
+## 快速上手
+
+最小闭环：一个 [PlaneGeometry](?path=/docs/geometry-and-buffergeometry--docs) + 一个 `ShaderMaterial`，fragment 用 `uv` 画一段渐变。
+
+```js
+import * as THREE from 'three';
+
+const geometry = new THREE.PlaneGeometry(2, 2);
+
+const material = new THREE.ShaderMaterial({
+  uniforms: {
+    uColorA: { value: new THREE.Color('#3d73d9') },
+    uColorB: { value: new THREE.Color('#f0a432') }
+  },
+  vertexShader: /* glsl */ `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */ `
+    uniform vec3 uColorA;
+    uniform vec3 uColorB;
+    varying vec2 vUv;
+    void main() {
+      vec3 color = mix(uColorA, uColorB, vUv.x);
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `
+});
+
+const mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
+```
+
+这段代码没有任何"光"参与——ShaderMaterial 不像 `MeshStandardMaterial` 那样响应场景里的 Light；它的颜色完全由你写的 fragment shader 决定。
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `uniforms` | `{}` | 每项 `{ value, type? }`；改 `.value` 后立即生效，**不需要** `needsUpdate` |
+| `vertexShader` / `fragmentShader` | `undefined` | GLSL 字符串；改整段字符串要 `material.needsUpdate = true` |
+| `glslVersion` | `null`（即 GLSL 1） | 设 `THREE.GLSL3` 时输出变量要自己声明 `out vec4`，且不能用 `gl_FragColor` |
+| `transparent` | `false` | fragment 输出的 alpha 小于 1 时要 `true` 才进透明队列 |
+| `wireframe` | `false` | `true` 时把三角形画成线框 |
+| `side` | `FrontSide` | Plane 默认朝 +Z，从背面看要 `DoubleSide` |
+| `defines` | `{}` | 编译期宏 `#define`；改了要 `needsUpdate` |
+| `flatShading` | `false` | `true` 时 three.js 会重新派生顶点法线（衍生 attribute） |
+
+## 内置 attribute 与 uniform
+
+`ShaderMaterial` 在编译 shader 前会自动 prepend 一段声明，把 three.js 已经准备好的内置 attribute 和 uniform 注入进去——所以下面这些变量你**直接用就行**，不能在 shader 里重复声明（重复声明会报 `'position' : declaration already defined`）。
+
+内置 attribute（每个顶点一份，由 [BufferGeometry](?path=/docs/geometry-and-buffergeometry--docs) 提供）：
+
+| attribute | 类型 | 来源 | 含义 |
+| --- | --- | --- | --- |
+| `position` | `vec3` | `geometry.attributes.position` | 顶点局部坐标，渲染必需 |
+| `normal` | `vec3` | `geometry.attributes.normal` | 顶点法线 |
+| `uv` | `vec2` | `geometry.attributes.uv` | 纹理坐标 |
+| `color`（顶点色） | `vec3` | `geometry.attributes.color`（若有） | 顶点色 |
+| `tangent` | `vec4` | `geometry.attributes.tangent`（若有） | 切线（法线贴图用） |
+
+内置 uniform（整次绘制共用，由 renderer / mesh / camera 提供）：
+
+| uniform | 类型 | 含义 |
+| --- | --- | --- |
+| `modelMatrix` | `mat4` | 局部 → 世界 |
+| `modelViewMatrix` | `mat4` | 局部 → 视图（`viewMatrix * modelMatrix` 的预乘） |
+| `projectionMatrix` | `mat4` | 视图 → 裁剪 |
+| `viewMatrix` | `mat4` | 世界 → 视图 |
+| `normalMatrix` | `mat3` | 法线从局部到视图的逆转置 |
+| `cameraPosition` | `vec3` | 相机世界坐标 |
+| `isOrthographic` | `bool` | 是否正交相机 |
+
+内置 attribute 名字（`position` / `normal` / `uv` / `color` / `tangent`）被 three.js 占用，自定义 attribute **不要同名**——用 `aWeight`、`aOffset` 这类 `a` 前缀避开。
+
+## uniforms：JS 到 GPU
+
+uniforms 是 JS 与 GPU 之间唯一的运行时通道。每项是 `{ value, type? }` 形式的对象：
+
+```js
+const material = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime:    { value: 0 },
+    uColor:   { value: new THREE.Color('#3d73d9') },
+    uTexture: { value: texture },
+    uMatrix:  { value: new THREE.Matrix4() }
+  }
+});
+
+// 运行时改 uniform 走 .value，立即生效，不需要 needsUpdate
+material.uniforms.uTime.value = clock.getElapsedTime();
+material.uniforms.uColor.value.set('#ff8800');
+```
+
+`type` 字段（`'f'` / `'v3'` / `'t'` / `'m4'` 等）只在少数路径上被读取（如 WebGL 状态缓存键、`UniformsUtils.clone()` 时识别类型）；日常用法可以直接给 `value` 让 three.js 自动推断。
+
+| 值类型 | JS 包装 | GLSL 类型 |
+| --- | --- | --- |
+| 浮点 | `{ value: 1.0 }` | `uniform float uX;` |
+| 颜色 | `{ value: new THREE.Color(...) }` | `uniform vec3 uX;` |
+| 向量 | `{ value: new THREE.Vector3(...) }` | `uniform vec3 uX;` |
+| 矩阵 | `{ value: new THREE.Matrix4() }` | `uniform mat4 uX;` |
+| 纹理 | `{ value: texture }` | `uniform sampler2D uX;` |
+
+**关键点：** 改 `uniforms.xxx.value` 立即生效，不需要 `material.needsUpdate`——因为 uniform 不是 shader 代码，而是每次绘制时由 renderer 直接上传到 GPU。这一点和改 `vertexShader` 字符串截然不同。
+
+下面这个范例把波纹颜色、频率、振幅都暴露成 uniform，调一下立刻能在画面上看到片元输出变化：
+
+<Canvas of={ShaderStories.ShaderRipple} />
+
+<Controls of={ShaderStories.ShaderRipple} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。范例把 `delta` 每帧累加进 `uniforms.uTime.value`——这是驱动 shader 动画的标准做法；关闭 `animate` 可以冻结当前时间，方便对照"uTime 改变才会动"这件事。
+
+## 顶点与片元着色器
+
+两段 shader 各自只回答一个问题，分开看就不容易混：
+
+**顶点着色器只算位置。** 输入是 attribute（每顶点）和 uniform（全局），输出必须是 `gl_Position`——一个 4D 裁剪空间坐标。three.js 里最常见的写法是把模型局部坐标依次乘到裁剪空间：
+
+```glsl
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+```
+
+变换链：`position`（局部） → `modelMatrix` → 世界 → `viewMatrix` → 视图 → `projectionMatrix` → 裁剪。`modelViewMatrix` 是 `viewMatrix * modelMatrix` 的预乘，等价但少一次矩阵乘，是默认推荐写法。
+
+**片元着色器只算颜色。** 输入是 varying（顶点插值）和 uniform，输出是 `gl_FragColor`（GLSL 1）：
+
+```glsl
+void main() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+```
+
+`precision mediump float;` 在 ShaderMaterial 里被自动 prepend，可省略；切到 RawShaderMaterial 时必须自己写，否则编译报错。
+
+`glslVersion: THREE.GLSL3`（WebGL 2）时不能用 `gl_FragColor`，要自己在 fragment 顶部声明 `out vec4 fragColor;` 再写入——这是 GLSL 3 的硬性要求，不是 three.js 的额外规则；同时 `texture2D(sampler, uv)` 要改成 `texture(sampler, uv)`。
+
+## varying：顶点到片元
+
+vertex 算出来的值（uv、normal、自定义坐标）如果想给 fragment 用，必须通过 `varying`：两端**声明同名同类型**，vertex 写入，fragment 读取——中间的"光栅化插值"由 GPU 自动完成。
+
+```glsl
+// vertex
+varying vec2 vUv;
+varying vec3 vNormal;
+void main() {
+  vUv = uv;
+  vNormal = normalize(normalMatrix * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+
+// fragment
+varying vec2 vUv;
+varying vec3 vNormal;
+void main() {
+  // 用插值后的法线做简单 Lambert
+  float light = max(dot(vNormal, normalize(vec3(0.6, 0.8, 0.5))), 0.0);
+  vec3 base = vec3(vUv, 0.0);
+  gl_FragColor = vec4(base * (0.3 + 0.7 * light), 1.0);
+}
+```
+
+varying 命名习惯用 `v` 前缀（`vUv` / `vNormal` / `vPosition`），方便和 attribute / uniform 区分。GPU 在三角形内部对 varying 做线性插值——`vUv` 在三个顶点处各是一个值，片元位置上的 `vUv` 是按重心坐标加权平均后的结果。
+
+`precision` 声明只在 fragment 里强制要求（vertex 默认 highp）；ShaderMaterial 已经替你加好，所以上面的 fragment 不用写。
+
+## GLSL 基础
+
+GLSL 是 C 风格的强类型语言。日常写 shader 用到的类型和函数不多：
+
+| 类型 | 含义 | 字面量 |
+| --- | --- | --- |
+| `float` | 浮点 | `1.0`（必须有小数点；`1` 是 int） |
+| `vec2` / `vec3` / `vec4` | 2/3/4 分量浮点 | `vec3(0.0, 0.5, 1.0)` |
+| `mat2` / `mat3` / `mat4` | 2/3/4 阶方阵 | `mat4(1.0)` 表示单位矩阵 |
+| `sampler2D` | 2D 纹理 | 只能通过 `uniform sampler2D` 声明 |
+
+分量访问：`v.x` / `v.xy` / `v.rgb` / `v.xyzw`（xyzw、rgba、stpq 三套等价名字，可混用）。
+
+`*` 在 GLSL 里被重载，含义取决于两边类型：
+
+```glsl
+mat4 m;
+vec4 p;
+vec4 clip = m * p;     // 矩阵 × 向量
+
+vec3 a = vec3(1.0);
+vec3 b = vec3(2.0);
+vec3 product = a * b;  // 分量相乘：(2.0, 2.0, 2.0)；点积要 dot(a, b)
+```
+
+常用内建函数：
+
+| 函数 | 行为 |
+| --- | --- |
+| `mix(a, b, t)` | `a + (b - a) * t`，t 在 0~1 之间做线性插值 |
+| `smoothstep(e0, e1, x)` | 平滑过渡的 0→1（Hermite 插值），常做抗锯齿边缘 |
+| `clamp(x, lo, hi)` | 钳到 `[lo, hi]` |
+| `normalize(v)` | 归一化向量 |
+| `length(v)` | 向量长度 |
+| `distance(p0, p1)` | 两点距离 |
+| `dot(a, b)` / `cross(a, b)` | 点积 / 叉积 |
+| `reflect(I, N)` / `refract(I, N, eta)` | 反射 / 折射向量 |
+| `texture2D(sampler, uv)` | GLSL 1 采样纹理；GLSL 3 写 `texture(sampler, uv)` |
+
+分支与循环都支持，但 GPU 上分支成本和 JS 不同（SIMT 模型下分歧分支会拖慢同 warp 的所有线程），能用 `mix` / `step` 替代时优先替代。shader 里没有 `console.log`——调试靠把中间值输出成颜色。
+
+## 自定义 attribute
+
+[BufferGeometry](?path=/docs/geometry-and-buffergeometry--docs) 上加 attribute，再在 shader 里声明同名变量，three.js 会自动把它们对接起来：
+
+```js
+const geometry = new THREE.PlaneGeometry(2, 2, 16, 16);
+
+// 给每个顶点加一个随机权重
+const count = geometry.attributes.position.count;
+const weights = new Float32Array(count);
+for (let i = 0; i < count; i++) weights[i] = Math.random();
+geometry.setAttribute('aWeight', new THREE.Float32BufferAttribute(weights, 1));
+```
+
+```glsl
+// vertex
+attribute float aWeight;
+varying float vWeight;
+void main() {
+  vWeight = aWeight;
+  // 让顶点沿 normal 方向被权重推起
+  vec3 displaced = position + normal * aWeight * 0.3;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+}
+
+// fragment
+varying float vWeight;
+void main() {
+  gl_FragColor = vec4(vec3(vWeight), 1.0);
+}
+```
+
+要点：
+
+- 内置名字（`position` / `normal` / `uv` / `color` / `tangent`）被 three.js 占用，**自定义 attribute 用 `a` 前缀**避开。
+- 顶点数必须与 `position.count` 一致；`itemSize` 决定 GLSL 端类型（1=`float`，2=`vec2`，3=`vec3`，4=`vec4`）。
+- 改 attribute 的 array 后设 `attribute.needsUpdate = true`；改了结构（增删 attribute 或换 itemSize）要 `geometry.dispose()` + 新 material。
+
+实例化 attribute（每实例一份，配合 `InstancedMesh` / `InstancedBufferGeometry`）用 `InstancedBufferAttribute`，详见 [InstancedMesh](?path=/docs/instanced-mesh-object--docs)。
+
+## RawShaderMaterial 与 onBeforeCompile
+
+两种延伸路径，超出 `ShaderMaterial` 默认能力时使用：
+
+**`RawShaderMaterial`** 不注入任何内置 attribute 和 uniform——`position`、`projectionMatrix` 这些都不会自动声明，要自己在 shader 顶部写完。适合：
+
+- 把第三方 GLSL（写死了所有声明）原样塞进 three.js；
+- 学习 raw WebGL 时把 three.js 当窗口和上下文管理器。
+
+```js
+new THREE.RawShaderMaterial({
+  vertexShader: /* glsl */ `
+    attribute vec3 position;       // 全部要自己声明
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */ `
+    precision mediump float;       // RawShaderMaterial 不自动加 precision
+    void main() {
+      gl_FragColor = vec4(0.2, 0.7, 0.4, 1.0);
+    }
+  `
+});
+```
+
+**`onBeforeCompile`** 不替换官方材质的 shader，而是在编译前**注入片段**：往 `MeshStandardMaterial` 等官方材质的 shader 字符串里加几行 GLSL，修改其行为（加描边、加自定义 varying、改片元色等）。
+
+```js
+const material = new THREE.MeshStandardMaterial({ color: '#3d73d9' });
+
+material.onBeforeCompile = (shader) => {
+  shader.uniforms.uGlow = { value: new THREE.Color('#ff8800') };
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vViewPos;\n')
+    .replace('#include <fog_vertex>', '#include <fog_vertex>\nvViewPos = -mvPosition.xyz;\n');
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nuniform vec3 uGlow;\nvarying vec3 vViewPos;\n')
+    .replace(
+      '#include <dithering_fragment>',
+      '#include <dithering_fragment>\ngl_FragColor.rgb += uGlow * 0.1;\n'
+    );
+};
+// 修改了 shader 字符串时必须给缓存键，否则 three.js 可能在多处复用同一份编译结果而忽略注入
+material.customProgramCacheKey = () => 'std-glow';
+```
+
+注入完成后，改 uniform 不再走 `material.uniforms`（那是 ShaderMaterial 的接口），而要走 `onBeforeCompile` 闭包里捕获的 `shader.uniforms`——这是 `onBeforeCompile` 与 ShaderMaterial 的关键区别，也是新手常踩的坑。
+
+`onBeforeCompile` 修改了 shader 字符串时，必须给 `material.customProgramCacheKey()` 一个稳定标识，否则 three.js 可能在多处复用同一份编译结果而忽略你的注入。深入自定义渲染管线、EffectComposer 的 shader pass 见[后处理](?path=/docs/postprocessing-basics--docs)课。
+
+## 调试与报错
+
+shader 编译或链接失败时，three.js 把错误打到 `console.error`。报错通常长得像：
+
+```text
+THREE.WebGLProgram: Shader Error - vertex
+ERROR: 0:12: 'position' : declaration already defined
+```
+
+常见原因与定位：
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| `'position' : declaration already defined` | 在 ShaderMaterial 里又声明了内置 attribute/uniform | 删掉自定义声明，内置的直接用 |
+| `'xxx' : undeclared identifier` | 拼错变量名，或忘在 fragment 里声明 varying / uniform | 两端同名同类型声明补齐 |
+| `Cannot read property 'x' of undefined`（JS 端） | `uniforms.xxx.value` 没初始化 | uniforms 里所有项都要先给 `value` |
+| uniform 改了画面不动 | 改的不是 `.value`，而是替换了整个 `uniforms.xxx` 对象 | 永远改 `uniforms.xxx.value`，不要替换对象 |
+| 改了 shader 字符串画面不动 | shader 字符串变更不会触发重编 | 设 `material.needsUpdate = true` |
+| 整片红 / 黑 / 一色 | fragment 输出常量、varying 没传、normal 未归一化 | 先用诊断色 `gl_FragColor = vec4(vUv, 0.0, 1.0);` 验证 uv 与 varying 链路 |
+| 切到 GLSL3 报错 | 还在用 `gl_FragColor` / `texture2D` / `attribute` / `varying` | GLSL3 改成 `out vec4` / `texture()` / `in` / `out` |
+
+`renderer.debug.getActiveUniforms(material)` / `getActiveAttributes(material)` 能拿到当前 material 实际生效的 uniform / attribute 清单，是排查"我声明了但没出现"的工具。shader 里没有 `console.log`，调试靠把中间值（normal、uv、weight）输出成颜色观察。
+
+## 最佳实践
+
+- 变量名前缀化：uniform 用 `u`、attribute 用 `a`、varying 用 `v`，避开 three.js 内置名字。
+- 改 uniform 用 `uniforms.xxx.value = ...`；改 shader 字符串才用 `material.needsUpdate = true`。
+- 多个 material 共享 uniforms 时用 `THREE.UniformsUtils.clone(uniforms)` 复制一份，避免一处改动影响所有引用者。
+- vertex shader 里所有变换链最终都要落到 `gl_Position`；fragment 里所有路径都要给 `gl_FragColor`（或 GLSL3 的 `fragColor`）赋值。
+- 共享 texture 时不要重复加载，多个 material 各自的 `uniforms.uTexture.value = sameTexture` 即可。
+- ShaderMaterial 也吃 [Material](?path=/docs/materials-and-render-states--docs) 的 `transparent` / `depthWrite` / `side` / `wireframe` / `blending`；fragment 输出 alpha 时按透明规则配齐。
+- 先用最简 fragment（输出 `vUv` / `vNormal` / 单色）验证链路，再逐步加复杂度；遇到黑屏先怀疑 varying 没接通而不是算法错。
+- dispose 时 `material.dispose()` 即可；它引用的 Texture 要单独 dispose，和内置材质一致。
+
+## 常见问题
+
+- 为什么 ShaderMaterial 整片黑色？
+  先用 `gl_FragColor = vec4(vUv, 0.0, 1.0);` 这种诊断色替换 fragment，确认 varying 和 uniform 链路；如果换成 `vec4(1.0, 0.0, 0.0, 1.0)` 还是黑，多半是 `transparent` / `depthWrite` / 几何朝向问题。
+- 为什么控制台报 `'position' : declaration already defined`？
+  ShaderMaterial 已自动声明内置 attribute / uniform。删掉 shader 里 `attribute vec3 position;` / `uniform mat4 projectionMatrix;` 这类重复声明即可。
+- 为什么 uniform 改了画面不动？
+  检查改的是 `uniforms.xxx.value` 还是 `uniforms.xxx = {...}`。前者改值（立即生效），后者替换对象（renderer 拿不到新引用）。永远走 `.value`。
+- 为什么改了 shader 字符串没生效？
+  shader 是被缓存编译的，改字符串要 `material.needsUpdate = true` 才会重编。改 uniform 不需要。
+- 为什么切换 GLSL3 后报错？
+  GLSL3（WebGL 2）不再支持 `attribute` / `varying` / `gl_FragColor` / `texture2D`；改用 `in` / `out` / 自定义 `out vec4 fragColor` / `texture()`。
+- ShaderMaterial 需要场景里有 Light 吗？
+  不需要。ShaderMaterial 不读 three.js 的光照系统；想要光照要么自己在 shader 里写光照计算，要么用 `onBeforeCompile` 改官方材质。
+- 自定义 attribute 加了，但 shader 里读不到？
+  检查 GLSL 端声明与 `setAttribute` 名字一致；顶点数与 `position.count` 一致；`itemSize` 与类型匹配（1=float，2=vec2，3=vec3，4=vec4）。
+- 为什么 `onBeforeCompile` 加的 uniform 改了不生效？
+  注入的 uniform 走闭包里的 `shader.uniforms`，不是 `material.uniforms`（后者是 ShaderMaterial 的接口）。把 `shader` 引用闭包捕获到外部状态，每帧改 `shader.uniforms.uGlow.value`。
+
+## 总结回顾
+
+摘要：
+
+ShaderMaterial 是 three.js 在材质层提供的 GLSL 入口，把 vertex shader（每顶点算位置）和 fragment shader（每像素算颜色）两段字符串组合成 Material。JS 与 GPU 之间通过三类通道交换数据：attribute（每顶点）、uniform（全局）、varying（顶点→片元）。ShaderMaterial 自动注入内置 attribute（`position` / `uv` / `normal` 等）和 uniform（`modelViewMatrix` / `projectionMatrix` 等），可直接使用；改 uniform 走 `.value` 立即生效，改 shader 字符串才需要 `needsUpdate`。RawShaderMaterial 不注入内置变量，onBeforeCompile 用于扩展官方材质的 shader，两者是 ShaderMaterial 的边界路径。GLSL 是强类型 C 风格语言，注意分量访问、`*` 重载和内建函数语义；调试时优先用诊断色（输出 `vUv`、单色）验证链路。
+
+一句话：
+
+> ShaderMaterial 把渲染管线压缩成两段 GLSL——顶点算位置、片元算颜色，中间用 varying 桥接；JS 通过 uniform 实时影响片元，通过 attribute 给每个顶点喂数据。
+
+知识要点：
+
+- 渲染管线的两阶段分别由 vertex shader 和 fragment shader 负责，各自必须输出什么？
+- attribute / uniform / varying 三类通道分别走哪个方向、由谁声明？
+- ShaderMaterial 默认注入了哪些内置 attribute 和 uniform？为什么不能在 shader 里重复声明？
+- 改 uniform 和改 shader 字符串，为什么前者不需要 `needsUpdate` 而后者需要？
+- GLSL3 与默认 GLSL1 在输出变量、纹理采样、属性声明上的差别？
+- RawShaderMaterial 与 ShaderMaterial 的核心区别是什么？`onBeforeCompile` 修改的是哪种 shader？
+
+## 参考资料
+
+- [Three.js Docs：ShaderMaterial](https://threejs.org/docs/pages/ShaderMaterial.html)
+- [Three.js Docs：RawShaderMaterial](https://threejs.org/docs/pages/RawShaderMaterial.html)
+- [Three.js Docs：Material.onBeforeCompile](https://threejs.org/docs/pages/Material.html)
+- [Three.js Manual：How to update things](https://threejs.org/manual/en/how-to-update-things.html)
+- [Three.js Examples：ShaderMaterial](https://threejs.org/examples/?q=shader#webgl_shader)
+- [WebGL Reference Card（GLSL）](https://www.khronos.org/files/webgl20-reference-guide.pdf)

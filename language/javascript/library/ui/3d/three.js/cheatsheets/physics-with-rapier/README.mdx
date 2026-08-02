@@ -1,0 +1,527 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="physics-with-rapier" title="进阶分支/应用生态/物理" name="Docs" />
+
+# 物理
+
+three.js 本身只负责渲染，不会告诉你"两个方块撞上了"或"球从斜面滚下来"。物理效果由独立的物理引擎计算，再把结果交给 three.js 画出来。生态里最常用的是 [Rapier](https://rapier.rs/)——一个用 Rust 写成、编译成 WebAssembly 的物理引擎，通过 `@dimforge/rapier3d-compat` 包接入 JavaScript。
+
+理解这套集成的关键是把"物理"和"渲染"分成两层独立的状态：
+
+- **物理是真理来源。** Rapier 维护一份 `World`，里面是刚体（`RigidBody`）、碰撞体（`Collider`）、重力和约束的真实位姿与速度。它的状态由 `world.step()` 按物理规律推进。
+- **mesh 是渲染视图。** three.js 的 `Mesh` 只是物理刚体的"显示器"：每步物理推进后，把刚体的位姿（`translation()` / `rotation()`）抄写到 `mesh.position` / `mesh.quaternion`。不要把渲染位置当作物理状态来源——动态物体的位置永远由物理说了算。
+
+四条相互独立的控制维度共同决定物理表现，调试时先分清是哪一条出了问题：
+
+- **World 配置**（重力向量、`timestep`）决定全局规则；
+- **刚体类型**（dynamic / fixed / kinematic）决定物体是否被推动、是否受重力；
+- **碰撞体形状**（ball / cuboid / capsule / trimesh …）决定哪些物体会相撞、撞成什么样；
+- **同步方向**决定物理和 mesh 谁是输入——动态体是 物理 → mesh，运动学体是 mesh → 物理。
+
+> 本工作区未安装 `@dimforge/rapier3d-compat`（避免给所有课程加上 WASM 依赖）。本课是 docs-only 课程：正文用关键代码片段讲清用法和判断，需要在自己项目中运行时，先 `npm i @dimforge/rapier3d-compat` 再照搬示例。
+
+## 快速上手
+
+最小闭环四步：异步初始化 WASM → 建 `World`（设重力）→ 建刚体和碰撞体 → 在动画循环里按固定时间步 `world.step()` 并把结果写回 mesh。
+
+```js
+import RAPIER from '@dimforge/rapier3d-compat';
+import * as THREE from 'three';
+
+// compat 包把 WASM 内联成 base64，异步初始化一次后才能用全部 API。
+await RAPIER.init();
+
+// 重力是世界单位/秒²，向量形式；默认 Y 朝下，取 -9.81 近似真实重力。
+const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
+world.timestep = 1 / 60; // 默认值；固定时间步，与渲染帧率解耦
+
+// 地面：fixed 刚体永远不动，配一个大立方体碰撞体。
+const groundBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+world.createCollider(RAPIER.ColliderDesc.cuboid(50, 0.5, 50), groundBody);
+
+// 落体：dynamic 刚体受重力影响，初始位置放在 10 米高处。
+const boxBody = world.createRigidBody(
+  RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 10, 0)
+);
+world.createCollider(RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5), boxBody);
+
+// 对应的 three.js mesh 只负责渲染——大小要和碰撞体一致。
+const boxMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1), // 全边长 1，对应 cuboid 半边长 0.5
+  new THREE.MeshStandardMaterial({ color: '#3d73d9' })
+);
+scene.add(boxMesh);
+```
+
+动画循环里用累加器按固定步长推进物理，再把位姿抄回 mesh（完整原因见 [step 与固定时间步](#step-与固定时间步)）：
+
+```js
+const FIXED_DT = world.timestep; // 1/60
+let accumulator = 0;
+
+renderer.setAnimationLoop((time) => {
+  timer.update(time);                      // 复用时间课的 Timer
+  const delta = timer.getDelta();
+
+  // 累积渲染 delta，按固定时间步整步推进物理。
+  accumulator += delta;
+  while (accumulator >= FIXED_DT) {
+    world.step();
+    accumulator -= FIXED_DT;
+  }
+
+  // 物理 → 渲染：把刚体位姿写回 mesh。
+  const t = boxBody.translation();         // { x, y, z }
+  const r = boxBody.rotation();            // { w, x, y, z } 四元数
+  boxMesh.position.set(t.x, t.y, t.z);
+  boxMesh.quaternion.set(r.x, r.y, r.z, r.w);
+
+  renderer.render(scene, camera);
+});
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `await RAPIER.init()` | 顶层 await 一次 | 未初始化时所有构造都会抛错；compat 包需异步加载 WASM |
+| `new World({ x, y, z })` | `{ y: -9.81, z: 0, x: 0 }` | 重力是世界单位/秒²；改 Y 分量改变下落方向 |
+| `world.timestep` | `1/60`（≈0.0167 秒） | 固定值；不要随渲染帧率波动，否则物理失稳 |
+| `RigidBodyDesc.dynamic()` | 受重力、受碰撞 | 静态物体用 `.fixed()`；代码驱动用 `.kinematicPositionBased()` |
+| `ColliderDesc.cuboid(hx, hy, hz)` | 半边长 | 与 `BoxGeometry` 的全边长不同；几何和碰撞体各自独立 |
+| `world.step()` | 推进一个 `timestep` | 固定步长下用累加器整步推进；可选传 `EventQueue` 收事件 |
+| `rigidBody.translation()` | 返回 `{ x, y, z }` | 每步后读取，写回 `mesh.position` |
+
+## 刚体类型
+
+刚体（`RigidBody`）描述"这个物体如何被物理推动"。Rapier 把它分成四种，区别在于是否被重力拉、是否被碰撞推动、谁决定它的运动。用 `RigidBodyDesc` 的工厂方法创建：
+
+```js
+const dynamic = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic());
+const fixed = world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+const kinPos = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased());
+const kinVel = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicVelocityBased());
+```
+
+| 类型 | 受重力 | 被碰撞推动 | 谁决定运动 | 典型用途 |
+| --- | --- | --- | --- | --- |
+| `dynamic` | 是 | 是 | 物理引擎 | 落体、被击飞的箱子、布偶娃娃 |
+| `fixed` | 否 | 否 | 永不动 | 地面、墙体、关卡边界 |
+| `kinematicPositionBased` | 否 | 否 | 你的代码（设下一帧目标位置） | 升降平台、传送带、脚本动画物体 |
+| `kinematicVelocityBased` | 否 | 否 | 你的代码（设速度向量） | 同上，但按速度而非位置驱动 |
+
+两条容易记错的边界：
+
+- **只有 `dynamic` 会被推动。** `fixed` 和 `kinematic` 像一堵墙，动态物体会被它们弹开，它们自己纹丝不动。把"应该被推动的箱子"建成 `fixed` 是最常见的"物理不响应"错误。
+- **`kinematic` 不被物理推动，但能推动动态物体。** 它由你的代码（通常是动画或玩家输入）驱动，再把动态物体顶开。运动学体的运动不来自力，而来自你显式给出的目标位置或速度。
+
+刚体的位姿既能在创建时用描述符链式设置，也能在运行时改：
+
+```js
+// 创建时：用描述符一次配齐。
+const body = world.createRigidBody(
+  RAPIER.RigidBodyDesc.dynamic()
+    .setTranslation(0, 5, 0)                 // 3D 用三个分量
+    .setRotation({ w: 1, x: 0, y: 0, z: 0 }) // 3D 用四元数对象
+    .setLinvel(1, 0, 0)                      // 初始线速度
+);
+
+// 运行时：第二个参数 true 表示唤醒（避免它在休眠中被改）。
+body.setTranslation({ x: 0, y: 5, z: 0 }, true);
+body.setRotation({ w: 1, x: 0, y: 0, z: 0 }, true);
+```
+
+注意创建时用分量（`setTranslation(x, y, z)`），运行时用对象（`setTranslation({ x, y, z }, wake)`）——这是 Rapier JS 绑定的固定形态，混用会直接报错。
+
+## 碰撞体与形状
+
+碰撞体（`Collider`）描述"这个物体的体积和表面"。只有挂了碰撞体的刚体才会参与碰撞；一个刚体可以挂多个碰撞体（比如角色由头、躯干、四肢几个形状拼成）。用 `ColliderDesc` 的工厂方法指定形状，再用 `world.createCollider(desc, rigidBody)` 挂到刚体上：
+
+```js
+// 球：半径。
+world.createCollider(RAPIER.ColliderDesc.ball(0.5), dynamicBody);
+
+// 立方体：x/y/z 三个方向的半边长（half extents）。
+world.createCollider(RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5), dynamicBody);
+
+// 胶囊：半高（不含两端的半球）和半径；主轴固定是 Y 轴。
+world.createCollider(RAPIER.ColliderDesc.capsule(0.5, 0.2), characterBody);
+
+// 凸包：传入顶点数组，引擎自动算凸包。
+world.createCollider(RAPIER.ColliderDesc.convexHull(points), body);
+
+// 三角网：顶点 + 索引，按原样使用——只适合静态地面。
+world.createCollider(RAPIER.ColliderDesc.trimesh(vertices, indices), fixedBody);
+```
+
+| 形状 | 工厂方法 | 适合的刚体 | 注意 |
+| --- | --- | --- | --- |
+| 球 | `ball(radius)` | 任意 | 最便宜、最稳定，碰撞首选近似 |
+| 立方体 | `cuboid(hx, hy, hz)` | 任意 | 参数是**半边长**，与 `BoxGeometry` 全边长差一倍 |
+| 胶囊 | `capsule(halfHeight, radius)` | 角色、机械 | 主轴固定 Y；旋转物体时要先对齐 |
+| 圆柱 / 圆锥 | `cylinder(hh, r)` / `cone(hh, r)` | 任意 | 同样以 Y 为主轴 |
+| 凸包 | `convexHull(points)` | 动态 / 复杂物体 | 动态体的安全选择，能自动算质量 |
+| 三角网 | `trimesh(verts, indices)` | **只 static/fixed** | 动态体用 trimesh 不会自动算质量，且对内部边敏感 |
+| 高度场 | `heightfield(rows, cols, heights, scale)` | 静态地形 | 大地形首选，比 trimesh 更高效 |
+
+两个表面属性决定碰撞"摸起来"的质感：
+
+```js
+RAPIER.ColliderDesc.ball(0.5)
+  .setRestitution(0.6)   // 弹性：0 不弹，1 完全弹性
+  .setFriction(0.7);     // 摩擦：默认 0.5
+```
+
+| 属性 | 默认 | 影响 |
+| --- | --- | --- |
+| `setRestitution(n)` | `0`（不弹） | 接触后的反弹速度；两个物体的值按 combine rule 合成（默认取平均） |
+| `setFriction(n)` | `0.5` | 接触切向阻力；同样按 combine rule 合成 |
+| combine rule | `Average` | 可改 `Min / Multiply / Max`，优先级 Max > Multiply > Min > Average |
+
+**传感器**（sensor）是一种特殊碰撞体——它参与相交检测，但不产生物理响应，物体能直接穿过去。常用于触发区、拾取范围、检测视线：
+
+```js
+// setSensor(true) 后，这个 collider 不再推开别的物体。
+const trigger = world.createCollider(
+  RAPIER.ColliderDesc.ball(2).setSensor(true),
+  triggerBody
+);
+```
+
+注意几个坑：
+
+- **几何和碰撞体彼此独立。** `BoxGeometry(1,1,1)` 的全边长是 1，对应 `cuboid(0.5, 0.5, 0.5)` 的半边长。数值对不上时，物体看起来贴着地面、物理上却悬空半截。
+- **动态体别用 trimesh。** 三角网不会为动态刚体自动计算质量，会得到一个无质量或行为异常的物体；需要精确形状时用 `convexHull`，需要复杂静态地形时再上 trimesh 或 heightfield。
+- **胶囊和圆柱的主轴固定是 Y。** 想让胶囊横着躺，得旋转刚体本身，而不是给形状换轴。
+
+## 重力、力与冲量
+
+动态物体的运动由三类输入共同决定：全局重力、持续施加的力/扭矩、瞬时的冲量。理解它们的差别才能让物体按预期动起来。
+
+**重力**是世界级配置，作用于所有 dynamic 刚体（除非单独设了 `gravityScale`）：
+
+```js
+const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 }); // 创建时设
+world.gravity = { x: 0, y: 0, z: 0 };                      // 运行时改（如零重力空间）
+body.setGravityScale(2.0, true);                           // 单体放大重力（如让某物更"沉"）
+body.setGravityScale(0, true);                             // 0 表示这个物体不受重力
+```
+
+**力**是持续作用（每步都叠加，直到 `resetForces`），适合推车、风、磁力；**冲量**是瞬时改变速度，适合跳跃、开枪、被击中：
+
+```js
+// 持续力（世界坐标向量）。
+body.addForce({ x: 10, y: 0, z: 0 }, true);       // 沿 +X 持续推
+body.addTorque({ x: 0, y: 5, z: 0 }, true);       // 持续扭矩
+
+// 瞬时冲量——直接改速度，常用于一次性动作。
+body.applyImpulse({ x: 0, y: 5, z: 0 }, true);    // 跳一下
+body.applyImpulseAtPoint(impulse, worldPoint, true); // 在某点施加（产生旋转）
+
+// 清掉之前累积的力（冲量改的是速度，不需要清）。
+body.resetForces(true);
+body.resetTorques(true);
+```
+
+| 操作 | 改变的是 | 典型用途 | 注意 |
+| --- | --- | --- | --- |
+| `addForce(v, wake)` | 持续加速度 | 风、引力、推进 | 每步都作用，要手动 `resetForces` 才停 |
+| `addTorque(v, wake)` | 持续角加速度 | 旋转推进 | 同上 |
+| `applyImpulse(v, wake)` | 瞬时改线速度 | 跳跃、击退 | 改速度，不持续 |
+| `applyImpulseAtPoint(v, p, wake)` | 改速度+产生角速度 | 在某点打台球 | 点是世界坐标 |
+| `setLinvel(v, wake)` | 直接设速度 | 重置、传送 | 跳过力，直接给定 |
+
+速度也能直接读写：
+
+```js
+body.setLinvel({ x: 0, y: 5, z: 0 }, true);
+body.setAngvel({ x: 0, y: 1, z: 0 }, true);
+const v = body.linvel(); // { x, y, z }
+```
+
+两个抑制运动的相关属性：
+
+- **阻尼（damping）**让速度自然衰减。`setLinearDamping(0.5)` 让线速度每步损失一部分，避免物体永远滑下去。
+- **休眠（sleeping）**让长时间不动的刚体停止更新以省 CPU。休眠的刚体不再响应事件，需要它响应时调 `body.wakeUp()`；改变它的位姿/速度时记得传 `wake=true`，否则改动不会立即生效。
+
+## step 与固定时间步
+
+物理推进的核心调用是 `world.step()`，它按 `world.timestep`（默认 `1/60` 秒）推进一次模拟。这一节是物理集成最容易出问题的地方——它直接对接 [时间课](?path=/docs/clock-and-animation-loop--docs) 的 delta 概念。
+
+**关键判断：物理步长必须固定，不能跟着渲染帧率波动。** 渲染回调每秒触发 60 次还是 144 次，取决于显示器；物理却需要稳定的时间步才能算准。把渲染 delta 直接喂给 `world.step` 看似方便，但会带来两类问题：
+
+- **物理失稳。** delta 在 0.005 和 0.05 之间波动时，积分误差累积，物体抖动、穿透或弹簧乱跳。
+- **破坏确定性。** 同一份初始状态在不同机器上跑出不同结果，无法复现 bug。
+
+正确做法是**固定时间步 + 累加器**：把渲染 delta 累加起来，每攒够一个 `timestep` 就 `world.step()` 一次。
+
+```js
+const FIXED_DT = 1 / 60;
+let accumulator = 0;
+
+renderer.setAnimationLoop((time) => {
+  timer.update(time);
+  const delta = timer.getDelta();
+
+  accumulator += delta;
+  // 单帧最多补的步数，避免切后台回来一口气补几百步卡死。
+  let steps = 0;
+  while (accumulator >= FIXED_DT && steps < 5) {
+    world.step();
+    accumulator -= FIXED_DT;
+    steps++;
+  }
+
+  // 把位姿写回 mesh（见下一节）。
+  renderer.render(scene, camera);
+});
+```
+
+| 做法 | 物理稳定性 | 帧率关系 | 适用 |
+| --- | --- | --- | --- |
+| 固定 `timestep` + 累加器 | 稳定、确定 | 物理 60Hz，与渲染解耦 | 推荐做法 |
+| 每帧把渲染 delta 设给 `world.timestep` 再 step | 不稳定 | 物理跟随渲染波动 | 不要这么做 |
+| 每帧 `world.step()`，不改 timestep | 稳定但失同步 | 物理等于固定 60Hz，渲染可能更快或更慢 | 简易场景可接受 |
+
+累加器写法的两个细节：
+
+- **多余的 delta 会被保留。** 一帧 delta 是 0.02（50Hz 渲染），`timestep` 是 1/60，一帧只够 step 一次，剩下 0.0033 留到下一帧——这让物理始终保持 60Hz 节奏，不依赖渲染频率。
+- **补步上限很重要。** 切到后台再回来，delta 可能是几秒；不加 `steps < 5` 这类上限，会一口气补几百个物理步，主线程卡死。配合 `timer.connect(document)` 让后台 delta 自动归零更稳。
+
+在 120Hz / 144Hz 高刷屏上，物理仍是 60Hz 节拍，渲染更快——物体看起来会有轻微"阶梯感"。要消除它，需要在两个物理步之间对 mesh 位姿做**插值**（见下一节末尾）；不插值时物理本身正确，只是视觉不够丝滑。
+
+## mesh 同步
+
+物理和渲染是两套独立状态，需要你显式地把物理结果搬运到 mesh。搬运方向取决于刚体类型，这是"谁是真理"的分界线。
+
+**动态体：物理 → mesh（单向）。** 动态物体的位姿由物理引擎决定，你的代码每步读取刚体状态写回 mesh：
+
+```js
+const t = body.translation();           // { x, y, z }
+const r = body.rotation();              // { w, x, y, z } 四元数
+
+mesh.position.set(t.x, t.y, t.z);
+// three.js 的 Quaternion.set 参数顺序是 (x, y, z, w)，Rapier 是 { w, x, y, z }。
+mesh.quaternion.set(r.x, r.y, r.z, r.w);
+```
+
+一个常踩的坑：直接改 `mesh.position` 想把动态体移走，下一帧又被物理拉回来。动态体的位置只能通过 `setTranslation`、力或冲量改，不能改 mesh。
+
+**运动学体：mesh → 物理（单向）。** 升降平台、脚本动画物体由你的代码（动画轨迹或玩家输入）驱动，再把动态物体顶开。用 `setNextKinematicTranslation` / `setNextKinematicRotation` 设置下一帧的目标，物理引擎在下一次 step 时采用：
+
+```js
+// 你的代码先决定 mesh 在哪（如沿 sin 曲线升降）。
+platform.position.y = 2 + Math.sin(elapsed) * 1.5;
+
+// 把 mesh 的位姿喂给物理，作为运动学体的输入。
+platformBody.setNextKinematicTranslation({
+  x: platform.position.x,
+  y: platform.position.y,
+  z: platform.position.z
+});
+platformBody.setNextKinematicRotation({
+  w: platform.quaternion.w,
+  x: platform.quaternion.x,
+  y: platform.quaternion.y,
+  z: platform.quaternion.z
+});
+```
+
+**固定体：一次性对齐。** 地面、墙体只在创建时把 mesh 摆到刚体位姿，之后不动。
+
+| 刚体类型 | 同步方向 | 何时更新 mesh |
+| --- | --- | --- |
+| dynamic | 物理 → mesh | 每个 `world.step()` 之后 |
+| kinematic | mesh → 物理 | 每个 `world.step()` 之前（设 next kinematic） |
+| fixed | 创建时对齐一次 | 之后不再同步 |
+
+四元数顺序的细节值得记牢：Rapier 的 `rotation()` 返回 `{ w, x, y, z }`，three.js 的 `Quaternion.set(x, y, z, w)` 参数顺序相反，写反会让物体朝向乱掉。
+
+**高刷屏的插值（可选）。** 物理跑 60Hz，渲染跑 120Hz 时，两帧之间物体位置不变，运动会有轻微阶梯感。要消除它，保留上一步和当前步的位姿，按累加器残留比例插值：
+
+```js
+// 每步物理后保存上一步和当前步位姿。
+prevPos.copy(currPos);
+currPos.copy(body.translation());
+
+// 渲染时按 alpha 在两步之间插值。
+const alpha = accumulator / FIXED_DT;
+mesh.position.lerpVectors(prevPos, currPos, alpha);
+```
+
+这是性能与平滑度的权衡：不插值物理依然正确，只是视觉上 120Hz 屏幕看不出物理的 60Hz 节奏的全部好处。
+
+## 碰撞事件与查询
+
+物理引擎除了推进运动，还能告诉你"谁和谁撞上了"。Rapier 提供两条路径：**事件流**（碰撞开始/结束的回调）和**查询 API**（主动检查两个碰撞体现在是否相交）。
+
+事件默认不产生，必须先在至少一方碰撞体上开启标志：
+
+```js
+RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5)
+  .setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+// 需要接触力信息时再加 CONTACT_FORCE_EVENTS。
+```
+
+然后创建事件队列，每步传给 `world.step`，再排空回调：
+
+```js
+const eventQueue = new RAPIER.EventQueue(true); // true 表示收集接触力事件
+
+renderer.setAnimationLoop(() => {
+  world.step(eventQueue);
+
+  // 碰撞开始/结束：回调参数是两个 collider 的 handle（数字）和是否开始。
+  eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+    if (started) {
+      console.log('碰撞开始', handle1, handle2);
+    } else {
+      console.log('碰撞结束', handle1, handle2);
+    }
+  });
+
+  // 接触力事件：用于"撞击力度大于阈值才触发"。
+  eventQueue.drainContactForceEvents((event) => {
+    const h1 = event.collider1().handle;
+    const h2 = event.collider2().handle;
+    // 总接触力 magnitude 由引擎算好，阈值在 collider 上设。
+  });
+});
+```
+
+注意回调里拿到的是 collider **handle**（一个数字 id），不是对象本身；用 `world.getCollider(handle)` 取回对象。把 handle 和业务实体（玩家、子弹）的映射维护好，是事件落地的常见模式。
+
+**主动查询**用于"我现在就想知道这两个碰没碰"，不需要等事件：
+
+```js
+// intersectionPair 返回布尔：要求至少一方是 sensor。
+const overlapping = world.intersectionPair(sensorA, colliderB);
+
+// contactPair 用回调读取接触流形（接触点、法线、穿透深度）。
+world.contactPair(colliderA, colliderB, (manifold, flipped) => {
+  // manifold 里有接触点和法线；flipped 表示法线方向是否需要翻转。
+});
+
+// 遍历与某个 collider 相关的所有碰撞。
+world.contactPairsWith(colliderA, (other) => { /* ... */ });
+world.intersectionPairsWith(sensorA, (other) => { /* ... */ });
+```
+
+| 需求 | 用什么 | 前提 |
+| --- | --- | --- |
+| 知道某次碰撞什么时候发生/结束 | `EventQueue` + `drainCollisionEvents` | 至少一方 collider 开了 `COLLISION_EVENTS` |
+| 按撞击力度触发（碎墙、伤害） | `drainContactForceEvents` | 开 `CONTACT_FORCE_EVENTS`，并设阈值 |
+| 主动检查两个 collider 是否相交 | `world.intersectionPair(a, b)` | 至少一方是 sensor |
+| 读取接触点和法线 | `world.contactPair(a, b, cb)` | 普通碰撞体即可 |
+| 视线/射线检测 | three.js `Raycaster` 或 Rapier ray cast | 见 [拾取课](?path=/docs/raycaster-pointer-interaction--docs) |
+
+传感器（`setSensor(true)`）和事件/查询是天然搭档：sensor 不产生物理响应，物体能穿过去，专门用来做触发区；它的相交关系靠 `intersectionPair` 或 sensor 间的碰撞事件读取。注意"非 sensor 的两个普通碰撞体之间不会触发 `intersectionPair`"——它们走 contact 通道。
+
+## 约束与关节
+
+关节（joint）把两个刚体连起来，约束它们的相对运动。Rapier 用 `world.createImpulseJoint` 创建，关节类型由 `JointData` 指定：
+
+```js
+// 固定关节：保持两刚体的相对位姿完全不变（像一个焊死的连接）。
+const fixed = world.createImpulseJoint(
+  RAPIER.JointData.fixed(
+    { x: 0, y: 0, z: 0 },           // body1 上的局部锚点
+    { w: 1, x: 0, y: 0, z: 0 },     // body1 局部朝向
+    { x: 0, y: -1, z: 0 },          // body2 上的局部锚点
+    { w: 1, x: 0, y: 0, z: 0 }      // body2 局部朝向
+  ),
+  body1, body2, true                 // 最后 true 表示唤醒
+);
+
+// 铰链关节（3D）：绕一根轴旋转，如门、车轮。
+const revolute = world.createImpulseJoint(
+  RAPIER.JointData.revolute(
+    { x: 0, y: 0, z: 0 },           // body1 锚点
+    { x: 0, y: 0, z: 0 },           // body2 锚点
+    { x: 1, y: 0, z: 0 }            // 旋转轴（世界方向）
+  ),
+  body1, body2, true
+);
+```
+
+| 关节类型 | `JointData` 工厂 | 约束效果 | 典型用途 |
+| --- | --- | --- | --- |
+| 固定 | `fixed(p1, q1, p2, q2)` | 相对位姿完全锁定 | 焊接、暂时粘合 |
+| 球面 | `spherical(a1, a2)` | 两点重合，可任意旋转 | 链条、肩膀 |
+| 铰链 | `revolute(a1, a2, axis)` | 绕单轴旋转 | 门、车轮、机械臂关节 |
+| 棱柱 | `prismatic(a1, axis1, ...)` | 沿单轴平移 | 滑轨、活塞 |
+
+需要主动驱动关节（如电机控制车轮转速）时，把返回的 joint 转成具体类型并配置 motor：
+
+```js
+const joint = world.createImpulseJoint(/* revolute ... */);
+joint.configureMotorVelocity(targetAngularVel, damping); // 速度电机
+// 或位置电机：joint.configureMotorPosition(targetPos, stiffness, damping);
+```
+
+关节属于进阶能力——大多数物理需求（堆叠、滚动、弹跳）靠刚体 + 碰撞体就能解决，需要"连接两个物体的运动"时再上关节。Rapier 还有更重的 `MultibodyJointSet`（多体关节树，适合复杂机械结构），需要时查阅官方文档。
+
+## 最佳实践
+
+- 把"物理是真理、mesh 是视图"作为心智模型：动态体的位姿永远由 `world.step()` 推进，mesh 只负责抄写和渲染。
+- 用**固定时间步 + 累加器**推进物理；不要把渲染 delta 直接喂给 `world.timestep`，否则物理失稳且不确定。
+- 单位用 SI（米），重力取 `-9.81`；不要把屏幕像素当世界单位，物体在慢动作里会"飘"。
+- 静态物体（地面、墙）用 `fixed` 刚体 + `trimesh` 或 `heightfield`；动态体用基础形状或 `convexHull`，别让动态体挂 trimesh。
+- collider 的半边长、半径和 geometry 的全边长要对应；差一倍是最常见的"视觉贴着、物理悬空"原因。
+- 需要碰撞事件时，至少在一方 collider 上开 `ActiveEvents.COLLISION_EVENTS`，并维护 handle 到业务实体的映射。
+- 高刷屏追求视觉平滑时，在两个物理步之间对 mesh 位姿做插值；不插值物理仍正确。
+- 切后台或长时间停顿后恢复，给累加器的补步设上限（如 `steps < 5`），或用 `timer.connect(document)` 让后台 delta 归零。
+- 销毁刚体用 `world.removeRigidBody(body)`，并丢弃本地引用——引擎已回收的对象再访问会得到无效数据。
+
+## 常见问题
+
+- 物体直接穿过地面？
+  检查地面刚体是 `fixed`（不是 `dynamic`，否则它自己也被重力拉走）；动态体的 collider 形状有效；`timestep` 没被改得过大。
+- 动态刚体不受重力影响？
+  确认刚体是 `dynamic`、translation 没被 `lockTranslations` 锁、collider 形状有效。trimesh collider 不会自动算质量，给动态体改用基础形状或 `convexHull`，或显式 `setAdditionalMass`。
+- 高速运动的小物体穿透障碍？
+  开启连续碰撞检测：`RigidBodyDesc.dynamic().setCcdEnabled(true)`；或减小 `world.timestep`。
+- 碰撞事件回调从不触发？
+  至少一方的 collider 要 `.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS)`，且每步把 `EventQueue` 传给 `world.step(eventQueue)`。
+- `world.intersectionPair(a, b)` 一直返回 `false`？
+  `intersectionPair` 要求至少一方是 sensor（`setSensor(true)`）；两个普通碰撞体之间用 `contactPair` 读取接触。
+- 120 Hz 屏幕上运动看起来一卡一卡的？
+  物理是固定 60Hz，渲染更快，两步之间 mesh 位姿不变。在累加器残留比例上对上一步/当前步位姿做插值。
+- 直接改 `mesh.position`，下一帧物体又跳回原位？
+  动态体的位姿由物理管理，改 mesh 无效；要通过 `setTranslation`、力或冲量改物理状态。要由代码驱动就用 `kinematic` 刚体。
+- 切后台回来物体卡住或一次性跳很远？
+  长时间暂停后累加器积压了大量时间，一次性补了几百步。给补步设上限，或用 `timer.connect(document)` 让后台 delta 归零。
+- 休眠的物体不响应事件或推动？
+  长时间不动的刚体会休眠以省 CPU。需要响应时先 `body.wakeUp()`；改动位姿或施加力时记得传 `wake=true`。
+
+## 总结回顾
+
+摘要：
+
+Rapier 是独立于 three.js 的物理引擎，通过 `@dimforge/rapier3d-compat` 接入。它维护一份 `World` 作为物理状态的唯一真理来源，three.js mesh 只是它的渲染视图。物理由 `RigidBody`（dynamic / fixed / kinematic 两种）和 `Collider`（ball / cuboid / capsule / trimesh 等形状）组合描述，动态体的运动由重力、力、冲量共同决定。`world.step()` 按 `world.timestep`（默认 1/60）推进一次模拟，必须用固定时间步 + 累加器与渲染帧率解耦，否则物理失稳且不确定。每步之后把刚体的 `translation()` / `rotation()` 写回 mesh 完成同步；运动学体方向相反，由代码喂 mesh 位姿给物理。碰撞信息靠 `EventQueue` 收事件，或用 `intersectionPair` / `contactPair` 主动查询；关节用 `createImpulseJoint` 连接两个刚体并约束相对运动。
+
+一句话：
+
+> 物理是真理，mesh 是视图；用固定时间步推进 `world.step()`，再把刚体位姿写回 mesh——three.js 只负责画出物理的结果。
+
+知识要点：
+
+- 为什么物理和渲染必须分成两层独立状态？谁是真理来源？
+- 四种刚体类型分别是否受重力、是否被碰撞推动？运动学体由谁驱动？
+- collider 的形状参数（如 cuboid 半边长）和 three.js geometry（全边长）是什么关系？
+- 为什么不能用渲染 delta 直接当物理步长？固定时间步 + 累加器怎样解耦物理和渲染帧率？
+- 动态体和运动学体的 mesh 同步方向有什么不同？为什么直接改 mesh.position 对动态体无效？
+- 怎样让碰撞事件回调触发？为什么 `intersectionPair` 要求至少一方是 sensor？
+- 在 120 Hz 高刷屏上为什么物理运动看起来会阶梯感？插值解决的是什么问题？
+
+## 参考资料
+
+- [Rapier 官方主页](https://rapier.rs/)
+- [Rapier JS 用户指南：Getting started](https://rapier.rs/docs/user_guides/javascript/getting_started_js/)
+- [Rapier JS 用户指南：Rigid-bodies](https://rapier.rs/docs/user_guides/javascript/rigid_bodies/)
+- [Rapier JS 用户指南：Colliders](https://rapier.rs/docs/user_guides/javascript/colliders/)
+- [Rapier JS 用户指南：Joints](https://rapier.rs/docs/user_guides/javascript/joints/)
+- [Rapier JS 用户指南：Advanced collision detection](https://rapier.rs/docs/user_guides/javascript/advanced_collision_detection_js/)
+- [Rapier JS 用户指南：Common mistakes](https://rapier.rs/docs/user_guides/javascript/common_mistakes/)
+- [`@dimforge/rapier3d-compat` on npm](https://www.npmjs.com/package/@dimforge/rapier3d-compat)
+- [Three.js Discourse：How to sync Rapier physics to Three.js](https://discourse.threejs.org/t/how-to-sync-rapier-physics-to-threejs-or-screen-browser-refresh-rate/64288)
+- [Fix Your Timestep! — Gaffer on Games](https://gafferongames.com/post/fix_your_timestep/)
+- 本手册相关课程：[时间](?path=/docs/clock-and-animation-loop--docs)、[Mesh](?path=/docs/mesh-geometry-material--docs)、[拾取](?path=/docs/raycaster-pointer-interaction--docs)

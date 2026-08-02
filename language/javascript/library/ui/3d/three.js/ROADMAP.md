@@ -1,8 +1,8 @@
 # Three.js
 
 - 1. 快速启动
-  - [1.1 安装](cheatsheets/vite-threejs-setup/README.mdx)
-    用 Vite、npm 和 ES Modules 搭出最小 three.js 项目。
+  - [1.1 安装](cheatsheets/install-threejs/README.mdx)
+    安装 three.js，并保持项目依赖最小化。
   - [1.2 第一幅画面](cheatsheets/first-scene/README.mdx)
     用 renderer、scene、camera、mesh 和 render loop 画出旋转立方体。
   - [1.3 循环与尺寸](cheatsheets/render-loop-and-resize/README.mdx)

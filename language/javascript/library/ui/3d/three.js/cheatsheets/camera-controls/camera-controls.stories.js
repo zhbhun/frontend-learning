@@ -1,217 +1,216 @@
-import { sceneStory } from '../../assets/story-canvas.js';
+import './camera-controls.css';
+
 import { sceneSource } from '../../assets/story-source.js';
-import { createCameraControlScene } from './src/scenes/controller-scene.js';
-import { createOrbitControlsScene } from './src/scenes/orbit-controls-scene.js';
-import controllerSceneSource from './src/scenes/controller-scene.js?raw';
-import orbitControlsSource from './src/scenes/orbit-controls-scene.js?raw';
+
+import { createArcballControlsExample } from './arcball-controls.js';
+import arcballSource from './arcball-controls.js?raw';
+import { createControlsLifecycleExample } from './controls-lifecycle.js';
+import lifecycleSource from './controls-lifecycle.js?raw';
+import controllerStageSource from './controller-stage.js?raw';
+import { createFirstPersonControlsExample } from './first-person-controls.js';
+import firstPersonSource from './first-person-controls.js?raw';
+import { createFlyControlsExample } from './fly-controls.js';
+import flySource from './fly-controls.js?raw';
+import { createMapControlsExample } from './map-controls.js';
+import mapSource from './map-controls.js?raw';
+import { createOrbitControlsExample } from './orbit-controls.js';
+import orbitSource from './orbit-controls.js?raw';
+import { createPointerLockControlsExample } from './pointer-lock-controls.js';
+import pointerLockSource from './pointer-lock-controls.js?raw';
+import { createTrackballControlsExample } from './trackball-controls.js';
+import trackballSource from './trackball-controls.js?raw';
 
 export default {
   id: 'camera-controls',
   title: '核心系统/空间与对象/相机控制器',
-  // 课程正文在 README.mdx，story 只作为正文里的可视化实例，不单独出现在侧边栏。
   tags: ['!dev']
 };
 
-const api = (defaultValue) => ({
-  category: '控制器参数',
-  defaultValue: { summary: defaultValue }
-});
-
-const demo = { category: '示例控制' };
-
 export const Orbit = {
   name: 'OrbitControls',
-  render: sceneStory({
-    create: createOrbitControlsScene,
-    apply(scene, { enableDamping, autoRotate, enablePan, minDistance, maxDistance, targetY }) {
-      scene.setDamping(enableDamping);
-      scene.setAutoRotate(autoRotate);
-      scene.setPan(enablePan);
-      scene.setMinDistance(minDistance);
-      scene.setMaxDistance(maxDistance);
-      scene.setTargetY(targetY);
-    },
-    readout: (snapshot) => [
-      ['target', snapshot.targetText],
-      ['到 target 距离', snapshot.distance.toFixed(2)]
-    ]
-  }),
   args: {
     enableDamping: true,
+    dampingFactor: 0.08,
     autoRotate: false,
-    enablePan: true,
-    minDistance: 3,
-    maxDistance: 16,
-    targetY: 0.7
+    zoomToCursor: false,
+    runUpdate: true
   },
-  parameters: sceneSource(orbitControlsSource),
   argTypes: {
-    enableDamping: {
-      description: '惯性阻尼。开启后松开鼠标画面会继续滑一段再停，需要每帧调用 controls.update()。',
-      control: 'boolean',
-      table: api('false')
-    },
-    autoRotate: {
-      description: '自动绕 target 旋转，同样依赖每帧的 controls.update()。',
-      control: 'boolean',
-      table: api('false')
-    },
-    enablePan: {
-      description: '是否允许右键或双指平移 target。关掉之后 target 固定，更像一个模型查看器。',
-      control: 'boolean',
-      table: api('true')
-    },
-    minDistance: {
-      description: '滚轮缩放能靠近到的最小距离，夹住的是相机到 target 的距离。',
-      control: { type: 'range', min: 1, max: 10, step: 0.5 },
-      table: api('0')
-    },
-    maxDistance: {
-      description: '滚轮缩放能拉远到的最大距离。拖动后滚一下滚轮，读数里的距离会被夹在区间内。',
-      control: { type: 'range', min: 4, max: 30, step: 0.5 },
-      table: api('Infinity')
-    },
-    targetY: {
-      description:
-        '观察中心 controls.target 的高度。红色小球就是 target，环绕、缩放和平移都以它为中心。',
-      control: { type: 'range', min: 0, max: 3, step: 0.1 },
-      table: api('0')
-    }
-  }
+    enableDamping: booleanControl('enableDamping', '启用旋转和平移阻尼。'),
+    dampingFactor: rangeControl('dampingFactor', '阻尼收敛速度。', 0.01, 0.3, 0.01),
+    autoRotate: booleanControl('autoRotate', '无输入时围绕 target 自动旋转。'),
+    zoomToCursor: booleanControl('zoomToCursor', '让缩放中心跟随指针位置。'),
+    runUpdate: booleanControl('逐帧 update()', '故意暂停后可观察阻尼无法继续收敛。')
+  },
+  render: persistentStory(createOrbitControlsExample),
+  parameters: sourceParameters(orbitSource)
 };
 
-const controllerReadout = (snapshot) => [
-  ['控制器', snapshot.controller],
-  ['更新方式', snapshot.updateMode],
-  ['焦点 / 位置', snapshot.focus],
-  ['距离 / 位置读数', snapshot.value],
-  ['指针状态', snapshot.lockState]
-];
-
-function controllerStory({ type, name, args, argTypes }) {
-  return {
-    name,
-    render: sceneStory({
-      create: (canvas, onSnapshot) =>
-        createCameraControlScene(canvas, onSnapshot, type),
-      apply(scene, nextArgs) {
-        scene.apply(nextArgs);
-      },
-      readout: controllerReadout
-    }),
-    args,
-    parameters: sceneSource(controllerSceneSource),
-    argTypes
-  };
-}
-
-export const Map = controllerStory({
-  type: 'map',
+export const Map = {
   name: 'MapControls',
   args: {
-    enableDamping: true,
-    maxPolarAngle: Math.PI / 2.2
+    screenSpacePanning: false,
+    enableRotate: true,
+    zoomToCursor: true
   },
   argTypes: {
-    enableDamping: {
-      description: '开启地图相机的阻尼，需要每帧调用 controls.update()。',
-      control: 'boolean',
-      table: api('false')
-    },
-    maxPolarAngle: {
-      description: '限制相机向地面方向的最大俯视角。',
-      control: { type: 'range', min: 0.8, max: Math.PI, step: 0.05 },
-      table: api('Math.PI')
-    }
-  }
-});
+    screenSpacePanning: booleanControl(
+      'screenSpacePanning',
+      'false 沿地图平面平移；true 按屏幕上下方向平移。'
+    ),
+    enableRotate: booleanControl('enableRotate', '允许右键或双指旋转。'),
+    zoomToCursor: booleanControl('zoomToCursor', '缩放时尽量保持光标下的地图位置。')
+  },
+  render: persistentStory(createMapControlsExample),
+  parameters: sourceParameters(mapSource)
+};
 
-export const Trackball = controllerStory({
-  type: 'trackball',
+export const Arcball = {
+  name: 'ArcballControls',
+  args: {
+    enableAnimations: true,
+    enableGizmos: true,
+    enableGrid: false,
+    enableFocus: true,
+    cursorZoom: false,
+    rotateSpeed: 1
+  },
+  argTypes: {
+    enableAnimations: booleanControl('enableAnimations', '启用旋转惯性和聚焦动画。'),
+    enableGizmos: booleanControl('enableGizmos', '允许显示虚拟轨迹球 gizmo。'),
+    enableGrid: booleanControl('enableGrid', '桌面平移期间显示辅助网格。'),
+    enableFocus: booleanControl('enableFocus', '允许双击或双击触摸聚焦。'),
+    cursorZoom: booleanControl('cursorZoom', '让缩放围绕光标位置进行。'),
+    rotateSpeed: rangeControl('rotateSpeed', '轨迹球旋转速度。', 0.25, 2.5, 0.05)
+  },
+  render: persistentStory(createArcballControlsExample),
+  parameters: sourceParameters(arcballSource)
+};
+
+export const Trackball = {
   name: 'TrackballControls',
   args: {
     staticMoving: false,
-    dynamicDampingFactor: 0.2
+    dynamicDampingFactor: 0.2,
+    rotateSpeed: 1,
+    noPan: false,
+    noZoom: false
   },
   argTypes: {
-    staticMoving: {
-      description: '开启后松手立即停止；关闭后使用 dynamicDampingFactor 产生惯性。',
-      control: 'boolean',
-      table: api('false')
-    },
-    dynamicDampingFactor: {
-      description: '非静态移动时的阻尼强度，数值越大越快跟随输入。',
-      control: { type: 'range', min: 0.05, max: 0.8, step: 0.05 },
-      table: api('0.2')
-    }
-  }
-});
+    staticMoving: booleanControl('staticMoving', 'true 关闭动态阻尼，输入结束立即停止。'),
+    dynamicDampingFactor: rangeControl(
+      'dynamicDampingFactor',
+      'staticMoving=false 时的阻尼强度。',
+      0.05,
+      0.8,
+      0.05
+    ),
+    rotateSpeed: rangeControl('rotateSpeed', '轨迹球旋转速度。', 0.25, 2.5, 0.05),
+    noPan: booleanControl('noPan', '禁用平移。'),
+    noZoom: booleanControl('noZoom', '禁用缩放。')
+  },
+  render: persistentStory(createTrackballControlsExample),
+  parameters: sourceParameters(trackballSource)
+};
 
-export const Fly = controllerStory({
-  type: 'fly',
+export const Fly = {
   name: 'FlyControls',
   args: {
-    movementSpeed: 5,
-    rollSpeed: Math.PI / 12,
-    dragToLook: true
+    movementSpeed: 4,
+    rollSpeed: 0.7,
+    dragToLook: true,
+    autoForward: false
   },
   argTypes: {
-    movementSpeed: {
-      description: '相机在三维空间中的移动速度，按秒推进。',
-      control: { type: 'range', min: 0, max: 20, step: 0.5 },
-      table: api('1')
-    },
-    rollSpeed: {
-      description: '相机滚转速度，按秒推进。',
-      control: { type: 'range', min: 0, max: 1, step: 0.01 },
-      table: api('0.005')
-    },
-    dragToLook: {
-      description: '开启后需要拖拽鼠标才会环顾。',
-      control: 'boolean',
-      table: api('false')
-    }
-  }
-});
+    movementSpeed: rangeControl('movementSpeed', '每秒移动的世界单位。', 0.5, 12, 0.5),
+    rollSpeed: rangeControl('rollSpeed', '每秒旋转倍率。', 0.05, 2, 0.05),
+    dragToLook: booleanControl('dragToLook', '只有按住指针拖动时才改变观察方向。'),
+    autoForward: booleanControl('autoForward', '开始移动后自动保持向前。')
+  },
+  render: persistentStory(createFlyControlsExample),
+  parameters: sourceParameters(flySource)
+};
 
-export const FirstPerson = controllerStory({
-  type: 'firstPerson',
+export const FirstPerson = {
   name: 'FirstPersonControls',
   args: {
-    movementSpeed: 3,
+    movementSpeed: 4,
     lookSpeed: 0.05,
-    lookVertical: true
+    dampingFactor: 0.12,
+    constrainVertical: true,
+    heightSpeed: false
   },
   argTypes: {
-    movementSpeed: {
-      description: '第一人称移动速度，按秒推进。',
-      control: { type: 'range', min: 0, max: 12, step: 0.5 },
-      table: api('1')
-    },
-    lookSpeed: {
-      description: '鼠标环顾速度。',
-      control: { type: 'range', min: 0, max: 0.2, step: 0.005 },
-      table: api('0.005')
-    },
-    lookVertical: {
-      description: '是否允许垂直环顾。',
-      control: 'boolean',
-      table: api('true')
-    }
-  }
-});
+    movementSpeed: rangeControl('movementSpeed', '每秒移动的世界单位。', 0.5, 12, 0.5),
+    lookSpeed: rangeControl('lookSpeed', '指针偏移影响观察角速度的倍率。', 0.005, 0.2, 0.005),
+    dampingFactor: rangeControl(
+      'dampingFactor',
+      '速度追上输入的比例；1 表示没有阻尼。',
+      0.05,
+      1,
+      0.05
+    ),
+    constrainVertical: booleanControl('constrainVertical', '应用 verticalMin/verticalMax。'),
+    heightSpeed: booleanControl('heightSpeed', '让相机高度影响向前速度。')
+  },
+  render: persistentStory(createFirstPersonControlsExample),
+  parameters: sourceParameters(firstPersonSource)
+};
 
-export const PointerLock = controllerStory({
-  type: 'pointerLock',
+export const PointerLock = {
   name: 'PointerLockControls',
   args: {
-    pointerSpeed: 1
+    pointerSpeed: 1,
+    movementSpeed: 5,
+    rawInput: false
   },
   argTypes: {
-    pointerSpeed: {
-      description: '鼠标移动对相机旋转的倍率；点击画布进入指针锁定。',
-      control: { type: 'range', min: 0.1, max: 3, step: 0.1 },
-      table: api('1')
+    pointerSpeed: rangeControl('pointerSpeed', '鼠标位移影响相机旋转的倍率。', 0.2, 2.5, 0.1),
+    movementSpeed: rangeControl('应用层 movementSpeed', 'WASD 每秒移动的世界单位。', 1, 12, 0.5),
+    rawInput: booleanControl('lock(unadjustedMovement)', '下次锁定时请求关闭系统鼠标加速度。')
+  },
+  render: persistentStory(createPointerLockControlsExample),
+  parameters: sourceParameters(pointerLockSource)
+};
+
+export const Lifecycle = {
+  name: '公共生命周期',
+  render: persistentStory(createControlsLifecycleExample),
+  parameters: sourceParameters(lifecycleSource)
+};
+
+function persistentStory(create) {
+  let example;
+
+  return (args) => {
+    if (!example || example.disposed) {
+      example = create(args);
+    } else {
+      example.apply(args);
     }
-  }
-});
+
+    return example.element;
+  };
+}
+
+function sourceParameters(coreSource) {
+  return sceneSource(
+    `${coreSource.trim()}\n\n// 以下是所有控制器范例真实复用的舞台实现。\n${controllerStageSource.trim()}`
+  );
+}
+
+function booleanControl(name, description) {
+  return {
+    name,
+    description,
+    control: 'boolean'
+  };
+}
+
+function rangeControl(name, description, min, max, step) {
+  return {
+    name,
+    description,
+    control: { type: 'range', min, max, step }
+  };
+}

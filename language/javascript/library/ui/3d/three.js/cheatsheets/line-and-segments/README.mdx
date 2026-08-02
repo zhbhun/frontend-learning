@@ -1,0 +1,206 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as LineStories from './line-and-segments.stories.js';
+
+<Meta of={LineStories} name="Docs" />
+
+# Line
+
+`Line`、`LineSegments` 和 `LineLoop` 是 three.js 里三种渲染“线”的对象。它们共享同一条管线：用 `BufferGeometry` 提供顶点位置，用 `LineBasicMaterial` 提供颜色和透明度，差别只在于“同一组顶点如何被解释为线段”：
+
+- `Line` 把 N 个顶点按数组顺序连成 N-1 段连续路径，适合绘制运动轨迹、相机路径和参数曲线的离散近似。
+- `LineSegments` 把相邻顶点两两配对成独立线段（V0-V1、V2-V3……），要画 N 条独立线段就需要 2N 个顶点；适合绘制几何边框、wireframe 和调试连线。
+- `LineLoop` 在 `Line` 基础上自动闭合首尾，把 N 个顶点连成 N 段，适合绘制多边形外框和闭环轮廓。
+
+三者都继承自 `Line`（也继承自 [Object3D](?path=/docs/object3d-transform-hierarchy--docs)），可以像其他对象一样 `position` / `rotation` / `scale` / `visible` / `add` / `remove`，但有几个共同限制要记住：`LineBasicMaterial` 不受场景光照影响；`linewidth` 在多数 WebGL 实现里恒为 1（要粗线用 addons 的 `Line2` + `LineMaterial`）；线对象默认不参与 `castShadow`。
+
+## 快速上手
+
+定义一组顶点，用 `setFromPoints` 一次性写入 `BufferGeometry`，再交给任意一种线对象：
+
+```js
+const points = [
+  new THREE.Vector3(-2, 0, 0),
+  new THREE.Vector3(-1, 1.2, 0),
+  new THREE.Vector3(1, 1.2, 0),
+  new THREE.Vector3(2, 0, 0)
+];
+
+const geometry = new THREE.BufferGeometry().setFromPoints(points);
+const material = new THREE.LineBasicMaterial({ color: '#3d73d9' });
+
+const path = new THREE.Line(geometry, material);        // 3 段连续路径
+// const path = new THREE.LineLoop(geometry, material); // 4 段，自动闭合
+// const path = new THREE.LineSegments(geometry, material); // 2 段：V0-V1 与 V2-V3
+
+scene.add(path);
+```
+
+三种成员的连接规则：
+
+| 对象 | 顶点 N | 线段数 | 连接方式 | 常见用途 |
+| --- | --- | --- | --- | --- |
+| `Line` | N | N - 1 | V0-V1-V2-…-VN-1 | 路径、轨迹、折线 |
+| `LineSegments` | 2N | N | V0-V1、V2-V3、… | 边框、wireframe、调试连线 |
+| `LineLoop` | N | N | V0-V1-…-VN-1-V0 | 多边形外框、闭环轮廓 |
+
+关键输入对照：
+
+| 输入或状态 | 默认值 | 改变后要注意什么 |
+| --- | --- | --- |
+| `LineBasicMaterial.color` | `0xffffff` | 按 sRGB 解释；不受光照，颜色直接输出 |
+| `LineBasicMaterial.linewidth` | `1` | 多数 WebGL 实现恒为 1，设大也无效；要粗线用 `Line2` + `LineMaterial` |
+| `transparent` / `opacity` | `false` / `1` | 透明线必须 `transparent = true`，否则 `opacity` 不生效 |
+| `vertexColors` | `false` | 为 `true` 时按顶点 attribute `color` 调制每段颜色 |
+| `geometry` | 空 `BufferGeometry` | 用 `setFromPoints` 或 `Float32BufferAttribute` 提供顶点 |
+| `position` / `rotation` / `scale` | Object3D 默认值 | 整条线随对象变换整体移动 |
+
+## 顶点数据与材质
+
+三种线对象共用同一套数据格式：`BufferGeometry` 的 `position` attribute 提供顶点位置，`LineBasicMaterial` 提供颜色和透明度。理解顶点如何写入、材质怎样生效之后，三种成员就只剩“连接规则”这一处差别。
+
+`setFromPoints(points)` 内部会构造一个 `Float32BufferAttribute` 写到 `position` 上，等价于：
+
+```js
+const positions = new Float32Array([
+  -2, 0, 0,
+  -1, 1.2, 0,
+   1, 1.2, 0,
+   2, 0, 0
+]);
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+```
+
+之后改顶点有两条路：直接改 `Float32Array` 并把 `attribute.needsUpdate = true`，或干脆重建一个 `BufferGeometry`。线对象不读 `index`，所有连接关系都按顶点顺序解释——把同一份顶点交给 `Line`、`LineSegments` 或 `LineLoop`，画面会完全不同。
+
+`LineBasicMaterial` 是专为线优化的简易材质：
+
+- `color` 是基础颜色，按 sRGB 解释，不受场景中任何光源影响。
+- `transparent` 与 `opacity` 控制透明；不透明线关闭 `transparent` 性能更好。
+- `vertexColors: true` 时按顶点 attribute `color`（normalized RGB）调制，可让一条线分段着色。
+- `blending`、`depthTest`、`depthWrite` 沿用 `Material` 默认；绘制屏幕叠层或调试线时常用 `depthTest: false`。
+- `LineDashedMaterial` 是它的子类，配合 `Line.computeLineDistances()` 才能画出虚线。
+
+`linewidth` 在 three.js 文档里允许设置，但底层 WebGL 的 `gl.lineWidth()` 在多数桌面平台只支持 1，设大不会生效。要在屏幕上画出真正的粗线、虚线或圆角端点，使用 addons 提供的 `Line2`（`examples/jsm/lines/Line2`）配合 `LineMaterial` 和 `LineGeometry`（或 `LineSegmentsGeometry`）；它们用三角带模拟宽度，代价是需要单独的几何与材质类型。本课聚焦原生 `Line` 系列，粗线实现超出范围。
+
+## Line：连续路径
+
+`Line` 把 N 个顶点按顺序连成 N-1 段。它是最直观的“折线”对象：每两个相邻顶点之间一段，不闭合、不配对。适合运动轨迹、相机路径、参数曲线的离散近似等任何“按顺序连点”的场景。
+
+```js
+const trajectory = new THREE.Line(
+  new THREE.BufferGeometry().setFromPoints(samples),
+  new THREE.LineBasicMaterial({ color: '#3d73d9' })
+);
+scene.add(trajectory);
+```
+
+把同一份 `samples` 交给 `Line` 还是 `LineSegments` 决定的是“路径”还是“两两配对”，所以选型要先想清楚语义。下面的实例把一段空间曲线离散成不同数量的采样点连成 `Line`：增加顶点数 N，路径更贴近曲线，但段数 N-1 始终比顶点数少一。
+
+<Canvas of={LineStories.LinePath} />
+
+<Controls of={LineStories.LinePath} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。橙色小球标出每个顶点位置，方便对照读数里的“N-1 段”。
+
+## LineSegments：独立线段
+
+`LineSegments` 把顶点两两配对：V0-V1 是一段，V2-V3 是下一段，互不相连。要画 N 条独立线段就需要 2N 个顶点。这个特性让它特别适合成批画“边框、wireframe 和调试连线”——这些场景里你要的不是连续路径，而是大量彼此无关的线段。
+
+```js
+// 直接给 LineSegments 准备 2N 顶点
+const positions = new Float32Array([
+  0, 0, 0,  1, 0, 0,  // 段 1
+  0, 1, 0,  1, 1, 0   // 段 2
+]);
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+const segments = new THREE.LineSegments(geometry, material);
+```
+
+更常见的做法是把另一个几何体“展开”成线段数据，three.js 提供两个内置工具：
+
+- `EdgesGeometry(sourceGeometry, thresholdAngle)` 只保留面之间夹角超过阈值（默认 1 弧度）的边，适合做简洁的轮廓线和边框。
+- `WireframeGeometry(sourceGeometry)` 把每个三角形的所有边都展开成线段，密度大、像 wireframe。
+
+这两个类返回的 `BufferGeometry` 已经按 LineSegments 的“两两配对”格式排好顶点，不必再手工凑 2N。下面的实例切换几何类型与线段来源：`EdgesGeometry` 段数少、`WireframeGeometry` 段数多，但段数始终等于顶点数除以二。
+
+<Canvas of={LineStories.SegmentsPairs} />
+
+<Controls of={LineStories.SegmentsPairs} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。半透明实心体作为参照，方便看清线框是包在哪个面上。
+
+## LineLoop：自动闭合
+
+`LineLoop` 与 `Line` 完全一致，只多了一段“从最后一个顶点回到第一个”。因此 N 个顶点产生 N 段（而不是 N-1 段），首尾自动连成闭合轮廓。适合画规则多边形、闭环区域边界、循环路径等任何需要“闭合”的场景。
+
+```js
+const outline = new THREE.LineLoop(
+  new THREE.BufferGeometry().setFromPoints(polygonVertices),
+  new THREE.LineBasicMaterial({ color: '#d17832' })
+);
+scene.add(outline);
+```
+
+已经有一组多边形顶点、犹豫要用 `Line` 还是 `LineLoop` 时，判断标准是“首尾之间是否需要一条边”。下面的实例把同一组多边形顶点同时传给左侧 `Line` 和右侧 `LineLoop`：左侧停在最后一个顶点（N-1 段），右侧自动补上闭合段（N 段）。改边数 N 时，两侧的段数差始终是 1。
+
+<Canvas of={LineStories.LoopClosed} />
+
+<Controls of={LineStories.LoopClosed} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。两侧共用同一组顶点和顶点标记，差异只在右侧是否补上闭合段。
+
+## 最佳实践
+
+- 选型先定语义：连续路径用 `Line`，闭合轮廓用 `LineLoop`，成批的独立线段用 `LineSegments`。同一组顶点传给哪种，决定它怎样被解释成线。
+- 静态边框、wireframe 优先用 `EdgesGeometry` / `WireframeGeometry` 生成 LineSegments 数据，不要手工凑 2N 顶点。
+- 动态轨迹（每帧追加新点）直接改 `Float32Array` 并把 `position.needsUpdate = true`，比重建 `BufferGeometry` 更省；改完调用 `computeBoundingSphere()` 避免被视锥剔除误删。
+- 不要靠 `linewidth` 调线粗——多数 WebGL 实现恒为 1；需要粗线、虚线或端点圆角时改用 addons 的 `Line2` + `LineMaterial`。
+- 多条线复用同一个 `LineBasicMaterial`；只想单独改色时先 `clone()` 材质再改。
+- 透明线统一开 `transparent = true`，并按渲染顺序排好 `renderOrder`，避免半透明叠加错乱。
+- 画虚线用 `LineDashedMaterial`，构造后调用 `Line.computeLineDistances()` 计算 `lineDistance` attribute，否则虚线不会按距离分段。
+- 释放时与 Mesh 一致：`geometry.dispose()` 和 `material.dispose()` 都要调；从场景移除不会自动释放 GPU 资源。
+
+## 常见问题
+
+- 为什么设置了 `linewidth` 但线还是很细？
+  WebGL 的 `gl.lineWidth()` 在多数桌面平台只支持 1，three.js 没法绕过；要真正画出粗线，改用 addons 的 `Line2` + `LineMaterial`。
+- 为什么我的 `Line` 看起来跳跃、不连续？
+  `Line` 按 `position` attribute 的顺序连接顶点；顶点乱序会画出跳跃的折线。如果本意是两两配对的独立线段，应该用 `LineSegments`。
+- 为什么 `LineSegments` 只画了一半的线段？
+  `LineSegments` 把相邻顶点两两配对，奇数个顶点时最后一个会落单；要画 N 段独立线段需要 2N 个顶点。
+- 为什么 `opacity` 改了但线还是不透明？
+  透明线必须 `transparent = true` 才会让 `opacity` 生效；只改 `opacity` 不开 `transparent` 不会触发透明渲染。
+- 为什么改了顶点，画面没更新或对象突然被裁掉？
+  修改 `Float32Array` 后设 `attribute.needsUpdate = true`；如果几何已有包围体，再调 `geometry.computeBoundingSphere()` 或 `computeBoundingBox()`，否则线对象可能被视锥剔除误删。
+- 为什么 `LineDashedMaterial` 画出来是实线？
+  虚线依赖每段的累积距离；构造线对象后必须调用 `line.computeLineDistances()` 写入 `lineDistance` attribute，否则着色器拿不到分段信息。
+- 怎么给一条线分段着色？
+  在 geometry 上加一个 normalized 的 `color` attribute（每顶点 RGB），并把材质的 `vertexColors` 设为 `true`；颜色会按顶点插值到所在线段。
+
+## 总结回顾
+
+摘要：
+
+Line、LineSegments 和 LineLoop 共用 BufferGeometry 与 LineBasicMaterial 的渲染管线，差别只在顶点如何被解释成线段：Line 按顺序连成 N-1 段路径，LineSegments 两两配对成 N 段（需要 2N 顶点），LineLoop 在 Line 基础上自动闭合到 N 段。三者都继承 Line 与 Object3D，可正常变换、克隆和释放；LineBasicMaterial 不受光照，linewidth 在多数 WebGL 实现里恒为 1，需要粗线要用 addons 的 Line2 系列。
+
+一句话：
+
+> 选 Line、LineSegments 还是 LineLoop，先看顶点是“按顺序连成路径”、“两两配对成独立线段”还是“自动闭合”。
+
+知识要点：
+
+- 同一组顶点分别交给 Line、LineSegments、LineLoop，会画出几种不同的线？
+- 要画 N 条独立线段，为什么 LineSegments 需要 2N 个顶点？
+- `EdgesGeometry` 和 `WireframeGeometry` 返回的几何为什么能直接交给 `LineSegments`？
+- 改 `linewidth` 不生效时应该换成哪一组 API？
+- 动态修改顶点后哪些 GPU 状态和包围体需要更新？
+
+## 参考资料
+
+- [Three.js Docs：Line](https://threejs.org/docs/pages/Line.html)
+- [Three.js Docs：LineSegments](https://threejs.org/docs/pages/LineSegments.html)
+- [Three.js Docs：LineLoop](https://threejs.org/docs/pages/LineLoop.html)
+- [Three.js Docs：LineBasicMaterial](https://threejs.org/docs/pages/LineBasicMaterial.html)
+- [Three.js Manual：Drawing Lines](https://threejs.org/manual/en/drawing-lines.html)
+- [Three.js Examples：fat lines (Line2)](https://threejs.org/examples/?q=line#webgl_lines_fat)

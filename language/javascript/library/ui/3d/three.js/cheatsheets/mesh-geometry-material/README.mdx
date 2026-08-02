@@ -1,0 +1,151 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as MeshStories from './mesh-geometry-material.stories.js';
+
+<Meta of={MeshStories} name="Docs" />
+
+# Mesh
+
+`Mesh` 把三种职责组合成一个可渲染表面：继承自 `Object3D` 的变换决定物体放在哪里，`BufferGeometry` 提供顶点和三角形连接关系，`Material` 决定这些表面怎样写入颜色、深度和其他渲染通道。renderer 只有同时拿到这三层状态，才能生成一次或多次 draw call。
+
+Geometry 与 Material 可以独立替换和复用。改 `mesh.position` 不会改顶点数据；改 `geometry` 会改变形状但保留对象变换；改 `material` 会改变表面规则但保留形状。先分清这三层，空画面、黑色物体和资源泄漏才容易定位。
+
+## 快速上手
+
+创建几何、材质，再把它们交给 Mesh：
+
+```js
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshStandardMaterial({
+  color: '#3d73d9',
+  roughness: 0.45
+});
+
+const mesh = new THREE.Mesh(geometry, material);
+mesh.position.y = 0.5;
+scene.add(mesh);
+```
+
+| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| `geometry` | 空 `BufferGeometry` | 顶点、index、groups 和 drawRange 都来自它 |
+| `material` | `MeshBasicMaterial` | 受光材质需要场景里有合适的 Light |
+| `position / rotation / scale` | Object3D 默认值 | 只改变实例的变换，不改共享 geometry |
+| `castShadow / receiveShadow` | `false / false` | 还需 renderer 阴影、可投影光源和对应另一端对象 |
+| `count` | `1` | 当前版本为 WebGPU 渲染路径的实例计数入口；普通 WebGL Mesh 保持 `1` |
+| `geometry.drawRange` | `{ start: 0, count: Infinity }` | 限制提交的顶点或 index 范围；必须按图元边界组织 |
+
+## 组合形状与表面
+
+同一 Mesh 可以在运行时替换 geometry 或 material。下面的实例固定对象变换，只切换两种输入，并显示 position 顶点数、index 数量和实际三角形计数。
+
+<Canvas of={MeshStories.GeometryMaterial} />
+
+<Controls of={MeshStories.GeometryMaterial} />
+
+Canvas 进入视口前 `200px` 启动，离开后暂停并保留最后一帧。`drawRange` 降低时形状只绘制部分三角形；它没有删除 attribute 数据，也不会自动重算包围体。
+
+## 多材质与 groups
+
+`mesh.material` 可以是数组，但 geometry 必须用 `addGroup(start, count, materialIndex)` 指明每段使用哪个材质。每个 group 通常产生独立 draw call，且 groups 不应重叠或遗漏要绘制的顶点 / index。
+
+```js
+geometry.clearGroups();
+geometry.addGroup(0, 6, 0);
+geometry.addGroup(6, 6, 1);
+
+const mesh = new THREE.Mesh(geometry, [frontMaterial, sideMaterial]);
+```
+
+| 情况 | renderer 使用方式 | 判断 |
+| --- | --- | --- |
+| 单个 Material | 整个 drawRange 使用同一材质 | 最少状态切换 |
+| Material 数组 + groups | 每个 group 按 `materialIndex` 取材质 | 便于少量分区，不等于一次 draw call |
+| Material 数组但无 groups | 没有明确可绘制分区 | 不要依赖隐式分配 |
+
+## 顶点结果与变形
+
+`getVertexPosition(index, target)` 返回计入 morph target 与 skinning 后的局部顶点位置；普通 Mesh 没有这些变形时，它等同于 position attribute 中对应顶点。需要世界坐标时再乘 `matrixWorld`。
+
+```js
+mesh.getVertexPosition(index, point);
+point.applyMatrix4(mesh.matrixWorld);
+```
+
+geometry 提供 morph attributes 时，Mesh 会建立 `morphTargetInfluences` 和 `morphTargetDictionary`。影响值改变形变权重，不会改写原 attribute；模型动画中通常由 `AnimationMixer` 驱动。
+
+## 射线与裁剪
+
+Mesh 实现 `raycast()`，所以 `Raycaster.intersectObject(mesh)` 能按三角形求交。射线是否命中还受材质 `side` 影响：默认 `FrontSide` 只从正面命中，想从背面拾取需使用 `DoubleSide` 或反向发射射线。
+
+renderer 还会用 geometry 的 `boundingSphere` 做视锥体剔除；它通常按需计算。顶点运行时变化后，应用要重新计算包围体，否则对象可能过早消失或一直参与渲染。
+
+```js
+geometry.attributes.position.needsUpdate = true;
+geometry.computeBoundingSphere();
+geometry.computeBoundingBox();
+```
+
+## 资源复用与释放
+
+多个 Mesh 可以共享同一个 geometry 或 material，这能减少内存和状态数量。共享意味着修改会同时影响所有引用者；只想改一个对象时先 `clone()` 相应资源。
+
+从 Scene 移除 Mesh 不会释放 GPU 资源。确认没有其他对象共享后再调用：
+
+```js
+scene.remove(mesh);
+mesh.geometry.dispose();
+
+const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+materials.forEach((material) => material.dispose());
+```
+
+贴图也要单独 `dispose()`；Material 的 dispose 不会替你释放它引用的 Texture。
+
+## 最佳实践
+
+- 用 Object3D 变换摆放复用形状，不为每个位置复制一份顶点。
+- 多个对象外观相同时共享 material；局部改色前先明确是否希望联动。
+- 少量表面分区使用 groups，多量重复物体改用 [InstancedMesh](?path=/docs/instanced-mesh-object--docs)。
+- 动态改 attribute 后设置 `needsUpdate`，影响法线或包围体时同步重算。
+- 释放前做引用所有权判断，避免一个 Mesh dispose 掉其他 Mesh 仍在用的资源。
+- 把“能否看见”“是否受光”“是否命中射线”分别从相机、材质/灯光和 raycast 条件排查。
+
+## 常见问题
+
+- 为什么 Mesh 加入 Scene 后仍然全黑？
+  如果使用 `MeshStandardMaterial` 等受光材质，先确认 Scene 中有有效 Light；排查几何体和相机时可以临时换成不依赖光照的材质。
+- 为什么修改一个对象的 geometry 或 material，其他对象也跟着变了？
+  检查是否共享了同一个资源引用；需要独立修改时创建独立的 geometry 或 material，确认共享关系后再释放资源。
+- 为什么多材质只有部分生效？
+  检查 `geometry.groups` 的 `start`、`count` 和 `materialIndex`，并确认每个三角形只属于一个 group。
+- 为什么改了顶点，画面却没有更新或对象突然被裁掉？
+  修改 attribute 数组后设置 `attribute.needsUpdate = true`；如果 geometry 已有包围体，再调用 `computeBoundingSphere()` 或 `computeBoundingBox()`。
+- 为什么从场景移除对象后显存仍然没有下降？
+  `remove()` 只解除场景关系；确认资源不再被其他对象使用后，分别调用 geometry、material 和 texture 的 `dispose()`。
+- 为什么从背面拾取不到平面？
+  把材质的 `side` 设置为 `THREE.DoubleSide`，或确保射线从材质允许的正面方向命中；默认材质通常只处理正面三角形。
+
+## 总结回顾
+
+摘要：
+
+Mesh 用 Object3D 变换放置实例，用 BufferGeometry 描述顶点与三角形，再用 Material 决定表面渲染。geometry 的 drawRange、groups、morph 和包围体影响提交与求交，资源则可以共享但必须由应用显式释放。
+
+一句话：
+
+> 排查 Mesh 时把对象变换、几何数据、材质规则和资源生命周期分成四条链。
+
+知识要点：
+
+- Mesh 的 Object3D、geometry 与 material 分别决定什么？
+- 多材质为什么必须与 geometry groups 配合？
+- 动态顶点变化后哪些 GPU 与包围体状态需要更新？
+- 共享 geometry/material 时怎样避免误修改和误释放？
+
+## 参考资料
+
+- [Three.js Docs：Mesh](https://threejs.org/docs/pages/Mesh.html)
+- [Three.js Docs：BufferGeometry](https://threejs.org/docs/pages/BufferGeometry.html)
+- [Three.js Docs：Material](https://threejs.org/docs/pages/Material.html)
+- [Three.js Manual：Custom BufferGeometry](https://threejs.org/manual/en/custom-buffergeometry.html)
+- [Three.js Manual：How to dispose of objects](https://threejs.org/manual/en/how-to-dispose-of-objects.html)
