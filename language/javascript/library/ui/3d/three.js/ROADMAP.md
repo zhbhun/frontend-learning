@@ -8,14 +8,14 @@
   - [1.3 循环与尺寸](cheatsheets/render-loop-and-resize/README.mdx)
     处理动画循环、画布尺寸、像素比和响应式渲染。
   - [1.4 坐标与单位](cheatsheets/coordinate-system-and-units/README.mdx)
-    学习 X/Y/Z 轴、原点、世界单位、角度/弧度、局部空间和世界空间。
+    学习 X/Y/Z 轴、世界单位与 TRS 值类型、角度/弧度、局部空间和世界空间。
 
 - 2. 核心系统
   - 2.1 空间与对象
     - [2.1.1 Object3D](cheatsheets/object3d-transform-hierarchy/README.mdx)
       学习可变换对象的共同能力、父子层级、局部坐标和世界坐标。
     - [2.1.2 Scene](cheatsheets/scene-render-root/README.mdx)
-      学习 Scene 作为场景根容器、渲染入口、背景、雾效和对象挂载位置。
+      学习 Scene 作为渲染根与共享状态容器，以及挂载、背景、环境、雾和材质覆盖。
     - [2.1.3 相机](cheatsheets/camera/README.mdx)
       学习透视相机、正交相机、视锥体和投影矩阵的更新时机。
     - [2.1.4 相机控制器](cheatsheets/camera-controls/README.mdx)
