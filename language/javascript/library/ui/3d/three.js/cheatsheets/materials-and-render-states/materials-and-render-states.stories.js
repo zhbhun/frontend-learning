@@ -1,15 +1,24 @@
-import materialFamilySource from './material-family.js?raw';
-import meshPhongSource from './mesh-phong.js?raw';
-import meshStandardSource from './mesh-standard.js?raw';
-import transparencySource from './transparency.js?raw';
-import sharedSceneSource from '../../assets/shared-scene.js?raw';
+import meshBasicSource from './mesh-basic-material.js?raw';
+import meshLambertSource from './mesh-lambert-material.js?raw';
+import meshPhongSource from './mesh-phong-material.js?raw';
+import meshStandardSource from './mesh-standard-material.js?raw';
+import meshToonSource from './mesh-toon-material.js?raw';
+import meshMatcapSource from './mesh-matcap-material.js?raw';
+import transparencyDepthSource from './transparency-depth.js?raw';
+import wireframeSource from './wireframe-material.js?raw';
+import materialSideSource from './material-side.js?raw';
 
 import { sceneStory } from '../../assets/story-canvas.js';
 import { sceneSource } from '../../assets/story-source.js';
-import { materialFamilyExample } from './material-family.js';
-import { meshPhongExample } from './mesh-phong.js';
-import { meshStandardExample } from './mesh-standard.js';
-import { transparencyExample } from './transparency.js';
+import { meshBasicMaterialExample } from './mesh-basic-material.js';
+import { meshLambertMaterialExample } from './mesh-lambert-material.js';
+import { meshPhongMaterialExample } from './mesh-phong-material.js';
+import { meshStandardMaterialExample } from './mesh-standard-material.js';
+import { meshToonMaterialExample } from './mesh-toon-material.js';
+import { meshMatcapMaterialExample } from './mesh-matcap-material.js';
+import { transparencyDepthExample } from './transparency-depth.js';
+import { wireframeMaterialExample } from './wireframe-material.js';
+import { materialSideExample } from './material-side.js';
 
 export default {
   id: 'materials-and-render-states',
@@ -17,99 +26,190 @@ export default {
   tags: ['!dev']
 };
 
-function sourceBundle(memberSource) {
-  return [sharedSceneSource, memberSource].join('\n\n');
-}
-
-export const MaterialFamily = {
-  name: '材质家族对照',
+export const MeshBasic = {
+  name: 'MeshBasicMaterial 不受光',
   args: {
-    materialType: 'standard',
-    wireframe: false
+    intensity: 2.5
   },
   argTypes: {
-    materialType: {
-      name: 'mesh.material',
-      control: 'inline-radio',
-      options: ['basic', 'lambert', 'phong', 'standard', 'normal'],
-      description:
-        '同一几何体 + 同一光源下切材质：basic 不受光，lambert 漫反射无高光，phong 带高光，standard 是 PBR，normal 按法线着色。'
-    },
-    wireframe: { name: 'material.wireframe', control: 'boolean' }
+    intensity: {
+      name: 'DirectionalLight.intensity',
+      control: { type: 'range', min: 0, max: 6, step: 0.1 },
+      description: '调光强度：左侧 Basic 不变，右侧 Standard 会变亮或变暗。'
+    }
   },
-  render: sceneStory(materialFamilyExample),
-  parameters: sceneSource(sourceBundle(materialFamilySource))
+  render: sceneStory(meshBasicMaterialExample),
+  parameters: sceneSource(meshBasicSource)
+};
+
+export const MeshLambert = {
+  name: 'MeshLambertMaterial 漫反射',
+  args: {
+    intensity: 2.8
+  },
+  argTypes: {
+    intensity: {
+      name: 'DirectionalLight.intensity',
+      control: { type: 'range', min: 0, max: 6, step: 0.1 },
+      description: 'Lambert 只做漫反射，没有镜面高光。'
+    }
+  },
+  render: sceneStory(meshLambertMaterialExample),
+  parameters: sceneSource(meshLambertSource)
 };
 
 export const MeshPhong = {
   name: 'MeshPhongMaterial 高光',
   args: {
-    shininess: 70,
-    specularIntensity: 1
+    shininess: 40,
+    specular: 1
   },
   argTypes: {
     shininess: {
       name: 'shininess',
-      control: { type: 'range', min: 0, max: 200, step: 1 },
-      description: '高光锐度；值越大高光越集中越亮，值越小越分散。'
+      control: { type: 'range', min: 1, max: 150, step: 1 },
+      description: '高光锐度：值越高，高光越小越锐。'
     },
-    specularIntensity: {
-      name: 'specular 强度',
+    specular: {
+      name: 'specular 亮度',
       control: { type: 'range', min: 0, max: 1, step: 0.05 },
-      description: '乘到 specular 颜色上的系数；0 时无高光（接近 Lambert）。'
+      description: '镜面反射颜色的灰度强度；调暗后高光减弱。'
     }
   },
-  render: sceneStory(meshPhongExample),
-  parameters: sceneSource(sourceBundle(meshPhongSource))
+  render: sceneStory(meshPhongMaterialExample),
+  parameters: sceneSource(meshPhongSource)
 };
 
 export const MeshStandard = {
-  name: 'MeshStandardMaterial PBR',
+  name: 'MeshStandardMaterial 入口',
   args: {
-    metalness: 0.6,
-    roughness: 0.4
+    color: '#3d73d9',
+    roughness: 0.4,
+    metalness: 0.1
   },
   argTypes: {
-    metalness: {
-      name: 'metalness',
-      control: { type: 'range', min: 0, max: 1, step: 0.05 },
-      description: '0 = 电介质（塑料/木材），1 = 纯金属；金属面需要环境反射才不黑。'
+    color: {
+      name: 'color',
+      control: 'color'
     },
     roughness: {
       name: 'roughness',
       control: { type: 'range', min: 0, max: 1, step: 0.05 },
-      description: '0 = 镜面锐高光，1 = 完全漫反射。'
+      description: '0 = 更镜面，1 = 更哑光。'
+    },
+    metalness: {
+      name: 'metalness',
+      control: { type: 'range', min: 0, max: 1, step: 0.05 },
+      description: '本课无环境贴图；高金属度偏暗时见 PBR 课。'
     }
   },
-  render: sceneStory(meshStandardExample),
-  parameters: sceneSource(sourceBundle(meshStandardSource))
+  render: sceneStory(meshStandardMaterialExample),
+  parameters: sceneSource(meshStandardSource)
 };
 
-export const Transparency = {
-  name: '透明与深度写入',
+export const MeshToon = {
+  name: 'MeshToonMaterial 分档',
   args: {
-    opacity: 0.6,
-    alphaTest: 0,
+    steps: 3
+  },
+  argTypes: {
+    steps: {
+      name: 'gradientMap 分档',
+      control: { type: 'range', min: 2, max: 8, step: 1 },
+      description: '分档越少，卡通块面越硬。'
+    }
+  },
+  render: sceneStory(meshToonMaterialExample),
+  parameters: sceneSource(meshToonSource)
+};
+
+export const MeshMatcap = {
+  name: 'MeshMatcapMaterial',
+  args: {
+    preset: 'steel'
+  },
+  argTypes: {
+    preset: {
+      name: 'matcap 预设',
+      control: 'inline-radio',
+      options: ['steel', 'clay', 'jade'],
+      labels: {
+        steel: '冷钢',
+        clay: '暖陶',
+        jade: '翠玉'
+      },
+      description: '场景无 Direct Light，明暗来自 MatCap 贴图。'
+    }
+  },
+  render: sceneStory(meshMatcapMaterialExample),
+  parameters: sceneSource(meshMatcapSource)
+};
+
+export const TransparencyDepth = {
+  name: '透明与深度',
+  args: {
+    transparent: true,
+    opacity: 0.45,
     depthWrite: true
   },
   argTypes: {
+    transparent: {
+      name: 'transparent',
+      control: 'boolean'
+    },
     opacity: {
       name: 'opacity',
-      control: { type: 'range', min: 0.05, max: 1, step: 0.05 },
-      description: '基础透明度；< 1 时需要 transparent=true 才能正确合成。'
-    },
-    alphaTest: {
-      name: 'alphaTest',
-      control: { type: 'range', min: 0, max: 1, step: 0.05 },
-      description: '低于阈值的片元直接丢弃，不进透明排序，常配合带 alpha 的贴图做硬边缘。'
+      control: { type: 'range', min: 0, max: 1, step: 0.05 }
     },
     depthWrite: {
       name: 'depthWrite',
       control: 'boolean',
-      description:
-        'true 时近处透明面会"挖掉"远处透明面，常见黑色/错位接缝；多个透明面相互交叠时通常设 false。'
+      description: '半透明仍写深度时，后方物体容易被挖空或排序怪异。'
     }
   },
-  render: sceneStory(transparencyExample),
-  parameters: sceneSource(sourceBundle(transparencySource))
+  render: sceneStory(transparencyDepthExample),
+  parameters: sceneSource(transparencyDepthSource)
+};
+
+export const Wireframe = {
+  name: '线框',
+  args: {
+    wireframe: true
+  },
+  argTypes: {
+    wireframe: {
+      name: 'wireframe',
+      control: 'boolean',
+      description: '同一 Mesh 的线框模式，不是 Line 对象。'
+    }
+  },
+  render: sceneStory(wireframeMaterialExample),
+  parameters: sceneSource(wireframeSource)
+};
+
+export const MaterialSide = {
+  name: '朝向 side',
+  args: {
+    side: 'front',
+    rotationY: 35
+  },
+  argTypes: {
+    side: {
+      name: 'side',
+      control: 'inline-radio',
+      options: ['front', 'back', 'double'],
+      labels: {
+        front: 'FrontSide',
+        back: 'BackSide',
+        double: 'DoubleSide'
+      }
+    },
+    rotationY: {
+      name: 'rotation.y（度）',
+      control: { type: 'range', min: -180, max: 180, step: 5 },
+      description: '转到背面时，FrontSide 会消失；DoubleSide 仍可见。'
+    }
+  },
+  render: sceneStory(materialSideExample),
+  parameters: sceneSource(materialSideSource)
 };

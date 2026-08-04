@@ -8,7 +8,11 @@
 
 import * as THREE from 'three';
 
-import { createTextureStage, createUvGrid } from './texture-example-utils.js';
+import {
+  createTextureStage,
+  createUvGrid,
+  mountMapPreviews
+} from './texture-example-utils.js';
 
 const WRAPPING = {
   ClampToEdgeWrapping: THREE.ClampToEdgeWrapping,
@@ -32,6 +36,7 @@ export const uvAndWrappingExample = {
 
     const state = { wrapping: 'RepeatWrapping' };
     const stage = createTextureStage(canvas, scene, camera, () => ({
+      geometry: 'PlaneGeometry（含 uv）',
       repeat: `${texture.repeat.x.toFixed(1)} × ${texture.repeat.y.toFixed(1)}`,
       offset: `${texture.offset.x.toFixed(2)}, ${texture.offset.y.toFixed(2)}`,
       rotation: `${THREE.MathUtils.radToDeg(texture.rotation).toFixed(0)}°`,
@@ -39,6 +44,10 @@ export const uvAndWrappingExample = {
       version: texture.version
     }));
     stage.setSnapshotEmitter(emitSnapshot);
+
+    mountMapPreviews(canvas.parentElement, [
+      { id: 'map', label: 'map 源图', texture, active: true }
+    ]);
 
     return { stage, texture, state };
   },
@@ -67,6 +76,7 @@ export const uvAndWrappingExample = {
 
   readout(snapshot) {
     return [
+      ['几何', snapshot.geometry],
       ['repeat', snapshot.repeat],
       ['offset', snapshot.offset],
       ['rotation', snapshot.rotation],

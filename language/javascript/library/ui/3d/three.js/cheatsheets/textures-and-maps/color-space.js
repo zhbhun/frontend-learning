@@ -7,7 +7,10 @@
 
 import * as THREE from 'three';
 
-import { createTextureStage } from './texture-example-utils.js';
+import {
+  createTextureStage,
+  mountMapPreviews
+} from './texture-example-utils.js';
 
 function createColorRamp() {
   const canvas = document.createElement('canvas');
@@ -60,6 +63,15 @@ export const colorSpaceExample = {
       output: THREE.SRGBColorSpace
     }));
     stage.setSnapshotEmitter(emitSnapshot);
+
+    mountMapPreviews(canvas.parentElement, [
+      {
+        id: 'source',
+        label: '同一源图',
+        source: image,
+        active: true
+      }
+    ]);
     stage.render();
 
     return { stage };

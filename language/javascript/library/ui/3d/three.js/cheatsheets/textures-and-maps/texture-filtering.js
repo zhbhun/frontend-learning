@@ -7,7 +7,11 @@ anisotropy。倾斜平面让远端纹理被强烈缩小，可以直接观察锯�
 
 import * as THREE from 'three';
 
-import { createTextureStage, createUvGrid } from './texture-example-utils.js';
+import {
+  createTextureStage,
+  createUvGrid,
+  mountMapPreviews
+} from './texture-example-utils.js';
 
 const FILTERS = {
   nearest: {
@@ -55,6 +59,10 @@ export const textureFilteringExample = {
       mipmaps: texture.generateMipmaps ? '自动生成' : '关闭'
     }));
     stage.setSnapshotEmitter(emitSnapshot);
+
+    mountMapPreviews(canvas.parentElement, [
+      { id: 'map', label: 'map 源图', texture, active: true }
+    ]);
 
     return { camera, stage, state, texture };
   },

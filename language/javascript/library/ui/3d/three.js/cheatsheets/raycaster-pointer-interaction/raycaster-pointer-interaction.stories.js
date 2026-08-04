@@ -6,7 +6,7 @@ import { raycasterExample } from './raycaster-hover-click.js';
 
 export default {
   id: 'raycaster-pointer-interaction',
-  title: '动画与交互/交互与调试/拾取',
+  title: '核心系统/交互与事件/拾取',
   tags: ['!dev']
 };
 

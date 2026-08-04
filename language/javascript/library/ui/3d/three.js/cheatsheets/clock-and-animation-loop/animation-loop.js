@@ -1,9 +1,9 @@
 /*
-本范例演示如何用帧间 delta 表达“每秒角速度”，并安全地暂停、恢复渲染循环。
-输入是 running 与 angularSpeed；主要操作是用 setAnimationLoop() 的毫秒时间戳计算秒制 delta，
-再执行 rotation += angularSpeed * delta。
-预期结果是帧间隔会波动，但角速度仍按每秒弧度解释；暂停或离屏后保留最后一帧，恢复首帧 delta 为 0。
-读代码先看 frame() 的时间换算，再看 startLoop() / stopLoop() 的生命周期。
+本范例演示 setAnimationLoop + 秒制 delta 推进角速度，以及暂停后恢复时是否重置时间基准。
+输入是 running、angularSpeed、resetOnResume；主要操作是用回调毫秒时间戳算 delta，
+再执行 rotation += angularSpeed * delta；关闭“重置时间基准”后暂停再恢复，可看到首帧 delta 尖峰。
+预期结果：运行中角速度按每秒解释；重置开启时恢复首帧 delta 为 0；关闭重置时首帧会把暂停时长补进运动。
+读代码先看 frame() 的时间换算，再看 startLoop() 是否清零 lastTime。
 */
 
 import * as THREE from 'three';
@@ -32,10 +32,12 @@ export const animationLoopExample = {
     const state = {
       angularSpeed: 1,
       requestedRunning: true,
+      resetOnResume: true,
       nearViewport: false,
       loopRunning: false,
       lastTime: 0,
       lastDelta: 0,
+      lastRawDelta: 0,
       elapsed: 0
     };
 
@@ -51,14 +53,17 @@ export const animationLoopExample = {
       emitSnapshot({
         status: state.requestedRunning ? '运行中' : '已暂停',
         delta: state.lastDelta,
+        rawDelta: state.lastRawDelta,
         elapsed: state.elapsed,
-        angle: cube.rotation.y
+        angle: cube.rotation.y,
+        resetOnResume: state.resetOnResume
       });
     }
 
     function frame(time) {
       const rawDelta = state.lastTime ? (time - state.lastTime) / 1000 : 0;
       state.lastTime = time;
+      state.lastRawDelta = rawDelta;
 
       // 页面短暂卡顿时限制单帧步长，避免对象突然跨过很远距离。
       state.lastDelta = Math.min(rawDelta, 0.1);
@@ -71,7 +76,12 @@ export const animationLoopExample = {
       }
 
       state.loopRunning = true;
-      state.lastTime = 0;
+      // 恢复时清零 lastTime，让首帧 delta 为 0；故意不重置会把暂停时长一次性补进运动。
+      if (state.resetOnResume) {
+        state.lastTime = 0;
+        state.lastRawDelta = 0;
+        state.lastDelta = 0;
+      }
       renderer.setAnimationLoop(frame);
     }
 
@@ -81,9 +91,8 @@ export const animationLoopExample = {
       }
 
       state.loopRunning = false;
-      state.lastTime = 0;
-      state.lastDelta = 0;
       renderer.setAnimationLoop(null);
+      // 不在这里清零 lastTime：是否重置由下次 startLoop 的 resetOnResume 决定。
     }
 
     function resize() {
@@ -133,6 +142,7 @@ export const animationLoopExample = {
 
   apply(instance, args) {
     instance.state.angularSpeed = args.angularSpeed;
+    instance.state.resetOnResume = args.resetOnResume;
     instance.state.requestedRunning = args.running;
 
     if (args.running) {
@@ -146,7 +156,9 @@ export const animationLoopExample = {
   readout(snapshot) {
     return [
       ['状态', snapshot.status],
-      ['本帧 delta', `${(snapshot.delta * 1000).toFixed(1)} ms`],
+      ['重置时间基准', snapshot.resetOnResume ? '开启' : '关闭'],
+      ['本帧 raw delta', `${(snapshot.rawDelta * 1000).toFixed(1)} ms`],
+      ['本帧 delta（上限 100ms）', `${(snapshot.delta * 1000).toFixed(1)} ms`],
       ['累计运行时间', `${snapshot.elapsed.toFixed(2)} s`],
       ['Y 轴角度', `${THREE.MathUtils.radToDeg(snapshot.angle).toFixed(1)}°`]
     ];

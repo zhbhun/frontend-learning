@@ -6,7 +6,7 @@ import { debugDashboardExample } from './debug-dashboard.js';
 
 export default {
   id: 'debug-gui-and-stats',
-  title: '动画与交互/交互与调试/调试',
+  title: '质量与交付/交付质量/调试',
   tags: ['!dev']
 };
 

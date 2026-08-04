@@ -1,369 +1,681 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as GeometryStories from './geometry-and-buffergeometry.stories.js';
 
-<Meta id="geometry-and-buffergeometry" title="核心系统/形状与表面/几何" name="Docs" />
+<Meta of={GeometryStories} name="Docs" />
 
 # 几何
 
-`BufferGeometry` 是 three.js 里所有形状数据的底座。它把顶点坐标、法线、纹理坐标和顶点色等数据存成扁平的 typed array，再通过 `attributes` 和 `index` 暴露给 renderer；[Mesh](?path=/docs/mesh-geometry-material--docs)、[Line](?path=/docs/line-and-segments--docs) 和 [Points](?path=/docs/points-object--docs) 都消费同一份几何数据，差别只在如何把这些顶点解释成三角形、线段或点。
+所有可渲染形状最终都落在 `BufferGeometry` 上：它保存顶点 attribute（至少要有 `position`）、可选的 `index`，以及包围体、`drawRange`、`groups`、morph 等绘制相关状态。内置几何体（`BoxGeometry`、`SphereGeometry`、`ExtrudeGeometry`…）只是**工厂**——构造时生成一份 `BufferGeometry`，之后改构造参数不会自动重建网格，需要新建并替换。
 
-`BufferGeometry` 自身不渲染。它只回答两个问题：**顶点在哪里、长什么样**（`attributes`），以及**它们怎样被连成图元**（`index` 与图元类型由消费方决定）。围绕这两个问题还有四组派生能力：内置几何体家族（直接生成常用形状的 attributes）、自定义构造（手写 buffer）、派生数据（法线、包围盒、包围球）和几何级变换（直接改写顶点，区别于 Object3D 的实例变换）。
+`Mesh` / `Line` / `Points` 负责“用这份几何怎么画”；本课负责“几何数据本身怎样来、怎样改”。材质见[材质](?path=/docs/materials-and-render-states--docs)，对象组合见 [Mesh](?path=/docs/mesh-geometry-material--docs)。
 
-把这几层分清楚，几何相关的故障才容易归位：黑色或撕裂表面常常是 normal 缺失或未重算；模型突然被视锥裁掉常常是包围体过期；线框密度突然变大常常是 `toNonIndexed()` 把顶点展开了。
+```mermaid
+flowchart LR
+  factory["内置几何体 / 手写数据"] --> bg["BufferGeometry<br/>attributes + index"]
+  bg --> mesh["Mesh / Line / Points"]
+  morph["morphAttributes"] -.->|"权重混合"| bg
+  update["改 typed array"] -->|"needsUpdate + 重算"| bg
+```
+
+| 成员 / 状态 | 默认值 / 常用起点 | 回查要点 |
+| --- | --- | --- |
+| `attributes.position` | 无则画不出三角形 | itemSize 通常为 `3`；改数组后设 `needsUpdate` |
+| `attributes.normal` | 内置几何体自带 | 受光材质依赖；手写几何常需 `computeVertexNormals()` |
+| `attributes.uv` | 内置几何体自带 | 贴图采样；细节见[纹理](?path=/docs/textures-and-maps--docs) |
+| `index` | `null`（non-indexed） | 有 index 时每 3 个索引一个三角形，可复用顶点 |
+| `drawRange` | `{ start: 0, count: Infinity }` | 用 `setDrawRange`；不删数据，只限制提交范围 |
+| `groups` | `[]` | 多材质分区；用法见 [Mesh](?path=/docs/mesh-geometry-material--docs) |
+| `boundingSphere` | 引擎按需计算 | 顶点大改后应 `computeBoundingSphere()` |
+| `boundingBox` | `null`，需自算 | 应用侧调用 `computeBoundingBox()` |
+| `morphAttributes` | `{}` | 渲染后不要改 morph 缓冲；改权重即可 |
+| `dispose()` | 不自动调用 | 确认无共享引用后再释放 GPU 缓冲 |
 
 ## 快速上手
 
-three.js 自带一组常用几何体，构造时给出形状参数即可，attributes 和 index 由它内部填好：
+创建内置几何，交给 Mesh，读一下顶点数：
 
 ```js
-import * as THREE from 'three';
-
-const box = new THREE.BoxGeometry(1, 1, 1);
-const sphere = new THREE.SphereGeometry(0.7, 32, 16);
-const plane = new THREE.PlaneGeometry(2, 2);
-
-// 把几何交给 Mesh；几何只描述形状，材质和实例变换由 Mesh / Material 负责
-const mesh = new THREE.Mesh(box, new THREE.MeshStandardMaterial({ color: '#3d73d9' }));
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshStandardMaterial({
+  color: '#3d73d9',
+  roughness: 0.45
+});
+const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
+
+console.log(geometry.getAttribute('position').count); // 24（带 index 的盒）
+console.log(geometry.index.count); // 36
 ```
 
-构造完成后立刻可以查询这份几何的内部结构——这是排查任何几何问题的第一步：
+`BoxGeometry` 等构造参数只在**创建时**生效；要换尺寸或分段，新建几何并 `mesh.geometry = next`（记得 `dispose()` 旧的）。
 
-```js
-function describeGeometry(geometry) {
-  const position = geometry.getAttribute('position');
-  return {
-    'position 顶点数': position.count,
-    'index 数': geometry.index?.count ?? null,
-    'attributes': Object.keys(geometry.attributes),
-    'boundingSphere 半径': geometry.boundingSphere?.radius
-  };
-}
+## BufferGeometry
 
-console.log(describeGeometry(new THREE.BoxGeometry(1, 1, 1)));
-// { 'position 顶点数': 24, 'index 数': 36,
-//   attributes: ['position', 'normal', 'uv'],
-//   'boundingSphere 半径': undefined }
-```
+`BufferGeometry` 是 three.js 的几何数据容器。它不负责变换层级（那是 Object3D），只描述“有哪些顶点、如何连成图元”。
 
-注意 `boundingSphere` 此时是 `undefined`——几何构造时不会自动算包围体，第一次渲染或显式调用 `computeBoundingSphere()` 时才会填上。
-
-| 输入或状态 | 默认值 / 常用起点 | 改变后要注意什么 |
-| --- | --- | --- |
-| `geometry.attributes.position` | 由构造函数填入；空 `BufferGeometry` 时为空 | 决定形状；动态改后要 `needsUpdate` 并重算包围体 |
-| `geometry.attributes.normal` | 内置几何会自带 | 受光材质缺少它会出现黑色或错误着色；可 `computeVertexNormals()` 补 |
-| `geometry.attributes.uv` | 内置几何会自带 | 决定纹理如何贴；自定义几何需要手写 |
-| `geometry.index` | 大多数内置几何非空（使用顶点复用） | `null` 时按顶点顺序解释图元；`toNonIndexed()` 可显式展开 |
-| `geometry.groups` | `[]` | 多材质数组必须配合 `addGroup(start, count, materialIndex)` |
-| `geometry.drawRange` | `{ start: 0, count: Infinity }` | 限制提交范围；按图元顶点整数倍组织 |
-| `boundingSphere / boundingBox` | 构造时为 `null` | 视锥剔除依赖它；顶点变化后必须重算 |
-
-## 内置几何体家族
-
-three.js 在核心包和 addons 里提供了一组常用几何体，构造参数的命名风格一致：先给整体尺寸，再给分段数（segment / detail），分段数越大、表面越细但顶点越多。它们全部继承 `BufferGeometry`，并按各自的算法预填 `position`、`normal`、`uv` 与 `index`。
-
-按形状来源分组，便于按用途选型：
-
-| 分组 | 几何体 | 用途与边界 |
-| --- | --- | --- |
-| 基础参数几何 | `BoxGeometry`、`SphereGeometry`、`CylinderGeometry`、`ConeGeometry`、`PlaneGeometry`、`CircleGeometry`、`RingGeometry`、`TorusGeometry`、`TorusKnotGeometry` | 直接给定尺寸与分段；几乎所有"标准形状"需求 |
-| 正多面体 | `TetrahedronGeometry`（4）、`OctahedronGeometry`（8）、`DodecahedronGeometry`（12）、`IcosahedronGeometry`（20） | 面数固定，`detail` 参数细分到接近球面；低多边形风格、球面近似 |
-| 扫描 / 挤出 / 文本 | `LatheGeometry`、`ExtrudeGeometry`、`TubeGeometry`、`TextGeometry`（addons） | 由 2D 路径或轮廓生成 3D 表面；瓶子、文字、管道 |
-| 衍生工具 | `EdgesGeometry`、`WireframeGeometry` | 从另一个几何体生成线段数据，配合 `LineSegments` 画轮廓或线框 |
-| addons 扩展 | `ParametricGeometry`、`TextGeometry` | 由参数函数或字体生成；需要从 `examples/jsm/geometries` 或 `addons/geometries` 导入 |
-
-选型要点：
-
-- **形状明确就选基础参数几何。** 立方体、圆柱、圆盘、圆环等都有现成实现，不要手写顶点。
-- **要低多边形或规整球面近似就选正多面体。** `IcosahedronGeometry` 加 `detail` 是逼近球面的常用做法，顶点分布比 `SphereGeometry` 的经纬度更均匀。
-- **要做瓶子、文字、沿路径挤出就选扫描挤出家族。** 它们接受 2D 路径（`Shape` / `Path`）或 2D 点序列作为输入。
-- **要线框或边框就用衍生工具。** `EdgesGeometry` 只保留夹角超过阈值的边，密度低；`WireframeGeometry` 把每个三角形的所有边都展开，密度高。
-- **要完全自定义形状就直接构造 `BufferGeometry`，** 见后面“自定义 BufferGeometry”。
-
-平面朝向是常见踩坑点：`PlaneGeometry`、`CircleGeometry`、`RingGeometry` 默认在 XY 平面上、法线指向 +Z。要让它水平铺地，需要绕 X 轴旋转 −90°（`mesh.rotation.x = -Math.PI / 2`）——这是 Object3D 变换层面的旋转，不改变几何本身的顶点。
-
-## 顶点数据：attributes
-
-`BufferGeometry.attributes` 是一个普通对象，键是 attribute 名，值是 `BufferAttribute`。每个 attribute 描述“每个顶点上某一类数据”：
-
-- `position`（itemSize = 3）——顶点位置，**渲染必需**；缺失会直接报错。
-- `normal`（itemSize = 3）——顶点法线，受光材质依赖它计算明暗；缺失或为 0 时表面会变黑或错乱。
-- `uv`（itemSize = 2）——纹理坐标，决定贴图如何落到表面；缺失时 `map` / `alphaMap` 等贴图槽不生效。
-- `color`（itemSize = 3）——顶点色，材质 `vertexColors: true` 时按顶点调制颜色；与 `material.color` 相乘。
-
-```js
-// 写法 1：用 Float32BufferAttribute 一次性给数据
-const positions = new Float32Array([
-  -1, -1, 0,
-   1, -1, 0,
-   0,  1, 0
-]);
-geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-// 写法 2：构造 BufferAttribute 时显式给出 array、itemSize
-geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-
-// 读取
-const position = geometry.getAttribute('position');
-position.count;          // 顶点数（= array.length / itemSize）
-position.itemSize;       // 每个顶点占几个分量
-position.array;          // 底层 Float32Array
-position.needsUpdate;    // 改 array 后必须设为 true
-```
-
-`count` 是“这一份 attribute 描述了几个顶点”。所有 attribute 的 `count` 必须一致，否则 renderer 在组装图元时会越界读取。
-
-`normalized: true` 把整数 typed array（如 `Uint8Array`）按类型范围归一化到 0–1 浮点数，常用于把顶点色压缩成字节；`Float32Array` 一般不需要这个开关。
-
-`setAttribute(name, attr)` 会替换同名 attribute；`getAttribute(name)` / `deleteAttribute(name)` / `hasAttribute(name)` 完成其余读写。
-
-## index：复用顶点还是平铺
-
-`index` 是一个 `BufferAttribute`，值为图元顶点的索引序列。它的作用是**复用顶点**：同一个顶点出现在多个三角形里时，position/normal/uv 等数据只写一份，index 指明“第几个三角形用第几个顶点”。
-
-```js
-// 一段由两个三角形拼成的四边形
-// 不用 index：每个三角形单独列 3 个顶点，共 6 个顶点
-const flat = new THREE.BufferGeometry();
-flat.setAttribute('position', new THREE.Float32BufferAttribute([
-  -1, -1, 0,  1, -1, 0,  1, 1, 0,
-  -1, -1, 0,  1,  1, 0, -1, 1, 0
-], 3));
-
-// 用 index：四个顶点各写一份，index 指明如何连成两个三角形
-const indexed = new THREE.BufferGeometry();
-indexed.setAttribute('position', new THREE.Float32BufferAttribute([
-  -1, -1, 0,
-   1, -1, 0,
-   1,  1, 0,
-  -1,  1, 0
-], 3));
-indexed.setIndex([0, 1, 2, 0, 2, 3]);
-```
-
-`setIndex` 接受普通数组或 typed array；顶点数大时用 `Uint16Array` 或 `Uint32Array` 节省内存（three.js 会按顶点数自动选宽度）。
-
-| 维度 | 带 index | 不带 index（flat） |
-| --- | --- | --- |
-| `position.count` | 唯一顶点数（少） | 三角形数 × 3（多） |
-| `index.count` | 三角形数 × 3 | `null` |
-| 顶点数据内存 | 小 | 大（共享顶点重复存） |
-| 法线 / UV 共享 | 同位置顶点一份法线/UV，相邻面平滑过渡 | 每个面顶点独立，自然支持平面着色 |
-| 线框密度 | 只显示唯一边（稀疏） | 显示每个三角形的所有边（密集） |
-| 典型来源 | 大多数内置几何体 | `toNonIndexed()` 输出、手写平铺数据 |
-
-带 index 的几何更省内存，但因为“一个顶点只有一条法线”，在硬边（如立方体的棱）处只能靠把顶点拆开实现——内置 `BoxGeometry` 因此把每个面的四个顶点单独列出（24 个而不是 8 个）。
-
-要观察差异，把同一个几何在两种形态下打印一次：
-
-```js
-const a = new THREE.BoxGeometry(1, 1, 1);
-console.log(a.index.count, a.getAttribute('position').count);   // 36, 24
-
-const b = a.toNonIndexed();
-console.log(b.index, b.getAttribute('position').count);         // null, 36
-```
-
-`toNonIndexed()` 返回新的 `BufferGeometry`，原几何不受影响。把两者交给 `Mesh` 并开 `wireframe`，能直观看到：带 index 的线框只显示立方体的 12 条边；平铺版会显示每个面上对角线，密度大一倍。
-
-## 自定义 BufferGeometry
-
-如果内置几何体无法直接表达目标形状，就从空 `BufferGeometry` 起手，自己写 `position`，再按需补 `normal`、`uv` 和 `index`。
-
-最简单的入口是 `setFromPoints`：给一组 `Vector3`，它构造一个 `Float32BufferAttribute` 写到 `position` 上，等价于手写 `setAttribute('position', new Float32BufferAttribute(flatArray, 3))`。`Line` / `LineLoop` / `Points` 不需要 normal 或 uv，这套写法最常用。
-
-```js
-const points = [];
-for (let i = 0; i <= 64; i++) {
-  const t = i / 64 * Math.PI * 2;
-  points.push(new THREE.Vector3(Math.cos(t), Math.sin(t), 0));
-}
-const ring = new THREE.BufferGeometry().setFromPoints(points);
-// 适合直接交给 LineLoop 画圆轮廓
-```
-
-`Mesh` 需要更完整的 attributes。手写顺序通常是：
-
-1. 算出所有唯一顶点的位置，写入 `position`；
-2. 决定是否用 `index` 复用顶点，调 `setIndex`；
-3. 调 `computeVertexNormals()` 让 three.js 自动算法线；
-4. 按需写 `uv`，没有现成自动算法。
+- **有 `index`：** renderer 按索引取顶点，适合共享顶点的网格。
+- **无 `index`：** 每 3 个连续 `position` 一个三角形，顶点不能跨三角形复用。
 
 ```js
 const geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-geometry.setIndex(indices);
-geometry.computeVertexNormals();  // 必须在 position 与 index 都到位后再调
-geometry.computeBoundingSphere(); // 让视锥剔除拿到正确包围体
+geometry.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(new Float32Array([/* x,y,z,... */]), 3)
+);
+geometry.setIndex([0, 1, 2, 0, 2, 3]);
 ```
 
-`computeVertexNormals()` 按“共享顶点的所有面法线平均”计算每个顶点的法线——这要求顶点之间确实想平滑过渡。要硬边（每条棱两侧法线突变）必须把顶点拆开，让面之间不再共享顶点。
+常用读写：`setAttribute` / `getAttribute` / `hasAttribute` / `deleteAttribute`，以及 `setIndex` / `getIndex`。`setFromPoints(points)` 只写入 `position`，适合线、轨迹；三角网格还要自己补 `index` / `normal` / `uv`。
 
-## 派生数据：法线与包围体
+## attribute
 
-几何体上有一类数据不是手写出来的，而是从 `position` 和 `index` 派生出来的；改了源数据之后必须重新派生，否则下游会用旧值。
+attribute 是按顶点（或按索引指向的顶点）存储的 typed array 视图。网格最常见的三个：
 
-| 派生项 | 计算方法 | 用途 | 何时重算 |
-| --- | --- | --- | --- |
-| 顶点法线 | `computeVertexNormals()` | 受光材质的明暗 | 改 `position` 或 `index` 之后；自带法线的内置几何一般不需要重算 |
-| 包围球 | `computeBoundingSphere()` | 视锥剔除、射线粗筛 | 改 `position` 之后；renderer 第一次渲染时也会按需算一次 |
-| 包围盒 | `computeBoundingBox()` | 自定义剔除、布局、碰撞 | 同上，但默认不会被 renderer 主动调用 |
-
-```js
-// 动态修改顶点的标准流程
-geometry.attributes.position.array[1] += 0.5;
-geometry.attributes.position.needsUpdate = true;
-geometry.computeVertexNormals();     // 受光材质需要新法线
-geometry.computeBoundingSphere();    // 视锥剔除需要新包围球
-```
-
-`attribute.needsUpdate = true` 只让 GPU 在下一次提交时重新上传这份 buffer；它不会触发法线或包围体的重算。`computeVertexNormals()` 不会改写已经存在的 `normal` attribute——它直接覆盖；要保留手工法线就不要调它。
-
-如果 renderer 拿不到包围体，对象可能从“被视锥剔除”变成“永远参与渲染”（性能损失），或反过来过早消失（视觉缺失）。这两种症状都指向同一类问题：**顶点变化了，派生数据没跟上**。
-
-`boundingSphere` 和 `boundingBox` 计算成本不高，但每次重算都会扫一遍 `position` attribute；不要在每帧循环里都调，按“数据真的变了”的频率触发即可。
-
-## 几何级变换方法
-
-`BufferGeometry` 提供一组实例方法，**直接把顶点改写到新位置**——这与 Object3D 的 `position / rotation / scale` 完全不同：Object3D 变换通过矩阵在渲染时把几何整体搬动，顶点数据不变；几何级变换则把矩阵烤进顶点，永久改变几何。
-
-```js
-geometry.translate(0, 1, 0);     // 沿 Y 抬高 1 个单位，所有顶点 y 都 +1
-geometry.rotateX(Math.PI / 2);   // 绕 X 轴旋转 90°
-geometry.scale(2, 1, 1);         // X 方向拉宽 1 倍
-geometry.center();               // 平移使包围盒中心位于原点
-geometry.lookAt(new THREE.Vector3(0, 1, 0));  // 让几何 +Z 朝向目标
-geometry.normalize();            // 等比缩放，使包围球半径为 1
-```
-
-| 维度 | Object3D 变换 | 几何级变换 |
+| 名称 | itemSize | 作用 |
 | --- | --- | --- |
-| 修改对象 | `mesh.position / rotation / scale` | `geometry.translate / rotateX / scale / ...` |
-| 顶点是否被改写 | 否 | 是 |
-| 多个对象共享同一几何 | 互不影响（每个 Mesh 独立） | **所有引用者一起变** |
-| 性能 | 渲染时矩阵乘法（一次） | 一次性 CPU 改写顶点 |
-| 适用场景 | 运行时动画、摆放 | 烤入模型、对齐到原点、永久形状调整 |
-
-最常见的踩坑是：把几何用 `translate` 调整后，多个共享这份几何的 Mesh 全都跟着移动了。运行时动画应走 Object3D；几何级变换适合“一次性把几何摆正”这类预处理。
-
-所有几何级变换底层都走 `applyMatrix4(matrix)`，传入的矩阵会同时变换 `position` 和 `normal`（normal 用矩阵法线矩阵的逆转置，three.js 内部处理）。
-
-## groups 与 drawRange
-
-`groups` 和 `drawRange` 控制几何的“哪一段被绘制、用哪个材质”。它们都是几何自身的状态，但通常配合 Mesh 的材质数组使用。
+| `position` | 3 | 顶点局部坐标，必填 |
+| `normal` | 3 | 光照；可用 `computeVertexNormals()` 生成 |
+| `uv` | 2 | 贴图坐标 |
 
 ```js
-geometry.clearGroups();
-geometry.addGroup(0, 6, 0);     // 从索引 0 开始画 6 个顶点，使用 material[0]
-geometry.addGroup(6, 6, 1);     // 从索引 6 开始画 6 个顶点，使用 material[1]
-
-const mesh = new THREE.Mesh(geometry, [frontMaterial, sideMaterial]);
+const positions = new Float32Array([-1, 0, 0, 1, 0, 0, 0, 1, 0]);
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+geometry.computeVertexNormals();
 ```
 
-`addGroup(start, count, materialIndex)` 的前两个参数按图元索引计数（带 index 时是 index 序号，不带 index 时是顶点序号）；`materialIndex` 对应 `mesh.material` 数组的下标。每个 group 通常产生一次独立 draw call。
+改已上传过的数据时，直接改 `attribute.array`（或 `setX` / `setY` / `setZ`），然后 `attribute.needsUpdate = true`。顶点数变化通常要重建 attribute / geometry，而不是只改几个值。
+
+自定义 attribute（如 `aSeed`）只有着色器真正读取时才有意义，见 [Shader](?path=/docs/shader-basics--docs) 与[粒子](?path=/docs/points-particles-instancing--docs)。
+
+## index
+
+`index` 让多个三角形共享同一套顶点数据，减少重复、保证硬边/平滑法线在共享处按预期平均。
 
 ```js
-// 只绘制几何的一部分；count 是图元顶点数
-geometry.setDrawRange(0, 18);   // 从 0 开始只画 18 个顶点
-geometry.setDrawRange(0, Infinity);  // 恢复默认
+geometry.setIndex([0, 1, 2, 0, 2, 3]);
+// 或 geometry.setIndex(new THREE.Uint16BufferAttribute(indices, 1));
 ```
 
-`drawRange` 不删除 attribute 数据，也不会重算包围体——它只是告诉 renderer 提交多少。常用于“渐进显示”、动画揭示和分块加载，但范围必须按图元的顶点整数倍组织（三角形是 3 的倍数，线段是 2 的倍数）。
+- 顶点很多时用 `Uint32BufferAttribute`；少量可用 `Uint16`。
+- `toNonIndexed()` 会展开成不共享顶点的新几何，便于需要每面独立法线/颜色的情况。
+- `Line` / `LineSegments` / `LineLoop` 一般**不靠 index** 解释连线，见 [Line](?path=/docs/line-and-segments--docs)。
 
-groups 与 drawRange 的关系：
+有无 index 的顶点计数对照见下面「自定义几何」实例。
 
-| 场景 | groups | drawRange | 结果 |
-| --- | --- | --- | --- |
-| 单材质完整绘制 | 空 | `{0, Infinity}` | 一次 draw call，全部绘制 |
-| 多材质分区 | 多个 group | 不动 | 每个 group 各一次 draw call |
-| 单材质局部绘制 | 空 | `{0, N}` | 一次 draw call，只画前 N 个顶点 |
-| 多材质 + 局部 | 多个 group | 限制范围 | 每个 group 与 drawRange 取交集 |
+## 内置几何体
 
-## 共享与释放
+内置几何体都是生成 `BufferGeometry` 的工厂：构造时写入 `position` / `normal` / `uv`（以及常见的 `index`）。它们是 `BufferGeometry` 子类；实例上的 `parameters` 只是记录构造参数，**改 `parameters` 不会变形**——要换尺寸或分段就新建并替换。
 
-`BufferGeometry` 是引用对象，复制和释放有明确的语义：
+大致两类输入模型：
 
-- `clone()` 返回一份新的几何，顶点和 index 都被深拷贝；之后两边互不影响。
-- `copy(source)` 把 source 的数据复制到当前几何，等价于“就地克隆”。
-- `dispose()` 释放 GPU 端 buffer；JS 端的对象由 GC 回收。
+- **参数化体：** `BoxGeometry`、`SphereGeometry`、`CylinderGeometry` 等，用宽高半径与分段直接生成。
+- **轮廓 / 路径型：** `ShapeGeometry`、`ExtrudeGeometry`、`LatheGeometry`、`TubeGeometry`；`TextGeometry` 在 addons 里，但也是同一类挤出工厂。
+
+共同用法：
 
 ```js
-// 多个对象共享同一份几何——内存只占一份
-const shared = new THREE.SphereGeometry(0.5, 24, 16);
-const m1 = new THREE.Mesh(shared, material);
-const m2 = new THREE.Mesh(shared, material);
-
-// 想单独改一个对象的形状时先 clone
-const m3 = new THREE.Mesh(shared.clone(), material);
-m3.geometry.scale(2, 1, 1);   // 只影响 m3
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+mesh.geometry = geometry; // 替换时 dispose() 旧几何
 ```
 
-`dispose()` 是关键一步：从 Scene 移除对象、清空 `geometry` 引用都不会自动释放 GPU 资源。同一个几何被多个 Mesh 引用时，必须确认没有其他引用者再 dispose：
+`EdgesGeometry` / `WireframeGeometry` 用于从网格生成线框数据，见 [Line](?path=/docs/line-and-segments--docs)。
+
+本页有多个 WebGL Canvas。进入视口附近才创建 WebGL，离开后冻住最后一帧并释放上下文，避免一页实例过多占满浏览器额度。
+
+### BoxGeometry
+
+`BoxGeometry` 生成轴对齐长方体，适合占位块、房间模块和简单碰撞示意。
 
 ```js
-scene.remove(mesh);
-mesh.geometry.dispose();   // 注意：所有共享这份几何的对象都会失去 GPU 数据
+new THREE.BoxGeometry(
+  width = 1,
+  height = 1,
+  depth = 1,
+  widthSegments = 1,
+  heightSegments = 1,
+  depthSegments = 1
+);
 ```
 
-共享是几何最常见的复用模式。一个场景里 1000 个相同球体应该共用一个 `SphereGeometry`，每个 Mesh 只持有独立的 Object3D 变换；这样内存和初始化成本只付一次。要为某个对象做形状特化时再 `clone()` 出独立几何，并在不再使用时单独 `dispose()`。
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `width` / `height` / `depth` | `1` | 三边长度 |
+| `*Segments` | `1` | 对应轴向上的细分；升高后顶点与三角形增加 |
 
-Mesh、Line、Points 三类对象都可以共享同一份几何——它们只是按各自的图元类型解释顶点。同一份 `BufferGeometry` 交给 `Mesh` 会画成实心表面，交给 `LineSegments` 会画成线段，交给 `Points` 会画成点。
+默认 `BoxGeometry(1,1,1)` 有 24 个 position 顶点、36 个 index（每面独立四角，便于每面法线）。
+
+<Canvas of={GeometryStories.BoxGeometry} />
+<Controls of={GeometryStories.BoxGeometry} />
+
+### SphereGeometry
+
+`SphereGeometry` 按经纬分段生成球体，也可截成穹顶或半球。
+
+```js
+new THREE.SphereGeometry(
+  radius = 1,
+  widthSegments = 32,
+  heightSegments = 16,
+  phiStart = 0,
+  phiLength = Math.PI * 2,
+  thetaStart = 0,
+  thetaLength = Math.PI
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` | `1` | 球半径 |
+| `widthSegments` | `32` | 经度分段（水平一圈） |
+| `heightSegments` | `16` | 纬度分段 |
+| `phiLength` | `2π` | 水平扫过弧度；小于 `2π` 出现缺口 |
+| `thetaLength` | `π` | 垂直扫过弧度；`π/2` 近似半球穹顶 |
+
+分段过低会露棱；过高徒增三角形。天空穹顶常用较大半径 + 倒置法线或 `BackSide` 材质。
+
+<Canvas of={GeometryStories.SphereGeometry} />
+<Controls of={GeometryStories.SphereGeometry} />
+
+### PlaneGeometry
+
+`PlaneGeometry` 在局部 XY 平面生成矩形网格，适合地面、墙面、位移地形底板和全屏四边形。
+
+```js
+new THREE.PlaneGeometry(
+  width = 1,
+  height = 1,
+  widthSegments = 1,
+  heightSegments = 1
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `width` / `height` | `1` | 平面尺寸 |
+| `widthSegments` / `heightSegments` | `1` | 细分；做地形位移时常拉高 |
+
+当地面用时通常 `geometry.rotateX(-Math.PI / 2)`，或直接转 `mesh`。默认只朝 +Z 正面；要双面看见设材质 `side = DoubleSide`。
+
+<Canvas of={GeometryStories.PlaneGeometry} />
+<Controls of={GeometryStories.PlaneGeometry} />
+
+### CylinderGeometry
+
+`CylinderGeometry` 生成圆柱或圆台（上下半径不同）。
+
+```js
+new THREE.CylinderGeometry(
+  radiusTop = 1,
+  radiusBottom = 1,
+  height = 1,
+  radialSegments = 32,
+  heightSegments = 1,
+  openEnded = false,
+  thetaStart = 0,
+  thetaLength = Math.PI * 2
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radiusTop` / `radiusBottom` | `1` | 顶 / 底半径；不等时为圆台 |
+| `height` | `1` | 柱高 |
+| `radialSegments` | `32` | 圆周分段 |
+| `heightSegments` | `1` | 高度分段 |
+| `openEnded` | `false` | `true` 时去掉顶底盖 |
+
+需要尖顶时用 `ConeGeometry`；只要侧面可用 `openEnded: true`。
+
+<Canvas of={GeometryStories.CylinderGeometry} />
+<Controls of={GeometryStories.CylinderGeometry} />
+
+### ConeGeometry
+
+`ConeGeometry` 是顶半径为 0 的圆柱特例，参数更短。
+
+```js
+new THREE.ConeGeometry(
+  radius = 1,
+  height = 1,
+  radialSegments = 32,
+  heightSegments = 1,
+  openEnded = false,
+  thetaStart = 0,
+  thetaLength = Math.PI * 2
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` | `1` | 底面半径 |
+| `height` | `1` | 锥高 |
+| `radialSegments` / `heightSegments` | `32` / `1` | 圆周与高度分段 |
+| `openEnded` | `false` | 是否去掉底盖 |
+
+与 `CylinderGeometry(0, radius, …)` 拓扑同类；可读性优先用 Cone。
+
+<Canvas of={GeometryStories.ConeGeometry} />
+<Controls of={GeometryStories.ConeGeometry} />
+
+### TorusGeometry
+
+`TorusGeometry` 生成圆环（甜甜圈），由环半径与管半径决定外形。
+
+```js
+new THREE.TorusGeometry(
+  radius = 1,
+  tube = 0.4,
+  radialSegments = 12,
+  tubularSegments = 48,
+  arc = Math.PI * 2
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` | `1` | 从中心到管子中心的距离 |
+| `tube` | `0.4` | 管子截面半径 |
+| `radialSegments` | `12` | 管子截面分段 |
+| `tubularSegments` | `48` | 沿圆环一圈的分段 |
+| `arc` | `2π` | 环向扫过弧度 |
+
+需要打结环带时用 `TorusKnotGeometry`。
+
+<Canvas of={GeometryStories.TorusGeometry} />
+<Controls of={GeometryStories.TorusGeometry} />
+
+### CapsuleGeometry
+
+`CapsuleGeometry` 是圆柱两端加半球盖，常用于角色/碰撞体示意。
+
+```js
+new THREE.CapsuleGeometry(
+  radius = 1,
+  length = 1,
+  capSegments = 4,
+  radialSegments = 8
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` | `1` | 柱与端盖半径 |
+| `length` | `1` | 中间圆柱段长度（不含端盖） |
+| `capSegments` | `4` | 端盖纬度分段 |
+| `radialSegments` | `8` | 圆周分段 |
+
+总高度约为 `length + 2 * radius`。物理引擎里的 capsule 碰撞体常与它对齐。
+
+<Canvas of={GeometryStories.CapsuleGeometry} />
+<Controls of={GeometryStories.CapsuleGeometry} />
+
+### CircleGeometry
+
+`CircleGeometry` 生成圆盘（填充圆面），在局部 XY 平面。
+
+```js
+new THREE.CircleGeometry(
+  radius = 1,
+  segments = 32,
+  thetaStart = 0,
+  thetaLength = Math.PI * 2
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` | `1` | 半径 |
+| `segments` | `32` | 圆周分段 |
+| `thetaLength` | `2π` | 扇形扫角 |
+
+只要圆环边框用 `RingGeometry` 或 `LineLoop`；要厚圆盘用很矮的 `CylinderGeometry`。
+
+<Canvas of={GeometryStories.CircleGeometry} />
+<Controls of={GeometryStories.CircleGeometry} />
+
+### RingGeometry
+
+`RingGeometry` 生成圆环面片（有内径的圆盘）。
+
+```js
+new THREE.RingGeometry(
+  innerRadius = 0.5,
+  outerRadius = 1,
+  thetaSegments = 32,
+  phiSegments = 1,
+  thetaStart = 0,
+  thetaLength = Math.PI * 2
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `innerRadius` / `outerRadius` | `0.5` / `1` | 内 / 外半径 |
+| `thetaSegments` | `32` | 圆周分段 |
+| `phiSegments` | `1` | 径向分段 |
+| `thetaLength` | `2π` | 环向扫角 |
+
+UI 环、瞄准圈、简单光环常用它；要立体圆环用 `TorusGeometry`。
+
+<Canvas of={GeometryStories.RingGeometry} />
+<Controls of={GeometryStories.RingGeometry} />
+
+### TorusKnotGeometry
+
+`TorusKnotGeometry` 生成环面纽结，`p` / `q` 控制绕行周期。
+
+```js
+new THREE.TorusKnotGeometry(
+  radius = 1,
+  tube = 0.4,
+  tubularSegments = 64,
+  radialSegments = 8,
+  p = 2,
+  q = 3
+);
+```
+
+| 参数 | 默认 | 作用 |
+| --- | --- | --- |
+| `radius` / `tube` | `1` / `0.4` | 尺度与管粗 |
+| `tubularSegments` / `radialSegments` | `64` / `8` | 沿结与截面分段 |
+| `p` / `q` | `2` / `3` | 纽结参数；互质时更“打结” |
+
+适合演示与装饰；一般道具仍优先简单体素。
+
+<Canvas of={GeometryStories.TorusKnotGeometry} />
+<Controls of={GeometryStories.TorusKnotGeometry} />
+
+### 多面体族
+
+正多面体与可细分多面体共享 `radius` + `detail` 模型：
+
+| 类 | 说明 |
+| --- | --- |
+| `TetrahedronGeometry` | 正四面体 |
+| `OctahedronGeometry` | 正八面体 |
+| `DodecahedronGeometry` | 正十二面体 |
+| `IcosahedronGeometry` | 正二十面体；`detail` 升高可近似球面 |
+| `PolyhedronGeometry` | 自定义顶点 / 索引的多面体基类 |
+
+```js
+new THREE.IcosahedronGeometry(radius = 1, detail = 0);
+```
+
+`detail = 0` 为原始面；每加 1 层细分，三角形显著增加。需要完全自定义顶点表时用 `PolyhedronGeometry`。
+
+<Canvas of={GeometryStories.PolyhedronGeometry} />
+<Controls of={GeometryStories.PolyhedronGeometry} />
+
+### ShapeGeometry
+
+`ShapeGeometry` 把二维 `Shape`（可含 `holes`）三角化成**平面**网格，默认在 XY 平面。适合徽章、面板、挤出前的剖面预览。
+
+```js
+const shape = new THREE.Shape();
+shape.moveTo(0, 0);
+shape.lineTo(1, 0);
+shape.lineTo(1, 1);
+shape.lineTo(0, 1);
+
+const geometry = new THREE.ShapeGeometry(shape, 12); // curveSegments
+```
+
+`curveSegments`（默认 `12`）控制曲线细分。需要厚度时改用 `ExtrudeGeometry`，不要对 `ShapeGeometry` 期望“自动挤出”。
+
+<Canvas of={GeometryStories.ShapeGeometry} />
+<Controls of={GeometryStories.ShapeGeometry} />
+
+### ExtrudeGeometry
+
+`ExtrudeGeometry` 沿深度（或 `extrudePath`）挤出 `Shape`，是做立体徽章、文字底座、扫掠截面的常用入口。
+
+```js
+const geometry = new THREE.ExtrudeGeometry(shape, {
+  depth: 0.4,
+  steps: 1,
+  bevelEnabled: true,
+  bevelThickness: 0.08,
+  bevelSize: 0.06,
+  bevelSegments: 2
+});
+```
+
+| 选项 | 默认 | 作用 |
+| --- | --- | --- |
+| `depth` | `1` | 挤出厚度 |
+| `steps` | `1` | 厚度方向细分 |
+| `bevelEnabled` | `true` | 是否倒角 |
+| `bevelThickness` / `bevelSize` | `0.2` / 派生 | 倒角深入与外扩 |
+| `bevelSegments` | `3` | 倒角平滑度 |
+| `extrudePath` | `null` | 沿曲线挤出；此时不支持 bevel |
+| `curveSegments` | `12` | 轮廓曲线分段 |
+
+沿路径挤出且需要圆管外观时，也可对比 `TubeGeometry`（圆截面扫掠）。
+
+<Canvas of={GeometryStories.ExtrudeGeometry} />
+<Controls of={GeometryStories.ExtrudeGeometry} />
+
+### LatheGeometry
+
+`LatheGeometry` 把一组 `Vector2` 轮廓点绕 Y 轴旋转生成旋转体（花瓶、棋子、杯壁）。
+
+```js
+const points = [
+  new THREE.Vector2(0, -1),
+  new THREE.Vector2(0.6, 0),
+  new THREE.Vector2(0.2, 1)
+];
+const geometry = new THREE.LatheGeometry(points, 24, 0, Math.PI * 2);
+```
+
+构造：`LatheGeometry(points, segments = 12, phiStart = 0, phiLength = Math.PI * 2)`。`phiLength` 小于 `2π` 会留出缺口，便于看内部。
+
+<Canvas of={GeometryStories.LatheGeometry} />
+<Controls of={GeometryStories.LatheGeometry} />
+
+### TubeGeometry
+
+`TubeGeometry` 沿三维 `Curve` 扫出圆形截面管子，适合缆线、轨道、路径可视化。
+
+```js
+const path = new THREE.CatmullRomCurve3([/* Vector3... */]);
+const geometry = new THREE.TubeGeometry(
+  path,
+  64,   // tubularSegments
+  0.2,  // radius
+  8,    // radialSegments
+  false // closed
+);
+```
+
+| 参数 | 含义 |
+| --- | --- |
+| `tubularSegments` | 沿路径分段 |
+| `radius` | 管半径 |
+| `radialSegments` | 截面圆周分段 |
+| `closed` | 路径是否按闭合管处理 |
+
+截面不是圆、或要沿路径挤出任意 `Shape` 时，用 `ExtrudeGeometry` 的 `extrudePath`。
+
+<Canvas of={GeometryStories.TubeGeometry} />
+<Controls of={GeometryStories.TubeGeometry} />
+
+### TextGeometry
+
+`TextGeometry` 在 addons 中（`three/addons/geometries/TextGeometry.js`），本质是按字形生成 `Shape` 再 `ExtrudeGeometry`。必须提供 `FontLoader` 解析的 typeface 字体。
+
+```js
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+const font = await new FontLoader().loadAsync('helvetiker_regular.typeface.json');
+const geometry = new TextGeometry('Hello', {
+  font,
+  size: 0.8,
+  depth: 0.2,
+  curveSegments: 6,
+  bevelEnabled: true
+});
+geometry.center();
+```
+
+| 选项 | 作用 |
+| --- | --- |
+| `font` | 必填，`Font` 实例 |
+| `size` | 字号 |
+| `depth` | 挤出厚度（新 API；勿与旧名 `height` 混淆） |
+| `curveSegments` | 字形曲线分段 |
+| `bevel*` | 与 Extrude 相同的倒角开关 |
+
+中文等复杂字形需要对应 typeface；生产环境常改为建模软件导出 glTF 文字，而不是运行时挤出。
+
+<Canvas of={GeometryStories.TextGeometryDemo} />
+<Controls of={GeometryStories.TextGeometryDemo} />
+
+## 自定义几何
+
+当内置形状不够用时，直接写 `BufferGeometry`：先定顶点，再定连接，再补法线。
+
+```js
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(
+    new Float32Array([-1, 0, 0, 1, 0, 0, 0, 1, 0]),
+    3
+  )
+);
+geometry.setIndex([0, 1, 2]);
+geometry.computeVertexNormals();
+geometry.computeBoundingSphere();
+```
+
+最小清单：`position`（必填）→ `index`（可选但推荐）→ `normal`（受光需要）→ `uv`（贴图需要）→ 包围体。
+
+下面用同一四边形对照：开 `index` 时 4 顶点；关掉后 6 顶点。再关 `computeVertexNormals`，受光面会明显异常。
+
+<Canvas of={GeometryStories.CustomGeometry} />
+<Controls of={GeometryStories.CustomGeometry} />
+
+## morphAttributes
+
+morph 在**不改写基座 attribute** 的前提下，用目标 attribute 做加权混合。常见是 `morphAttributes.position` 数组；Mesh 会暴露 `morphTargetInfluences`。
+
+```js
+geometry.morphAttributes.position = [
+  new THREE.Float32BufferAttribute(targetPositions, 3)
+];
+
+mesh.morphTargetInfluences[0] = 0.5; // 0 = 基座，1 = 该目标
+```
+
+| 要点 | 说明 |
+| --- | --- |
+| 目标与基座顶点数 | 必须一致 |
+| `morphTargetsRelative` | 默认 `false`（目标为绝对坐标）；`true` 时目标为相对偏移 |
+| 渲染后改 morph 数据 | 文档要求 `dispose()` 后换新几何，不要热改已上传的 morph 缓冲 |
+| 动画驱动 | 权重常由 `AnimationMixer` 写入，见[动画](?path=/docs/gltf-animation-mixer--docs) |
+
+下面拖动 `influence`：形状变化，但读数里基座 `position` 采样应保持不变。
+
+<Canvas of={GeometryStories.MorphAttributes} />
+<Controls of={GeometryStories.MorphAttributes} />
+
+## 顶点更新
+
+运行时变形（波浪、挤压、CPU 粒子位置）通常改 `position.array`，然后同步 GPU 与剔除数据：
+
+```js
+const position = geometry.attributes.position;
+// ... 写入 array ...
+position.needsUpdate = true;
+geometry.computeVertexNormals();   // 若光照依赖法线
+geometry.computeBoundingSphere();  // 避免包围体过期导致误剔除
+```
+
+隐蔽步骤值得故意漏一次：关掉 `needsUpdate`，画面可能停在旧形状；关掉包围体重算，大幅位移后物体可能“消失”却仍占逻辑位置。`drawRange` 只限制提交范围，不删 attribute，动态少画时可用。
+
+<Canvas of={GeometryStories.VertexUpdate} />
+<Controls of={GeometryStories.VertexUpdate} />
+
+## 几何变换
+
+`geometry.translate` / `rotateX|Y|Z` / `scale` / `center` / `applyMatrix4` 会**把变换烘焙进顶点**，一般只做一次；实时朝向应改 `Object3D` 的 `position` / `rotation` / `scale`。
+
+```js
+geometry.center();          // 按 boundingBox 居中
+geometry.rotateY(Math.PI / 4);
+geometry.computeBoundingBox();
+```
+
+| 方式 | 改什么 | 适用 |
+| --- | --- | --- |
+| Object3D 变换 | 实例矩阵 | 每帧运动、层级、复用同一几何 |
+| 几何烘焙 | 顶点数组 | 校正建模朝向、合并前对齐、一次性镜像 |
+
+下面切换模式：Object3D 路径下 `mesh.rotation.y` 跟随角度；烘焙路径下旋转进顶点，`mesh.rotation.y` 保持 0，局部包围盒最大值会变。
+
+<Canvas of={GeometryStories.GeometryTransform} />
+<Controls of={GeometryStories.GeometryTransform} />
 
 ## 最佳实践
 
-- 优先用内置几何体；只有形状无法表达时才手写 `BufferGeometry`。
-- 多个相同形状对象共享一份几何，按需 `clone()` 出独立副本做形状特化。
-- 自定义几何按“position → index → normal → bounding”的顺序完成；`computeVertexNormals()` 必须在 position 和 index 都到位后再调。
-- 动画走 Object3D 变换，几何级变换只用于一次性预处理；不要每帧 `translate` / `scale` 几何。
-- 动态改 attribute 数组后立即设 `attribute.needsUpdate = true`，影响法线或包围体时同步调对应 compute 方法。
-- 平面、圆盘、环形几何默认朝 +Z，铺地时绕 X 轴旋转 −90°，这是 Mesh 层面的旋转，不动几何。
-- 多材质分区用 `addGroup`，每段 `materialIndex` 与材质数组下标对应；不要让 groups 重叠或漏掉要画的顶点。
-- 释放前判断共享关系：一个 Mesh dispose 几何时，确认没有其他 Mesh / Line / Points 仍在引用。
-- 要观察一份陌生几何的内部结构，先 `console.log(Object.keys(geometry.attributes), geometry.index?.count, geometry.getAttribute('position').count)`——大部分问题在这一行就能定位。
+- 能用内置工厂就先用；只在轮廓、路径、字形或完全自定义拓扑时下手写 attribute。
+- 静态复用同一份几何，用 Object3D 摆很多实例；不要为每个位置 clone 一份顶点。
+- 改构造尺寸 / 分段：新建几何并替换，`dispose()` 旧几何；不要指望改 `parameters`。
+- 动态顶点：改数组 → `needsUpdate` → 按需重算法线与包围体。
+- 实时旋转用 Object3D；烘焙变换留给资源预处理。
+- 多材质分区用 `groups`，完整用法见 [Mesh](?path=/docs/mesh-geometry-material--docs)。
+- 合并多份静态几何见[性能](?path=/docs/performance-and-disposal--docs)的 `BufferGeometryUtils.mergeGeometries`。
 
 ## 常见问题
 
-- 为什么新建的 `BufferGeometry` 加进场景后报错或显示不出来？
-  geometry 没有 `position` attribute；空 `BufferGeometry` 没有 `position`，渲染必需它。用 `setAttribute('position', ...)` 或 `setFromPoints(...)` 提供顶点。
-- 为什么改了 `position` 数组，画面没变？
-  改 `Float32Array` 后必须设 `geometry.attributes.position.needsUpdate = true`；否则 GPU 还在用旧 buffer。
-- 为什么改了顶点之后对象被视锥提前裁掉或一直留在画面里？
-  顶点变了但包围体没跟上。调 `geometry.computeBoundingSphere()`；如果用了自定义剔除或碰撞，再调 `computeBoundingBox()`。
-- 为什么受光材质的表面变黑或着色错乱？
-  geometry 缺 `normal` attribute，或顶点改了之后没重算法线。补 `geometry.computeVertexNormals()`，或手写 `normal`。
-- 为什么用 `translate` / `scale` 改了几何，其他共享它的对象也跟着变了？
-  几何级变换直接改写顶点数据，所有引用者共享同一份 buffer。需要单独变形时先 `geometry.clone()`。
-- 为什么 `toNonIndexed()` 后线框密度变大？
-  平铺几何把每个三角形的三个顶点都单独列出，wireframe 会画出每条边（包括同一面上的对角线）；带 index 的几何只显示唯一边。
-- 为什么 `PlaneGeometry` 默认朝向不对？
-  它在 XY 平面上、法线指向 +Z。要水平铺地，把所在 Mesh 绕 X 轴旋转 −90°（`mesh.rotation.x = -Math.PI / 2`），不要去改几何顶点。
-- 为什么多个 Mesh 共享同一几何后，其中一个 dispose 了其他也消失了？
-  `dispose()` 释放的是 GPU buffer，对所有引用者生效；共享几何在 dispose 前必须确认引用计数。
+- 为什么改了 `geometry.parameters.width` 形状不变？
+  `parameters` 只是构造记录。新建几何并赋给 `mesh.geometry`，再 `dispose()` 旧的。
+- 为什么自定义网格是黑的或不受光？
+  检查是否有 `normal`，没有就 `computeVertexNormals()`；并确认材质不是只靠贴图且 Light 存在。
+- 为什么改了顶点画面不动？
+  设置 `geometry.attributes.position.needsUpdate = true`。
+- 为什么物体突然消失，日志里位置还在？
+  顶点大改后调用 `computeBoundingSphere()`；过期包围体可能被视锥剔除。
+- 为什么 morph 权重变了没效果？
+  确认 `morphAttributes` 与基座顶点数一致，且 `morphTargetInfluences` 已建立；渲染后不要热替换 morph 缓冲。
+- 为什么 `TextGeometry` 报找不到 font？
+  先用 `FontLoader` 加载 typeface JSON，再把 `font` 传进构造参数。
+- 为什么 Line 看起来不读我设的 index？
+  线对象按顶点顺序解释线段，不要用三角网格的 index 思维硬套，见 [Line](?path=/docs/line-and-segments--docs)。
 
 ## 总结回顾
 
 摘要：
 
-BufferGeometry 是 Mesh、Line、Points 共用的形状数据底座，把顶点坐标、法线、纹理坐标、顶点色等数据存成扁平 typed array，通过 `attributes` 暴露；`index` 决定顶点如何被复用并连成图元。内置几何体家族覆盖大部分常用形状，自定义几何按 position → index → normal → bounding 的顺序构造。改顶点后必须同步 `needsUpdate` 和派生数据（法线、包围球/盒）。几何级变换直接改写顶点，适合一次性预处理；Object3D 变换在渲染时套矩阵，适合运行时动画。groups 与 drawRange 控制多材质分区与局部绘制。几何是引用对象，共享节省内存，但 clone 与 dispose 必须按引用关系处理。
+几何的核心是 `BufferGeometry`：attribute 描述每顶点数据，index 描述三角形连接。内置几何体都是工厂——参数化体（Box / Sphere 等）与轮廓路径型（Shape / Extrude / Lathe / Tube / Text）只是输入模型不同；手写几何则直接填数组。morph 用权重混合目标而不改写基座 attribute。运行时改顶点必须同步 `needsUpdate` 与包围体；烘焙变换与 Object3D 变换要分开选。
 
 一句话：
 
-> 把 BufferGeometry 当成“顶点数据的扁平容器”：先想清楚顶点在哪里、怎么连成图元，再决定是用内置几何体、自定义 buffer 还是衍生工具来填它。
+> 形状就是 BufferGeometry 里的顶点数据；内置工厂负责生成，更新负责同步，morph 负责加权形变。
 
 知识要点：
 
-- 一份 BufferGeometry 同时能被哪些对象消费？它们如何按图元类型解释同一组顶点？
-- position、normal、uv、color 这几个 attribute 分别决定什么？缺失会让什么失败？
-- 带 index 与不带 index 的几何在内存、法线共享、线框密度上有什么差别？
-- 改了 `position` 数组之后，哪些 GPU 状态、派生数据和包围体必须同步更新？
-- 几何级变换与 Object3D 变换分别改写什么？共享几何时为什么几何级变换要慎用？
-- 多材质 Mesh 为什么必须在 geometry 上调 `addGroup`？
-- 共享几何与 `dispose()` 为什么必须配合引用关系使用？
+- 内置几何体和 `BufferGeometry` 是什么关系？为什么改 `parameters` 无效？
+- 有无 `index` 时 renderer 怎样解释 `position`？
+- `normal` / `uv` 缺失时受光与贴图会怎样？
+- 参数化体与 Shape / Extrude / Lathe / Tube / Text 的输入模型差在哪？
+- 自定义几何的最小 attribute 清单是什么？
+- morph 权重如何在不改写基座 attribute 的情况下变形？
+- 漏掉 `needsUpdate` 或包围体重算会出现什么现象？
+- 何时烘焙几何变换，何时只用 Object3D？
 
 ## 参考资料
 
 - [Three.js Docs：BufferGeometry](https://threejs.org/docs/pages/BufferGeometry.html)
 - [Three.js Docs：BufferAttribute](https://threejs.org/docs/pages/BufferAttribute.html)
-- [Three.js Docs：InstancedBufferAttribute](https://threejs.org/docs/pages/InstancedBufferAttribute.html)
+- [Three.js Docs：BoxGeometry](https://threejs.org/docs/pages/BoxGeometry.html)
+- [Three.js Docs：ShapeGeometry](https://threejs.org/docs/pages/ShapeGeometry.html)
+- [Three.js Docs：ExtrudeGeometry](https://threejs.org/docs/pages/ExtrudeGeometry.html)
+- [Three.js Docs：LatheGeometry](https://threejs.org/docs/pages/LatheGeometry.html)
+- [Three.js Docs：TubeGeometry](https://threejs.org/docs/pages/TubeGeometry.html)
+- [Three.js Docs：TextGeometry](https://threejs.org/docs/pages/TextGeometry.html)
 - [Three.js Manual：Custom BufferGeometry](https://threejs.org/manual/en/custom-buffergeometry.html)
-- [Three.js Manual：How to update things](https://threejs.org/manual/en/how-to-update-things.html)
-- [Three.js Manual：How to dispose of objects](https://threejs.org/manual/en/how-to-dispose-of-objects.html)
+- [Three.js Manual：Primitives](https://threejs.org/manual/en/primitives.html)

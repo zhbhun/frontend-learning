@@ -1,13 +1,18 @@
 /*
 演示同一材质里的 map、roughnessMap 与 normalMap 分别改变什么。
 
-三个开关直接写入 MeshStandardMaterial 对应槽位；画面中的颜色、反光宽度与表面凹凸
-彼此独立。添加或移除贴图会改变 shader 分支，因此必须设置 material.needsUpdate。
+三个开关直接写入 MeshStandardMaterial 对应槽位；右上角预览条显示三张源图，
+关闭槽位时对应预览变灰。添加或移除贴图会改变 shader 分支，因此必须设置
+material.needsUpdate。
 */
 
 import * as THREE from 'three';
 
-import { createTextureStage, createUvGrid } from './texture-example-utils.js';
+import {
+  createTextureStage,
+  createUvGrid,
+  mountMapPreviews
+} from './texture-example-utils.js';
 
 function createRoughnessMap(size = 128) {
   const data = new Uint8Array(size * size);
@@ -55,6 +60,29 @@ function createNormalMap(size = 128) {
   return texture;
 }
 
+function previewSlots(colorMap, roughnessMap, normalMap, args) {
+  return [
+    {
+      id: 'map',
+      label: 'map',
+      texture: colorMap,
+      active: Boolean(args?.colorMap ?? true)
+    },
+    {
+      id: 'roughnessMap',
+      label: 'roughnessMap',
+      texture: roughnessMap,
+      active: Boolean(args?.roughnessMap ?? true)
+    },
+    {
+      id: 'normalMap',
+      label: 'normalMap',
+      texture: normalMap,
+      active: Boolean(args?.normalMap ?? true)
+    }
+  ];
+}
+
 export const materialMapSlotsExample = {
   create(canvas, emitSnapshot) {
     const scene = new THREE.Scene();
@@ -89,7 +117,19 @@ export const materialMapSlotsExample = {
     }));
     stage.setSnapshotEmitter(emitSnapshot);
 
-    return { colorMap, material, normalMap, roughnessMap, stage };
+    const previews = mountMapPreviews(
+      canvas.parentElement,
+      previewSlots(colorMap, roughnessMap, normalMap)
+    );
+
+    return {
+      colorMap,
+      material,
+      normalMap,
+      roughnessMap,
+      stage,
+      previews
+    };
   },
 
   apply(instance, args) {
@@ -99,6 +139,15 @@ export const materialMapSlotsExample = {
       : null;
     instance.material.normalMap = args.normalMap ? instance.normalMap : null;
     instance.material.needsUpdate = true;
+
+    instance.previews.update(
+      previewSlots(
+        instance.colorMap,
+        instance.roughnessMap,
+        instance.normalMap,
+        args
+      )
+    );
     instance.stage.render();
   },
 
@@ -110,4 +159,3 @@ export const materialMapSlotsExample = {
     ];
   }
 };
-

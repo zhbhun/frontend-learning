@@ -2,6 +2,7 @@ import rightHandedAxesSource from './right-handed-axes.js?raw';
 import worldUnitsSource from './world-units.js?raw';
 import radiansRotationSource from './radians-rotation.js?raw';
 import localVsWorldSource from './local-vs-world.js?raw';
+import resizePipelineSource from './resize-pipeline.js?raw';
 
 import { sceneStory } from '../../assets/story-canvas.js';
 import { sceneSource } from '../../assets/story-source.js';
@@ -9,10 +10,11 @@ import { rightHandedAxesExample } from './right-handed-axes.js';
 import { worldUnitsExample } from './world-units.js';
 import { radiansRotationExample } from './radians-rotation.js';
 import { localVsWorldExample } from './local-vs-world.js';
+import { resizePipelineExample } from './resize-pipeline.js';
 
 export default {
   id: 'coordinate-system-and-units',
-  title: '快速启动/坐标与单位',
+  title: '核心系统/坐标与尺寸',
   tags: ['!dev']
 };
 
@@ -53,7 +55,7 @@ export const WorldUnits = {
     unitScale: {
       name: '整体缩放',
       control: { type: 'range', min: 0.5, max: 2, step: 0.1 },
-      description: '写入 group.scale。相机不动时只是画面大小变化，不改变“1 单位 = 几像素”。'
+      description: '写入 group.scale（Vector3）。相机不动时只是画面大小变化，不改变“1 单位 = 几像素”。'
     }
   },
   render: sceneStory(worldUnitsExample),
@@ -102,4 +104,43 @@ export const LocalVsWorld = {
   },
   render: sceneStory(localVsWorldExample),
   parameters: sceneSource(localVsWorldSource)
+};
+
+export const ResizePipeline = {
+  name: '尺寸同步链路',
+  args: {
+    resizeMode: 'correct',
+    displayAspect: 16 / 9,
+    pixelRatio: 1
+  },
+  argTypes: {
+    resizeMode: {
+      name: '尺寸策略',
+      control: 'select',
+      options: ['correct', 'css-only', 'skip-projection-update'],
+      mapping: {
+        correct: 'correct',
+        'css-only': 'css-only',
+        'skip-projection-update': 'skip-projection-update'
+      },
+      labels: {
+        correct: '完整同步',
+        'css-only': '只改 CSS',
+        'skip-projection-update': '漏更新投影矩阵'
+      },
+      description: '完整同步时 CSS、drawing buffer 与投影一致；错误分支可定位拉伸或比例失真发生在哪一层。'
+    },
+    displayAspect: {
+      name: 'CSS 宽高比',
+      control: { type: 'range', min: 1, max: 2.4, step: 0.1 },
+      description: '直接改变 Canvas 外层舞台的 CSS aspect-ratio。'
+    },
+    pixelRatio: {
+      name: 'renderer pixel ratio',
+      control: { type: 'range', min: 0.5, max: 2, step: 0.25 },
+      description: 'drawing buffer 相对 renderer 逻辑尺寸的倍率。'
+    }
+  },
+  render: sceneStory(resizePipelineExample),
+  parameters: sceneSource(resizePipelineSource)
 };

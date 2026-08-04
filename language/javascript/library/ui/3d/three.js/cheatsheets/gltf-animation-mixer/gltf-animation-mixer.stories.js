@@ -11,7 +11,7 @@ import { mixingExample } from './animation-mixing.js';
 
 export default {
   id: 'gltf-animation-mixer',
-  title: '动画与交互/时间与动画/动画',
+  title: '核心系统/时间与动画/动画',
   tags: ['!dev']
 };
 

@@ -1,5 +1,6 @@
 /*
-演示世界单位是场景内部标量，不绑定屏幕像素。
+演示世界单位是场景内部标量，不绑定屏幕像素；
+group.scale 是 Vector3，用 setScalar 均匀放大。
 
 输入 unitScale → group.scale.setScalar(...)；相机位置不变。
 预期：画面变大/变小，但立方体局部尺寸仍是 0.8 世界单位。
@@ -64,9 +65,9 @@ export const worldUnitsExample = {
   readout({ camera, group, cube }) {
     return [
       ['相机位置（不变）', formatVector(camera.position)],
-      ['group.scale', formatVector(group.scale)],
+      ['group.scale（Vector3）', formatVector(group.scale)],
       ['立方体局部尺寸', '0.8 × 0.8 × 0.8（世界单位）'],
-      ['立方体局部 position', formatVector(cube.position)],
+      ['立方体 position（Vector3）', formatVector(cube.position)],
       ['结论', '视觉变大/变小 ≠ 改成了像素单位；1 仍是场景标量']
     ];
   }

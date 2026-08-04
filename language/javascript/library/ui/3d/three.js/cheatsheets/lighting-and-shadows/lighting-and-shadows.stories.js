@@ -1,11 +1,14 @@
-import shadowTogglesSource from './shadow-toggles.js?raw';
-import shadowQualitySource from './shadow-quality.js?raw';
-import sharedSceneSource from '../../assets/shared-scene.js?raw';
+import litMaterialSource from './lit-material.js?raw';
+import shadowSwitchesSource from './shadow-switches.js?raw';
+import directionalShadowCameraSource from './directional-shadow-camera.js?raw';
+import shadowMapQualitySource from './shadow-map-quality.js?raw';
 
 import { sceneStory } from '../../assets/story-canvas.js';
 import { sceneSource } from '../../assets/story-source.js';
-import { shadowTogglesExample } from './shadow-toggles.js';
-import { shadowQualityExample } from './shadow-quality.js';
+import { litMaterialExample } from './lit-material.js';
+import { shadowSwitchesExample } from './shadow-switches.js';
+import { directionalShadowCameraExample } from './directional-shadow-camera.js';
+import { shadowMapQualityExample } from './shadow-map-quality.js';
 
 export default {
   id: 'lighting-and-shadows',
@@ -13,64 +16,123 @@ export default {
   tags: ['!dev']
 };
 
-function sourceBundle(memberSource) {
-  return [sharedSceneSource, memberSource].join('\n\n');
-}
-
-export const ShadowToggles = {
-  name: '阴影开关链路',
+export const LitMaterial = {
+  name: '受光材质与明暗',
   args: {
-    rendererEnabled: true,
-    lightCast: true,
-    meshCast: true,
-    groundReceive: true
+    materialKind: 'standard',
+    intensity: 3.0
   },
   argTypes: {
-    rendererEnabled: {
-      name: 'renderer.shadowMap.enabled',
-      control: 'boolean',
-      description: '总开关。关掉后所有光源的 castShadow 都失效，画面里没有任何阴影。'
+    materialKind: {
+      name: '材质',
+      control: 'inline-radio',
+      options: ['standard', 'basic'],
+      description:
+        'MeshStandardMaterial 响应 Light；MeshBasicMaterial 颜色恒定，调 intensity 也不出明暗。'
     },
-    lightCast: {
-      name: 'light.castShadow',
-      control: 'boolean',
-      description: '这盏光是否参与阴影计算。'
-    },
-    meshCast: {
-      name: 'mesh.castShadow（投射物）',
-      control: 'boolean',
-      description: '雕塑是否作为投射物。'
-    },
-    groundReceive: {
-      name: 'mesh.receiveShadow（接收物）',
-      control: 'boolean',
-      description: '地面是否把阴影画在自己身上。'
+    intensity: {
+      name: 'DirectionalLight.intensity',
+      control: { type: 'range', min: 0, max: 8, step: 0.1 }
     }
   },
-  render: sceneStory(shadowTogglesExample),
-  parameters: sceneSource(sourceBundle(shadowTogglesSource))
+  render: sceneStory(litMaterialExample),
+  parameters: sceneSource(litMaterialSource)
 };
 
-export const ShadowQuality = {
-  name: 'mapSize 与阴影相机',
+export const ShadowSwitches = {
+  name: '阴影四开关',
   args: {
-    mapSize: 1024,
-    range: 4
+    shadowMapEnabled: true,
+    lightCastShadow: true,
+    castShadow: true,
+    receiveShadow: true
+  },
+  argTypes: {
+    shadowMapEnabled: {
+      name: 'renderer.shadowMap.enabled',
+      control: 'boolean',
+      description: '全局总闸。关掉后所有 light.castShadow 都无效。'
+    },
+    lightCastShadow: {
+      name: 'light.castShadow',
+      control: 'boolean',
+      description: '该光源是否生成 shadow map。Ambient / Hemisphere / RectArea 始终不投影。'
+    },
+    castShadow: {
+      name: 'mesh.castShadow',
+      control: 'boolean',
+      description: '物体是否写入 shadow map（投射阴影）。'
+    },
+    receiveShadow: {
+      name: 'mesh.receiveShadow',
+      control: 'boolean',
+      description: '物体表面是否读取 shadow map（接收阴影）。'
+    }
+  },
+  render: sceneStory(shadowSwitchesExample),
+  parameters: sceneSource(shadowSwitchesSource)
+};
+
+export const DirectionalShadowCamera = {
+  name: '平行光阴影相机',
+  args: {
+    halfExtent: 4,
+    near: 1,
+    far: 30
+  },
+  argTypes: {
+    halfExtent: {
+      name: 'shadow.camera 半宽',
+      control: { type: 'range', min: 1.5, max: 14, step: 0.5 },
+      description:
+        '写入 OrthographicCamera 的 left/right/top/bottom。过小裁影，过大同 mapSize 下更糊。'
+    },
+    near: {
+      name: 'shadow.camera.near',
+      control: { type: 'range', min: 0.5, max: 10, step: 0.5 }
+    },
+    far: {
+      name: 'shadow.camera.far',
+      control: { type: 'range', min: 10, max: 60, step: 1 }
+    }
+  },
+  render: sceneStory(directionalShadowCameraExample),
+  parameters: sceneSource(directionalShadowCameraSource)
+};
+
+export const ShadowMapQuality = {
+  name: '阴影贴图质量',
+  args: {
+    mapSize: 512,
+    type: 'pcf',
+    bias: -0.0002,
+    normalBias: 0
   },
   argTypes: {
     mapSize: {
       name: 'shadow.mapSize',
-      options: [512, 1024, 2048],
-      control: { type: 'radio' },
-      description: 'shadow map 纹理分辨率（方阵）。常用 1024 或 2048。'
+      control: 'inline-radio',
+      options: [256, 512, 1024, 2048],
+      description: '须为 2 的幂。越大越清晰，也越占显存与填充成本。'
     },
-    range: {
-      name: 'shadow.camera 半范围',
-      control: { type: 'range', min: 2, max: 12, step: 1 },
+    type: {
+      name: 'shadowMap.type',
+      control: 'inline-radio',
+      options: ['basic', 'pcf', 'vsm'],
       description:
-        'DirectionalLightShadow 用 OrthographicCamera，left/right/top/bottom = ±range。范围越大，同一张纹理覆盖的世界区域越大，阴影越糊。'
+        'Basic 最快最硬；PCF 默认；VSM 更软，且接收物也会投影。PCFSoftShadowMap 已弃用。'
+    },
+    bias: {
+      name: 'shadow.bias',
+      control: { type: 'range', min: -0.005, max: 0.002, step: 0.0001 },
+      description: '深度偏移。过负易 peter-panning；接近 0 易 acne。'
+    },
+    normalBias: {
+      name: 'shadow.normalBias',
+      control: { type: 'range', min: 0, max: 0.2, step: 0.005 },
+      description: '沿法线偏移采样点，减轻大场景浅角 acne；过大阴影会变形。'
     }
   },
-  render: sceneStory(shadowQualityExample),
-  parameters: sceneSource(sourceBundle(shadowQualitySource))
+  render: sceneStory(shadowMapQualityExample),
+  parameters: sceneSource(shadowMapQualitySource)
 };

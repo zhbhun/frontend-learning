@@ -7,7 +7,7 @@ import exampleSource from './transform-example.js?raw';
 
 export default {
   id: 'transform-controls',
-  title: '动画与交互/交互与调试/TransformControls',
+  title: '核心系统/交互与事件/TransformControls',
   tags: ['!dev']
 };
 
