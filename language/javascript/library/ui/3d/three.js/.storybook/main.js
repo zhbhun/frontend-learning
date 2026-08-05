@@ -1,14 +1,12 @@
 import remarkGfm from 'remark-gfm';
 
 import rehypeMermaidFences from './rehype-mermaid-fences.js';
+import { roadmapStories } from './roadmap-stories.js';
 
 /** @type {import('@storybook/html-vite').StorybookConfig} */
 const config = {
   framework: '@storybook/html-vite',
-  stories: [
-    '../cheatsheets/**/*.mdx',
-    '../cheatsheets/**/*.stories.js'
-  ],
+  stories: roadmapStories(),
   addons: [
     {
       name: '@storybook/addon-docs',
