@@ -1,0 +1,349 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="page-integration-and-deploy" title="工程实践/页面集成" name="Docs" />
+
+# 页面集成
+
+Babylon.js 画出来的 canvas 不是悬浮在真空里的特殊元素——它是一个普通 DOM 节点，要和兄弟元素、CSS、UI 控件、路由和构建产物共存。本课不重复 [坐标与尺寸](?path=/docs/coordinate-system-and-units--docs) 讲过的 resize 与 devicePixelRatio，也不重讲 [性能](?path=/docs/performance-and-disposal--docs) 中的 dispose 与硬件缩放策略；它回答的是 canvas 进入真实页面后才会出现的工程问题：怎样和 DOM/CSS 共存、怎样让背景透出 CSS、怎样在 SPA 路由切换时干净离开、多查看器怎样避免撞 WebGL 上下文上限、构建时怎样不撑爆 bundle。
+
+出问题时先分清是哪一条独立链路：
+
+- **布局链路。** canvas 在 DOM 中的位置、容器的 CSS 尺寸共同决定它"画多大"。容器变化由 CSS 或 `ResizeObserver` 反馈给 `engine.resize()`，而不是反过来由 engine 写死像素决定页面布局。
+- **透明与背景链路。** canvas 默认不透明，要 Engine 的 `alpha` 选项和 `scene.clearColor` 的 alpha 分量两步配合才能让 CSS 背景透出。
+- **事件链路。** 挂在 canvas 上的相机输入、`scene.onPointerObservable` 等，依赖 canvas 是事件目标。DOM 叠层挡在 canvas 上方时，事件落点由 `pointer-events` 和 `z-index` 决定。
+- **生命周期链路。** SPA 切换路由时如果不释放 Engine，旧 WebGL 上下文会继续占显存；浏览器对每标签页 WebGL 上下文数量有上限（约 16 个），超出会触发上下文丢失。
+- **构建链路。** 命名导入 + 副作用导入让 tree-shaking 生效（[安装](?path=/docs/install-babylonjs--docs) 课已讲过基础），WASM 解码器和物理插件放静态目录按需加载，bundle 体积直接影响首屏。
+
+把这几条分开看，是判断"页面集成"问题的入口。
+
+| 输入或决策 | 默认值 / 常用起点 | 改变后要注意什么 |
+| --- | --- | --- |
+| 容器 CSS 尺寸 | `aspect-ratio: 16 / 9` 或固定高度 | 由 CSS 控制；engine 只读 `clientWidth/clientHeight` |
+| canvas 的 `display` | `block` | 默认 `inline` 会留下基线空白 |
+| canvas 的 `touch-action` | `none`（沉浸式 / 全屏必加） | 默认值让移动端触摸手势抢走 pointer |
+| Engine `alpha` 选项 | `false`（不透明） | 设 `true` 才能让 CSS 背景透出 |
+| `scene.clearColor` | 默认深色不透明（alpha 为 1） | 透明背景设为 `Color4(0, 0, 0, 0)`（alpha 为 0） |
+| 渲染循环启停 | `runRenderLoop` / `stopRenderLoop` | 离开页面要主动停，否则回调继续跑 |
+| 卸载顺序 | 停循环 → 断 observer → `scene.dispose()` → `engine.dispose()` | 漏 `engine.dispose()` 不释放 WebGL 上下文 |
+| WebGL 上下文上限 | 每标签页约 16 个 | 多 canvas 按视口分批启停 |
+
+## 快速上手
+
+最小骨架：一个容器 div + 一个 canvas + 一组叠层控件 + 卸载时清理。容器尺寸由 CSS 决定，canvas 填满容器，叠层用 `position: absolute` 浮在 canvas 上方，Engine 开 `alpha` 让 CSS 背景透出。
+
+```css
+/* 容器决定 canvas 在页面里的位置和大小；canvas 填满容器。 */
+.viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: radial-gradient(circle at 50% 40%, #1b2735, #090a0f);
+}
+.viewer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 阻止浏览器默认触摸手势（滚动、双指缩放）抢走 canvas 上的指针。 */
+  touch-action: none;
+}
+/* 叠层用绝对定位浮在 canvas 上方；pointer-events 决定事件是否穿透。 */
+.panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  pointer-events: auto;
+}
+```
+
+```ts
+import { Color4, Engine, Scene } from '@babylonjs/core';
+
+const container = document.querySelector<HTMLDivElement>('.viewer')!;
+const canvas = container.querySelector<HTMLCanvasElement>('canvas')!;
+
+// alpha: true 让 canvas 上下文带 alpha 通道，CSS 渐变背景才能透出来。
+const engine = new Engine(canvas, true, { alpha: true, premultipliedAlpha: false }, true);
+const scene = new Scene(engine);
+// clearColor 必须用 Color4 且 alpha 为 0，配合 engine alpha 才真正透明。
+scene.clearColor = new Color4(0, 0, 0, 0);
+
+// 相机、光、网格见第一幅画面课，本课聚焦页面集成。
+
+engine.runRenderLoop(() => scene.render());
+
+const resizeObserver = new ResizeObserver(() => engine.resize());
+resizeObserver.observe(container);
+
+// 卸载（路由切换、组件销毁）时按顺序释放。
+function unmount() {
+  engine.stopRenderLoop();
+  resizeObserver.disconnect();
+  scene.dispose();
+  engine.dispose();
+  container.remove();
+}
+```
+
+`engine.resize()` 会重读 canvas 的 CSS 尺寸并同步 drawing buffer 与相机投影；完整的尺寸链路、`adaptToDeviceRatio` 与 `setHardwareScalingLevel` 见 [坐标与尺寸](?path=/docs/coordinate-system-and-units--docs)。本工作区的 `createBabylonRuntime` helper 已经按这套顺序接好 resize、视口启停和 dispose，命令式交互课统一复用它，不自造生命周期。
+
+## 画布与容器
+
+canvas 是普通 DOM 节点，和周围的标题、侧栏、按钮一起参与布局，并不是"全屏覆盖"的特殊元素。最常见的工程错误是用 JS 给 canvas 写死像素尺寸（`canvas.width = 800`），让它在不同屏幕上要么溢出要么留白。
+
+正确做法：用一个容器 div 决定 canvas 在页面里的位置和大小，canvas 用 `width: 100%; height: 100%` 填满容器。容器尺寸由 CSS（`aspect-ratio`、`flex`、`grid` 或固定高度）控制，JS 只读取容器尺寸，容器变化时调用 `engine.resize()` 同步 drawing buffer：
+
+```html
+<div class="viewer">
+  <canvas></canvas>
+</div>
+```
+
+容器尺寸变化由 CSS 触发，JS 通过 `ResizeObserver` 监听容器。`window.resize` 只在 canvas 占满整个窗口时才够用——侧栏开合、字体缩放、布局断点切换都不会触发它。Babylon 的 Engine 不自带 `ResizeObserver`，需要自己挂；本工作区的 `createBabylonRuntime` 已经接好，自己接手时记得挂。
+
+如果 canvas 必须全屏覆盖（沉浸式查看器、WebXR 入口），用 `position: fixed; inset: 0`，并把 `touch-action: none` 放在 canvas 上，否则移动端的下拉刷新、双指缩放会抢走手势。
+
+> canvas 的 CSS 尺寸与 engine 的 drawing buffer 是两层：CSS 尺寸决定页面布局，drawing buffer 由 `engine.resize()` 配合 `adaptToDeviceRatio` / devicePixelRatio 决定。一个 `640 × 360` CSS 像素、devicePixelRatio 为 2 的 canvas，drawing buffer 通常是 `1280 × 720`。完整链路见 [坐标与尺寸](?path=/docs/coordinate-system-and-units--docs)。
+
+## 透明背景与 CSS 协作
+
+canvas 默认不透明：Engine 的 `alpha` 选项默认 `false`，`scene.clearColor` 默认是深色不透明。要让 canvas 下方的 CSS 背景（渐变、图片、文字）透出来，需要两步配合：
+
+```ts
+import { Color4, Engine, Scene } from '@babylonjs/core';
+
+// 1. Engine 开 alpha：canvas 上下文带 alpha 通道。
+const engine = new Engine(canvas, true, { alpha: true, premultipliedAlpha: false }, true);
+
+// 2. clearColor 用 Color4 且 alpha 设 0（赋 Color3 会被当成不透明）。
+const scene = new Scene(engine);
+scene.clearColor = new Color4(0, 0, 0, 0);
+```
+
+只做其中一步都不够：只开 `alpha` 不改 clearColor，背景仍是默认深色；只把 clearColor 设成 `Color4(...,0)` 不开 `alpha`，canvas 上下文没有 alpha 通道，CSS 背景透不出来。注意 `scene.clearColor` 同时接受 `Color3` 和 `Color4`：赋 `Color3` 时按不透明处理（alpha 隐式为 1），所以透明背景必须显式用 `Color4`。
+
+`premultipliedAlpha: false` 让透明边缘与 CSS 混合更自然，避免半透明物体边缘出现黑边。
+
+| 选项 | 默认 | 作用 |
+| --- | --- | --- |
+| `Engine` `alpha` | `false` | `true` 时 canvas 上下文带 alpha 通道，可透明 |
+| `Engine` `premultipliedAlpha` | `true` | 透明边缘与 CSS 混合；出现黑边时设 `false` |
+| `scene.clearColor` | 深色不透明 | 每帧清屏色；透明背景必须用 `Color4` 且 alpha 为 0 |
+
+典型应用是把 Babylon 3D 内容叠在带渐变的页面 hero 区、视频上方，或与 CesiumJS / 地图引擎叠层——只要 canvas 透明，下方 DOM 就是可见的背景。
+
+## DOM 叠层与事件
+
+UI 控件叠在 canvas 上方是常见需求：参数面板、加载条、提示文字、教程遮罩。它们用 `position: absolute` 浮在 canvas 上方，靠 `pointer-events` 决定是否拦截事件：
+
+- `pointer-events: auto`（默认）：叠层接收事件，canvas 不收到。读者可以点按钮、拖滑块；但拖动叠层下方区域不会旋转相机。
+- `pointer-events: none`：叠层不接收事件，pointer 穿透到下方的 canvas。相机输入、`scene.onPointerObservable` 等照常响应；但叠层里的按钮也点不到。
+
+这是页面集成中最容易踩的坑：开发者把"信息提示卡片"放上去，整片区域就再也拖不动相机；或者反过来，想让提示文字穿透，却把卡片里的按钮也连带 `none` 掉。如果既要"信息卡片穿透"又要"按钮可点"，只把卡片本身的 `pointer-events` 设为 `none`，再把卡片里的按钮单独设回 `auto`——子元素可以"重新启用"被父级关闭的事件：
+
+```css
+.panel-hint { pointer-events: none; }        /* 提示文字穿透，相机可拖 */
+.panel-hint button { pointer-events: auto; } /* 按钮重新可点 */
+```
+
+相机的 `attachControl` 在 canvas 上注册 pointer 监听。如果叠层吞掉了事件，canvas 永远收不到 `pointerdown`，相机不会响应——这不是相机或 Babylon 的 bug，而是 DOM 事件路由的结果。`scene.onPointerObservable` / `scene.pick` 等"自己监听 canvas 事件"的输入也一样，详见 [指针与拾取](?path=/docs/pointer-input-and-picking--docs)。
+
+### DOM 叠层 vs Babylon GUI
+
+叠层有两条路线，按需求选择：
+
+| 路线 | 实现 | 适合 |
+| --- | --- | --- |
+| DOM 叠层 | HTML/CSS 控件用 `position: absolute` 浮在 canvas 上，`pointer-events` 控事件 | 与页面一致的外观、可访问性、与前端框架（React/Vue）集成、富文本表单 |
+| Babylon GUI | `@babylonjs/gui` 的 `AdvancedDynamicTexture.CreateFullscreenUI`，控件画在 canvas 内 | 与 3D 场景深度耦合（HUD 跟随对象、控件随相机旋转）、需要同一渲染上下文 |
+
+DOM 叠层能用 CSS、可访问性和框架生态，但事件路由要自己管；Babylon GUI 在 canvas 内绘制，事件由 Babylon 自己分发，不受 DOM 叠层影响，但不享受 DOM 的可访问性与样式。Babylon GUI 的完整用法见 [GUI](?path=/docs/gui-system--docs)。
+
+## 路由与生命周期
+
+SPA 在路由切换时通常会卸载组件 DOM。如果只移除 canvas 元素而不释放 Engine，旧的 WebGL 上下文仍然占着显存——浏览器检测到上下文过多时会强制丢失最早的一个，正在使用的查看器会突然黑屏。注意渲染循环挂在 Engine 上、不在 Scene 上：`scene.dispose()` 只释放场景资源，不会停 `runRenderLoop`；如果先 dispose scene 再停循环，下一帧回调会调用已释放场景的 `render()` 报错。
+
+正确卸载顺序（`createBabylonRuntime` helper 已按此顺序实现）：
+
+```ts
+function unmountViewer() {
+  // 1. 停渲染循环，防止下一帧访问已 dispose 的资源。
+  engine.stopRenderLoop();
+
+  // 2. 断开 ResizeObserver 和应用自身的事件监听。
+  resizeObserver.disconnect();
+
+  // 3. 释放场景资源（mesh、材质、纹理、observable）。
+  scene.dispose();
+
+  // 4. 释放 Engine 和它持有的 WebGL 上下文。
+  engine.dispose();
+
+  // 5. 移除 canvas 元素（由框架卸载时通常自动完成）。
+  container.remove();
+}
+```
+
+| 步骤 | 漏掉的后果 |
+| --- | --- |
+| `engine.stopRenderLoop()` | 循环继续跑，回调访问已 dispose 的 scene 抛错 |
+| `resizeObserver.disconnect()` | observer 持有 container 引用，妨碍 GC |
+| `scene.dispose()` | mesh / 材质 / 纹理持续占显存，反复进出路由累积 |
+| `engine.dispose()` | WebGL 上下文不释放，撞到上限后丢失最早的一个 |
+
+切回路由时按相同顺序重建：构造 Engine → Scene → 相机 → 光 → Mesh → loader → resize 同步 → `runRenderLoop`。不要试图"复用"上一个路由的 Engine 实例——它的 canvas 已经从 DOM 移除，重新挂回去要重新接 ResizeObserver、事件监听和渲染循环，比新建一个更脆弱。
+
+### 上下文丢失与恢复
+
+每标签页 WebGL 上下文数量上限约 16 个（不同浏览器和 GPU 略有差异）。超出时浏览器会强制丢失最早的上下文。与 three.js 不同，**Babylon 的 Engine 内建了上下文丢失恢复**：检测到 `webglcontextlost` 时自动重建纹理和着色器，应用层通常无感。代价是 Engine 需要保留资源句柄用于重建，占用额外内存；确定不需要上下文恢复（例如一次性短生命周期页面）时可以关掉它换内存：
+
+```ts
+const engine = new Engine(canvas, true, { doNotHandleContextLost: true });
+```
+
+绝大多数情况保留默认（自动恢复）更稳。完整 dispose、freeze 与内存优化策略见 [性能](?path=/docs/performance-and-disposal--docs)。
+
+## 多场景与多画布
+
+"多个查看器"有两种形态，对应不同做法。
+
+### 一个 Engine 渲染多个 Scene
+
+一个 Engine 可以在渲染循环里渲染多个 Scene——每个 Scene 是独立容器，有自己的相机、光、mesh，但共用同一个 canvas 和 WebGL 上下文，不增加上下文数。同一 canvas 上叠多个场景（例如 2D 背景场景 + 3D 主场景）走这条路：
+
+```ts
+engine.runRenderLoop(() => {
+  backgroundScene.render();
+  mainScene.render();
+});
+```
+
+后渲染的 Scene 会画在先渲染的之上；要让背景 Scene 透出，需要把它的 `clearColor` 设成 alpha 为 0 的 `Color4`（见 [透明背景与 CSS 协作](#透明背景与-css-协作)），主 Scene 通常也保持透明或半透明。
+
+### 多个 canvas 各自一个 Engine
+
+页面里有多个独立 canvas（产品展示墙、多视图编辑器）时，每个 canvas 配一个 Engine。每个 Engine 占用一个 WebGL 上下文，一页挂 5 个以上就要警惕上下文上限。两种节流策略：
+
+- 用 `IntersectionObserver` 让离屏 canvas 暂停（`engine.stopRenderLoop()`），回到视口再 `runRenderLoop`。本工作区的 `createBabylonRuntime` 已按此模式启停。
+- 彻底 dispose 长时间不可见的查看器，回到视口再重建。重建比保留更省显存，但要重新加载资源。
+
+多个 Engine 之间资源不共享——同一份 glTF 模型在两个 Engine 里要各加载一次。如果多个查看器用同一份资源，优先考虑单 Engine 多 Scene 形态。
+
+## 构建产物
+
+[安装](?path=/docs/install-babylonjs--docs) 课已讲过命名导入、副作用导入和无构建运行的基础，本课关注生产构建的注意点。
+
+### tree-shaking 与副作用导入
+
+让 tree-shaking 生效的关键：用命名导入，保留 ESM 输出。Vite 默认满足；Webpack 别把 `@babylonjs/core` 转成 CommonJS（Babel 设 `modules: false`，或把包排除出转译范围）。Webpack 对 Babylon 的 index 入口 tree-shaking 不够彻底时，可以从具体子模块导入以进一步缩小 bundle：
+
+```ts
+// 标准：从包入口命名导入，Vite/Rollup 摇得干净。
+import { Engine, Scene, Vector3 } from '@babylonjs/core';
+
+// 极致：从具体子模块导入，Webpack 也能彻底摇。
+import { Engine } from '@babylonjs/core/Engines/engine';
+```
+
+注册型能力靠副作用导入——只执行注册逻辑，不绑定变量，放在首次使用该能力之前：
+
+```ts
+import '@babylonjs/loaders/glTF';           // 注册 glTF 加载器
+import '@babylonjs/core/Meshes/meshBuilder'; // 注册 MeshBuilder 静态方法
+import '@babylonjs/core/Materials/Node/Blocks'; // WebXR 控制器模型加载需要
+```
+
+副作用模块本身不可摇掉，这是 Babylon 的已知特性——只导入真正用到的注册型模块。
+
+### WASM 与静态资源
+
+Draco / KTX2 解码器、Havok 物理插件是独立的 WASM 文件，不要 import 成 JS 字符串再执行（会撑大主 bundle 并破坏 Worker 解码）。把它们放在静态目录，由对应的 `*DecoderPath` / 插件配置指向；Havok 通过 `HavokPhysics()` 异步加载 WASM 实例。部署路径细节见 [资产清单](?path=/docs/asset-pipeline-checklist--docs)。无构建 / CDN 方案（UMD `<script>` 与 import map）见 [安装](?path=/docs/install-babylonjs--docs)。
+
+### bundle 体积意识
+
+`@babylonjs/core` 是一个体量可观的引擎（远大于常规前端库），命名导入 + tree-shaking 后实际打包体积取决于你用了多少能力。关心首屏时：
+
+- 用生产构建配合 bundle 分析工具（如 `rollup-plugin-visualizer`）实测，不要凭感觉。
+- 按需懒加载查看器代码（路由级 `import()`），让首屏只下载需要的部分。
+- WASM 解码器和 Havok 物理插件放静态目录按需加载，不进主 bundle。
+- `@babylonjs/inspector` 只在开发环境引入（按 devDependency 安装），不要打进生产 bundle。
+
+## Web Worker 中的注意
+
+Babylon 的 Engine 和 Scene 直接操作 WebGL 上下文和 DOM canvas，必须在主线程运行——不能把整个引擎搬进 Worker。需要把重活儿挪出主线程时，常见的可行做法：
+
+- **资源解码与加载。** glTF 解析、Draco / KTX2 解码、纹理还原可以放在 Worker 里，Babylon 的部分 loader 内部已经使用 Worker。`SceneLoader.ImportMesh` 异步加载期间主线程不被阻塞。
+- **OffscreenCanvas（实验性）。** 把 canvas 通过 `transferControlToOffscreen()` 交给 Worker，再在 Worker 里构造 Engine，理论上能让渲染脱离主线程。但这条路浏览器兼容性参差、与 DOM 事件 / GUI / Inspector 的集成断裂，Babylon 官方未作为默认路径。生产中使用要先验证目标浏览器，不要默认"Babylon 可以整体入 Worker"。
+
+绝大多数项目把 Engine 留在主线程，把可剥离的重计算（资产解码、寻路、物理预处理）放进 Worker。
+
+## 最佳实践
+
+- 让 CSS 决定 canvas 的布局尺寸，JS 只读 `clientWidth/clientHeight` 并在容器变化时调 `engine.resize()`；用 `ResizeObserver` 监听容器，不要只监听 `window.resize`。
+- canvas 上加 `display: block` 消除行内空白；全屏 / 沉浸式查看器加 `touch-action: none`。
+- 透明背景要 Engine `alpha: true` 和 `scene.clearColor` 用 alpha 为 0 的 `Color4` 两步配合，缺一不可；出现黑边把 `premultipliedAlpha` 设 `false`。
+- 叠层用 `position: absolute` + `pointer-events` 控制：信息提示穿透设 `none`，控件接收事件设 `auto`；"卡片穿透但按钮可点"在子元素上把 `pointer-events` 改回 `auto`。需要 HUD 与 3D 深度耦合时改用 [Babylon GUI](?path=/docs/gui-system--docs)。
+- SPA 切换路由按"停循环 → 断 observer → `scene.dispose()` → `engine.dispose()`"顺序清理，停循环必须最先；切回时按构造顺序重建，不要复用旧 Engine。Babylon 默认自动恢复 WebGL 上下文丢失，确认不需要时才用 `doNotHandleContextLost: true` 换内存。
+- 一页多个 canvas 各配一个 Engine 时用 `IntersectionObserver` 让离屏画布暂停，控制活跃 WebGL 上下文数量；多查看器共用资源时改用单 Engine 多 Scene。
+- 用命名导入 + 副作用导入让 tree-shaking 生效；Webpack tree-shaking 不彻底时从具体子模块导入。WASM 解码器、Havok 物理插件放静态目录按需加载，`@babylonjs/inspector` 只进开发环境。
+
+## 常见问题
+
+- 为什么 canvas 下面有一条几像素的空白？
+  canvas 默认 `display: inline`，行内基线在底部留空白。CSS 上加 `canvas { display: block; }` 即可。
+- 为什么侧栏开合后画布尺寸没更新？
+  没监听真正控制布局的容器。用 `ResizeObserver` 监听 canvas 的父容器，不要只监听 `window.resize`——侧栏、字体或布局断点变化不触发窗口 resize。
+- 为什么开了透明背景，CSS 背景还是透不出来？
+  透明要两步配合：Engine 的 `alpha: true` 让 canvas 上下文带 alpha 通道，`scene.clearColor` 用 alpha 为 0 的 `Color4` 才真正透明。只做一步都不够；赋 `Color3` 会被当成不透明。
+- 为什么透明物体边缘有黑边？
+  Engine 默认 `premultipliedAlpha: true`，与某些 CSS 背景混合时出现黑边；构造 Engine 时设 `premultipliedAlpha: false`。
+- 为什么 DOM 控件叠上去之后，相机拖不动了？
+  控件叠层的 `pointer-events` 默认是 `auto`，整片区域把事件拦截，canvas 收不到 `pointerdown`。要么让叠层 `pointer-events: none`，要么只让提示文字穿透、按钮保持 `auto`。
+- 为什么叠层 `pointer-events: none` 后按钮也点不到？
+  父级 `pointer-events: none` 会让所有子元素也不接收事件；在按钮上单独写 `pointer-events: auto` 重新启用。
+- 为什么 `scene.dispose()` 之后控制台报渲染相关错误？
+  渲染循环挂在 Engine 上，`scene.dispose()` 不会停 `runRenderLoop`。必须先 `engine.stopRenderLoop()` 再 dispose scene，否则下一帧回调会调用已释放场景的 `render()`。
+- 为什么路由切换几次后画面突然黑屏？
+  旧 Engine 的 WebGL 上下文没释放，撞到浏览器上下文数量上限（约 16 个）。卸载时按顺序调用 `engine.stopRenderLoop()` → 断 observer → `scene.dispose()` → `engine.dispose()`。
+- 为什么 bundle 体积比预期大很多？
+  先确认是命名导入而非 `import * as BABYLON`；再检查构建工具是否保留了 ESM（Vite 默认满足，Webpack 别转 CommonJS）；Webpack tree-shaking 不彻底时从 `@babylonjs/core/Engines/engine` 等具体子模块导入。注意副作用注册模块本身不可摇掉。
+- 为什么部署后 Draco / KTX2 解码器或 Havok 加载失败？
+  WASM 文件没复制到静态目录，或 `*DecoderPath` / Havok 配置路径不正确；详见 [资产清单](?path=/docs/asset-pipeline-checklist--docs)。
+- 为什么移动端拖动 canvas 时浏览器在滚动？
+  canvas 上没加 `touch-action: none`；浏览器默认触摸手势优先消费了 pointer。
+
+## 总结回顾
+
+摘要：
+
+Babylon 的 canvas 是页面里的普通 DOM 节点，按布局、透明、事件、生命周期和构建几条链路与页面协作。容器 CSS 决定 canvas 在页面里的位置和大小，canvas 用 `display: block` + `width/height: 100%` 填满，`touch-action: none` 让移动端不抢手势；容器变化由 `ResizeObserver` 触发 `engine.resize()` 同步 drawing buffer。透明背景要 Engine `alpha: true` 与 `scene.clearColor` 用 alpha 为 0 的 `Color4` 两步配合。DOM 叠层用 `pointer-events` 控制事件落点，需要 HUD 与 3D 耦合时改用 Babylon GUI。SPA 路由切换按"停循环 → 断 observer → `scene.dispose()` → `engine.dispose()`"顺序释放，停循环必须最先；每标签页 WebGL 上下文上限约 16 个，超出会触发上下文丢失——Babylon 默认自动恢复，可按需关掉换内存。多 canvas 各配一个 Engine 时按视口分批启停，多查看器共用资源时改用单 Engine 多 Scene。构建用命名导入 + 副作用导入让 tree-shaking 生效，WASM 解码器和 Havok 物理插件放静态目录按需加载，Engine 留在主线程。
+
+一句话：
+
+> CSS 决定 canvas 多大，alpha 两步决定背景透不透，pointer-events 决定谁能拿到事件，dispose 顺序决定能不能干净离开。
+
+知识要点：
+
+- canvas 与容器怎样分工？为什么不能在 JS 里写死 canvas 的像素尺寸？
+- 透明背景为什么必须 Engine `alpha: true` 和 `scene.clearColor` 用 alpha 为 0 的 `Color4` 两步配合？
+- DOM 叠层的 `pointer-events` 在 `auto` 与 `none` 时，事件分别落到哪里？怎样"卡片穿透但按钮可点"？
+- SPA 路由切换时正确的卸载顺序是什么？为什么停循环必须最先？漏掉每一步分别会怎样？
+- 浏览器对 WebGL 上下文数量有什么限制？Babylon 在上下文丢失处理上与 three.js 有什么差别？
+- 一个 Engine 渲染多个 Scene 与多个 canvas 各配一个 Engine 分别适合什么场景？
+- 命名导入、副作用导入和具体子模块导入分别解决什么 tree-shaking 问题？
+- Babylon 为什么不能把整个 Engine 搬进 Web Worker？
+
+## 参考资料
+
+- [Babylon.js Documentation：ES6 Support（tree-shaking、副作用导入）](https://doc.babylonjs.com/setup/frameworkPackages/es6Support)
+- [Babylon.js Documentation：NPM Support](https://doc.babylonjs.com/setup/frameworkPackages/npmSupport)
+- [Babylon.js Features：Multiple Scenes](https://doc.babylonjs.com/features/featuresDeepDive/scene/multiScenes)
+- [Babylon.js Features：Optimize Your Scene（doNotHandleContextLost、上下文丢失）](https://doc.babylonjs.com/features/featuresDeepDive/scene/optimize_your_scene)
+- [Babylon.js Features：Reducing Memory Usage](https://doc.babylonjs.com/features/featuresDeepDive/scene/reducingMemoryUsage)
+- [Babylon.js Features：Environment Introduction（clearColor）](https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction)
+- [Babylon.js API Reference：Engine](https://doc.babylonjs.com/typedoc/classes/BABYLON.Engine)
+- [Babylon.js API Reference：Scene](https://doc.babylonjs.com/typedoc/classes/BABYLON.Scene)
+- [Babylon.js Forum：How can I make the transparent background](https://forum.babylonjs.com/t/how-can-i-make-the-transparent-background/1216)
+- [MDN：touch-action](https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action)
+- [MDN：pointer-events](https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events)
+- [MDN：ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)

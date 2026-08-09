@@ -1,0 +1,370 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './performance-and-disposal.stories';
+
+<Meta of={Stories} name="Docs" />
+
+# 性能
+
+Babylon.js 的性能问题不是"画面卡了就改参数"，而是**测量驱动的工程**：先用客观读数定位瓶颈在哪一类——是 draw calls 太多（CPU 提交次数）、是 triangles 太多（GPU 顶点处理）、是 GPU 帧时间过长（着色器/带宽）、是资源没释放（显存泄漏）、还是静态场景下白白跑着渲染循环。定位准了再选对应手段；定位错了，再多的"优化"也只是猜。
+
+把瓶颈降下来靠五类手段，各回答一类问题：
+
+- **降 draw calls：** 重复物体走 [实例化 / thin instances](?path=/docs/instanced-mesh-and-thin-instances--docs)，静态几何用 `Mesh.MergeMeshes` 合并，多对象共享同一份 material——把 N 次 CPU 提交压成 1 次。
+- **冻结每帧重复计算：** `mesh.freezeWorldMatrix()`、`scene.freezeActiveMeshes()`、`material.freeze()` 跳过世界矩阵重算、活跃网格评估和材质 uniform 上传，适合静态场景。
+- **资源释放：** `dispose()` 释放 mesh / material / texture / engine 占用的 GPU 资源，离开页时统一释放——`createBabylonRuntime` 的 `runtime.dispose()` 已经做了 Engine/Scene 的级联释放。
+- **硬件缩放：** `engine.setHardwareScalingLevel(level)` 用 `>1` 的值降低渲染分辨率换 GPU 性能，代价是画面变糊。
+- **按需渲染：** 非持续动画时 `engine.stopRenderLoop()`，事件触发再 `scene.render()` 一次——空闲时让 CPU 与 GPU 都停下来。
+
+| 手段 / 入口 | 默认 / 起点 | 回查要点 |
+| --- | --- | --- |
+| `new SceneInstrumentation(scene)` | `drawCallsCounter` 始终可用 | 时间类计数器需 `capture* = true`；在 `onAfterRenderObservable` 里读本帧值 |
+| `instrumentation.drawCallsCounter.current` | `PerfCounter` | `.current`（本帧）/ `.lastSecAverage`（上一秒平均）；每帧开头重置 |
+| `new EngineInstrumentation(engine)` | 默认不采集 | `captureGPUFrameTime = true` 后读 `gpuFrameTimeCounter`，**单位是纳秒**，`/1e6` 转 ms |
+| `engine.getFps()` | 滑动平均帧率 | 比 `1000 / deltaTime` 更稳，无需自己维护帧历史 |
+| `engine.setHardwareScalingLevel(level)` | `1`（原生分辨率） | `>1` 降分辨率（2 = 半分辨率）；`<1` 提高分辨率更费 GPU |
+| `mesh.freezeWorldMatrix()` | 不冻结 | 冻结后 position/rotation/scaling 改动**被忽略**，直到 `unfreezeWorldMatrix()` |
+| `scene.freezeActiveMeshes()` | 不冻结 | 冻结活跃网格列表，跳过每帧评估；新增/移动 mesh 前必须先解冻 |
+| `material.freeze()` | 不冻结 | 冻结后改属性不生效；先 `unfreeze()` 再改、再按需冻结 |
+| `Mesh.MergeMeshes(meshes)` | `disposeSource = true` | 把多个静态 Mesh 缝成一个，丢失每对象独立变换；返回 `Nullable<Mesh>` |
+| `new SceneOptimizer(scene, options)` | `options.targetFrameRate = 60` | 按 FPS 自动降级；降级是**单向的**，不会自动回升 |
+| `engine.runRenderLoop(fn)` | 持续渲染 | 静态场景改按需渲染：`stopRenderLoop()` + 事件触发 `scene.render()` |
+
+## 度量
+
+优化前先建立反馈环，避免凭直觉改参数。Babylon 把性能读数分到 Scene 级与 Engine 级两套计数器，再加一个帧率入口——三者互补。这套读数在 [调试](?path=/docs/inspector-and-debug--docs) 课已经介绍过用法，本课关注它们在性能排查里的分工。
+
+### SceneInstrumentation：draw calls 与各类耗时
+
+`SceneInstrumentation` 给出每帧的 draw calls 和各类 CPU 侧耗时。`drawCallsCounter` 始终可用、无需 capture 标志；时间类计数器要显式开启：
+
+```ts
+import { SceneInstrumentation } from '@babylonjs/core';
+
+const instrumentation = new SceneInstrumentation(scene);
+instrumentation.captureFrameTime = true;
+instrumentation.captureRenderTime = true;
+instrumentation.captureActiveMeshesEvaluationTime = true;
+
+scene.onAfterRenderObservable.add(() => {
+  console.log('draw calls', instrumentation.drawCallsCounter.current);
+  console.log('render ms', instrumentation.renderTimeCounter?.lastSecAverage);
+});
+```
+
+每个计数器是一个 `PerfCounter`，主要读法：`.current`（本帧值）、`.lastSecAverage`（上一秒平均）。单帧值跳动大，观察趋势用秒平均更稳。计数器在每帧开头重置，必须在 `onAfterRenderObservable`（即 `scene.render()` 之后）读，才能拿到刚结束这一帧的值；在 `onBeforeRenderObservable` 里读到的是上一帧残留或 0。
+
+| 计数器 | capture 标志 | 回答的问题 |
+| --- | --- | --- |
+| `drawCallsCounter` | 始终可用 | 每帧 CPU 提交次数（数百以上常是瓶颈） |
+| `frameTimeCounter` | `captureFrameTime` | 处理整帧耗时（ms） |
+| `renderTimeCounter` | `captureRenderTime` | 渲染一帧耗时（ms） |
+| `activeMeshesEvaluationTimeCounter` | `captureActiveMeshesEvaluationTime` | 评估活跃 mesh 耗时（ms）——`freezeActiveMeshes` 直接降这一项 |
+| `interFrameTimeCounter` | `captureInterFrameTime` | 两帧之间间隔（ms） |
+
+### EngineInstrumentation：GPU 帧时间
+
+`EngineInstrumentation` 给出 GPU 侧的帧时间和着色器编译时间。它依赖浏览器的 `EXT_DISJOINT_TIMER_QUERY` 扩展，部分浏览器（隐私模式、无 GPU 访问的环境）不可用，不可用时计数器恒为 0：
+
+```ts
+import { EngineInstrumentation } from '@babylonjs/core';
+
+const engineInstrumentation = new EngineInstrumentation(engine);
+engineInstrumentation.captureGPUFrameTime = true;
+
+scene.onAfterRenderObservable.add(() => {
+  // gpuFrameTimeCounter 的单位是纳秒，/1e6 转毫秒。
+  const gpuMs = engineInstrumentation.gpuFrameTimeCounter.lastSecAverage / 1e6;
+  console.log('GPU 帧时间 ms', gpuMs);
+});
+```
+
+GPU 帧时间回答"GPU 这一帧忙了多久"——硬件缩放降分辨率时，这一项下降最直接。CPU 侧的 `SceneInstrumentation.frameTimeCounter` 不依赖浏览器扩展，作为不可用时的回退。
+
+### 帧率与读数时机
+
+`engine.getFps()` 返回引擎内部维护的滑动平均帧率，比手算 `1000 / deltaTime` 更稳。[渲染循环与时间](?path=/docs/render-loop-and-timing--docs) 用 `getDeltaTime` 推进业务状态，本课用 `getFps` 报告帧率，两者来自同一套引擎计时。注意标签页失焦时浏览器把 `requestAnimationFrame` 节流到每秒约 1 次，FPS 读数会暂时不可信——这不是性能问题。
+
+下面的范例把四类读数和五类手段放在同一个场景里。调整 Controls 看读数怎么响应，建立"改了什么 → 哪个数字变了"的直觉：
+
+<Canvas of={Stories.Perf} />
+
+<Controls of={Stories.Perf} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 调「对象数量」50 → 1500 | Draw calls、三角形数近似线性增长；FPS 随之回落，GPU 帧时间上升 |
+| 开「冻结世界矩阵」 | 跳过每帧世界矩阵重算；静态方阵下 FPS 小幅回升，CPU 侧 `activeMeshesEvaluationTime` 也下降 |
+| 开「冻结活跃网格」 | 跳过每帧活跃网格评估；FPS 进一步回升——数量越大收益越明显 |
+| 调「硬件缩放级别」1 → 2 → 3 | 画面变糊但 FPS 明显上升、**GPU 帧时间**下降——GPU 是瓶颈时效果最显著 |
+| 开「SceneOptimizer」 | "当前硬件缩放"逐档自动上升（优化器每次 +0.5），直到 FPS 达标或触顶；"已应用 N 次"计数同步增长 |
+| 关「SceneOptimizer」 | 显式复位回滑块值（优化器降级单向，关闭不会自动回升） |
+| 拖动 Canvas | 轨道相机绕方阵旋转，验证渲染仍在工作 |
+
+读数为 0 的 GPU 帧时间：当前浏览器不支持 `EXT_DISJOINT_TIMER_QUERY` 时计数器永远是 0，readout 显示「不可用」。回退到 CPU 侧的 `frameTimeCounter`。
+
+## 冻结每帧重复计算
+
+静态场景里，每帧仍要重算三样东西：每个 mesh 的世界矩阵、场景的活跃网格列表、每个材质的 uniform 上传。它们在 mesh 不动、材质不变时是纯浪费。Babylon 用三个 freeze 接口分别跳过这三项，开启顺序与影响范围各不相同。
+
+### mesh.freezeWorldMatrix()
+
+`mesh.freezeWorldMatrix()` 把 mesh 的世界矩阵冻结在当前值，跳过每帧的 `computeWorldMatrix`。静态网格（摆好就不动的墙、地面、道具）适合冻结：
+
+```ts
+const wall = MeshBuilder.CreateBox('wall', { size: 1 }, scene);
+wall.position.set(2, 0.5, 0);
+wall.freezeWorldMatrix(); // 冻结在当前位置
+
+// 冻结后改动不生效——必须先解冻：
+wall.unfreezeWorldMatrix();
+wall.position.x = 5;       // 现在才会更新
+wall.freezeWorldMatrix();  // 重新冻结
+```
+
+冻结后任何对 `position` / `rotation` / `scaling` 的改动都**被忽略**，直到 `unfreezeWorldMatrix()`。父子层级里，冻结父节点的世界矩阵后，子节点仍会基于父节点当前矩阵重算自己的世界矩阵——除非把子节点也冻结。需要"整体动一下再静态"的对象，在动画结束后统一冻结。
+
+### scene.freezeActiveMeshes()
+
+`scene.freezeActiveMeshes()` 冻结场景的活跃网格列表，跳过每帧的"哪些 mesh 在相机视锥内、是否需要渲染"评估（frustum culling 与可见性判断）：
+
+```ts
+scene.freezeActiveMeshes();   // 冻结活跃网格列表
+// ...后续帧不再重新评估活跃网格...
+scene.unfreezeActiveMeshes(); // 解冻，下次 render 重新评估
+```
+
+冻结后，**新增 mesh、移动 mesh 进出视锥、切换 `isVisible` 都不会反映到活跃列表**——渲染器仍用冻结时捕获的那份列表。因此这是一个"静态场景"专用优化：场景内容稳定后再冻结，任何场景结构变化前先解冻。源码里 `freezeActiveMeshes` 带重试逻辑（等对象渲染器就绪后再冻结），所以调用后可能下一帧才真正生效。
+
+CPU 瓶颈在"活跃网格评估"时收益最大——用 `SceneInstrumentation.activeMeshesEvaluationTimeCounter` 量化：冻结前后对比这一项的下降。对象越多、分布越散（视锥剔除工作越多），收益越明显。上方范例开「冻结活跃网格」时能直接看到 FPS 回升。
+
+### material.freeze()
+
+`material.freeze()` 冻结材质，让它不再每帧重绑 uniform、不再因属性变化重建 effect。适合属性确定后不再改的材质：
+
+```ts
+const material = new StandardMaterial('m', scene);
+material.diffuseColor = new Color3(0.3, 0.5, 0.8);
+// 所有属性设置完，再冻结：
+material.freeze();
+
+// 改属性前必须解冻：
+material.unfreeze();
+material.diffuseColor = new Color3(0.9, 0.2, 0.2);
+```
+
+冻结后改 `diffuseColor`、`alpha` 等任何属性都不会生效，必须先 `unfreeze()`。材质种类多时，冻结还能减少 shader program 的切换——但共享同一份 material 实例比"每对象一个冻结 material"更省。本课范例共享一份 material，冻结它的收益主要在"省一次 uniform 上传"，对照 2000 个 box 时相对每帧上千次 draw call 的开销不显著，因此没有把它放进 Controls；它更适合材质种类多、uniform 频繁变化的场景。
+
+## 减少 draw calls
+
+draw call 是 CPU 通知 GPU "画一次"的提交。每次提交前要切换 shader program、绑材质 uniform、绑纹理、设 blend / depth 状态——这些状态切换才是真正贵的部分，不是几何本身。draw calls 到了几百次以上常成为 CPU 瓶颈，读 `SceneInstrumentation.drawCallsCounter.current` 就能看到。
+
+降 draw calls 的三条路线，按"是否需要独立对象"选择：
+
+| 手段 | 适用 | draw calls |
+| --- | --- | --- |
+| 共享 material + `Mesh.MergeMeshes` | 静态、不再单独变换 | N → 1（合并后是单个 Mesh） |
+| [InstancedMesh / thin instances](?path=/docs/instanced-mesh-and-thin-instances--docs) | 大量结构相同的重复物体 | N → 1（一次提交画整批） |
+| 共享 material（不合并） | 多个对象外观一致 | 仍 N 次，但状态切换更少 |
+
+`Mesh.MergeMeshes(meshes, disposeSource?, ...)` 把多个静态 Mesh 缝成一个，返回单个 `Mesh`：
+
+```ts
+import { Mesh, MeshBuilder } from '@babylonjs/core';
+
+// 把一面墙的若干砖块缝成单个 Mesh，整面墙只占一次 draw call。
+const bricks = Array.from({ length: 40 }, (_, i) =>
+  MeshBuilder.CreateBox(`b${i}`, { size: 0.5 }, scene),
+);
+const wall = Mesh.MergeMeshes(bricks, true); // disposeSource=true，释放原 mesh
+```
+
+合并后丢失"每对象独立变换"——需要单独移动的子部件不能合并，要换实例化。`MergeMeshes` 要求 mesh 共享同一份 material 才能真正压成 1 次 draw call；要保留多材质用 `multiMultiMaterials` 参数切到 SubMesh 分段。
+
+重复物体的完整对比（`createInstance` / `thinInstanceSetBuffer` / 各自的拾取与每实例颜色）在 [实例化](?path=/docs/instanced-mesh-and-thin-instances--docs)，本课不重复。一个常见误判：看到 draw calls 高就以为一定有问题——多光源、[阴影](?path=/docs/shadows-and-shading--docs)、透明排序、[后处理](?path=/docs/post-processing--docs)、AxesViewer 与 HighlightLayer 都会占 draw call；只有"同材质对象合并或实例化后 calls 大幅下降"，才说明这里曾是瓶颈。
+
+## 资源释放与 dispose
+
+Babylon 的 GPU 资源（geometry buffer、texture、shader program）只增不减，直到对应对象调用 `dispose()`。仅 `scene.removeMesh(mesh)` 只解除引用关系，不释放 GPU 资源——这是资源泄漏的最常见形态。
+
+```ts
+// 单个 mesh：dispose 会级联释放它的 geometry，但不释放它引用的 material / texture。
+mesh.dispose();
+
+// material：释放 shader program 引用；不影响它引用的 texture。
+material.dispose();
+
+// texture：释放 GPU 纹理与 mipmap；不影响原图像数据。
+texture.dispose();
+
+// 整页卸载：engine.dispose() 释放内部 WebGL 上下文资源。
+engine.dispose();
+```
+
+`mesh.dispose()` 不会自动 dispose 它引用的 material 和 texture——它们可能被多个 mesh 共享。释放一个完整场景时按"先释放 mesh → 再释放不再被引用的 material → 最后释放 texture"的顺序，或直接 `scene.dispose()`（级联释放场景内所有对象），再 `engine.dispose()`：
+
+```ts
+scene.dispose();  // 级联释放场景内 mesh / material / texture
+engine.dispose(); // 释放引擎与 WebGL 上下文
+```
+
+本工作区的交互课统一走 `createBabylonRuntime`，它的 `runtime.dispose()` 已经按"停渲染循环 → 断开观察者 → `scene.dispose()` → `engine.dispose()`"的顺序释放（见 `assets/babylon-canvas.js`）。自己写引擎生命周期时参照同一顺序，避免"scene 已释放但 engine 还在跑循环"等不一致状态。加载进来的 glTF/GLB 模型释放更繁琐——`SceneLoader` 返回的根节点要 `traverse` 逐对象 dispose，texture 引用关系复杂时用 `Set` 去重，完整流程见 [加载模型](?path=/docs/sceneloader-and-gltf--docs)。
+
+## 硬件缩放
+
+`engine.setHardwareScalingLevel(level)` 通过缩放渲染分辨率来换性能：`level > 1` 时以 `1 / level` 的分辨率渲染再放大到画布，GPU 的顶点处理与带宽随之下降；`level = 2` 即半分辨率（宽高各一半），`level = 3` 即三分之一。
+
+```ts
+engine.setHardwareScalingLevel(1);   // 默认：原生分辨率
+engine.setHardwareScalingLevel(1.5); // 降一档：渲染 2/3 分辨率
+engine.setHardwareScalingLevel(2);   // 半分辨率：明显更糊但更省 GPU
+engine.getHardwareScalingLevel();    // 读当前值
+```
+
+代价是画面变糊（细节、文字、UI 最敏感）——它是最便宜的"换 FPS"手段，适合 GPU 瓶颈场景、移动端、临时掉帧兜底。判断是否值得：对比 GPU 帧时间（`EngineInstrumentation`）在 `level=1` 与 `level=2` 下的差；GPU 是瓶颈时效果显著，CPU 瓶颈（draw calls、JS）时几乎无效。[坐标与尺寸](?path=/docs/coordinate-system-and-units--docs) 讲过画布像素比与 `engine.resize()` 的关系——硬件缩放是在画布尺寸之外的、独立的渲染分辨率系数。
+
+上方范例的「硬件缩放级别」滑块直接写 `engine.setHardwareScalingLevel`：从 1 调到 2 时，FPS 明显上升、GPU 帧时间下降、画面变糊——三项读数同时变化，是判断"GPU 是否瓶颈"的最直观实验。
+
+## SceneOptimizer
+
+`SceneOptimizer` 把"降级换 FPS"自动化：给它一个目标 FPS 和一组降级步骤，它按间隔检查当前 FPS，没达标就按优先级依次套用降级（提硬件缩放、降纹理、关阴影/后处理/粒子/渲染目标等），直到达标或步骤用完。
+
+```ts
+import { HardwareScalingOptimization, SceneOptimizer, SceneOptimizerOptions } from '@babylonjs/core';
+
+// 目标 60 FPS，每 2000ms 检查一次（两个参数都可省，默认就是 60 / 2000）。
+const options = new SceneOptimizerOptions(60, 2000);
+// 唯一参数：硬件缩放每次 +0.5，最高到 2。
+options.addOptimization(new HardwareScalingOptimization(0, 2, 0.5));
+
+const optimizer = new SceneOptimizer(scene, options);
+optimizer.start();
+
+// 三条 observable：达标、套用了新降级、无法达标。
+optimizer.onSuccessObservable.add(() => console.log('达标'));
+optimizer.onNewOptimizationAppliedObservable.add((o) => console.log('套用', o.getDescription()));
+optimizer.onFailureObservable.add(() => console.log('无法达标'));
+```
+
+`SceneOptimizerOptions` 的两个构造参数都有默认值（`targetFrameRate = 60`、`trackerDuration = 2000`），可以一个都不传。三档预制配置按"视觉影响"递增，传入目标 FPS：
+
+```ts
+SceneOptimizerOptions.LowDegradationAllowed();       // 视觉影响最小（主要硬件缩放）
+SceneOptimizerOptions.ModerateDegradationAllowed(); // 中等（纹理 + 硬件缩放）
+SceneOptimizerOptions.HighDegradationAllowed();     // 最大（阴影/后处理/纹理/硬件缩放）
+```
+
+一行启动的快捷方法适合"不需要拿实例后续控制"的场景：
+
+```ts
+SceneOptimizer.OptimizeAsync(
+  scene,
+  SceneOptimizerOptions.ModerateDegradationAllowed(),
+  () => console.log('达标'),
+  () => console.log('无法达标'),
+);
+```
+
+| 成员 | 含义 |
+| --- | --- |
+| `optimizer.start()` / `stop()` | 开始 / 停止周期性检查；`dispose()` 释放 |
+| `optimizer.reset()` | 把当前优先级复位到 0（不撤销已套用的降级） |
+| `optimizer.currentFrameRate` | 最近一次检查读到的 FPS |
+| `optimizer.currentPriorityLevel` | 当前套用到的优先级层 |
+| `optimizer.isInImprovementMode` | 改善模式：FPS 高于目标时反向尝试更高画质 |
+| `onSuccessObservable` / `onNewOptimizationAppliedObservable` / `onFailureObservable` | 达标 / 套用新降级 / 无法达标三条回调 |
+
+降级是**单向的**——套用过的降级（如硬件缩放调到 1.5）不会因为 FPS 后来回升而自动撤销。要让画质回升，需要 `stop()` + 手动复原（如 `engine.setHardwareScalingLevel(1)`），或开启 `improvementMode`（构造函数第四参）让它在 FPS 富裕时反向尝试更高画质。上方范例的「SceneOptimizer」开关关闭时会显式把硬件缩放复位回滑块值，让范例可重复触发；真实项目里按需选择复原策略。
+
+## 按需渲染
+
+`engine.runRenderLoop(fn)` 每帧都调用 `scene.render()`，无论场景有没有变化——持续动画（角色、粒子、相机移动）下是对的，但在静态场景（调完参数停下来的查看器、点击切换前不动的展厅）下白白烧 CPU 与电量。按需渲染改成事件驱动：只在状态变化时调一次 `scene.render()`，空闲时完全停止。
+
+```ts
+// 持续渲染：动画场景用。
+engine.runRenderLoop(() => scene.render());
+
+// 按需渲染：静态场景用。
+engine.stopRenderLoop(); // 先停掉循环
+
+// 在所有可能改变画面的入口主动 render 一次。
+function renderOnce() {
+  scene.render();
+}
+
+camera.onViewMatrixChangedObservable.add(renderOnce); // 相机移动
+window.addEventListener('resize', () => { engine.resize(); renderOnce(); });
+gui.onChange(renderOnce);                              // 参数面板变化
+scene.userData.dirty = true;                          // 业务侧标记变化时
+```
+
+持续渲染下每秒 render 次数等于显示器刷新率（约 60 或 120）；按需渲染空闲时这个值归零，对应"这一秒里 CPU 与 GPU 都不再为这个场景工作"。代价是必须自己在每个变化入口主动 `scene.render()`——相机事件、`ResizeObserver`、UI 控件变化、业务状态标记都要接进来。
+
+混合策略也常见：交互期间（拖动、动画播放）开循环，结束后切回按需。阻尼相机（`camera.useAutoRotationBehavior` 或 `useBouncingBehavior`）在按需渲染下需要短暂开循环才能推进，否则回弹不动——要么关掉行为，要么在交互期间临时切回持续渲染。[LOD](?path=/docs/lod-and-levels--docs) 在按需渲染下要注意：相机移动后 `getLOD` 是在 `scene.render()` 内部触发的，所以只要 render 一次 LOD 就会更新，无需额外动作。
+
+本工作区的交互课统一用 `createBabylonRuntime`，它基于 `IntersectionObserver` 在画布离开视口时 `stopRenderLoop`、回到视口再 `runRenderLoop`（见 `assets/babylon-canvas.js`）——这是"页面有多个 Canvas 时的按需启停"，与"完全静态场景的事件驱动渲染"是两个层次，可以叠加。
+
+## 最佳实践
+
+- 优化前先测：`SceneInstrumentation` 看 draw calls 与各类耗时、`EngineInstrumentation` 看 GPU 帧时间、`engine.getFps()` 看帧率；不测就优化是在猜。
+- draw calls 高时优先合并（`Mesh.MergeMeshes`）或实例化（`createInstance` / thin instances）同材质对象；不同材质的合并反而可能让 shader 复杂化。
+- 静态场景套三层 freeze：`mesh.freezeWorldMatrix()` + `scene.freezeActiveMeshes()` + `material.freeze()`；任何场景结构或属性变化前先解冻对应层级。
+- GPU 瓶颈（GPU 帧时间高）时调 `setHardwareScalingLevel` 最立竿见影；CPU 瓶颈（draw calls / 活跃网格评估高）时先降 draw calls 和冻结。
+- dispose 与解除 JS 引用成对出现：`scene.removeMesh` / 闭包数组置空 + `mesh.dispose()`；纯 GPU 资源靠 `scene.dispose()` + `engine.dispose()` 级联释放。
+- 重复加载 glTF/GLB 是常见泄漏源：切换模型前 traverse 旧根节点逐对象 dispose，texture 用 `Set` 去重。
+- 自动降级用 `SceneOptimizer` 兜底移动端与弱设备，但记住降级单向、不会自动回升；需要复原就 `stop()` + 手动重置。
+- 静态场景用按需渲染：把相机事件、resize、UI 变化都接进 `renderOnce`；交互期间临时开循环处理阻尼。
+
+## 常见问题
+
+- 为什么 `drawCallsCounter.current` 读到 0？
+  计数器在每帧开头重置，必须在 `onAfterRenderObservable`（或 `scene.render()` 之后）读；在 `onBeforeRenderObservable` 里读到的是上一帧残留或 0。
+- 为什么开了 `freezeWorldMatrix` 后 mesh 不能动了？
+  冻结后 `position` / `rotation` / `scaling` 的改动被忽略。先 `unfreezeWorldMatrix()`，改完再 `freezeWorldMatrix()` 重新冻结。
+- 为什么 `freezeActiveMeshes` 后新增的 mesh 不显示？
+  冻结的活跃网格列表是快照，新增 / 移动 / 切 `isVisible` 都不会反映。新增 mesh 前先 `scene.unfreezeActiveMeshes()`，结构稳定后再冻结。
+- 为什么 GPU 帧时间读数恒为 0？
+  `EngineInstrumentation.captureGPUFrameTime` 依赖 `EXT_DISJOINT_TIMER_QUERY` 扩展，部分浏览器（隐私模式、无 GPU 访问的环境）不提供。改用 CPU 侧的 `SceneInstrumentation.frameTimeCounter` 作回退。
+- 为什么 `material.freeze()` 后改 `diffuseColor` 没反应？
+  冻结后属性变化不重建 effect、不上传 uniform。先 `material.unfreeze()`，改完按需再冻结。
+- 为什么调硬件缩放对 FPS 没影响？
+  GPU 不是瓶颈时无效。读 `EngineInstrumentation.gpuFrameTimeCounter`：GPU 帧时间本来就低，说明瓶颈在 CPU（draw calls / JS），这时应先降 draw calls 或冻结。
+- 为什么 `SceneOptimizer` 关掉后画面还是很糊？
+  降级是单向的——优化器把硬件缩放调到 1.5 / 2 之后，`stop()` 不会自动复原。手动 `engine.setHardwareScalingLevel(1)` 复位，或开 `improvementMode` 让它反向尝试。
+- 为什么 `SceneOptimizer` 一直不达标？
+  当前配置的降级步骤用完了仍达不到目标 FPS。换更高档的预制（`HighDegradationAllowed`）或 `addOptimization` 追加自定义降级；`onFailureObservable` 会在无法达标时触发。
+- 为什么标签页切回来 FPS 跌到个位数？
+  不可见标签页的 `requestAnimationFrame` 被节流到每秒约 1 次；回到页面会恢复，不是性能问题，但这期间 `getFps()` 读数不可信。
+
+## 总结回顾
+
+摘要：
+
+性能优化是测量驱动的工程：先用 `SceneInstrumentation`（draw calls、各类耗时）、`EngineInstrumentation`（GPU 帧时间，纳秒单位 `/1e6` 转 ms，依赖 `EXT_DISJOINT_TIMER_QUERY`）和 `engine.getFps()`（滑动平均帧率）定位瓶颈类别，再按类别选手段。draw calls 贵在状态切换，靠 `Mesh.MergeMeshes` 合并静态几何、`InstancedMesh` / thin instances 批量渲染重复物体、共享 material 把 N 次提交压成 1 次。静态场景用三层 freeze——`mesh.freezeWorldMatrix()` 跳过世界矩阵重算、`scene.freezeActiveMeshes()` 跳过活跃网格评估、`material.freeze()` 跳过 uniform 上传。GPU 资源只增不减直到 `dispose()`，`createBabylonRuntime` 的 `runtime.dispose()` 已按停循环 → 断观察者 → `scene.dispose()` → `engine.dispose()` 的顺序释放。GPU 瓶颈时 `engine.setHardwareScalingLevel(level)` 降分辨率最立竿见影。`SceneOptimizer` 把降级自动化但单向不回升。静态场景用按需渲染替代持续 `runRenderLoop`，空闲时让 CPU 与 GPU 都停下来。
+
+一句话：
+
+> 先测再优：用 SceneInstrumentation / EngineInstrumentation / FPS 定位瓶颈类别，再选合并 / 实例化 / freeze / dispose / 硬件缩放 / SceneOptimizer / 按需渲染里对应的那一个。
+
+知识要点：
+
+- `SceneInstrumentation.drawCallsCounter` 为什么不需要 capture 标志、时间类计数器需要？在哪个 observable 里读才正确？
+- `EngineInstrumentation.gpuFrameTimeCounter` 的单位是什么？依赖哪个浏览器扩展？不可用时回退到哪个计数器？
+- 三层 freeze（`freezeWorldMatrix` / `freezeActiveMeshes` / `material.freeze`）各跳过哪一项每帧工作？解冻时机有什么共同约束？
+- 降 draw calls 的三条路线（合并几何 / 实例化 / 共享 material）各把 draw calls 压到多少？分别适合什么场景？
+- 为什么 `scene.removeMesh` 不释放 GPU 资源？`scene.dispose()` 与 `engine.dispose()` 各释放什么？
+- 硬件缩放如何判断"GPU 是否瓶颈"？为什么 CPU 瓶颈时调它无效？
+- `SceneOptimizer` 的降级为什么是单向的？需要让画质回升时怎么做？
+- 按需渲染必须在哪些事件入口主动 `scene.render()`？阻尼相机与按需渲染怎样共存？
+
+## 参考资料
+
+- [Babylon.js Features：Optimize Your Scene（freeze / SceneInstrumentation / EngineInstrumentation）](https://doc.babylonjs.com/features/featuresDeepDive/scene/optimize_your_scene)
+- [Babylon.js Features：Scene Optimizer（SceneOptimizer / SceneOptimizerOptions）](https://doc.babylonjs.com/features/featuresDeepDive/scene/sceneOptimizer)
+- [Babylon.js TypeDoc：SceneInstrumentation](https://doc.babylonjs.com/typedoc/classes/BABYLON.SceneInstrumentation)
+- [Babylon.js TypeDoc：EngineInstrumentation](https://doc.babylonjs.com/typedoc/classes/BABYLON.EngineInstrumentation)
+- [Babylon.js TypeDoc：AbstractMesh（freezeWorldMatrix）](https://doc.babylonjs.com/typedoc/classes/BABYLON.AbstractMesh)
+- [Babylon.js TypeDoc：Scene（freezeActiveMeshes）](https://doc.babylonjs.com/typedoc/classes/BABYLON.Scene)
+- [Babylon.js TypeDoc：Material（freeze）](https://doc.babylonjs.com/typedoc/classes/BABYLON.Material)
+- [Babylon.js TypeDoc：Mesh（MergeMeshes）](https://doc.babylonjs.com/typedoc/classes/BABYLON.Mesh)
+- [Babylon.js TypeDoc：Engine（setHardwareScalingLevel）](https://doc.babylonjs.com/typedoc/classes/BABYLON.Engine)
+- [Babylon.js TypeDoc：SceneOptimizer / SceneOptimizerOptions](https://doc.babylonjs.com/typedoc/classes/BABYLON.SceneOptimizer)

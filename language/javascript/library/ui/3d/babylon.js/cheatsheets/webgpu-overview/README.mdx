@@ -1,0 +1,240 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="webgpu-overview" title="渲染进阶/WebGPU" name="Docs" />
+
+# WebGPU
+
+WebGPU 是继 WebGL 之后的**新一代 Web 图形 API**。它不再包装老一代 OpenGL ES，而是直接映射到现代 GPU 原生 API（Vulkan / Metal / D3D12），带来更低的 CPU 开销、更可控的资源管理和**计算着色器（Compute Shader）**能力。Babylon.js 是业界最早完整支持 WebGPU 的 3D 引擎之一（5.0 起，2021 年），并且没有像某些引擎那样重做一套渲染层——它把 WebGPU 实现成一个与 `Engine` **几乎 API 对等**的 `WebGPUEngine`：你的 Scene、相机、光源、网格、StandardMaterial / PBRMaterial 几乎不动，只是把引擎换成 `WebGPUEngine` 并多一步异步初始化。
+
+这种"双引擎并行"的设计意味着 WebGPU 在 Babylon 里**不是自动开关，而是你主动选择**：浏览器支持就用 `WebGPUEngine`，否则降级回 `Engine`（WebGL2）。引擎切换的判断要你自己写——本课就是讲清这条切换线，以及什么时候值得切。
+
+> 本课是**概览**。WebGPU 在不同环境的可用性并不统一（需要现代浏览器 + 合适的 GPU + 安全上下文 HTTPS/localhost），所以本课不内嵌 Canvas 实例，只用代码片段讲清"如何初始化 `WebGPUEngine`、如何探测能力、如何降级、与 `Engine` 有什么差异"。直接写 Compute Shader、Storage Buffer 和 WGSL 属于 WebGPU 实战，超出本手册第一阶段。
+
+| 维度 | `Engine`（WebGL） | `WebGPUEngine` |
+| --- | --- | --- |
+| 导入 | `import { Engine } from '@babylonjs/core'` | `import { WebGPUEngine } from '@babylonjs/core'` |
+| 初始化 | 同步，`new Engine(canvas, true)` 后即可渲染 | 异步，`new WebGPUEngine(canvas)` 后必须 `await engine.initAsync()` |
+| 能力探测 | `Engine.IsSupported`（同步布尔） | `WebGPUEngine.IsSupportedAsync`（`Promise<boolean>`） |
+| 降级 | 由你写 `IsSupportedAsync` 判断后实例化 `Engine` | 不支持时不会自动回退，需要你显式降级 |
+| 着色器语言 | GLSL | 内部统一编译到 WGSL；用户层 API 与 Engine 一致 |
+| 计算着色器 | 不支持 | `ComputeShader`（WebGPU 独有，5.0+） |
+| 浏览器覆盖 | 几乎全覆盖 | Chrome/Edge 稳定、Safari 部分、Firefox 默认关闭 |
+| 稳定度 | 生产默认 | 引擎层面已稳定，浏览器覆盖仍在演进 |
+
+## 快速上手
+
+把 [第一幅画面](?path=/docs/first-scene--docs) 的引擎行换成 WebGPU 版本，其余几乎不动。最小闭环只关心引擎这一层——先创建、再等 `initAsync` 完成、最后照常 `runRenderLoop`：
+
+```ts
+import {
+  ArcRotateCamera,
+  HemisphericLight,
+  MeshBuilder,
+  Scene,
+  Vector3,
+  WebGPUEngine,
+} from '@babylonjs/core';
+
+const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+
+// 关键差别 1：用 WebGPUEngine 替换 Engine
+const engine = new WebGPUEngine(canvas);
+// 关键差别 2：必须 await initAsync，构造完成≠可用
+await engine.initAsync();
+
+const scene = new Scene(engine);
+const camera = new ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 2, 5, Vector3.Zero(), scene);
+camera.attachControl(canvas, true);
+new HemisphericLight('light', new Vector3(0, 1, 0), scene);
+const box = MeshBuilder.CreateBox('box', { size: 1 }, scene);
+
+// 之后的代码和 Engine 完全一样
+engine.runRenderLoop(() => {
+  box.rotation.y += engine.getDeltaTime() / 1000;
+  scene.render();
+});
+window.addEventListener('resize', () => engine.resize());
+```
+
+`runRenderLoop`、`scene.render()`、`getDeltaTime()`、`attachControl`、`onBeforeRenderObservable` 都按 WebGL 时代的方式工作——这就是"API 对等"的核心。从 `Engine` 迁移到 `WebGPUEngine` 通常只动两行：导入名和 `await initAsync()`。
+
+## WebGPUEngine 的异步初始化
+
+WebGPU 的设备获取（`navigator.gpu.requestAdapter()` → `adapter.requestDevice()`）本身就是 Promise，所以 `WebGPUEngine` 把 adapter 协商、设备创建、shader 编译工具链（glslang / twgsl）的加载都放进 `initAsync()`。`new` 出来的引擎**还没拿到 GPU 设备**，在 `initAsync()` 完成前调用 `runRenderLoop` 或 `scene.render()` 会失败或得到空画面——这是从 `Engine` 迁移时最容易踩的差别。
+
+```ts
+const engine = new WebGPUEngine(canvas);
+await engine.initAsync();   // 协商 adapter、创建 device、准备 shader 工具链
+// initAsync() 之后才能 render
+```
+
+`initAsync()` 内部默认会从 Babylon 官方 CDN 加载两个 WASM 工具：**glslang**（把 GLSL 编译成 SPIR-V）和 **twgsl**（把 SPIR-V 转成 WGSL）。Babylon 把现有材质系统的 GLSL 着色器自动翻译成 WebGPU 需要的 WGSL，让你不需要重写材质就能切换引擎。如果你的项目运行在离线/内网环境，或想固定这些文件版本，可以在 `initAsync` 里显式传路径：
+
+```ts
+const glslangOptions = {
+  jsPath: '/assets/glslang/glslang.js',
+  wasmPath: '/assets/glslang/glslang.wasm',
+};
+const twgslOptions = {
+  jsPath: '/assets/twgsl/twgsl.js',
+  wasmPath: '/assets/twgsl/twgsl.wasm',
+};
+
+await engine.initAsync(glslangOptions, twgslOptions);
+```
+
+| 构造 / 初始化项 | 默认 | 用途 |
+| --- | --- | --- |
+| `new WebGPUEngine(canvas)` | 必填 canvas | 创建引擎实例，但尚未获取 GPU 设备 |
+| `engine.initAsync()` | 无参时从官方 CDN 拉 glslang/twgsl | 协商 adapter、创建 device、加载 shader 工具链 |
+| `antialias`（构造选项） | `true` | MSAA 抗锯齿开关 |
+| `adaptToDeviceRatio`（构造选项） | `false` | 是否按设备像素比适配 |
+| `glslangOptions` / `twgslOptions` | 官方 CDN | 离线/内网部署时覆盖 WASM 工具路径 |
+
+> `WebGPUEngine` 的构造选项（`antialias`、`stencil`、`preserveDrawingBuffer`、`powerPreference` 等）和 `Engine` 基本一致；具体名称以你当前版本的 [TypeDoc](https://doc.babylonjs.com/typedoc/classes/BABYLON.WebGPUEngine) 为准。
+
+## 能力探测与降级到 WebGL
+
+和"渲染器自动回退"的方案不同，Babylon 的 `WebGPUEngine` **不会**在不支持时悄悄换成 `Engine`——你必须自己探测并实例化。判断 WebGPU 是否可用的标准方式是读静态属性 `WebGPUEngine.IsSupportedAsync`（返回 `Promise<boolean>`），而不是同步的 `IsSupported`：
+
+```ts
+import { Engine, WebGPUEngine } from '@babylonjs/core';
+
+async function createEngine(canvas: HTMLCanvasElement) {
+  // IsSupportedAsync 是 Promise<boolean>：浏览器是否暴露 WebGPU 且能拿到 adapter
+  if (await WebGPUEngine.IsSupportedAsync) {
+    const engine = new WebGPUEngine(canvas);
+    await engine.initAsync();
+    return engine;
+  }
+  // 降级路径：WebGL2（绝大多数现代浏览器都支持）
+  return new Engine(canvas, true);
+}
+```
+
+为什么用 `IsSupportedAsync` 而不是 `IsSupported`？因为"WebGPU 是否真正可用"取决于能否拿到 adapter，而 adapter 协商是异步的——同步布尔只能告诉你 `navigator.gpu` 是否存在，无法反映驱动被禁用、GPU 不可用或安全上下文缺失等情况。旧的同步 `WebGPUEngine.IsSupported` 因此被异步版本取代，新代码应统一用 `IsSupportedAsync`。
+
+> 不要只检查 `if ('gpu' in navigator)`。`navigator.gpu` 存在不代表 `requestAdapter()` 一定成功（黑名单驱动、无 GPU 设备、非安全上下文都会让 adapter 拿不到）。让 `IsSupportedAsync` 替你做完整探测。
+
+降级之后，后续代码（Scene、相机、材质、渲染循环）对两个引擎是同一份——这正是 Babylon 双引擎设计的好处。少数只存在于一个引擎的能力（如 `ComputeShader`）需要用 `engine.getCaps().supportComputeChaders` 在运行时判断，而不是假设引擎类型。
+
+## 与 Engine 的差异
+
+绝大多数从 `Engine` 迁移到 `WebGPUEngine` 的项目，改的就是导入名 + 一行 `await initAsync()`。真正需要留意的差异集中在三类：WebGPU 独有能力、性能特性，以及少数着色器层面的不兼容。
+
+**WebGPU 独有：计算着色器。** `ComputeShader` 类让你跑和渲染管线无关的 GPU 通用计算（粒子模拟、排序、流体、自定义物理、纹理生成），这是 WebGL 给不了的能力。Babylon 的 Compute Shader 从 5.0 起就是 WebGPU 专属——在 WebGL 引擎下要么不工作，要么得退回 CPU 方案。运行时用能力标志判断，而不是写死引擎类型：
+
+```ts
+// 跨引擎代码：只在支持 compute 时启用 GPU 通道
+if (engine.getCaps().supportComputeChaders) {
+  // new ComputeShader(...) + ComputeShaderDispatcher
+}
+```
+
+**性能特性：CPU 开销更低、MSAA 更省。** WebGPU 的驱动层开销显著低于 WebGL（绘制命令更直接、状态验证更少），因此 draw call 密集的场景在 WebGPU 上通常帧时间更短。MSAA 在 WebGPU 下也更高效——通过渲染管线原生配置，比 WebGL 的扩展路径开销更可控。Babylon 还为 WebGPU 引入了一个性能开关：把 `engine.compatibilityMode` 设为 `false`，让引擎用 WebGPU 原生的 render pass 语义（而不是模拟 WebGL 的兼容行为），在透明排序等场景可能拿到额外收益；但它会改变一些渲染顺序语义，切换前要实测。
+
+```ts
+// 默认 compatibilityMode = true，行为对齐 WebGL Engine
+// 关闭后采用 WebGPU 原生 render pass 语义，可能更快，但渲染顺序细节会变
+engine.compatibilityMode = false;
+```
+
+**着色器层面的小差异。** Babylon 的 GLSL→WGSL 自动翻译覆盖了 StandardMaterial、PBRMaterial 和大多数 NodeMaterial，但如果你用过 `MaterialPlugin` 往材质里注入自定义 GLSL 片段，在 WebGPU 下可能需要强制材质走 GLSL 路径来兼容——`StandardMaterial` / `PBRMaterial` 的构造函数接受一个布尔参数来锁定 GLSL 代码路径。`ShaderMaterial` 的自定义着色器在两个引擎上都需要按对应语言准备，或交给 Node Material 用可视化节点跨引擎工作。
+
+| 差异点 | `Engine`（WebGL） | `WebGPUEngine` | 迁移动作 |
+| --- | --- | --- | --- |
+| 初始化 | 同步 | `await initAsync()` | 加一行 await，把启动逻辑放进 async 函数 |
+| 能力探测 | `Engine.IsSupported` | `WebGPUEngine.IsSupportedAsync` | 换成 await Promise 形式 |
+| `ComputeShader` | 不支持 | WebGPU 独有 | 用 `getCaps().supportComputeShaders` 判断 |
+| 自定义着色器注入 | GLSL | 自动翻译到 WGSL | 复杂注入用构造布尔强制 GLSL 路径 |
+| `engine.compatibilityMode` | 无 | 默认 `true` | 设 `false` 拿原生 render pass 收益，需实测 |
+| 自动降级 | 不适用 | 不自动降级 | 自己写 `IsSupportedAsync` + 回退 `Engine` |
+
+## 浏览器支持与可用性
+
+WebGPU 能否用，取决于三个条件同时满足：**浏览器实现了 WebGPU API**、**GPU 驱动不在黑名单**、**页面在安全上下文**（HTTPS 或 `localhost`，`file://` 和明文 HTTP 不行）。任一不满足，`IsSupportedAsync` 都会解析成 `false`。
+
+截至 2026 年 8 月，桌面端的浏览器分布大致是：
+
+| 浏览器 | 状态 | 备注 |
+| --- | --- | --- |
+| Chrome / Edge（桌面 & Android） | 稳定（v113+） | 最成熟，生产可用 |
+| Safari（桌面 & iOS） | 部分（v26+） | 已落地但仍比 Chrome 滞后，部分特性受限 |
+| Firefox | 默认关闭 | 需在 `about:config` 手动开启，不能当生产环境 |
+| 全球覆盖率 | 约 83% | 受 Safari/Firefox 拖累，远未到 WebGL 的近全覆盖 |
+
+Babylon.js 引擎层面**不限制** WebGPU——`WebGPUEngine` 在 5.0 之后就稳定可用，限制来自浏览器端。这也意味着你不需要等 Babylon 升级，只要用户浏览器支持 WebGPU，你的 `WebGPUEngine` 代码就能跑。
+
+> 一个 Inspector 相关的坑：Chrome 默认禁用 GPU 时间戳查询，所以 Inspector 里的 GPU 计时在 Chrome 上默认不可读，需要通过浏览器 flag 开启；这是 WebGPU 规范层面的限制，不是 Babylon 的 bug。
+
+## 何时选用 WebGPU
+
+绝大多数项目现在仍应以 **`Engine`（WebGL）为稳妥默认**。是否切到 `WebGPUEngine`，按下面的条件判断，而不是"更新更先进就上"：
+
+| 你的情况 | 建议 |
+| --- | --- |
+| 目标用户大量用 Firefox 或老 Safari | 继续用 `Engine`；即使写了降级，WebGL 路径也省事 |
+| 只需要常规 3D 展示、模型查看、光照材质 | `Engine` 完全够用，迁移收益小 |
+| 需要 GPU 计算着色器（大规模粒子、流体、排序、自定义物理） | 选 `WebGPUEngine`——compute 是 WebGL 给不了的能力 |
+| 需要超大场景、海量 draw call、低 CPU 开销 | 选 `WebGPUEngine` 并在 Chrome/Edge 上 benchmark 收益 |
+| 愿意接受浏览器覆盖仍在演进、能跟着 Babylon 版本升级 | 可在受控环境（内部产品、演示）投产 `WebGPUEngine` |
+| 想提前布局 WebGPU | 用 `IsSupportedAsync` + 降级方案，让支持的浏览器吃上 WebGPU，其余走 WebGL |
+
+一个常见折中：**写一份降级到 `Engine` 的 `createEngine` 工厂函数**（见 [能力探测与降级](#能力探测与降级到-webgl)），让支持的浏览器自动用 `WebGPUEngine`，其余走 `Engine`。后续场景代码对两个引擎是同一份——这是 Babylon 双引擎设计给你的最大红利。代价是要测两条路径，以及 `ComputeShader` 等独有能力要在运行时探测后再启用。
+
+## 最佳实践
+
+- 启动入口做成 `async function createEngine(canvas)`：先 `await WebGPUEngine.IsSupportedAsync`，支持就走 `WebGPUEngine` + `initAsync`，否则降级 `Engine`；把这段逻辑收敛到一处，业务代码只拿到一个 `engine`。
+- `await engine.initAsync()` 是硬约束，别在它之前调 `runRenderLoop` 或 `scene.render()`；用顶层 await 或把启动放进 async 函数。
+- 离线/内网部署时记得提前准备 `glslang` 和 `twgsl` 的 WASM 文件并通过 `initAsync(glslangOptions, twgslOptions)` 指定路径，否则默认 CDN 不可达时初始化会卡住。
+- 用到 `ComputeShader` 等 WebGPU 独有能力时，用 `engine.getCaps().supportComputeShaders` 在运行时判断，别按引擎类名写死分支——这样降级到 `Engine` 时能优雅退化。
+- 开发期在 Chrome/Edge（WebGPU）和 Firefox/老 Safari（降级到 WebGL）上各跑一遍，确认两条路径都正确；`engine.compatibilityMode = false` 这类性能开关切换后也要两边实测。
+- 不要因为"Babylon 已稳定支持 WebGPU"就在生产里盲目迁移一个稳定的 WebGL 项目；先确认目标浏览器覆盖和真实场景的 benchmark 收益，再决定。
+
+## 常见问题
+
+- `WebGPUEngine` 和 `Engine` 是同一个类的两个开关吗？
+  不是。它们是 `@babylonjs/core` 里两个并列的引擎类，构造、初始化和能力探测各自独立；`WebGPUEngine` 不支持时**不会**自动变成 `Engine`，降级逻辑要你自己写。
+- 为什么 `new WebGPUEngine(canvas)` 后直接 `runRenderLoop` 报错或画面空白？
+  `initAsync()` 还没完成。WebGPU 的 adapter/device 协商和 shader 工具链加载都是异步的，必须 `await engine.initAsync()` 之后才能渲染。
+- 为什么 `WebGPUEngine.IsSupported`（同步）和 `IsSupportedAsync`（异步）结果不一致？
+  同步版只能判断 `navigator.gpu` 是否存在；异步版还会真正去协商 adapter，能反映驱动黑名单、无 GPU、非安全上下文等情况。新代码统一用 `IsSupportedAsync`。
+- 为什么 `await engine.initAsync()` 卡住或超时？
+  通常是 glslang/twgsl 的 WASM 文件拉不到：默认走官方 CDN，离线/内网环境必须用 `initAsync(glslangOptions, twgslOptions)` 指定自有路径。
+- 我用 `MaterialPlugin` 注入了自定义 GLSL，切到 WebGPU 后效果不对怎么办？
+  GLSL→WGSL 自动翻译覆盖不了所有自定义注入。给 `StandardMaterial` / `PBRMaterial` 构造函数传布尔参数强制走 GLSL 路径，或把自定义逻辑改写为 Node Material 的节点图（Node Material 跨两个引擎）。
+- `ComputeShader` 在 WebGL 引擎下还能用吗？
+  不能。`ComputeShader` 是 WebGPU 独有能力（5.0+）。降级到 `Engine` 时要用 `engine.getCaps().supportComputeShaders` 判断并提供 CPU 回退方案。
+- WebGPU 在 2026 年能生产用吗？
+  Chrome/Edge 桌面和 Android 上可以；Safari v26+ 部分可用；Firefox 默认关闭，不能当生产环境。用户里 Firefox/老 Safari 占比高时，`Engine`（WebGL）更稳，降级路径也要测。
+
+## 总结回顾
+
+摘要：
+
+WebGPU 是继任 WebGL 的新一代 Web 图形 API，直接映射 Vulkan/Metal/D3D12，带来更低 CPU 开销和计算着色器能力。Babylon.js 用一个与 `Engine` 几乎 API 对等的 `WebGPUEngine` 来支持它：导入 `WebGPUEngine`，构造后 `await engine.initAsync()` 完成异步的 adapter/device 协商和 glslang/twgsl 加载，之后的 Scene、相机、材质和渲染循环代码与 WebGL 时代一致。降级不会自动发生——用 `WebGPUEngine.IsSupportedAsync` 探测，不支持就回退到 `new Engine(canvas, true)`。WebGPU 独有的 `ComputeShader` 用 `engine.getCaps().supportComputeShaders` 在运行时判断；`engine.compatibilityMode = false` 可切换到原生 render pass 语义换取性能。浏览器支持截至 2026 年 8 月：Chrome/Edge 稳定、Safari 部分、Firefox 默认关闭，且要求安全上下文。大多数项目仍应以 `Engine` 为默认，需要 compute 或极致性能且能接受浏览器覆盖现状时再上 `WebGPUEngine`。
+
+一句话：
+
+> Babylon 的 WebGPU 方案是"双引擎对等 + 你自己降级"——`WebGPUEngine` 多一步 `initAsync()`，其余代码不变；有 `ComputeShader` 等独有能力或低 CPU 开销需求、且目标浏览器覆盖可接受时才值得切，否则 `Engine`（WebGL）仍是稳妥默认。
+
+知识要点：
+
+- WebGPU 相比 WebGL 在 API 层和能提供的能力（Compute Shader、更低 CPU 开销）上差在哪里？
+- `WebGPUEngine` 的异步初始化（`initAsync`）为什么是硬约束？`new` 完直接 `render()` 会怎样？
+- `WebGPUEngine.IsSupportedAsync` 与同步的 `IsSupported`、`navigator.gpu` 各能探测到什么？
+- Babylon 不像某些引擎那样自动回退，降级到 `Engine` 的代码该怎么写？
+- `engine.getCaps().supportComputeShaders` 解决什么问题？为什么不能按引擎类名写死分支？
+- `glslang` 和 `twgsl` 在 `initAsync` 里做什么？离线部署时怎么处理？
+- 截至 2026 年，Chrome / Edge / Safari / Firefox 的 WebGPU 支持分别处于什么状态？安全上下文意味着什么？
+- 判断一个项目"现在该不该切 WebGPU"时，要看哪些条件？
+
+## 参考资料
+
+- [Babylon.js Documentation：WebGPU Support](https://doc.babylonjs.com/setup/support/webGPU)
+- [Babylon.js Documentation：WebGPU Breaking Changes](https://doc.babylonjs.com/setup/support/webGPU/webGPUBreakingChanges)
+- [Babylon.js Documentation：WebGPU Status](https://doc.babylonjs.com/setup/support/webGPU/webGPUStatus)
+- [Babylon.js Documentation：Compute Shader（WebGPU 独有）](https://doc.babylonjs.com/features/featuresDeepDive/materials/shaders/computeShader)
+- [Babylon.js Documentation：CDN 与 glslang / twgsl 路径配置](https://doc.babylonjs.com/setup/frameworkPackages/CDN)
+- [Babylon.js API Reference：WebGPUEngine (TypeDoc)](https://doc.babylonjs.com/typedoc/classes/BABYLON.WebGPUEngine)
+- [Can I Use：WebGPU（浏览器支持状态）](https://caniuse.com/webgpu)

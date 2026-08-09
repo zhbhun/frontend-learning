@@ -1,0 +1,430 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="webxr-basics" title="应用扩展/WebXR" name="Docs" />
+
+# WebXR
+
+WebXR 把 Babylon 的渲染输出从浏览器 Canvas 转交给 XR 设备——VR 头显的左右眼双目视图，或 AR 设备的真实环境叠加。和 three.js 把 WebXR 当作渲染器的一个开关不同，Babylon 用一个**独立的 WebXR 子系统**承载它：你的 Engine、Scene、相机、网格、材质几乎不动，再多调一行 `scene.createDefaultXRExperienceAsync(...)`，由它替你把 XR 会话、相机、渲染循环接管、控制器输入和默认交互（射线拾取、瞬移）全部接好。
+
+这套子系统的核心是四个对象：**Experience Helper**（统一入口，发起/退出会话）、**Session Manager**（与浏览器 XRSession 的直接连接）、**WebXR Camera**（继承 `FreeCamera`，每眼一台 rig camera，姿势由 XRFrame 写入）、**Features Manager**（XR 插件系统，承载 hit-test / anchors / 瞬移 / 手部追踪等可版本化能力）。Babylon 不像 three.js 那样要求你手切 `setAnimationLoop`——进入会话时 Session Manager 自动把渲染循环切到设备帧节奏，退出时自动切回 `engine.runRenderLoop`，这是从 three.js 迁移时最省心的差别。
+
+> 本课是**概览**。沉浸式 WebXR 需要 XR 设备（真机或模拟器扩展）和**安全上下文**（HTTPS 或 `localhost`），Storybook 沙箱和 headless 环境都无法可靠复现沉浸式会话，因此本课 **docs-only**：只用代码片段和判断表讲清"如何用 Experience Helper 进入 XR、XR 相机和渲染循环怎么协作、控制器和 Features Manager 如何使用、设备/浏览器支持现状与调试方法"，不内嵌 Canvas。
+
+| 对象或概念 | 取值 / 默认 | 回查要点 |
+| --- | --- | --- |
+| `scene.createDefaultXRExperienceAsync(options)` | 返回 `WebXRDefaultExperience`，浏览器不支持时 `baseExperience` 为 falsy | 等价于 `WebXRDefaultExperience.CreateAsync(scene, options)`；默认开 UI 按钮、控制器、pointer selection、teleportation |
+| `WebXRExperienceHelper.CreateAsync(scene)` | 返回 basic helper（`sessionManager` / `camera` / `featuresManager`） | 浏览器不支持时**抛异常**；想完全控制会话/不要默认 UI 时用 |
+| 默认会话模式 | `'immersive-vr'` | 改 `'immersive-ar'` 走 `uiOptions.sessionMode`；`'inline'` 不需设备 |
+| 默认参考空间 | `'local-floor'`（地面高度，原点在用户脚边） | 改 `'local'` / `'bounded-floor'` / `'unbounded'` / `'viewer'` 影响原点与边界 |
+| `xr.baseExperience.camera` | `WebXRCamera`（继承 `FreeCamera`），每眼一台 rig camera | 姿势每帧由 XRFrame 写入，**不要手改 `position`/`rotation`**；要平移用户改参考空间或瞬移 |
+| `xr.baseExperience.sessionManager.runXRRenderLoop()` | 进入会话时由 helper 自动调用 | 仅在**完全绕开** Experience Helper 时才需手动调；FPS 通常变为设备帧率（72/90/120 Hz） |
+| `xr.input.controllers` | `WebXRInputSource[]` | 通过 `xr.input.onControllerAddedObservable` 监听新增；每只有 `motionController`、`getWorldPointerRayToRef(ray)` |
+| `xr.baseExperience.featuresManager` | `WebXRFeaturesManager` | `enableFeature(WebXRFeatureName.XXX, 'latest', options)`；ES6 下多数 feature 要手动 import |
+| 能力探测 | `WebXRSessionManager.IsSessionSupportedAsync('immersive-vr')` | 返回 `Promise<boolean>`；用来决定是否显示入口按钮 |
+| 安全上下文 | HTTPS 或 `localhost` | `file://` 和明文 HTTP 下 `navigator.xr` 不可用 |
+
+## 快速上手
+
+最小闭环只需要一个已能正常渲染的 Scene，再追加一行 `createDefaultXRExperienceAsync`。helper 会在画面右下角放一个 Enter-XR 按钮（HTML DOM），点击后由用户手势触发 `requestSession('immersive-vr')`，会话就绪后渲染自动切到设备双眼：
+
+```ts
+import {
+  ArcRotateCamera,
+  Engine,
+  HemisphericLight,
+  MeshBuilder,
+  Scene,
+  Vector3,
+} from '@babylonjs/core';
+// ES6 下要让控制器模型自动加载，还需要这两个副作用 import
+import '@babylonjs/loaders/glTF';
+import '@babylonjs/core/Materials/Node/Blocks';
+
+const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+const engine = new Engine(canvas, true);
+const scene = new Scene(engine);
+
+const camera = new ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 2, 6, Vector3.Zero(), scene);
+camera.attachControl(canvas, true);
+new HemisphericLight('light', new Vector3(0, 1, 0), scene);
+const ground = MeshBuilder.CreateGround('ground', { width: 6, height: 6 }, scene);
+MeshBuilder.CreateBox('box', { size: 1 }, scene).position.y = 0.5;
+
+engine.runRenderLoop(() => scene.render());
+window.addEventListener('resize', () => engine.resize());
+
+// 追加这一段，WebVR 体验就接好了——floorMeshes 决定瞬移能落在哪些地面上
+const xr = await scene.createDefaultXRExperienceAsync({
+  floorMeshes: [ground],
+});
+
+if (!xr.baseExperience) {
+  // 浏览器不支持 XR：默认 UI 按钮不会显示，桌面渲染路径继续工作
+  console.warn('WebXR not supported');
+}
+```
+
+`createDefaultXRExperienceAsync` 内部依次完成：创建 basic helper、放一个 Enter-XR HTML 按钮、初始化 `WebXRInput`、自动启用 pointer selection（射线 + 与场景 mesh 的原生指针交互）和 teleportation（用 `floorMeshes` 作为瞬移落点）。你的 `engine.runRenderLoop(() => scene.render())` 不需要改——进入会话时 Session Manager 会把它切换到 XR 设备的帧节奏，退出时再切回来。
+
+> 默认体验**不抛异常**：浏览器不支持 XR 时返回的对象 `baseExperience` 为 falsy，UI 按钮自动不出现，桌面 WebGL 渲染继续。要自己写探测时用 `WebXRSessionManager.IsSessionSupportedAsync(mode)`。
+
+## WebXR Experience Helper
+
+helper 分两层，按需要的控制粒度挑选：
+
+| 层 | 创建方式 | 给你什么 | 不支持 XR 时 |
+| --- | --- | --- | --- |
+| Default Experience | `await scene.createDefaultXRExperienceAsync(options)` | basic helper + Enter-XR UI + `WebXRInput` + 默认 pointer selection/teleportation | `baseExperience` 为 falsy，不抛异常 |
+| Basic Experience | `await WebXRExperienceHelper.CreateAsync(scene)` | `sessionManager` / `camera` / `featuresManager` + `enterXRAsync` / `exitXRAsync` | **抛异常**，需要 try/catch |
+
+Default Experience 返回的对象的关键成员（注意 `baseExperience` 才是 basic helper 本体）：
+
+```ts
+const xr = await scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
+
+xr.baseExperience;        // WebXRExperienceHelper 本体（下文的 sessionManager/camera/featuresManager 都在它上面）
+xr.input;                 // WebXRInput，控制器由此进来
+xr.enterExitUI;           // Enter/Exit 的 HTML 按钮 GUI
+xr.renderTarget;          // XR 渲染目标
+xr.teleportation;         // 已启用的瞬移 feature（attach/detach 控制）
+xr.pointerSelection;      // 已启用的射线拾取 feature（attach/detach 控制）
+```
+
+basic helper 提供进入/退出会话和状态监听：
+
+```ts
+const helper = await WebXRExperienceHelper.CreateAsync(scene);
+
+// 进入会话：指定模式与参考空间；helper 内部会初始化相机、运行 runXRRenderLoop
+const sessionManager = await helper.enterXRAsync('immersive-vr', 'local-floor');
+
+// 状态机：NOT_IN_XR → ENTERING_XR → IN_XR → EXITING_XR → NOT_IN_XR
+helper.onStateChangedObservable.add((state) => {
+  if (state === WebXRState.IN_XR) {
+    // 首帧已提交
+  }
+});
+
+// 主动退出（用户摘下头显、系统断开也会触发）
+await helper.exitXRAsync();
+```
+
+| 选项（`WebXRDefaultExperienceOptions`） | 默认 | 用途 |
+| --- | --- | --- |
+| `floorMeshes` | `[]` | 瞬移落点候选；AR/不需要瞬移可不传 |
+| `disableDefaultUI` | `false` | `true` 时不放 Enter-XR 按钮，自己实现入口 |
+| `disableTeleportation` | `false` | `true` 时只保留 pointer selection |
+| `uiOptions.sessionMode` | `'immersive-vr'` | 改 `'immersive-ar'` 切 AR 入口 |
+| `uiOptions.referenceSpaceType` | `'local-floor'` | 切参考空间 |
+| `inputOptions` | 默认加载控制器模型 | 关掉模型加载或自定义 |
+
+> Default Experience 的 UI 默认走 VR；要做 AR 只要把 `uiOptions.sessionMode` 设为 `'immersive-ar'`。同一份 Scene 代码可以同时支持两种模式，只是参考空间和可用 feature 不同。
+
+## 会话模式与参考空间
+
+会话模式决定渲染目标和设备类型；参考空间决定坐标系原点和边界。两者都由 `requestSession(mode, options)` 在发起会话时确定，Babylon 用 `enterXRAsync(mode, referenceSpaceType)` 一次性传齐。
+
+| 模式 | 设备 | 视野 | 典型用途 |
+| --- | --- | --- | --- |
+| `'immersive-vr'` | VR 头显（Quest、Vision Pro、PCVR） | 完全替代现实视野，双眼立体渲染 | VR 体验、沉浸式查看器 |
+| `'immersive-ar'` | AR 头显或支持 ARCore/ARKit 的手机 | 透传相机背景 + 虚拟物体叠加 | AR 试戴、空间摆放 |
+| `'inline'` | 任意设备（无需头显） | 在页面 Canvas 内，普通单目渲染 | 无设备预览、滚动 3D |
+
+| 参考空间 | 原点 | 边界 | 适合 |
+| --- | --- | --- | --- |
+| `'viewer'` | 用户头部当前位置 | 不能移动 | 输入射线、inline 预览；总是可用 |
+| `'local'` | 会话开始时的头部位置，Y 轴朝上 | 无显式地面 | 坐姿体验、桌面预览 |
+| `'local-floor'` | 地面高度，原点在用户脚边 | 无边界 | **稳妥默认**；站立/坐姿都可用 |
+| `'bounded-floor'` | 地面高度 | 提供安全边界 `boundsGeometry` | 房间级体验（需用户划定边界） |
+| `'unbounded'` | 大世界，原点会随用户移动 | 无边界 | 大场景漫游（Quest/Vision Pro） |
+
+发起会话必须由**用户手势触发**（点击/触摸/按键），不能在页面加载时自动调——这是 WebXR 规范层面的硬约束。Default Experience 的 Enter-XR 按钮已经承载了这个手势；自己实现入口时要把 `enterXRAsync` 放在 click/touch 监听里。
+
+```ts
+// AR 入口 + 自定义参考空间
+const sessionManager = await helper.enterXRAsync('immersive-ar', 'unbounded');
+```
+
+能力探测用静态方法，返回 `Promise<boolean>`，用来决定要不要显示入口按钮：
+
+```ts
+const supported = await WebXRSessionManager.IsSessionSupportedAsync('immersive-ar');
+if (!supported) {
+  hideEnterXRButton();
+}
+```
+
+## XR 渲染循环
+
+这是 Babylon 与 three.js 最大的差别。three.js 要求你**手动**把 `requestAnimationFrame` 换成 `renderer.setAnimationLoop(cb)`——不切会让沉浸式画面停在第一帧。Babylon 反过来：Session Manager 的 `runXRRenderLoop()` 会**自动**把 engine 的渲染回调替换为 XR 设备的帧节奏（`XRSession.requestAnimationFrame`），并在会话结束时**自动恢复**原来的 `engine.runRenderLoop` 回调。所以你的桌面渲染循环不变，进入/退出 XR 都不需要改代码。
+
+```ts
+// 桌面渲染循环：写一次即可，XR 期间不会被破坏
+engine.runRenderLoop(() => scene.render());
+
+// 仅在完全绕开 Experience Helper（自己 new WebXRSessionManager）时才需要手动调：
+sessionManager.runXRRenderLoop();
+// 退出时调用 exitXRAsync()，Session Manager 自动恢复上面的 runRenderLoop 回调
+```
+
+`runXRRenderLoop` 接管后，FPS 通常会变化——XR 设备的显示器频率由设备决定（Quest 默认 72/90/120 Hz，Vision Pro 90 Hz），与桌面屏幕无关。因此**业务状态推进必须按秒制 delta**，不能按帧数。这条纪律在 XR 里比桌面更硬性：72 Hz 设备按"每帧 +1"会比 60 Hz 桌面快 20%，120 Hz 设备会快一倍。
+
+```ts
+// 正确：和 [渲染循环与时间](?path=/docs/render-loop-and-timing--docs) 同一套规则
+scene.onBeforeRenderObservable.add(() => {
+  const dt = engine.getDeltaTime() / 1000;   // 秒制 delta，XR 期间同样可用
+  box.rotation.y += angularSpeed * dt;
+});
+```
+
+每帧需要做 XR 专属逻辑（读 pose、输入源、hit-test 结果）时，订阅 Session Manager 的 `onXRFrameObservable`——它**只在 XR 会话中**触发，等价于"只在 XR 期间生效的 beforeRender"：
+
+```ts
+xr.baseExperience.sessionManager.onXRFrameObservable.add(() => {
+  // 此处仅在 XR 会话每一帧触发；桌面渲染时不触发
+});
+```
+
+| Observable | 触发时机 |
+| --- | --- |
+| `onXRSessionInit` | `requestSession` 成功返回新 XRSession 之后、首帧之前 |
+| `onXRFrameObservable` | 每一个 XR 帧（仅在 XR 期间） |
+| `onXRReferenceSpaceChanged` | 参考空间被替换（如瞬移、手动 `setReferenceSpaceTypeAsync`） |
+| `onXRSessionEnded` | 会话结束且 Babylon 清理完成，比桌面 render 回调恢复早一帧 |
+
+## XR 相机
+
+`xr.baseExperience.camera` 是一台 `WebXRCamera`——继承自 `FreeCamera`，但它的位置和朝向每帧由 XRFrame 写入，对应设备（HUD/手机）在参考空间里的真实变换。它内部有 **rig camera 系统**：每个眼睛/屏幕一台子相机（`camera.rigCameras`），由 XRFrame 里每个 view 的 pose 驱动，渲染时依次画到设备的双目缓冲。你**不要**手改 `camera.position` / `camera.rotation` / `updateProjectionMatrix()`——下一帧会被 XRFrame 覆盖，或破坏立体感。
+
+| 操作 | 桌面（无会话） | XR 会话中 |
+| --- | --- | --- |
+| `camera.position` / `rotation` | 由你或 `attachControl` 写入 | 由 XRFrame 写入，**不要手改** |
+| 视锥、FOV、瞳距 | 来自相机参数 | 来自设备 profile，**无法改** |
+| 当前活动相机 | 你创建的桌面相机（如 ArcRotate） | `xr.baseExperience.camera` |
+
+要让"用户移动"，改的是参考空间（瞬移 feature 内部就是这么做的）或场景里虚拟角色的变换，相机本身由头部追踪驱动。会话开始时想让 XR 相机继承桌面相机的位置（例如桌面镜头在原点 5 米外，进入 VR 也从那里看），调一次 `setTransformationFromNonVRCamera`：
+
+```ts
+xr.baseExperience.onStateChangedObservable.add((state) => {
+  if (state === WebXRState.IN_XR) {
+    // 复制桌面相机的位置和 Y 轴旋转；XRFrame 提供的高度会另作补偿
+    xr.baseExperience.camera.setTransformationFromNonVRCamera(scene.activeCamera, true);
+  }
+});
+```
+
+几个常用只读属性：`xrCamera.realWorldHeight`（用户真实身高，`local-floor` 下有效；`viewer` 下返回的是高度补偿值）；`xrCamera.getFrontPosition(2)`（相机前方 2 米处的世界坐标，常用来摆放抓取/瞬移目标）。详细相机家族（ArcRotate/Universal/Behavior）见 [相机与控制](?path=/docs/cameras-and-controls--docs)，本课只覆盖 XR 相机特有的部分。
+
+## 控制器输入
+
+控制器由 `xr.input`（`WebXRInput` 实例）统一管理。它在每只控制器接入时触发 `onControllerAddedObservable`，移除时触发 `onControllerRemovedObservable`。每只控制器是一个 `WebXRInputSource`，持有 `targetRay`（指针起点 mesh）、`gripSpace`（握把 mesh，可选）和（若是手柄类设备）一个异步初始化的 `motionController`。
+
+```ts
+xr.input.onControllerAddedObservable.add((controller) => {
+  // controller 就是 WebXRInputSource
+  controller.onMotionControllerInitObservable.add((motionController) => {
+    // 拿到 motionController 后，按 ID 取组件
+    const trigger = motionController.getComponent(WebXRControllerComponent.TRIGGER);
+    trigger?.onButtonStateChangedObservable.add((comp) => {
+      if (comp.pressed) {
+        // 扳机按下
+      }
+    });
+  });
+});
+```
+
+motion controller 的组件类型有五种：**Button / Trigger / Squeeze / Thumbstick / Touchpad**，每只控制器只支持其中一部分（取决于 [WebXR Input Profiles](https://github.com/immersive-web/webxr-input-profiles) 里的设备 profile）。取组件三种入口：
+
+```ts
+const ids = motionController.getComponentIds();
+// 例如 ['a-button', 'b-button', 'xr-standard-trigger', 'xr-standard-squeeze', 'xr-standard-thumbstick']
+
+const trigger = motionController.getComponent('xr-standard-trigger'); // 按 ID
+const main = motionController.getMainComponent();                     // 厂商定义的主组件（通常是 trigger）
+const buttons = motionController.getAllComponentsOfType('button');    // 同类全部
+```
+
+组件状态：`.pressed`（布尔，是否完全按下）、`.touched`（布尔，手指是否接触）、`.value`（0–1，扳机/按钮的模拟量）、`.axes`（`{x, y}`，摇杆/触摸板，范围 -1 到 1，y 正向朝用户）。需要"只在状态变化时回调"时用 observable，避免每帧轮询：
+
+```ts
+component.onButtonStateChangedObservable.add((comp) => {
+  if (comp.changes.pressed) {
+    const isNow = comp.changes.pressed.current;
+    const was   = comp.changes.pressed.previous;
+  }
+});
+component.onAxisValueChangedObservable.add((axes) => {
+  // axes.x / axes.y
+});
+```
+
+需要把控制器当射线起点拾取场景对象时，用 `getWorldPointerRayToRef`——它是 [指针与拾取](?path=/docs/pointer-input-and-picking--docs) 在 XR 下的等价入口：
+
+```ts
+import { Ray } from '@babylonjs/core';
+
+const ray = new Ray();
+controller.getWorldPointerRayToRef(ray);   // 第二参传 true 取握把射线（不可用时退回指针）
+const pickInfo = scene.pickWithRay(ray, (m) => m.metadata?.pickable);
+```
+
+| 控制器能力 | 默认 | 回查 |
+| --- | --- | --- |
+| Pointer selection（射线 + 与 mesh 的原生指针事件） | Default Experience 默认启用 | 用 `scene.onPointerObservable` / `scene.onPointerDown` 拾取，和桌面鼠标同一套 API |
+| Teleportation（瞬移） | Default Experience 默认启用；`floorMeshes` 决定落点 | `xr.teleportation.detach()` 关闭，`.attach()` 再开 |
+| 控制器 3D 模型 | 自动从 WebXR Input Profiles 仓库加载 | ES6 下必须 `import '@babylonjs/loaders/glTF'` 和 `import '@babylonjs/core/Materials/Node/Blocks'`，否则模型加载报错 |
+| 手部追踪 | 需 `optionalFeatures` 开 `hand-tracking` | 通过 featuresManager 启用，组件级关节由相应 feature 提供 |
+
+> Default Experience 已经让控制器**复用 Babylon 的原生 pointer 事件**：控制器射线点中 mesh 时，`scene.onPointerObservable` 会收到和鼠标点击同构的事件。所以 [指针与拾取](?path=/docs/pointer-input-and-picking--docs) 里的 `scene.pick`、`PointerEventTypes` 在 XR 里直接可用，不用为 XR 写第二套拾取逻辑。
+
+## Features Manager 与 AR 特性
+
+WebXR 规范里 hit-test、anchors、dom-overlay、hand-tracking 等**扩展能力**仍在演进，Babylon 用 **Features Manager**（XR 插件系统）承载它们：每个 feature 有名字和**版本号**（`"latest"` / `"stable"` / 数字），可以独立 enable/disable/attach/detach，向后兼容不破坏老代码。Default Experience 已经默认启用了 `POINTER_SELECTION` 和 `TELEPORTATION`；其它 feature 要自己开。
+
+```ts
+const fm = xr.baseExperience.featuresManager;
+
+// 开启 hit-test（AR 里把虚拟物体放到真实表面）
+const hitTest = fm.enableFeature(WebXRFeatureName.HIT_TEST, 'latest', {
+  testOnPointerDownOnly: true,   // 只在用户点击时做 hit-test，而不是每帧
+});
+
+// 开启 anchors（让物体在多帧之间稳定固定在世界里）
+fm.enableFeature(WebXRFeatureName.ANCHORS, 'latest');
+```
+
+常用 feature 名字（`WebXRFeatureName` 枚举）：
+
+| 名字常量 | 字符串 | 用途 |
+| --- | --- | --- |
+| `POINTER_SELECTION` | `'xr-pointer-selection'` | 控制器射线 + 原生指针事件；Default Experience 默认开 |
+| `TELEPORTATION` | `'xr-teleportation'` | 手柄瞬移；Default Experience 默认开，需要 `floorMeshes` |
+| `HIT_TEST` | `'xr-hit-test'` | AR 里查询真实表面姿态 |
+| `ANCHORS` | `'xr-anchors'` | 锚点，让虚拟物体跨帧稳定固定 |
+| `DOM_OVERLAYS` | `'xr-dom-overlay'` | AR 里把 HTML 元素覆盖在画面上（如说明文字、按钮） |
+| `HAND_TRACKING` | `'xr-hand-tracking'` | 手部关节级追踪（需设备支持 + `optionalFeatures`） |
+| `MOVEMENT` | `'xr-controller-movement'` | 用手柄摇杆平滑移动相机 |
+| `PHYSICS_CONTROLLERS` | `'xr-controller-physics'` | 控制器的物理 impostor |
+
+> **ES6 树摇注意**：除了 `POINTER_SELECTION` 和 `TELEPORTATION`，其它 feature 在 ES6 build 下**不会自动注册**，必须手动 `import` 对应模块才能 `enableFeature`。这是为了让最终 bundle 只包含你真正用的 feature。具体导入路径以当前版本的 [TypeDoc](https://doc.babylonjs.com/typedoc/classes/BABYLON.WebXRFeaturesManager) 为准。
+
+attach/detach 与 enable/disable 的区别：**enable** 注册 controller 增删观察者（feature 处于"就绪"），**attach** 才让 feature 主动影响场景；会话开始时已 enable 的 feature 默认自动 attach。想完全控制启动时机：
+
+```ts
+const hitTest = fm.enableFeature(WebXRFeatureName.HIT_TEST, 'latest', {}, /* attachIfPossible */ false);
+// 后续手动 attach / detach
+hitTest.attach();
+hitTest.detach();
+```
+
+## 设备与浏览器限制
+
+WebXR 跑在真实硬件上时，限制和桌面预览完全不同：
+
+| 维度 | 桌面 / inline | VR 沉浸式 | AR 沉浸式 |
+| --- | --- | --- | --- |
+| 帧率 | 浏览器 rAF，60–240 Hz | 设备 rAF，72/90/120 Hz（**低于阈值会引发不适**） | 设备 rAF，通常 60 Hz |
+| 渲染分辨率 | Canvas 像素 | 双目缓冲（Quest 3 单眼约 2064×2208） | 相机透传 + 双目叠加 |
+| CPU/GPU 预算 | 宽松 | 紧张——丢帧 = 用户晕动症 | 移动端最紧张 |
+| 真实环境 | 无 | 无 | 透传相机、平面检测、hit-test、anchors |
+| 用户移动 | 鼠标/键盘 | 头部追踪 + 控制器 + 边界 | 头部追踪 + 控制器 + 真实空间 |
+| 舒适度约束 | 无 | 平滑移动易晕；优先瞬移 | 不遮挡危险区域 |
+
+**安全上下文是硬条件**：WebXR API（`navigator.xr`）只在 **HTTPS 或 `localhost`** 下可用。`file://` 直接打开页面、明文 HTTP 部署，`navigator.xr` 会是 `undefined`，`createDefaultXRExperienceAsync` 会让 `baseExperience` 为 falsy。本地开发用 `localhost` 或 `http://127.0.0.1` 没问题，但部署到内网/CDN 必须上 HTTPS。
+
+**浏览器支持（截至 2026 年 8 月）：**
+
+| 平台 | 状态 | 备注 |
+| --- | --- | --- |
+| Chrome / Edge（桌面 & Android） | 稳定 | VR 与 AR（Android via ARCore）齐全；生产主战场 |
+| Meta Quest Browser / Pico Browser | 稳定 | VR 头显内置浏览器的标配运行环境 |
+| Apple Vision Pro（Safari） | 稳定 | immersive-vr 支持；immersive-ar 通过特殊模式 |
+| Safari（macOS） | 部分 | 自 Safari 16 起支持 immersive-vr；需连接 VR 头显 |
+| Safari（iOS） | 受限 | 不支持沉浸式 WebXR；AR 走 Quick Look（独立 API） |
+| Firefox | 默认关闭 | 桌面端需在 `about:config` 开启 |
+
+**调试方法**：headless 和普通桌面浏览器没有真实 XR 输入，沉浸式会话必须由用户手势触发，所以 Storybook 沙箱无法可靠复现。本地调试推荐：
+
+- 安装 Meta 的 [Immersive Web Emulator](https://github.com/meta-quest/immersive-web-emulator/)（Chrome/Edge 扩展），模拟头显和控制器 pose、按钮、摇杆；
+- 或用 Windows Mixed Reality 模拟器（系统级模拟头显，走浏览器真实 WebXR 实现）；
+- 真机验证用 Meta Quest / Pico 头显内置浏览器访问 HTTPS 部署的页面，或用 Mozilla 早期的 [WebXR iOS Viewer](https://apps.apple.com/us/app/webxr-viewer/id1295998056)（AR 能力有限）。
+
+**降级到桌面**：检测到不支持沉浸式会话时，隐藏入口按钮、保留普通 WebGL 渲染路径即可——你的 Engine、Scene、相机、网格代码对 XR 和非 XR 是同一份：
+
+```ts
+const supported = await WebXRSessionManager.IsSessionSupportedAsync('immersive-vr');
+if (supported) {
+  const xr = await scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
+  // Enter-XR 按钮自动出现
+} else {
+  showDesktopOnlyMessage();
+}
+```
+
+## 最佳实践
+
+- 把 `engine.runRenderLoop(() => scene.render())` 写一次贯穿始终；进入/退出 XR 由 Session Manager 自动切帧节奏，不要为 XR 写第二份渲染循环。
+- 业务状态推进仍按"每秒多少 × delta"，XR 设备帧率（90/120 Hz）比桌面高，按帧数推进会成倍提速。详见 [渲染循环与时间](?path=/docs/render-loop-and-timing--docs)。
+- 入口按钮必须由**用户手势触发** `requestSession`；Default Experience 的 Enter-XR 按钮已经承载了这个手势，不要在 `DOMContentLoaded` 里自动 `enterXRAsync`，会被浏览器拒绝。
+- ES6 项目里为了让控制器 3D 模型加载成功，记得 `import '@babylonjs/loaders/glTF'` 和 `import '@babylonjs/core/Materials/Node/Blocks'`；否则会看到 `Build of NodeMaterial failed` 之类的报错。
+- 需要扩展 feature（hit-test / anchors / hand-tracking）时，先确认 `WebXRFeaturesManager.GetAvailableFeatures()` 里有对应名字，再手动 import feature 模块（除 pointer-selection / teleportation 外，ES6 不自动注册）。
+- 桌面相机控制器（如 ArcRotate 的 `attachControl`）在 XR 期间不会自动失效，但用户头部追踪会接管相机——为避免冲突，会话期间把交互入口交给控制器的 pointer selection，桌面控制器只服务于预览。
+- VR 体验的舒适度优先：默认瞬移而非平滑移动（Default Experience 的 teleportation 就是为此默认启用）；加速度恒定优于突变；性能预算按双目全分辨率估，目标帧率达不到设备阈值（如 Quest 的 72 Hz）不要上线。
+- 部署走 HTTPS；本地开发可用 `localhost`，但分享给真机测试时必须是 HTTPS（自签证书或 dev tunnel），否则头显浏览器拒绝 `navigator.xr`。
+
+## 常见问题
+
+- `createDefaultXRExperienceAsync` 返回的对象 `baseExperience` 是 `null` / `undefined`？
+  浏览器不支持 XR，或页面不在安全上下文（非 HTTPS、非 `localhost`）。Default Experience 不抛异常，靠这个字段判空。用 `WebXRSessionManager.IsSessionSupportedAsync('immersive-vr')` 进一步确认。
+- 没有看到 Enter-XR 按钮？
+  三种可能：浏览器不支持 XR（Default UI 自动不出现）；页面不是 HTTPS / `localhost`（`navigator.xr` 不可用）；或设了 `disableDefaultUI: true`。用 `IsSessionSupportedAsync` 探测，并检查地址栏协议。
+- 进入 VR 后画面停在第一帧，桌面 Canvas 不再更新？
+  通常不是 Babylon 的问题——Babylon 的 `runXRRenderLoop` 会自动接管。检查是否自己额外调了 `engine.stopRenderLoop()` 或覆盖了渲染回调；退出会话时 Session Manager 会自动恢复原 `runRenderLoop` 回调。
+- 控制器没有任何事件触发？
+  确认是通过 `xr.input.onControllerAddedObservable` 拿到 `WebXRInputSource`——它要等会话真正进入后才有控制器接入；桌面预览期没有真实控制器。本地调试装 Meta Immersive Web Emulator 扩展来模拟。
+- 加载控制器模型时报 `Build of NodeMaterial failed` 之类错误？
+  ES6 build 下缺副作用 import。补上 `import '@babylonjs/loaders/glTF'`（让 glTF 加载器注册）和 `import '@babylonjs/core/Materials/Node/Blocks'`（让控制器模型用的 Node Material 节点齐全）。
+- `xr.baseExperience.camera.position.set(...)` 不生效？
+  XR 会话期间相机姿势每帧由 XRFrame 写入，手改会被覆盖或破坏立体感。要让用户移动，改虚拟角色或场景对象的变换，或用 teleportation feature；头部追踪的相机归 XR 管。
+- AR 模式下背景一片黑或盖住了相机画面？
+  AR 会话的画面合成由浏览器负责（相机透传 + WebGL 输出），不要给 Scene 设会盖住整个视野的背景 mesh。要加虚拟天空盒，改用 sky dome mesh 并限制其范围。
+- WebXR 在 Storybook / iframe 里跑不起来？
+  WebXR 受限：iframe 需要 `allow="xr-spatial-tracking"`，且沉浸式会话需要用户手势上下文，Storybook 沙箱通常没有。本地起 HTTPS 服务直接打开页面，或在真实部署环境验证。
+- 移动端 AR 画面卡顿严重？
+  AR 跑在手机 GPU 上，预算比桌面紧。降复杂度：减少 draw call、贴图尺寸、光源数量；关闭后处理或换更便宜的实现；目标稳定 60 Hz。性能排查见 [性能](?path=/docs/performance-and-disposal--docs)。
+
+## 总结回顾
+
+摘要：
+
+WebXR 把 Babylon 的渲染输出从浏览器 Canvas 转交给 XR 设备，承载它的是一个独立子系统：`scene.createDefaultXRExperienceAsync(options)`（等价于 `WebXRDefaultExperience.CreateAsync`）一次调用接好 Enter-XR UI、会话管理、XR 相机、控制器输入和默认的 pointer selection / teleportation；想完全控制时用 `WebXRExperienceHelper.CreateAsync` 拿 basic helper（不支持时抛异常）。会话有 `immersive-vr`（默认）/ `immersive-ar` / `inline` 三种模式，参考空间默认 `local-floor`，由 `enterXRAsync(mode, refSpace)` 一次性确定，`requestSession` 必须由用户手势触发。Session Manager 的 `runXRRenderLoop` 会自动把 `engine.runRenderLoop` 切到设备帧节奏、退出时自动恢复——这是和 three.js 必须手动切 `setAnimationLoop` 最大的差别。XR 相机是继承 `FreeCamera` 的 `WebXRCamera`，每眼一台 rig camera，姿势由 XRFrame 写入，不要手改。控制器经 `xr.input.onControllerAddedObservable` 接入，`motionController.getComponent(id)` 取 trigger / squeeze / thumbstick / touchpad 组件，`getWorldPointerRayToRef` 当射线起点复用桌面拾取逻辑。AR 扩展能力（hit-test / anchors / dom-overlay / hand-tracking）由 Features Manager 的 `enableFeature(WebXRFeatureName.XXX, 'latest', options)` 启用，ES6 下需手动 import 模块。设备限制包括双目全分辨率渲染、VR 舒适度（优先瞬移、稳定帧率）、安全上下文（HTTPS / `localhost`）和浏览器覆盖（Chrome/Edge 稳定、Quest/Pico 浏览器稳定、Safari iOS 不支持、Firefox 默认关闭），用 `IsSessionSupportedAsync` 检测并保留桌面 WebGL 降级路径。
+
+一句话：
+
+> Babylon 的 WebXR 是"一行 `createDefaultXRExperienceAsync` + 自动接管渲染循环"——helper 替你接好会话、相机、控制器和默认交互，扩展能力交给 Features Manager，入口按钮必须由用户手势触发，并按 VR 舒适度、AR 真实环境、安全上下文和浏览器覆盖的限制规划降级。
+
+知识要点：
+
+- `WebXRDefaultExperience` 和 `WebXRExperienceHelper` 分别提供什么？浏览器不支持 XR 时两者的行为差别是什么？
+- 三种会话模式 `immersive-vr` / `immersive-ar` / `inline` 各自适合什么场景？参考空间 `local-floor` / `bounded-floor` / `unbounded` 有什么差别？
+- 为什么 Babylon 不需要像 three.js 那样手动切 `setAnimationLoop`？`runXRRenderLoop` 在进入和退出会话时分别做了什么？
+- `xr.baseExperience.camera` 在 XR 会话期间为什么不能手改 `position`？要让用户移动应该改什么？
+- `xr.input.onControllerAddedObservable` 给出的 `WebXRInputSource` 有哪些关键成员？怎样拿到扳机/握把/摇杆的状态变化？
+- Default Experience 默认启用了哪两个 feature？要开启 hit-test / anchors / hand-tracking 该怎么写？
+- 为什么 ES6 build 下控制器模型加载会失败？需要补哪些副作用 import？
+- 沉浸式 WebXR 的安全上下文要求是什么？怎样探测浏览器是否支持某会话模式，并安排桌面 WebGL 降级路径？
+
+## 参考资料
+
+- [Babylon.js Documentation：WebXR（Introduction）](https://doc.babylonjs.com/features/featuresDeepDive/webXR/introToWebXR)
+- [Babylon.js Documentation：WebXR Experience Helpers](https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRExperienceHelpers)
+- [Babylon.js Documentation：WebXR Session Manager](https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRSessionManagers)
+- [Babylon.js Documentation：The WebXR Camera](https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRCamera)
+- [Babylon.js Documentation：WebXR Controllers Support](https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRInputControllerSupport)
+- [Babylon.js Documentation：WebXR Features Manager](https://doc.babylonjs.com/features/featuresDeepDive/webXR/webXRFeaturesManager)
+- [Babylon.js TypeDoc：WebXRSessionManager](https://doc.babylonjs.com/typedoc/classes/BABYLON.WebXRSessionManager)
+- [Babylon.js TypeDoc：WebXRCamera](https://doc.babylonjs.com/typedoc/classes/BABYLON.WebXRCamera)
+- [WebXR Device API（W3C）](https://www.w3.org/TR/webxr/)
+- [WebXR Input Profiles（控制器 profile 仓库）](https://github.com/immersive-web/webxr-input-profiles)
+- [Meta Immersive Web Emulator（桌面调试扩展）](https://github.com/meta-quest/immersive-web-emulator/)
