@@ -1,0 +1,172 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ImageCourse from './image.stories';
+
+<Meta of={ImageCourse} name="Docs" />
+
+# 图片
+
+LeaferJS 的 `Image` 元素用来在节点树里渲染一张位图，它继承自 `Rect`，靠一个 `url` 属性接收图片地址。理解 `Image` 的关键在于一点：**`url` 本质上是 `Rect` 的一条 `image` 填充**——引擎在设置 `url` 时，内部自动生成 `{ type: 'image', mode: 'stretch', url }` 作为 `fill`。因此 `Image` 的默认填充方式是「拉伸」(stretch)，而 `cover` / `fit` 等保持比例的模式并不挂在 `Image` 上，需要改用 `Rect` 配 `image` 填充。
+
+围绕这个核心，本课回答四个问题：图片如何加载、加载状态怎么读；图片塞进一个固定框时有哪些填充方式；跨域图片要怎么处理；以及引擎背后如何缓存位图。预测一下：不设 `width`/`height`，`Image` 会用图片的自然尺寸；切换到 `cover`/`fit`，下面的实例会从 `Image` 节点切换成 `Rect + fill` 节点。
+
+| 关键输入 | 默认 | 含义与回查要点 |
+| --- | --- | --- |
+| `url` | `''`（空） | 图片地址。设置后内部自动生成一条 `mode:'stretch'` 的 `image` 填充。 |
+| `width` / `height` | 自然尺寸 | 不设则用图片原始尺寸；只设一边则按原始宽高比换算另一边。 |
+| 填充 `mode` | `stretch`（`Image` 的 `url`） | `cover` 裁剪铺满、`fit` 等比留白、`stretch` 拉伸。`Image` 不支持自定义 `fill` 模式，需用 `Rect` + `image` 填充。 |
+| `crossOrigin`（`Platform.image`） | `'anonymous'` | 跨域图片的 CORS 设置。设为 `null` 可渲染未授权跨域图，但画布被污染、无法导出。 |
+| `ready`（只读） | `false` | 图片是否加载完成，配合 `image.loaded` / `image.error` 事件使用。 |
+| `Platform.image.maxCacheSize` | `2560×1600`（2K） | 位图缓存像素上限，超过则降级处理。 |
+| `Platform.image.maxPatternSize` | `4096×2160`（4K） | 重复图案 (repeat) 缓存像素上限。 |
+
+## 加载与自然尺寸
+
+`Image` 的加载由 `url` 驱动：构造或 `set({ url })` 时引擎开始异步加载，期间元素照常挂载渲染，图片就位后自动重绘。**不设 `width`/`height`，元素尺寸就是图片的自然尺寸**；只设其中一边，另一边按自然宽高比换算（例如只设 `height`，`width` 由 `height × 自然宽 / 自然高` 得出）。
+
+```ts
+import { Leafer, Image } from 'leafer-ui'
+
+const leafer = new Leafer({ view: window })
+
+// 不设宽高：按图片自然尺寸显示
+new Image({ url: '/image/leafer.jpg' })
+
+// 只设高度：宽度按自然比例换算
+new Image({ url: '/image/leafer.jpg', height: 200 })
+```
+
+加载状态有两个读取入口。一是只读属性 `ready`，加载完成后变 `true`；二是事件 `ImageEvent.LOADED`（成功）与 `ImageEvent.ERROR`（失败，错误对象在 `e.error`）。`ready` 适合轮询或一次性判断，事件适合在加载完成的瞬间触发后续逻辑。
+
+```ts
+import { Image, ImageEvent } from 'leafer-ui'
+
+const image = new Image({ url: '/image/leafer.jpg' })
+
+// 事件方式：图片加载完成时触发
+image.once(ImageEvent.LOADED, (e: ImageEvent) => {
+  console.log('已加载', image.ready, image.image.width, image.image.height)
+})
+
+// 失败时
+image.once(ImageEvent.ERROR, (e: ImageEvent) => {
+  console.error(e.error)
+})
+```
+
+`image` 是另一个只读属性，指向引擎封装的底层图片对象 `ILeaferImage`（含 `width`、`height`、`url`、`crossOrigin` 等）；**图片加载完成才存在**，加载中读取为 `undefined`，所以取自然尺寸前先确认 `ready`。
+
+加载体验还有三个从 `UI` 继承的常用属性：`lazy`（懒加载，默认 `false`，开启后图片进入可视区才加载，加快首屏）、`pixelRatio`（像素比，默认 `1`，**仅对自动宽高（不设 `width`/`height`）的图片有效**，高清屏可设 `2`/`3` 让位图更清晰）、`placeholderColor`（加载中或失败时的占位背景色，加载超过约 100ms 才显示）。三者都只影响加载与显示，不改变上面的尺寸与状态判定。
+
+## 填充模式
+
+把一张图塞进一个固定比例的框里，有三种结果不同的方式：`cover` 等比放大裁掉多余部分、`fit` 等比缩小留下空白、`stretch` 直接拉伸（比例会变形）。前面说过，`Image` 的 `url` 内部固定是 `stretch`，**`Image` 不支持设置 `fill` 属性（内部已占用）**，所以 `cover` / `fit` 必须改用 `Rect` 的 `image` 填充。
+
+```ts
+import { Leafer, Image, Rect } from 'leafer-ui'
+
+const leafer = new Leafer({ view: window })
+const url = '/image/leafer.jpg'
+
+// stretch（拉伸）：Image 的 url 就是 stretch，给宽高即拉伸填满
+new Image({ url, width: 200, height: 200 })
+
+// cover（裁剪铺满）/ fit（等比留白）：用 Rect + image 填充
+new Rect({ width: 200, height: 200, fill: { type: 'image', url, mode: 'cover' } })
+new Rect({ width: 200, height: 200, fill: { type: 'image', url, mode: 'fit' } })
+```
+
+下面的实例用一张 240×160（3:2）的占位图，在同一个方框里切换四种模式。注意观察左下角「节点」读数：切到 `cover`/`fit` 会变成 `Rect + fill`，切到 `stretch`/`auto` 才是 `Image`——这正是「`Image` 只承担 stretch」的直接证据。
+
+<Canvas of={ImageCourse.Interactive} />
+<Controls of={ImageCourse.Interactive} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 切换「填充模式」到 `cover` | 图片铺满方框、左右被裁剪；读数「节点」变为 `Rect + fill` |
+| 切换到 `fit` | 图片等比缩小、上下留白；读数「节点」仍为 `Rect + fill` |
+| 切换到 `stretch` | 图片被拉伸填满方框（比例变形）；读数「节点」变回 `Image` |
+| 切换到 `auto` | 图片恢复 240×160 自然尺寸；读数「显示」标注「自然」 |
+| 调整「显示宽」「显示高」 | 方框尺寸变化，`cover`/`fit`/`stretch` 重新计算；`auto` 忽略 |
+| 读数「加载状态」 | data URL 近乎瞬时从「加载中」变为「已加载」 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `example.ts`，含按模式分流的构造分支 |
+
+填充对象还支持更多字段：`align`（对齐方式，默认居中，影响 `cover` 裁掉哪边、`fit` 留白在哪边）、`repeat`（平铺）、`scale`/`size`（手动缩放）、`filter`（亮度对比度等图片滤镜）、`padding`（内边距）等。完整字段属于「填充与描边」课的 `image` 填充范畴，这里只需记住 `mode` 是选择填充方式的主开关，取值有 `normal` / `cover` / `fit` / `stretch` / `clip` / `repeat` / `brush`。
+
+## 跨域
+
+浏览器对跨域图片有 CORS 限制：默认情况下，未经服务端授权的跨域图片**可以加载、也可以渲染到画布**，但一旦画布「被污染」(tainted)，调用 `export` / `toDataURL` 等导出方法会抛安全异常。LeaferJS 通过 `Platform.image.crossOrigin` 统一控制 `crossOrigin`，默认 `'anonymous'`。
+
+```ts
+import { Platform } from 'leafer-ui'
+
+// 默认：请求服务端 CORS 授权；授权过的跨域图可正常导出
+Platform.image.crossOrigin = 'anonymous'
+
+// 渲染未经授权的跨域图：设 null 后能显示，但画布被污染、无法导出
+Platform.image.crossOrigin = null
+```
+
+这是一个二选一的取舍：`'anonymous'`（默认）要求服务端返回 CORS 头，换来的回报是画布可导出；`null` 牺牲导出能力，换取渲染任何来源的图片。需要把场景导出为图片或 JSON 还原时，保持默认并确保图片服务端开启 CORS。
+
+## 位图缓存
+
+加载过的图片在引擎里是被缓存复用的：底层 `ImageManager` 按 `url`（及 `crossOrigin`）去重，**同一个 `url` 只加载一次**，多个 `Image`/`Rect` 引用同一张图时共享同一份位图，避免重复网络请求与内存占用。不再使用的图片进入回收列表，由 `ImageManager.recycle` / `clearRecycled` 管理。
+
+缓存尺寸有两道阈值，都在 `Platform.image` 上配置：
+
+```ts
+import { Platform } from 'leafer-ui'
+
+// 普通位图缓存上限，默认 2K（2560×1600 像素）
+Platform.image.maxCacheSize = 2560 * 1600
+
+// 重复图案 (repeat/brush) 缓存上限，默认 4K（4096×2160 像素）
+Platform.image.maxPatternSize = 4096 * 2160
+```
+
+超过阈值的超大图会降级处理（如分块或不缓存），以避免一次性占用过多内存。这里说的「位图缓存」指**已加载位图的复用与回收**，与「把复杂节点光栅化成位图以加速重绘」是两件事——后者属于性能优化的渲染缓存，见「性能优化」课。
+
+## 最佳实践
+
+- **按「是否需要保持比例」选元素。** 只想原样显示图片、或接受拉伸，用 `Image({ url })` 最省事；要把图片塞进固定比例的框且保持比例（`cover`/`fit`），用 `Rect({ fill: { type:'image', url, mode } })`，`Image` 没有 `mode` 入口。
+- **需要导出画布时，保持 `crossOrigin` 默认并让图片服务端开 CORS。** 只渲染不导出，才考虑设 `null` 加载未授权跨域图。混用时画布一旦被污染无法恢复。
+- **用 `ready` 或 `image.loaded` 处理加载完成的副作用。** 拿自然尺寸、替换占位图、触发布局重算等动作，都应在 `ready` 为真或 `LOADED` 事件里做；加载中读 `image` 会得到 `undefined`。
+- **同一张图多处复用，让缓存生效。** 引擎按 `url` 去重，避免把同一张图复制成多个 data URL 或带随机查询串的不同地址，否则缓存失效、重复加载。
+
+## 常见问题
+
+- **为什么 `Image` 设置 `cover` / `fit` 没效果？**
+  `Image` 的 `url` 内部固定是 `stretch` 填充，且不支持设置 `fill` 属性。要保持比例填充，改用 `Rect({ width, height, fill: { type:'image', url, mode:'cover' } })`（或 `'fit'`）。
+- **图片能显示，但 `export` 导出报错（画布被污染）？**
+  跨域图片未经服务端 CORS 授权就渲染会污染画布。确保图片响应头包含 CORS（默认 `crossOrigin:'anonymous'` 会请求授权）；若故意用 `Platform.image.crossOrigin = null` 渲染未授权图，则无法导出。
+- **`new Image({ url })` 后立即读 `image.width` 是 `undefined`？**
+  图片是异步加载的，构造时还没就位。用 `ready` 判断，或在 `ImageEvent.LOADED` 事件里读取；只读属性 `image` 加载完成才存在。
+- **只设了 `height`，宽度不对？**
+  `Image` 只设一边时，另一边按图片自然宽高比换算。若图片尚未加载完成（自然尺寸未知），换算可能暂时为 0 或不符合预期，等 `ready` 后会修正。
+- **同一张图用了多个 data URL，内存涨得快？**
+  引擎按完整 `url` 字符串去重缓存。把同一张图做成共享的常量 `url` 复用，不要每次拼接新的 data URL 或加随机查询串，否则每份都会被当成新图加载。
+
+## 总结回顾
+
+摘要：
+
+LeaferJS 的 `Image` 继承自 `Rect`，靠 `url` 接收图片地址，引擎在内部把 `url` 转成一条 `mode:'stretch'` 的 `image` 填充。不设 `width`/`height` 时元素用图片自然尺寸，只设一边则按自然比例换算；加载状态用只读 `ready` 或 `image.loaded`/`image.error` 事件读取，底层 `image` 对象加载完成才存在。`Image` 只承担 `stretch`，`cover`/`fit` 等保持比例的模式必须改用 `Rect` 的 `image` 填充。跨域由 `Platform.image.crossOrigin`（默认 `'anonymous'`）统一控制，设 `null` 能渲染未授权跨域图但会使画布无法导出。已加载位图由 `ImageManager` 按 `url` 缓存复用，缓存尺寸上限在 `Platform.image.maxCacheSize` / `maxPatternSize` 配置。
+
+一句话：
+
+> `Image` 就是带 `url` 的 `Rect`，内部固定 `stretch`；要 `cover`/`fit` 就用 `Rect` 的 `image` 填充，跨域与缓存都归 `Platform.image` 管。
+
+知识要点：
+
+- `Image` 的 `url` 内部对应什么填充？默认 `mode` 是什么？
+- 不设 `width`/`height` 时 `Image` 的尺寸如何确定？只设一边呢？
+- 怎么读取图片加载状态？`ready`、`image.loaded`、`image` 属性分别什么时候可用？
+- `cover`/`fit` 为什么不能直接用 `Image`？正确写法是什么？
+- 跨域图片的 `crossOrigin` 默认值是什么？设 `null` 的代价是什么？
+- 引擎如何缓存已加载的位图？相关阈值在哪里配置？
+
+## 参考资料
+
+- [Image（入门指南）| Leafer UI 官方文档](https://www.leaferjs.com/ui/guide/display/Image.html)
+- [Image（API 参考与缓存配置）| Leafer UI 官方文档](https://www.leaferjs.com/ui/reference/display/Image.html)
+- [图案填充 image（mode / cover / fit / stretch）| Leafer UI 官方文档](https://www.leaferjs.com/ui/reference/UI/paint/image.html)
