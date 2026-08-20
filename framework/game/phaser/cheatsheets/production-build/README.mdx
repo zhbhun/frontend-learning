@@ -1,0 +1,267 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ProductionBuild from './production-build.stories';
+
+<Meta of={ProductionBuild} name="Docs" />
+
+# 生产构建
+
+开发服务跑得好,不等于交付没问题——`vite build` 之后才会暴露的问题有一整类:产物引用路径在子路径部署下 404、引擎体积把首屏拖慢、资源格式在别的浏览器上放不出声、构建后 debug 逻辑还挂在正式包里。本课沿「构建 → 体积 → 资源 → 加载 → 环境 → source map → 部署」展开:`npm run build` 产出的 dist 结构与 hash 缓存、Phaser 引擎体积的实测量级与 tree-shaking 现实、资产瘦身三件套(PNG 压缩、音频多格式回退、图集合并请求)、首屏最小集与按需加载、`import.meta.env` 区分环境、source map 取舍,以及 `base` 路径与静态托管形态的对应。工程基座(npm + Vite 项目怎么搭)沿用 [1.1 安装](?path=/docs/installation--docs);性能瓶颈的定位与帧率手段属 [6.1.1 性能优化](?path=/docs/performance--docs),原生平台打包属 [6.1.3 原生打包](?path=/docs/native-packaging--docs)。
+
+先把构建侧的关键输入与默认值集中列出,回查从这张表起步:
+
+| 关键输入 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| 构建命令 | `npm run build`(即 `vite build`) | 产物输出到 `dist/`(可改 `build.outDir`) |
+| `base` | `'/'` | 产物里资源引用的路径前缀;子路径部署必须改,见「部署」 |
+| `build.sourcemap` | `false` | `true` / `'inline'` / `'hidden'` 的取舍见「Source map」 |
+| `assetsInlineLimit` | 4096 字节 | 小于阈值的 `?url` 资源被内联为 `data:` URI;显式 `?url&no-inline` 禁止内联 |
+| `phaser` 包入口(`exports`) | `import` → `dist/phaser.esm.js` | 打包器按 `exports` 自动选 ESM;无子路径导出 |
+| 引擎体积(phaser@4.2.1 实测) | min 后约 1.31 MB / gzip 后约 347 KB | 打包的常数项,具名导入不减小它 |
+| `import.meta.env.DEV` / `PROD` | 由构建模式注入 | 构建期静态替换,运行时只读 |
+
+## 构建产物
+
+`npm run dev` 与 `npm run build` 服务于两个不同的问题:前者把源码按原生 ESM 逐个喂给浏览器,换取即时热更新,不压缩、不合并;后者做一次完整的静态打包。`vite build` 对代码做三件事:
+
+- **打包**——按入口(index.html → `src/main.ts`)追踪 import,合成少量 JS/CSS bundle;
+- **压缩**——生产模式走 minifier,删空白、短命名、摇掉项目内未用导出;
+- **hash 命名**——产物文件名带内容摘要,如 `assets/index-BwVMEi3P.js`。
+
+一次构建后的 `dist/` 结构大致是:
+
+```text
+dist/
+├── index.html              # 入口,引用带 hash 的 assets,应短缓存或不缓存
+├── assets/
+│   ├── index-BwVMEi3P.js   # 全部 JS(含 Phaser 引擎)合成的主 bundle
+│   ├── index-C4jJfXdv.css
+│   ├── hero-a1b2c3d4.png   # import 进来的资源也带 hash,原样保留
+│   └── bgm-e5f6a7b8.ogg
+└── ...                     # public/ 下的文件原样拷贝,不加 hash
+```
+
+hash 命名解决的只有一个问题——**缓存更新**。约定是:`index.html` 不缓存(或短缓存),带 hash 的 assets 永久缓存(`Cache-Control: max-age=31536000, immutable`)。内容一变,摘要就变,文件名跟着变,`index.html` 引用新名字,旧缓存自然失效;内容没变,文件名不变,玩家二次访问全部命中缓存、零下载。代价是:`public/` 目录的文件**不带 hash**,浏览器与服务器对它们没有任何「内容变了要重拉」的信号——高频改动的资源不要放 `public/`,要走 import 让 Vite 管 hash。
+
+这套结构可以直接对照本工作区自己观察:Storybook 的静态构建产物 `storybook-static/` 就是同一条管线产出的——`assets/` 下 117 个文件全部是「名字 + 双 hash」的形态,`index.html` / `iframe.html` 引用它们,字体文件原样保留。你的游戏构建出的 `dist/` 与它同构,只是 bundle 数量少得多。
+
+构建完先本地验证再部署:
+
+```bash
+npm run build     # 产出 dist/
+npm run preview   # 起一个静态服务按 base 路径伺服 dist/,模拟线上形态
+```
+
+`preview` 不是 dev 的替代品,它伺服的是**构建产物**——白屏、404、资源路径这类只在生产暴露的问题,在这里就能看到。
+
+## 引擎体积
+
+先看包怎么被解析。`phaser@4.2.1` 的 `package.json` 里 `exports` 只有两个入口:
+
+```json
+{
+  "exports": {
+    ".": {
+      "types": "./types/phaser.d.ts",
+      "import": "./dist/phaser.esm.js",
+      "require": "./dist/phaser.js"
+    },
+    "./package.json": "./package.json"
+  }
+}
+```
+
+Vite 走 `import` 条件拿到 `dist/phaser.esm.js`,这解释了为什么零配置可用;同时**没有子路径导出**——`import { ... } from 'phaser/xxx'` 这类「按模块引入」在 4.2.1 里不存在,引擎没有模块化入口。`dist/` 里实际只有 6 个文件(本机实测):
+
+| 文件 | 用途 | 原始体积 | gzip 后 |
+| --- | --- | --- | --- |
+| `phaser.js` | UMD 开发版(script 调试) | 8.4 MB | 1.40 MB |
+| `phaser.min.js` | UMD 生产版(CDN / `<script>`) | 1.31 MB | 346 KB |
+| `phaser.esm.js` | ESM 开发版(打包器) | 8.4 MB | 1.40 MB |
+| `phaser.esm.min.js` | ESM 生产版 | 1.31 MB | 347 KB |
+| `phaser-arcade-physics.min.js` | 只含 Arcade 物理的变体 | 1.21 MB | 314 KB |
+
+两张可预期的账:**引擎是 bundle 的常数项**——min 后 1.31 MB、gzip 后约 347 KB,这是网络传输量级(静态托管普遍开 gzip);解析与执行成本仍在本地,但它一次性付出、与游戏规模无关。**变体只省一点**——Arcade-only 版 gzip 后 314 KB,只比完整版小约 33 KB,省下的是 Matter 物理等未用部分;且它不在 `exports` 里,bundler 内要用 `resolve.alias` 指到具体文件才引得进,主要服务 CDN / script 标签场景。
+
+**tree-shaking 的现实:对 Phaser 基本无效。** `phaser.esm.js` 是官方预打包的产物——内部是一个 webpack 运行时,几十个顶层具名导出全部指向同一个内部命名空间,代码在单一模块作用域里。Rollup 只能摇「一个模块内未使用的导出」,摇不进预打包黑盒的内部;所以:
+
+```ts
+import Phaser from 'phaser';          // bundle 里是整个引擎
+import { Game, AUTO } from 'phaser';  // 一样是整个引擎,体积不变
+```
+
+这两行在 `vite build` 后产物体积相同。这不是 Vite 的缺陷,而是引擎发布形态决定的。结论落到预算上:**给引擎记一笔约 350 KB(gzip)的固定开销,把优化精力全部投向变量项——你自己的资产与加载策略**。真在意这 350 KB 的极端场景,才考虑 CDN `<script>` 引 `phaser.min.js` 借公共缓存,代价是回到全局变量、失去打包器管理。
+
+## 资源瘦身
+
+引擎体积不可变,资产体积是最大的变量。三件事按收益排序:
+
+**图片:上线前压一遍 PNG。** 美术导出的 PNG 常带大量冗余数据,`pngquant`(有损减色)或 `oxipng`(无损)批处理一次,通常省 30%–70%;这是纯体积收益,不改任何代码。
+
+**音频:转格式 + 数组回退。** WAV 是无压缩 PCM,体积与其余格式差一个量级。本课用一段 2.4 秒的真实素材实测:
+
+| 格式 | 实测体积 | 说明 |
+| --- | --- | --- |
+| `theme.wav` | 37.5 KB | 无压缩源文件 |
+| `bgm.ogg`(Vorbis) | 4.3 KB | 约 1/9;Chrome / Firefox / Edge 支持,**Safari 不支持** |
+| `bgm.mp3`(64 kbps) | 20.9 KB | 全浏览器兼容的兜底 |
+
+取舍直给:优先 ogg,mp3 兜底,两者都放进候选数组,加载器按设备只下载第一个能播的:
+
+```ts
+this.load.audio('bgm', ['audio/bgm.ogg', 'audio/bgm.mp3']);
+```
+
+数组回退在**排队时**就完成筛选——加载器读扩展名查设备能力,只为选中的格式建一个文件,另一个候选连请求都不发(下节实例有直接读数)。播放、循环与移动端解锁的完整机制见 [4.1 音频](?path=/docs/audio--docs)。
+
+**图集:合并请求。** N 张散图就是 N 个 HTTP 请求;一张图集是「1 张图 + 1 份 json」两个请求,渲染器还更容易合批。移动网络下请求次数本身就是成本。图集的制作、加载与帧引用见 [2.1.2 纹理图集](?path=/docs/texture-atlas--docs);合批与 draw call 的渲染侧收益见 [6.1.1 性能优化](?path=/docs/performance--docs)。
+
+最后一个容易踩的 Vite 行为:**内联阈值**。`assetsInlineLimit` 默认 4096 字节,小于它的 `?url` 资源不会产出文件,而是内联成 `data:` URI 直接写进 JS——0 请求,但也绕开了 Phaser 的缓存管理,同一资源用一次就多拷贝一份字符串。需要真实 HTTP URL 时(典型就是交给 Phaser Loader 的资源)显式写 `?url&no-inline`,本手册全部课程实例都这么导入资源。
+
+## 加载分层
+
+体积优化决定「总共下载多少」,加载分层决定「第一次打开时先下载多少」。组织方式是三段式:
+
+- **首屏最小集**——Boot 场景的 `preload` 只排启动必需:加载界面自身的图、公共 UI、字体、首个可交互场景的资源。判据是「进度条走完玩家就能开始玩」,其余全部推迟。
+- **公共资源集中**——多个场景共用的资源在一个 Boot 场景一次加载,之后所有场景直接读缓存;缓存挂在 game 上、跨场景共享,机制见 [2.1.1 资源加载器](?path=/docs/asset-loader--docs)。
+- **按需加载**——关卡资源在进入该关卡时才排队;`preload` 之外排队要手动 `this.load.start()` 并等 `complete`(写法见 2.1.1「手动加载」一节)。
+
+进度体验是首屏最小集的直接收益:`progress` 事件按「本轮文件完成数」推进,首屏文件越少、每个文件越小,进度条越真实、越快走完;把几十 MB 的关卡塞进首屏,进度条只会变成漫长的等待。进度事件与进度条的完整机制见 [2.1.1 资源加载器](?path=/docs/asset-loader--docs)。
+
+下面的实例把这套分层做成可核对读数:首屏只有 2 个文件(logo + 清单);点击后才排队关卡包(1 张图 + 音频候选数组),字节读数来自 XHR ProgressEvent 的真实累计。
+
+<Canvas of={ProductionBuild.BootBudget} />
+<Controls of={ProductionBuild.BootBudget} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 「首屏最小集」读数:2 个文件、约 4 KB;进度走完后阶段为「首屏就绪」,左列出现 logo 与清单内容 |
+| 选「进入关卡 1」 | 「本轮入队」为 2 个:`level-bg` 图 + **1 个**音频文件——`[bgm.ogg, bgm.mp3]` 两个候选只有设备选中的格式入队 |
+| 「bgm 选中源」读数 | Chrome / Firefox / Edge 显示 `bgm.ogg`(候选第 1 个,4.3 KB);Safari 显示 `bgm.mp3`(候选第 2 个,20.9 KB)——同一行代码,不同浏览器下载量差 5 倍 |
+| 加载完成 | 「本轮传输字节」与上表实测体积对得上;「bgm 缓存」变为 `AudioBuffer 2.40s`,画布出现关卡内容 |
+| 画布内「播放 bgm」 | 画布内点击同时完成音频手势解锁,bgm 开始播放,读数累计播放次数 |
+| 「回到首屏」后再「进入关卡 1」 | 本轮入队 0 个、字节 0、阶段直接「关卡 1 就绪」——资源已在缓存,重复进入零下载 |
+
+一个值得回头看的读数是「运行模式」:它读的是 `import.meta.env.DEV` / `PROD`,同一份代码,`npm run storybook` 的开发服务下显示 DEV,而你现在阅读的这套手册是静态构建的部署版,同一位置显示 PROD——这正是下一节的内容。
+
+## 环境区分
+
+开发与生产行为不同的代码(调试绘制、测试数据、日志、统计地址),用 `import.meta.env` 分流。这些值在**构建期**被 Vite 静态替换成字面量,不是运行时变量:
+
+| 字段 | 值 | 说明 |
+| --- | --- | --- |
+| `import.meta.env.DEV` | `npm run dev` 下 `true` | 开发服务,任何 `vite build` 产物里恒为 `false` |
+| `import.meta.env.PROD` | `vite build` 下 `true` | 与 `DEV` 互补 |
+| `import.meta.env.MODE` | `'development'` / `'production'` | 当前模式名,自定义模式见 Vite 文档 |
+| `import.meta.env.BASE_URL` | `base` 的值 | 部署前缀,拼资源路径时用它而不是手写 `'/'` |
+
+典型分流写法:
+
+```ts
+const statsUrl = import.meta.env.PROD
+  ? 'https://stats.example.com/collect' // 正式上报
+  : 'http://localhost:4000/collect';    // 本地 mock
+
+if (import.meta.env.DEV) {
+  this.physics.world.debugGraphic.setVisible(true); // 只在开发画碰撞调试
+}
+```
+
+因为替换发生在构建期,`if (import.meta.env.DEV)` 分支里的代码在生产构建里是死代码,会被 minifier 整段删掉——debug 绘制、测试面板不会泄漏进正式包,这是它优于「运行时 if (isDebug)」的地方。
+
+自定义配置走 `.env` 文件:以 `VITE_` 开头的变量会暴露为 `import.meta.env.VITE_XXX`(如 `.env.production` 里的 `VITE_API_BASE`),API 地址、渠道号这类按环境变化的值放这里;不带前缀的变量不暴露,天然隔离敏感配置。
+
+## Source map
+
+minify 后的代码不可读,报错堆栈指向 `assets/index-BwVMEi3P.js` 的第 1 行第 3 万列。source map 记录产物位置到源码位置的映射,`build.sourcemap` 决定构建要不要产出它、以及产物里要不要引用它:
+
+| 取值 | 行为 | 适用 |
+| --- | --- | --- |
+| `false`(默认) | 不生成 map | 产物最小;线上问题只看得到压缩堆栈 |
+| `true` | 生成 `.js.map`,产物末尾留 `//# sourceMappingURL` 注释 | 开着 DevTools 的玩家会额外下载 map;小项目可接受 |
+| `'inline'` | map 以 data URI **塞进 bundle 本体** | 产物体积成倍放大,直接拖慢首屏,不要用于生产 |
+| `'hidden'` | 生成 `.map` 但产物不引用 | map 只上传到错误收集服务(Sentry 类),玩家永远不下载 |
+
+体积直觉:map 与它映射的代码同量级——1.31 MB 的引擎加你的源码,`.map` 也是 MB 级;`'inline'` 等于把它全部算进首屏 JS。生产建议二选一:小项目用默认 `false`(或 `true` 方便自查),要认真对待线上报错就用 `'hidden'` + 错误服务。另有一个现实边界:map 只映射你项目内的代码,堆栈落进 Phaser 内部的帧,看到的仍是引擎压缩代码——绝大多数报错(空引用、key 拼错)定位到自己的场景代码那一帧就够了。
+
+## 部署
+
+`vite build` 的产物是纯静态文件——`dist/` 整个目录放进任何静态托管就能跑,不需要 Node 服务。部署前唯一必须对齐的配置是 `base`:它是构建期写进产物的**资源引用前缀**,配错的表现就是整站白屏加一排 404。
+
+| 部署形态 | 实际访问路径 | `base` 配置 | 说明 |
+| --- | --- | --- | --- |
+| 独立域名 / 根路径 | `https://my-game.dev/` | `'/'`(默认) | 零配置 |
+| GitHub Pages 项目页 | `https://user.github.io/my-game/` | `'/my-game/'` | 站点在子路径下,产物引用必须带同样的前缀 |
+| itch.io(HTML5 zip) | itch 域名下由 iframe 嵌入 | `'./'` | 相对路径,zip 解到哪个层级都能解析 |
+
+```ts
+// vite.config.ts —— 部署到 GitHub Pages 项目页
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  base: '/my-game/',
+});
+```
+
+`base` 是**构建期**决定的,改完必须重新 `vite build`,然后 `npm run preview` 验证——preview 按 `base` 路径伺服 `dist/`,路径不对当场就能看到 404,不用等部署后。
+
+两类平台的落点:
+
+- **GitHub Pages**:把 `dist/` 内容推到 `gh-pages` 分支或用 Actions 部署,仓库 Settings 里开 Pages。核心就是把 `base` 对准 `<用户名>.github.io/<仓库名>/` 这个前缀。
+- **itch.io**:新建项目选「HTML」玩法,把 **`dist/` 里面的内容**(不是套着 `dist/` 的目录)打成 zip 上传;官方要求资源用相对路径,对应 `base: './'`。itch 在自己的 iframe 里运行游戏,Phaser 正常工作;画布尺寸与全屏选项在项目页配置。
+
+缓存头的配合在「构建产物」一节已经给出:`index.html` 不缓存、hash 资产 immutable 长缓存。多数托管平台(Pages、itch、Netlify/Vercel 类)的默认头已经符合或接近这个约定,自管服务器(Nginx 等)时才需要自己写。
+
+## 最佳实践
+
+- **先定部署形态,再做构建。** `base` 是构建期写死进产物的,「构建完再想放哪」必然返工;仓库一开始就在 `vite.config.ts` 里写对 `base`,并用 `npm run preview` 验收每次构建。
+- **体积预算把引擎记成常数。** 引擎 gzip 约 350 KB、tree-shaking 无效,预算表里它是一行固定值;所有优化动作(压缩、图集、音频转码、按需加载)都指向资产这个变量项,别在「裁剪引擎」上花时间。
+- **加载按三段组织。** 首屏最小集(能开始玩的最小集合)→ Boot 集中公共资源 → 关卡按需手动加载;每次把资源挪进「按需」一段,首屏就轻一分,但要相应增加该关卡进入时的进度反馈。
+- **资源上线三件套一次做完。** PNG 批量压缩、音频 `['.ogg', '.mp3']` 数组回退、散图合图集——都是不改变游戏逻辑的纯收益项,进发布清单,不靠临时记忆。
+- **环境分流只走 `import.meta.env`。** debug 绘制、mock 地址、测试面板全部用它包裹,生产构建把死分支删干净;不要用运行时配置对象装这类开关,它们会被一起打进正式包。
+- **source map 按是否收集线上报错二选一。** 不收集就用默认 `false`;要收集就 `'hidden'` 配错误服务;`'inline'` 永远不进生产。
+
+## 常见问题
+
+- **部署到 GitHub Pages 后白屏,控制台一排 404。**
+  产物引用的是 `/assets/...` 绝对路径,而站点实际在 `/<仓库名>/` 子路径下。把 `vite.config.ts` 的 `base` 改成 `'/<仓库名>/'` 并重新构建,用 `npm run preview` 复核。
+- **itch.io 上页面出来了,资源全部 404。**
+  同类问题、相反方向:itch 在自己的 iframe 里以相对路径解析,`base` 要用 `'./'`;同时确认上传的 zip 是 `dist/` **里面的内容**直接打包,没有多套一层 `dist/` 目录。
+- **改用 `import { Game } from 'phaser'` 后,bundle 体积一点没变。**
+  预期行为:`phaser.esm.js` 是预打包的单一模块,tree-shaking 摇不进它内部,具名导入与默认导入体积相同。引擎体积是常数项,想省这 350 KB 只能换 CDN `<script>` 引入。
+- **小图片、短音效没有发出网络请求,内容出现在 JS 文件里。**
+  Vite 的 `assetsInlineLimit`(默认 4096 字节)把小于阈值的 `?url` 资源内联成了 `data:` URI。交给 Phaser Loader 的资源需要真实 URL 时,导入写成 `?url&no-inline`(或按需调大阈值)。
+- **生产包比开发时还大,打开也慢。**
+  先查 `build.sourcemap` 是不是 `'inline'`——它把 MB 级的 map 以 data URI 塞进 bundle,直接翻倍首屏 JS。改为 `true` 或 `'hidden'`。
+- **更新了 `public/` 里的资源,玩家看到的还是旧的。**
+  `public/` 文件原样拷贝、**不带 hash**,浏览器没有任何失效信号。高频改动的资源改走 import 让 Vite 管 hash;必须留在 `public/` 的,发布时改文件名或让服务器对该目录下发不缓存头。
+
+## 总结回顾
+
+摘要:
+
+`vite build` 产出 hash 命名的纯静态产物:`index.html` 不缓存、带摘要的 assets 永久缓存,内容一变文件名就变;`npm run preview` 伺服同一产物用于上线前验证。引擎体积是 bundle 的常数项——`phaser@4.2.1` min 后约 1.31 MB、gzip 后约 347 KB,包只暴露单一入口且预打包,具名导入不减小它,优化主战场在资产与加载:PNG 压缩、音频 `['.ogg', '.mp3']` 数组回退(设备只下载选中的格式)、图集合并请求;加载按「首屏最小集 → Boot 集中公共资源 → 关卡按需」三段组织。`import.meta.env.DEV/PROD` 在构建期静态替换,debug 分支不会进正式包;source map 按「不收集 / 上错误服务」选 `false` / `'hidden'`,远离 `'inline'`;部署前把 `base` 对准实际路径——根路径 `'/'`、Pages 子路径 `'/<repo>/'`、itch.io 相对路径 `'./'`。
+
+一句话:
+
+> 引擎体积是常数(gzip 约 350 KB),首屏体验是变量——优化投向资产体积与加载分层,构建侧配对 `base` 与缓存约定即可。
+
+知识要点:
+
+- `vite build` 产物结构是什么?hash 文件名解决什么问题,`public/` 为什么例外?
+- `phaser` 包的 `exports` 怎么解析入口?为什么具名导入不能减小体积?
+- 同一段音频在 wav / ogg / mp3 间的体积与兼容性如何取舍?多格式回退怎么写、什么时候完成筛选?
+- 首屏最小集 → Boot 集中 → 按需加载的三段式怎么划分?preload 之外加载要注意什么?
+- `import.meta.env.DEV/PROD` 何时确定?为什么用它做 debug 分流?
+- source map 四种取值各自的行为与代价是什么?
+- GitHub Pages 项目页与 itch.io 各配什么 `base`?配错的症状分别是什么?
+
+## 参考资料
+
+- [Phaser 官方文档](https://docs.phaser.io/)：`load.audio` 多格式候选与 Loader 行为核对。
+- [官方示例库](https://phaser.io/examples/)：加载与资产组织相关的可运行示例。
+- [Phaser 4 Labs 示例浏览器](https://labs.phaser.io/phaser4-index.html)：Phaser 4 专用示例检索。
+- [Vite 官方文档:构建生产版本](https://vite.dev/guide/build.html)：`build` 配置项、base 与 sourcemap 选项。
+- [Vite 官方文档:静态资源处理](https://vite.dev/guide/assets.html)：`?url`、内联阈值与 `new URL` 用法。
+- [Vite 官方文档:环境变量与模式](https://vite.dev/guide/env.html)：`import.meta.env` 与 `.env` 文件约定。
+- [Vite 官方文档:部署静态站点](https://vite.dev/guide/static-deploy.html)：各托管平台(含 GitHub Pages)的部署步骤与 base 配置。
+- [itch.io 官方文档:HTML5 游戏上传](https://itch.io/docs/creators/html5)：zip 结构、相对路径与嵌入选项要求。

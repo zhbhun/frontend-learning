@@ -1,0 +1,307 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as FrameAnimations from './frame-animations.stories';
+
+<Meta of={FrameAnimations} name="Docs" />
+
+# 帧动画
+
+帧动画让静态精灵"动起来":把预先画好的一组帧按速率依次显示。本课建立两条主线判断:一是**定义与播放分离**——动画在全局 AnimationManager(`this.anims`)里注册一次,整个游戏跨场景共享,精灵上的 `anims` 组件(AnimationState)只保存"正在怎么播"的播放状态,同一份定义可同时驱动任意多个精灵;二是**帧的地址**——雪碧图的帧用序号引用(`generateFrameNumbers`),图集的帧用名字引用(`generateFrameNames`)。
+
+只有 Sprite 一类对象带动画组件,Image 没有——这一选型差异在 [2.2.1 精灵与图像](?path=/docs/sprites--docs)已讲过。雪碧图与图集的加载细节见 [2.1.1 资源加载器](?path=/docs/asset-loader--docs)与 [2.1.2 纹理图集](?path=/docs/texture-atlas--docs);让属性平滑插值的是补间,属另一套机制,见 [2.3.2 补间](?path=/docs/tweens--docs)。
+
+`this.anims.create(config)` 的配置默认值(按 Phaser 4.2.1 源码核对):
+
+| 配置 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| `key` | 必填 | 全局唯一;缺失或已占用时 `create` 不新建(占用时返回已有实例) |
+| `frames` | 类型可选,实际必填 | 字符串 = 该纹理全部帧;或 `AnimationFrame[]`(生成器或手写 `{ key, frame }`);缺省注册出 0 帧动画 |
+| `frameRate` | `null` → 24 | 与 `duration` 只有一个生效,见「动画配置」推导规则 |
+| `duration` | `null` | 整轮时长 ms;给了 `frameRate` 时被忽略并反推 |
+| `repeat` | `0` | 首播之外的额外重播次数;`-1` 无限循环,永不 `animationcomplete` |
+| `repeatDelay` | `0` | 每次重播前的等待 ms |
+| `yoyo` | `false` | 到尾帧后倒放回首帧,一个往返算一轮 |
+| `delay` | `0` | 开始播放前的等待 ms;期间默认不显示首帧 |
+| `showBeforeDelay` | `false` | `delay` 期间是否先显示首帧 |
+| `showOnStart` / `hideOnComplete` | `false` | 开始时自动 `visible = true` / 完成时自动 `visible = false` |
+| `skipMissedFrames` | `true` | 掉帧时跳帧追上进度;`false` 则匀速播完不跳 |
+| `randomFrame` | `false` | 从随机帧开始播放 |
+| `sortFrames` | `true` | `frames` 传字符串时,帧名按数字排序 |
+
+`PlayAnimationConfig`(`play({ key, ... })` 的按次覆盖参数)多出 `startFrame`(从第几帧播起)与 `timeScale`(播放速率倍数),其余字段与上表同名同义。
+
+
+## 快速上手
+
+最小闭环:加载雪碧图 → 注册全局动画 → 创建精灵并播放。三步分别在 `preload`、`create` 里完成。
+
+```ts
+class Demo extends Phaser.Scene {
+  preload() {
+    // 等尺寸切帧:frameWidth 必填,frameHeight 缺省随 frameWidth
+    this.load.spritesheet('gauge', 'gauge.png', { frameWidth: 64, frameHeight: 64 });
+  }
+
+  create() {
+    // 全局注册一次:帧序列 + 播放参数
+    this.anims.create({
+      key: 'fill',
+      frames: this.anims.generateFrameNumbers('gauge', { start: 0, end: 7 }),
+      frameRate: 6,
+      repeat: -1,
+    });
+
+    // 任意精灵按 key 播放;多个精灵可同时播同一个动画,互不干扰
+    this.add.sprite(200, 200, 'gauge').play('fill');
+    this.add.sprite(400, 200, 'gauge').play('fill');
+  }
+}
+```
+
+记住一条:**动画定义住在 `this.anims`(全局、跨场景),播放状态住在每个精灵自己的 `anims` 组件里。**后面所有小节都在展开这条分界线——改参数不改定义、暂停暂停的是状态、事件发在精灵上。
+
+
+## 帧来源:雪碧图与图集
+
+`frames` 数组的每个元素是 `{ key, frame }`——`key` 是纹理 key,`frame` 是帧在该纹理里的"地址"。两种纹理的地址体系不同,这就是两个生成器存在的原因:
+
+- **雪碧图**(spritesheet):加载时按 `frameWidth × frameHeight` 等分切帧,帧的地址是**序号**(0 基数字)。
+- **图集**(atlas):加载时按 JSON 里的帧名建帧,帧的地址是**名字**(字符串,通常带前缀和补零)。
+
+两个生成器只做一件事:按配置拼出 `AnimationFrame[]`,返回值直接交给 `anims.create` 的 `frames`。此外 `frames` 还接受字符串形式——`frames: 'gauge'` 等于"取 gauge 纹理的全部帧"(雪碧图即全部序号帧,图集即全部命名帧,`sortFrames` 控制是否按数字排序)。
+
+时序上有一条硬约束:**生成器要读纹理,必须在纹理加载完成后调用。**放在 `preload` 里调用时纹理还没就绪,只会得到 `console.warn('Texture not found')` 和一个空数组——注册出 0 帧动画。生成器一律在 `create` 及之后调用。
+
+两种地址体系可以指向同一份像素:下面左右两个精灵播的是同一张 PNG,左边按序号取帧,右边按名字取帧,序列逐帧对齐。
+
+
+### 雪碧图:generateFrameNumbers
+
+```ts
+this.anims.generateFrameNumbers('gauge', { start: 0, end: 7 });
+// → [{ key: 'gauge', frame: 0 }, …, { key: 'gauge', frame: 7 }]
+```
+
+- `start` 可省(默认 0);`end` 为 `-1` 时自动取到纹理最后一帧。
+- `start > end` 得到倒序序列——倒放动画可以直接这样生成。
+- 帧不连续或要重复某些帧时,直接给数组:`{ frames: [0, 1, 2, 1, 2, 3] }`,此时忽略 `start`/`end`。
+- `first` 可在序列最前面额外插一帧(如"预备帧")。
+
+雪碧图本身怎么切帧(`load.spritesheet` 的 `frameWidth` 必填、`margin`/`spacing`/`startFrame`/`endFrame` 等)属加载器参数,见 [2.1.1 资源加载器](?path=/docs/asset-loader--docs)。
+
+
+### 图集:generateFrameNames
+
+图集帧名通常是工具批量导出的 `前缀 + 数字 + 后缀` 结构,`generateFrameNames` 按同一规则拼名:
+
+```ts
+this.anims.generateFrameNames('gauge-atlas', {
+  prefix: 'gauge_', start: 0, end: 7, zeroPad: 2,
+});
+// → [{ key: 'gauge-atlas', frame: 'gauge_00' }, …, { key: 'gauge-atlas', frame: 'gauge_07' }]
+```
+
+- 拼名规则是 `prefix + 补零数字 + suffix`;`zeroPad: 2` 把 `0` 拼成 `00`。
+- `start` 默认 0、`end` 默认 **0**——注意与 `generateFrameNumbers` 的 `-1`(到最后一帧)不同,这里通常要显式写 `end`;同样支持 `frames: [0, 2, 4]` 指定数字数组。
+- 完全不传 config 时返回图集全部帧名(等价于 `frames: 'key'` 的字符串形式)。
+- 帧名不规则时不用生成器,直接手写:`frames: [{ key: 'gauge-atlas', frame: 'gauge_00' }, …]`——两种生成器的返回值本来就是这个形状。
+
+图集 JSON 的制作与加载(数组/哈希两种格式)见 [2.1.2 纹理图集](?path=/docs/texture-atlas--docs)。
+
+<Canvas of={FrameAnimations.FrameSources} />
+<Controls of={FrameAnimations.FrameSources} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 左右两个表盘同步充能;`exists` 两个动画都为 `true`,两边 `getTotalFrames` 都是 8 |
+| 观察「雪碧图帧序号」读数 | 数字在 `0–7` 间递增(spritesheet 帧的 `textureFrame` 是数字) |
+| 观察「图集帧名」读数 | 字符串在 `gauge_00–gauge_07` 间递增(atlas 帧的 `textureFrame` 是名字) |
+| 对照「动画内 index」 | 两边完全一致——`index` 是帧在动画序列里的位置(1 基),与帧地址体系无关 |
+| 关闭「播放」 | 两侧停在当前帧,`isPlaying` 变 `false`,帧读数冻结 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `frame-sources.ts` 全文 |
+
+同一份像素、两条通路、行为一致——差异只在你怎么"点名"每一帧。
+
+
+## 动画配置
+
+配置分三层理解:**节奏**(frameRate / duration / 单帧 duration)、**轮次**(repeat / repeatDelay / yoyo)、**可见性与补偿**(delay / show* / skipMissedFrames / randomFrame)。
+
+**节奏:frameRate 与 duration 只有一个生效。**推导规则(以动画总帧数 N 为准):
+
+- 两个都不给 → `frameRate` 取默认 24 fps,`duration = N / 24 × 1000` ms。
+- 只给 `duration` → 反推 `frameRate = N / (duration / 1000)`。
+- 给了 `frameRate` → `duration` 被忽略并反推,**即使两个都写了也以 `frameRate` 为准**。
+
+单个帧要停留更久(关键帧强调),在该帧的配置对象上加 `duration`:`{ key, frame: 3, duration: 200 }` 表示这一帧额外多停 200ms。
+
+**轮次:repeat 是"额外"次数。**`repeat: 0` 只播一遍;`repeat: 1` 共播两遍;`-1` 无限循环。`repeatDelay` 是每次重播前的等待。`yoyo: true` 让动画到尾帧后倒放回首帧再进入下一轮——一个完整往返才算一轮 repeat。播放期间剩余次数映在精灵的 `anims.repeatCounter` 上(`-1` 时为无穷,不再递减)。
+
+**可见性与补偿:**
+
+- `delay`:加载动画后先等待再开播。默认等待期间**不显示首帧**(画面停在上一状态);`showBeforeDelay: true` 改为立即显示首帧。
+- `showOnStart` / `hideOnComplete`:开始时自动 `visible = true`、完成时自动 `visible = false`——"爆炸后消失"这类一次性特效的标配组合。注意 `hideOnComplete` 把精灵藏起来后,再次 `play` 不会自动恢复显示,除非该次播放带 `showOnStart: true`。
+- `skipMissedFrames: true`(默认):帧率追不上现实时间时跳帧追上进度,保证动画与现实时长对齐;`false` 则一帧帧播完,画面会越拖越慢。
+- `randomFrame: true`:从随机帧开播,给一片同类精灵"打散相位"用。
+
+**按次覆盖:PlayAnimationConfig。**全局定义注册的是"默认值",`play` 时可以用配置对象覆盖任意播放参数,原定义不动:
+
+```ts
+this.anims.create({ key: 'fill', frames: this.anims.generateFrameNumbers('gauge', { start: 0, end: 7 }) });
+
+sprite.play({ key: 'fill', frameRate: 12, repeat: 2, yoyo: true }); // 这一次按 12fps 往返播 3 遍
+sprite.play({ key: 'fill', startFrame: 4 }); // 从第 4 帧播起(仅覆盖参数里有)
+```
+
+覆盖后生效值可以在精灵的 `anims` 组件上读到(`frameRate` / `repeat` / `yoyo` / `msPerFrame` 等)——但它们是加载时的副本,**播放中途直接改这些属性不会生效**,要换参数就再 `play` 一次。运行证据见下一节实验台的「生效参数副本」读数。
+
+最后一句带过**本地动画**:`sprite.anims.create(config)` 把动画注册在单个精灵上而不是全局管理器,适合一次性、独占的动画;`play` 会先查本地再查全局,两边可以用同一个 key。
+
+
+## 播放控制
+
+播放控制的入口全部在精灵上:`sprite.play(...)` 系列加载并开播,`sprite.anims` 上的方法操纵当前播放。核心成员:
+
+- **`play(key, ignoreIfPlaying?)`**:加载并从第一帧开播。对同一动画重复 `play` 会**重头再来**(先 stop 再 start);传 `ignoreIfPlaying: true` 则"正在播就忽略",适合每帧调用的状态机。
+- **`playReverse(key)`**:倒放加载,从尾帧往首帧播;`forward` 读数变 `false`。播放中途调 `anims.reverse()` 原地调头,不重置进度。
+- **`pause()` / `resume()`**:暂停/继续,保留当前帧与进度。判别读数:`isPaused` 为 `true` 时是暂停;恢复后继续。
+- **`stop()`**:立即停止并停在当前帧,派发 `animationstop`。与暂停的区别:stop 之后 `isPlaying` 与 `isPaused` 都是 `false`,再 `play` 从头开始;暂停恢复则续播。
+- **`restart(includeDelay?, resetRepeats?)`**:从头重播当前动画,派发 `animationrestart`。
+
+`stop` 家族还有三个延迟变体:`stopAfterDelay(ms)`(到点停)、`stopAfterRepeat(n)`(再播 n 轮后停,常与无限循环搭配做"循环到收尾")、`stopOnFrame(frame)`(播到指定帧停)。
+
+**接续播放:chain 与排程。**`chain(key)` 把动画排到队尾,当前动画**完成或停止**后自动接播;连续 `chain` 可以排一串,队列读在 `anims.nextAnim`(下一个)与 `nextAnimsQueue`(其余)。两个排程方法:`playAfterDelay(key, ms)` 在当前动画播放时等指定毫秒后切过去;`playAfterRepeat(key, n)` 等当前动画再播 n 轮后切过去。注意 `chain` 的接续在 stop 时同样生效——想"彻底停住"先 `chain()` 不带参数清空队列再 `stop()`。
+
+相邻的两个全局成员补在这里:批量播放用管理器入口 `this.anims.play(key, [sprite1, sprite2])`(一次给一组精灵开播,错峰版本是 `staggerPlay`);`this.anims.addMix(animA, animB, ms)` 给"从 A 切到 B"设一个过渡等待(仅经 `play` 切换时生效,`playAfterDelay` / `playAfterRepeat` 不走 mix),`getMix` 查、`removeMix` 删。
+
+**暂停有三层**,作用范围从小到大:
+
+| 入口 | 范围 | 恢复 |
+| --- | --- | --- |
+| `sprite.anims.pause()` | 这一个精灵 | `sprite.anims.resume()` |
+| `animation.paused = true` | 播这个动画的所有精灵 | 同属性设回 `false` |
+| `this.anims.pauseAll()` | 全部动画 | `this.anims.resumeAll()` |
+
+速率同理分两层:精灵的 `anims.timeScale`(倍速,2 为两倍速)与全局 `this.anims.globalTimeScale`。
+
+下面是本课主实验台:全局动画只用最简参数注册一次,`frameRate` / `repeat` / `yoyo` 全部经 `play({ key, ... })` 覆盖,配合播放/暂停/反向开关核对上面每一条。
+
+<Canvas of={FrameAnimations.PlaybackLab} />
+<Controls of={FrameAnimations.PlaybackLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 表盘 6 fps 循环充能;`isPlaying true / isPaused false`,生效参数 `frameRate 6 · repeat -1 · yoyo false`,`msPerFrame 167` |
+| 「帧率」调到 12 | 立刻加速;`msPerFrame` 读数变为 `83`(= 1000 / 12) |
+| 「重复次数」选 `0(只播一遍)` | 播满一轮后停住:`isPlaying` 变 `false`,剩余 `repeatCounter` 到 0,`animationrepeat` 计数不再增长 |
+| 「重复次数」选 `1(共两遍)` | 第二轮开播瞬间 `animationrepeat` 计数 +1;`repeatCounter` 从 1 减到 0 |
+| 打开「往返(yoyo)」 | 表盘充能到满后倒放回空,一个往返算一轮;`forward` 读数在 `true/false` 间来回翻转 |
+| 打开「反向」 | 从满盘倒着放空;`forward` 恒为 `false`(yoyo 关闭时) |
+| 打开「暂停」 | 画面冻结;`isPlaying false / isPaused true`——与停止的区别就在这一格 |
+| 关闭「暂停」 | 从冻结的帧继续,`isPlaying` 回到 `true` |
+| 关闭「播放」 | 停在当前帧;`isPlaying` 与 `isPaused` 都是 `false`(stop 的指纹) |
+| 再打开「播放」 | 从第一帧重头开播(不是续播),`animationupdate` 计数清零重新累计 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `playback-controls.ts` 全文 |
+
+`animationupdate` 计数每推进一帧 +1、`animationrepeat` 每重播一轮 +1——这两个读数把「参数 → 行为」的每条断言都落到了可核对的数字上。
+
+
+## 动画事件
+
+动画事件全部**发在精灵上**,订阅 `sprite.on(...)`,回调参数统一是 `(anim, frame, gameObject, frameKey)`:`anim` 是 `Phaser.Animations.Animation` 实例,`frame` 是 `AnimationFrame`(`textureFrame` 即当前帧地址),`gameObject` 是精灵自身,`frameKey` 是帧地址的快捷副本。事件流:
+
+```text
+animationstart → animationupdate ×N(每推进一帧一次)
+  → animationrepeat(每次重播一轮一次)
+  → animationcomplete → animationcomplete-<key>
+```
+
+| 事件常量(`Phaser.Animations.Events`) | 字符串 | 触发时机 |
+| --- | --- | --- |
+| `ANIMATION_START` | `animationstart` | 开播(过了 `delay` 之后) |
+| `ANIMATION_UPDATE` | `animationupdate` | 每次换帧 |
+| `ANIMATION_REPEAT` | `animationrepeat` | 每次重播一轮 |
+| `ANIMATION_COMPLETE` | `animationcomplete` | 有限 repeat 播完全部轮次 |
+| `ANIMATION_COMPLETE_KEY` | `animationcomplete-` | 同上,拼上 key 可只订阅某个动画:`on('animationcomplete-explode', …)` |
+| `ANIMATION_STOP` | `animationstop` | `stop()` 系列主动停止(替代 complete) |
+| `ANIMATION_RESTART` | `animationrestart` | `restart()` 重播 |
+
+两条高频判断:**`repeat: -1` 的动画永远不会 complete**——无限循环没有"播完",收尾要么 `stopAfterRepeat(n)` 配合 `animationstop`,要么按次 `play({ key, repeat: n })` 用有限轮次等 `animationcomplete`。**stop 与 complete 互斥**——同一次结束只会发其中一个,所以"被切走"和"自然播完"能靠事件区分开。
+
+管理器级事件(`this.anims.on(...)`,注意订阅对象不同):`ADD_ANIMATION` / `REMOVE_ANIMATION`(增删全局动画)、`PAUSE_ALL` / `RESUME_ALL`(`pauseAll()` / `resumeAll()`)。
+
+全局动画的增删查:`this.anims.exists(key)` 查重、`get(key)` 取实例、`remove(key)` 移除——remove 是**全局动作**,之后任何精灵再 `play` 这个 key 只会得到 `console.warn('Missing animation: …')` 而不播放。`create` 遇到已占用的 key 不覆盖、直接返回已有实例,所以"防重复注册"的标准写法是 `if (!this.anims.exists(key)) this.anims.create(...)`。两个批量入口顺带回查:`createFromAseprite(key, tags?)` 从 Aseprite 导出的图集按 tag 批量建动画;`toJSON()` / `fromJSON(data)` 把动画定义导出/导入为 JSON(配置持久化的基础)。
+
+下面范例把三件事放进同一张台面:事件计数、chain 接续、全局移除。
+
+<Canvas of={FrameAnimations.EventsLab} />
+<Controls of={FrameAnimations.EventsLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 未播放;`exists(sweep-once)` 为 `true`,`nextAnim` 为 `(空)`,事件计数全 0 |
+| 打开「播放有限动画」 | sweep-once 正向播一遍:`animationstart 1` → `animationupdate` 涨到 8 → 播完 `animationcomplete 1 · complete-key 1`;`nextAnim` 在播放期间显示 `fill-loop` |
+| 播完瞬间 | 自动无缝切到 fill-loop 反向循环,`当前动画` 变 `fill-loop`,`nextAnim` 变 `(空)`(队列已取走) |
+| 关闭「播放」 | 若正在播,`animationstop 1` 且**不产生** complete——stop 与 complete 互斥的直接证据;范例先 `chain()` 清空队列再 `stop()`,精灵真正冻结(不清队列的话 stop 会立即接续链上的 fill-loop) |
+| 再打开「播放」 | 又从头播 sweep-once(计数继续累计);`animationrestart` 始终为 0——重新 play 不算 restart |
+| 打开「移除全局动画」 | `exists(sweep-once)` 变 `false`;此时再开「播放」,控制台输出 `Missing animation: sweep-once`,精灵不动,事件计数不再增长 |
+| 关闭「移除全局动画」 | 重新 create 后 `exists` 回到 `true`,又能正常播放 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `animation-events.ts` 全文 |
+
+
+## 最佳实践
+
+- **动画定义集中注册一次,用 exists 防重复。**全局动画跨场景共享,放在 Boot/首个场景的 `create` 里统一注册;其他场景直接 `play`。重复 `create` 同名 key 不会覆盖,标准写法是 `if (!this.anims.exists(key)) this.anims.create(...)`;确实要换定义先 `remove`。
+- **可变的播放参数放 PlayAnimationConfig,不建一堆近似定义。**`play({ key, frameRate, repeat, yoyo, startFrame, timeScale })` 按次覆盖,一份"帧序列"定义就能服务慢速巡逻、高速逃跑、单次爆发等多种播法;序列本身(帧的顺序)才值得单独建 key。
+- **自然结束用有限 repeat + animationcomplete,被切走用 stop。**要"播完接逻辑"就给有限 repeat(`-1` 永不 complete);循环动画收尾用 `stopAfterRepeat(n)` 等 `animationstop`。别给无限循环挂 complete 回调——永远不会触发。
+- **帧地址体系跟着美术管线走。**等尺寸序列帧(手绘动作、特效帧)用雪碧图 + 序号,加载配置最简单;打包工具(TexturePacker、Aseprite 等)产出的图集用帧名,重排、裁剪、合图都不影响引用。
+- **一片同类精灵要"打散相位"用 randomFrame 或 staggerPlay。**`play({ key, randomFrame: true })` 让每个精灵从随机帧开播;批量入口 `this.anims.staggerPlay(key, children, ms)` 逐个错开启动,做波浪、巡游队列比手写 delay 干净。
+
+
+## 常见问题
+
+- **`play()` 没反应,控制台出现 `Missing animation: xxx`。**
+  key 不存在:拼错、还没 `create`、或已被 `remove`。用 `this.anims.exists(key)` 确认;注意动画是全局的,在任何场景里 `create` 过就处处可用。
+- **动画注册成功但一帧都不播(或只有一帧)。**
+  最常见是在 `preload` 里调用了 `generateFrameNumbers` / `generateFrameNames`——那时纹理还没加载完,生成器返回空数组并 `console.warn('Texture not found')`,注册出 0 帧动画。把生成器挪到 `create` 里调用。
+- **改了 `sprite.anims.frameRate`(或 repeat/yoyo)播放没变化。**
+  `anims` 组件上的这些值是加载动画时拷贝的生效副本,播放中途改不生效。用 `play({ key, frameRate: n })` 重新加载一次,参数随加载写入。
+- **给 `repeat: -1` 的动画挂 `animationcomplete` 回调一直不触发。**
+  无限循环永远不会 complete,这是设计而非 bug。收尾改用 `stopAfterRepeat(n)` + `animationstop`,或按次 `play({ key, repeat: n })` 用有限轮次。
+- **两个场景都 `create` 了同名动画,后一个的定义"没生效"。**
+  `create` 遇到占用 key 直接返回已有实例,不覆盖也不报错。要更新定义先 `this.anims.remove(key)` 再 `create`;或用 `exists` 防重复注册。
+- **`pause()` 之后 `isPlaying` 变成了 `false`。**
+  这是文档写明的行为:pause 会把 `isPlaying` 置 `false`。判断"是暂停还是停了"看 `anims.isPaused`——暂停为 `true`,stop 后为 `false`。
+- **`hideOnComplete` 的爆炸特效播完后,再 `play` 精灵不出现了。**
+  `hideOnComplete` 完成时把 `visible` 设为 `false`,再次 `play` 不会自动恢复。复用同一个精灵时给播放加 `showOnStart: true`(`play({ key, showOnStart: true })`),或重新 `play` 前手动 `setVisible(true)`。
+- **`stop()` 之后精灵又自己动起来了。**
+  `stop` 会消费 `chain` 排的队列并立即接续下一个动画。想彻底停住,先 `sprite.anims.chain()`(不带参数清空队列)再 `stop()`。
+
+
+## 总结回顾
+
+摘要:
+
+帧动画由全局 AnimationManager 与精灵上的 AnimationState 分工:`this.anims.create(config)` 注册跨场景共享的动画定义,`frames` 数组的元素是 `{ key, frame }`——雪碧图帧地址是序号(`generateFrameNumbers`),图集帧地址是名字(`generateFrameNames`,prefix + 补零数字),生成器必须在纹理加载完成后调用。配置三层:节奏上 `frameRate` 与 `duration` 只有一个生效(给了 frameRate 以它为准,都不给默认 24 fps);轮次上 `repeat` 是额外次数、`-1` 无限且永不 complete,`yoyo` 一个往返算一轮;可见性上 `delay` 期间默认不显示首帧,`showOnStart`/`hideOnComplete` 自动控制 visible,`skipMissedFrames` 决定掉帧时跳帧还是拖慢。播放控制在精灵上:`play`/`playReverse` 加载开播(重复 play 重头再来)、`pause`/`resume` 保留进度(判别看 `isPaused`)、`stop` 停在当前帧并可能接续链队列;`chain`/`playAfterDelay`/`playAfterRepeat` 排接续;暂停分精灵、动画、管理器三层。事件全发在精灵上,回调参数 `(anim, frame, gameObject, frameKey)`,stop 与 complete 互斥;`exists`/`get`/`remove` 管理全局注册,重复 create 同名 key 返回旧实例。
+
+一句话:
+
+> 动画定义住在全局 `this.anims` 里被所有精灵共享,播放状态住在每个精灵的 `anims` 组件里各自独立——定义与播放分离,是帧动画一切用法与排障的出发点。
+
+知识要点:
+
+- `this.anims.create` 与 `sprite.play` 各自负责什么?为什么同一动画能同时驱动多个精灵?
+- 雪碧图帧与图集帧的"地址"分别是什么?两个生成器的配置参数各是什么,为什么必须在纹理加载完成后调用?
+- `frameRate` 与 `duration` 同时给出时哪个生效?都不给时帧率是多少?
+- `repeat: 0`、`repeat: 1`、`repeat: -1` 各播几遍?哪个值永远不会触发 `animationcomplete`?
+- 想按次改帧率、从中间某帧开播,分别怎么写?直接改 `anims.frameRate` 为什么无效?
+- 暂停与停止怎么用读数区分?`stop()` 在什么情况下会让精灵继续动?
+- `animationcomplete-<key>` 这种事件名怎么拼?stop 和 complete 会同时触发吗?
+- `create` 重复注册同名 key 会发生什么?防重复注册的标准写法是什么?
+
+
+## 参考资料
+
+- [Phaser 官方文档](https://docs.phaser.io/):`Phaser.Animations` 命名空间下 `AnimationManager`、`Animation`、`AnimationState` 与 `Types.Animations.*` 配置类型的 API 核对。
+- [官方示例库](https://phaser.io/examples/):Animation 类目下帧生成、播放控制与事件的可运行示例。
+- [Phaser 4 Labs 示例浏览器](https://labs.phaser.io/phaser4-index.html):Phaser 4 专用示例,按主题检索动画用法。
+

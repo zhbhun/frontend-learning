@@ -1,0 +1,208 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Depth from './depth.stories';
+
+<Meta of={Depth} name="Docs" />
+
+# 深度与视觉状态
+
+对象的位置、缩放、旋转解决"画在哪里、画多大";本课解决剩下两个问题:**深度排序管"谁盖住谁"**——场景显示列表按 `depth` 值稳定排序,值相同的按列表顺序(加入顺序)渲染;**视觉状态管"以什么样子画出来"**——`tint` 乘法着色、`alpha` 不透明度与 `blendMode` 混合模式相互独立地叠加在同一个对象上。对象自身的定位与变换见 [2.2.1 精灵与图像](?path=/docs/sprites--docs),把对象收进变换树或批量管理见 [2.2.4 容器与分组](?path=/docs/containers-groups--docs)。
+
+本课两组状态在 Phaser 4 里各有一个容易踩的版本变化:**深度方面,对象侧调整顺序的方法是 `setToTop` / `setToBack` / `setAbove` / `setBelow`**(3.x 教程里的对象级 `bringToTop` 家族已换位到显示列表/容器一侧);**tint 方面,颜色与模式拆成两个设置**,3.x 的 `setTintFill(color)` 已移除。
+
+| 属性 / 方法 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| `depth`, `setDepth(value)` | `0` | 值大者后画(盖住值小者);设值只排队一次稳定重排,渲染前生效 |
+| `setToTop()` / `setToBack()` / `setAbove(o)` / `setBelow(o)` | — | 只挪列表位置,不改 depth 值、不排队重排;任何 depth 重排都会按值把它归位 |
+| `scene.children.bringToTop(o)` 等 | — | 显示列表侧列表操作:bringToTop / sendToBack / moveUp / moveDown / moveTo(child, index) |
+| `tint`, `setTint(color)` | `0xffffff`(白) | 白 = 无着色;可传四角;**WebGL 专用,Canvas 忽略** |
+| `tintMode`, `setTintMode(mode)` | `MULTIPLY` | 乘法 / 填充等 7 种模式;Phaser 4 与颜色分离 |
+| `clearTint()` | — | 复位为白 tint + MULTIPLY 模式 |
+| `alpha`, `setAlpha(v)` | `1` | 0–1,超出被夹紧;四角版 WebGL 专用;容器 alpha 渲染时相乘 |
+| `blendMode`, `setBlendMode(m)` | `NORMAL`(0) | WebGL 仅 NORMAL/ADD/MULTIPLY/SCREEN/ERASE 有真实映射,其余 Canvas 专用 |
+
+## 快速上手
+
+一个最小闭环:两个重叠对象,用 depth 决定遮盖,再链式施加视觉状态。
+
+```ts
+// a 先创建、b 后创建:depth 相同时 b 后画、盖住 a
+const a = this.add.image(300, 200, 'tile');
+const b = this.add.image(360, 200, 'tile');
+
+a.setDepth(10);                              // a 改值:depth 更大者后画,立即盖到 b 之上
+b.setTint(0xff4444).setAlpha(0.8);           // 乘法红染 + 80% 不透明度,两条链互不干扰
+```
+
+记住一条:**depth 值决定层级,列表顺序只在值相同时起作用;tint、alpha、blendMode 是同一对象上相互独立的三个状态。**
+
+## 深度排序
+
+场景里所有顶层显示对象都在一条**显示列表**(`scene.children`,即 DisplayList)里。渲染按数组顺序逐个绘制,后画的盖住先画的——所以"谁在上面"完全由数组顺序决定。Phaser 用两层机制维护这个顺序:
+
+- **`depth` 值排序。**`setDepth(value)` 改值并在显示列表上排队一次重排;下一次渲染前,列表按 depth 值做**稳定排序**(值小的在前)。depth 是"z-index"语义:负数沉底、默认 0、大者在上,可以取任意整数或小数。
+- **列表顺序兜底。**稳定排序不改变值相同对象的相对位置,所以 **depth 相同的对象保持既有数组顺序——默认就是加入顺序**:`this.add` 先进列表的先画、后进的后画。
+
+```ts
+const bg = this.add.image(360, 200, 'bg').setDepth(-10);   // 背景层
+const enemy = this.add.sprite(360, 200, 'slime');          // depth 0,按加入顺序在 bg 之上
+const ui = this.add.text(10, 10, 'HP').setDepth(100);      // UI 层:值最大,永远最上
+```
+
+排序的触发时机值得记一次:`depth` 的 setter、对象的增删都会置起 `sortChildrenFlag`,渲染开头调用 `scene.children.depthSort()`——有标记才真正排序,排完清除。没有变化时每帧零排序开销;这意味着**改 depth 的效果最迟下一帧渲染时生效**,不需要手动排序。需要立刻读到与渲染一致的顺序时(比如做命中判定),可以自己调用 `scene.children.depthSort()` 后再读列表。
+
+### setToTop 家族与列表操作
+
+`setToTop` / `setToBack` / `setAbove(o)` / `setBelow(o)` 是 Phaser 4 对象侧的顺序 API,它们**直接挪动对象在数组里的位置,不改 depth 值、也不排队重排**:
+
+| 方法 | 效果 | 典型场景 |
+| --- | --- | --- |
+| `obj.setToTop()` | 移到列表末尾,等值对象中最后画 | 选中/拖起的卡牌浮到同层最上 |
+| `obj.setToBack()` | 移到列表开头 | 血条、标记垫到同层最底 |
+| `obj.setAbove(o)` | 紧贴 o 之后渲染 | "贴在某对象上面"的特效 |
+| `obj.setBelow(o)` | 紧贴 o 之前渲染 | "垫在某对象下面"的阴影 |
+
+关键边界在于**列表位置与 depth 重排的交互**:`setToTop` 家族挪完位置后**下一次渲染立即生效**(挪位置本身不排队重排),但它不改 depth 值——此后任何一次 depth 重排(场景里任何对象 `setDepth`、增删显示对象都会排队)都会按值把它送回原层级;depth 相同的对象之间,稳定排序保持挪动后的新位置。所以可靠的心智模型是:**跨 depth 层级的遮盖交给 `setDepth`;`setToTop` 家族只在同 depth 层内做即时换位**——混用时"盖上去又被排回来"正是值优先的表现。
+
+列表级操作在**显示列表与容器一侧**:`scene.children`(以及 Container、Layer,它们都基于 `Structs.List`)提供 `bringToTop(child)`、`sendToBack(child)`、`moveUp(child)`、`moveDown(child)`、`moveTo(child, index)`,语义与对象侧方法对应,只是调用方向相反。对象侧的 `setToTop` 家族通过 `getDisplayList()` 自动找到所属列表:**对象在容器里时操作容器内部顺序,否则操作场景显示列表**。
+
+两个相邻边界:容器内部的子对象**不参与 depth 排序**,只按容器 list 顺序渲染,容器自己作为一个整体参与场景排序——这是 [2.2.4 容器与分组](?path=/docs/containers-groups--docs)的规则,要 depth 生效就把对象放到场景顶层或改用 Layer(Layer 的子对象 depth 在 Layer 内参与排序);批量设置用 `group.setDepth(value, step?)`,一次给全体成员赋值,`step` 让成员依次递增(`setDepth(5, 1)` → 5, 6, 7, …)。
+
+下面是深度实验台:四个色块 A蓝 / B黄 / C绿 / D品红 按此顺序加入、全部 depth 0,Controls 只调 A、B 的 depth,并执行一次性的列表位置操作;readout 直接显示显示列表数组顺序(即渲染顺序)。
+
+<Canvas of={Depth.DepthOrderLab} />
+<Controls of={Depth.DepthOrderLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 四块全 depth 0,渲染顺序 `A(0) → B(0) → C(0) → D(0)`,品红最上——加入顺序即遮盖顺序 |
+| 「A 的 depth」调到 3 | A 立即盖住所有块,渲染顺序尾部变 A;depth 读数 A=3,其余仍 0 |
+| 「A 的 depth」调到 -3 | A 沉到最底;depth 读数 A=-3 |
+| 保持 A=-3,切「A.setToTop()」 | 「最近列表操作」已记录执行,但**画面毫无变化**——C、D 的 depth 0 更大,列表位置盖不过值 |
+| 接着把「A 的 depth」调回 0 | 渲染顺序变回 `A(0) → B(0) → C(0) → D(0)`:重排按值进行,先前 setToTop 挪出的位置被稳定排序"洗掉",A 处于等值组最底 |
+| A=0 时切「A.setAbove(B)」 | 渲染顺序变 `B(0) → A(0) → C(0) → D(0)`,A 紧贴 B 之上,depth 读数全程不变 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `depth-order.ts` 全文 |
+
+表中「setToTop 盖不过值」的因果要看清:本实验台每次参数变化都会对 A、B 调一次 `setDepth`(排队重排),所以挪出的列表位置在下一次渲染前就被按值排回——这正是正文说的"盖上去又被排回来"。如果把 A、B 的 depth 都保持 0 再执行列表操作,挪动在等值对象间稳定保持,「A.setAbove(B)」行的换位就是证据。
+
+## tint 着色
+
+### 颜色与模式
+
+tint 是逐像素的颜色运算:**取纹理每个像素的 RGB,与 tint 颜色的 RGB 通道相乘**(默认 MULTIPLY 模式),alpha 通道不参与。这解释了它的全部直觉:
+
+- **白 `0xffffff` = 无着色**:乘以 255/255 = 乘以 1,画面不变。"设成白色看看效果"什么也看不到,这是特性不是 bug。
+- **彩色 tint 是"通道滤除"**:`setTint(0xff0000)` 把绿、蓝通道清零——红色像素保持红,白像素变红,青色像素变黑。tint 不能把对象"变亮",乘法只能维持或压暗各通道。
+- **越乘越暗**:多次叠加 tint 等于连乘,画面单调变暗;要恢复用 `clearTint()`。
+
+Phaser 4 把 tint 拆成**两个独立设置**:`setTint(color)` 只管颜色,`setTintMode(mode)` 只管混合方式。模式从 `Phaser.TintModes` 枚举取值:
+
+| 模式 | 值 | 运算 | 典型用途 |
+| --- | --- | --- | --- |
+| `MULTIPLY` | 0 | 像素 × tint(默认) | 变色、队色标识、暗化 |
+| `FILL` | 1 | 用 tint 色替换像素色,保留纹理 alpha | 受击闪白:`setTint(0xffffff).setTintMode(Phaser.TintModes.FILL)` |
+| `ADD` | 2 | 像素 + tint(保留 alpha) | 提亮、加色 |
+| `SCREEN` | 4 | 反相相乘再反相,提亮暗部 | 光感叠加 |
+| `OVERLAY` / `HARD_LIGHT` | 5 / 6 | 亮部更亮、暗部更暗 | 对比染色 |
+| `MULTIPLY_TWO` | 7 | 双色乘(配 `setTint2`,4.2 起) | 亮区暗区分开控制 |
+
+3.x 的 `setTintFill(color)` 在 Phaser 4 已移除——调用不生效并在控制台报错,等价写法是 `setTint(color).setTintMode(Phaser.TintModes.FILL)`。还要记一条硬边界:**tint 是 WebGL 专用能力**,Canvas 渲染器直接忽略它(代码不报错、着色消失),而 alpha 与 blendMode 两种渲染器都支持;`type: Phaser.AUTO` 的游戏在极端环境回退 Canvas 时,tint 效果会整体丢失。
+
+下面是视觉状态实验台:左侧是未施加任何状态的原纹理参照(上黑到白灰阶、下纯色条),右侧主体放在容器里,Controls 同时操纵 tint 模式 / 颜色 / 四角渐变、对象与容器的 alpha、blendMode——后两节的证据也在这个实验台里。
+
+<Canvas of={Depth.VisualStateLab} />
+<Controls of={Depth.VisualStateLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | tint 读数 `#ffffff`,MULTIPLY(0),blendMode NORMAL(0):右侧与左侧参照完全一致——白 tint = 无着色 |
+| 「tint 颜色」选红 | 灰阶变成黑到红的渐变(乘法只保留红通道明暗),彩条只剩红条与黑条;tint 读数 `#ff4444` |
+| 「tint 模式」切 FILL(保持红) | 纹理细节全部消失,整块变成纯色红板——FILL 替换像素色、只保留纹理 alpha |
+| 「tint 模式」切 FILL + 颜色选白 | 整块变白:这就是"受击闪白"的标准组合,MULTIPLY 下同色画面毫无变化 |
+| 「tint 模式」切 ADD / SCREEN | 灰阶整体提亮,黑色一端开始发亮(加法/屏幕模式能提亮,乘法不能) |
+| 「tint 模式」切 OVERLAY | 灰阶中部反差增大:亮部更亮、暗部更暗——tint 模式在着色器内运算,7 种在 WebGL 全部可用 |
+| 打开「四角渐变 tint」 | 四角红/绿/蓝/黄向中心过渡的渐变;tint 读数标注「四角各不同」 |
+| 「对象 alpha」0.5 + 「容器 alpha」0.4 | 主体半透明;readout `0.5 × 0.4 = 0.2(有效)`,而对象自身 alpha 读数仍是 0.5 |
+| 「混合模式」切 ERASE | 主体把下方已画的内容擦出一个洞(减去目标 alpha),露出画布底色 |
+| 「混合模式」切 OVERLAY | 画面与 NORMAL 完全一致,readout 标注「Canvas 专用:WebGL 下按 NORMAL 渲染」 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `visual-state.ts` 全文 |
+
+### 四角渐变与清除
+
+`setTint` 可以给四个角各配一个颜色:`setTint(topLeft, topRight, bottomLeft, bottomRight)`,渲染时颜色从角向中心插值,一个对象就能做出渐变、光晕方向感。省略后面的参数时全部随第一个值。相关读写入口:
+
+- `tint` 属性:读它返回 `tintTopLeft`,写它同时设四个角。
+- `tintTopLeft` / `tintTopRight` / `tintBottomLeft` / `tintBottomRight`:四个角独立读写。
+- `clearTint()`:一次复位全部——tint 回白、tint2 回黑、模式回 MULTIPLY,比手动 `setTint(0xffffff)` 多恢复了模式与双色状态。
+
+alpha 也有同款四角版:`setAlpha(topLeft, topRight, bottomLeft, bottomRight)`,同样是顶点插值、WebGL 专用。
+
+## alpha:不透明度与乘法传播
+
+`alpha` 是 0(全透明)到 1(全不透明)的整体不透明度,`setAlpha(v)` 或直接赋值 `alpha`,**超出 0–1 的值会被夹紧**而不是报错。它和 tint 互不干扰:tint 管颜色,alpha 管透明,同一对象上同时生效。
+
+真正要建立的模型是**乘法传播链**:一个像素最终的有效不透明度 = `camera.alpha × 各级容器 alpha × 对象自身 alpha`。实验台里「容器 alpha」改变的是容器属性,渲染时容器把自己的 alpha 与每个子对象的 alpha 相乘用于绘制,**渲染完再把子对象还原**——所以任何时候读子对象的 `alpha` 属性都只得到它自己的值,容器的影响只存在于渲染结果里。嵌套容器逐级连乘,整组淡入淡出设最外层一个 alpha 即可。
+
+与 `visible` 的分工见 [2.2.1 精灵与图像](?path=/docs/sprites--docs):`alpha = 0` 对象仍参与渲染遍历、坐标与 update 照常;`visible = false` 直接跳过渲染。要省性能用后者,要做淡入淡出用前者。
+
+## 混合模式
+
+`blendMode` 决定对象的颜色如何与画布上**已画的内容**混合,`setBlendMode(m)` 接受 `Phaser.BlendModes` 枚举或字符串(`setBlendMode('ADD')` 与 `setBlendMode(Phaser.BlendModes.ADD)` 等价)。默认 `NORMAL`:普通覆盖绘制。
+
+跨渲染器的第一事实:**WebGL 下只有五个模式有真实映射**——`NORMAL`(0)、`ADD`(1,发光/粒子)、`MULTIPLY`(2,压暗叠加)、`SCREEN`(3,提亮叠加)、`ERASE`(17,减去目标 alpha,把已画内容擦成透明)。其余二十多个(`OVERLAY`、`DARKEN`、`HUE` 等)是 Canvas 的 `globalCompositeOperation` 模式:**WebGL 渲染器没有它们的混合配置,表现等同 NORMAL**;Canvas 渲染器下它们才生效,且依浏览器支持而定。实验台里切到 OVERLAY 亲眼核对:画面与 NORMAL 无异,readout 同时提示原因。
+
+两条边界与一条性能提示:
+
+- **容器会接管混合模式。**Container 默认 blendMode 是 `SKIP_CHECK`(跳过检查),子对象各自的 blendMode 生效;一旦给容器设了真实模式,子对象的 blendMode 被忽略,整组按容器的模式混合。
+- **ERASE 擦的是"目标"。**它作用于对象下方已画的内容,通常配合离屏渲染/RenderTarget 使用;直接擦主画面会露出画布底色,实验台里就是这样。
+- **切换 blendMode 会打断渲染批**:渲染中遇到与上一个对象不同的模式就要切换状态、结束当前批次。同模式的对象宜在显示列表中相邻;渲染管线与批处理机制见 [6.3.1 渲染管线](?path=/docs/render-pipelines--docs),性能权衡见 [6.1.1 性能优化](?path=/docs/performance--docs)。
+
+## 最佳实践
+
+- **depth 用固定档位分层,不要逐个微调。**背景 `-10`、场景物件 `0`、角色 `10`、UI `100` 这类常量档位让"谁在上面"一眼可查;层内的临时浮层(选中卡牌、被拖动物)再用 `setToTop()`。遇到遮盖问题就调大数值,最后会得到一堆 9999 和无法推理的顺序。
+- **遮盖关系重要时显式设 depth。**"同 depth 按加入顺序"依赖创建顺序这个隐式前提,动态生成、对象池复用的对象顺序不稳定,重叠关系明确的地方一律落 depth 值。
+- **tint 按用途选模式,反馈类效果配对恢复。**持续变色(队色、暗化)用默认 MULTIPLY;受击闪白用 `setTint(0xffffff).setTintMode(Phaser.TintModes.FILL)` 并在计时结束后 `clearTint()`——它同时复位颜色与模式,不会留下"颜色恢复了但模式还是 FILL"的残状态。
+- **整组透明度设在容器上。**容器 alpha 渲染时乘到每个子对象,一处设置、不污染子对象属性;逐个子对象设 alpha 既难维护也读不出"这组现在的整体透明度"。
+- **跨渲染器的效果只用五个有 WebGL 映射的 blendMode。**ADD(发光)、MULTIPLY(压暗)、SCREEN(提亮)、ERASE(擦除)在两种渲染器下都有效;其余模式只该出现在确定跑 Canvas 的项目里。
+
+## 常见问题
+
+- **调用了 `setToTop()` 对象还是被盖住。**
+  有别的对象 depth 值更大——挪列表位置不改值,下一次 depth 重排(任何 `setDepth`、增删对象都会排队)会按值把它送回去。把两者的 depth 调成相等后 `setToTop()` 稳定生效;跨层级遮盖直接给对象设更大的 `setDepth`。
+- **`setTint(0xffffff)` 画面毫无变化。**
+  白色 tint 在默认 MULTIPLY 模式下等于乘 1,即无着色。要"整块变白"的闪白效果用 `setTint(0xffffff).setTintMode(Phaser.TintModes.FILL)`。
+- **照 3.x 教程写 `setTintFill(color)` 报错或没效果。**
+  Phaser 4 已移除该方法,调用只会在控制台输出错误。等价写法:`setTint(color).setTintMode(Phaser.TintModes.FILL)`。
+- **tint 效果整体消失,代码没改。**
+  tint 是 WebGL 专用,Canvas 渲染器直接忽略。检查游戏是否回退到了 Canvas(配置 `type: Phaser.CANVAS`,或 WebGL 环境不可用);alpha 与 blendMode 在 Canvas 下仍有效,可用来区分。
+- **`OVERLAY` / `DARKEN` 等混合模式在 WebGL 下没效果。**
+  这些模式只在 Canvas 渲染器(映射到 `globalCompositeOperation`)下生效;WebGL 只有 NORMAL / ADD / MULTIPLY / SCREEN / ERASE 有真实混合配置,其余表现等同 NORMAL。跨渲染器的效果请换用这五个。
+- **容器里的子对象 `setDepth` 改了没反应。**
+  容器内部不按 depth 排序,只按容器 list 顺序渲染,`setDepth` 的值被忽略。要 depth 生效就把对象放到场景顶层,或改用会为子对象做 depth 排序的 Layer;详见 [2.2.4 容器与分组](?path=/docs/containers-groups--docs)。
+
+## 总结回顾
+
+摘要:
+
+深度排序由显示列表驱动:渲染按列表数组顺序绘制,`setDepth` 改值并在渲染前做一次稳定排序,depth 相同的对象保持既有数组顺序(默认即加入顺序);对象侧的 `setToTop` / `setToBack` / `setAbove` / `setBelow` 只挪列表位置不改值,在 depth 值不同的对象间不生效,容器内部则完全不排 depth。视觉状态有三条相互独立的轴:tint 逐像素运算,默认乘法、白色等于无着色,Phaser 4 把颜色(`setTint`,可四角渐变)与模式(`setTintMode`,MULTIPLY / FILL / ADD 等)拆开,且仅 WebGL 支持;alpha 是 0–1 的不透明度,沿"摄像机 × 容器 × 对象"乘法传播,容器相乘只影响渲染不改属性;blendMode 决定与已画内容的混合,WebGL 下仅 NORMAL / ADD / MULTIPLY / SCREEN / ERASE 五个有真实映射,切换模式会打断渲染批。
+
+一句话:
+
+> depth 值决定层级、同值按列表顺序;tint、alpha、blendMode 相互独立,叠在同一对象上共同决定最终像素。
+
+知识要点:
+
+- 渲染顺序由什么决定?depth 相同的两个对象谁在上面,由什么决定?
+- `setDepth` 的排序发生在什么时候?为什么改完不需要手动排序?
+- `setToTop` 与 `setDepth` 的区别是什么?什么时候 `setToTop()` 盖不住别的对象?
+- 容器内子对象的 depth 参与排序吗?要让 depth 生效有哪两条路?
+- tint 默认是什么运算?为什么白色等于无着色、tint 不能把画面变亮?
+- Phaser 4 的"受击闪白"标准写法是什么?`setTintFill` 去哪了?
+- 一个像素的最终不透明度由哪几个 alpha 相乘得到?读子对象的 `alpha` 属性能得到它吗?
+- 哪五个 blendMode 在 WebGL 下有真实映射?其余模式在 WebGL 下表现如何?
+
+## 参考资料
+
+- [Phaser 官方文档](https://docs.phaser.io/):`GameObjects.Components.Depth` / `Tint` / `Alpha` / `BlendMode`、`Phaser.TintModes`、`Phaser.BlendModes` 与 `GameObjects.DisplayList` 的 API 核对。
+- [官方示例库](https://phaser.io/examples/):Game Object 类目下 depth、tint、blend mode 的可运行示例。
+- [Phaser 4 Labs 示例浏览器](https://labs.phaser.io/phaser4-index.html):Phaser 4 专用示例,按主题检索深度排序与着色用法。
+

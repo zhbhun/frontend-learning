@@ -1,0 +1,297 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as TilemapCollision from './tilemap-collision.stories';
+
+<Meta of={TilemapCollision} name="Docs" />
+
+# 地图碰撞与交互
+
+[5.1 瓦片地图](?path=/docs/tilemap--docs)解决了「把 Tiled 关卡加载并渲染出来」;本课让这张地图**可玩**:哪些图块挡人、哪些图块触发事件、对象层怎么变成实体、以及游戏运行中怎么增删图块。核心判断先行:瓦片层的碰撞**不是给整层套一个碰撞体,而是逐格的数据**——每个 `Tile` 身上带着 `collideUp / collideDown / collideLeft / collideRight` 四个面标志,物理引擎每步只把 body 附近的瓦片捞出来,按面分离。再记两点就能预测所有行为:**面有「interesting」与否之分**(被同类瓦片埋住的面不参与分离),**tile 回调先于分离触发**(返回 `true` 可以否决)。拾取、机关、动态地形都是这三件事的组合。
+
+地图的加载、图层与渲染(`this.load.tilemapTiledJSON` → `make.tilemap` → `createLayer`)属 5.1;本课只用到 `TilemapLayer`(动态图层),GPU 图层的取舍也在 5.1。物理侧默认你已了解 [3.1 Arcade 物理](?path=/docs/arcade-physics--docs)的速度与重力,和 [3.2 Arcade 碰撞](?path=/docs/arcade-collision--docs)的 collider / overlap 语义。
+
+| 关键输入 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| `layer.setCollision(索引或数组, collides?)` | `collides=true`, `recalculateFaces=true` | 写入 `layer.collideIndexes` 并更新现有瓦片;`putTileAt` 放新瓦片时查这张表 |
+| `layer.setCollisionBetween(start, stop)` | 同上 | 按 gid 闭区间批量注册 |
+| `layer.setCollisionByProperty({ collides: true })` | 同上 | 读 `tile.properties`(Tiled tileset 属性在解析时合并);**不写** `collideIndexes` |
+| `layer.setCollisionByExclusion(数组)` | 同上 | 反选:数组之外的图块全部注册 |
+| `physics.add.collider(sprite, layer)` | — | 只处理「`collides` 且有 interesting face」的瓦片 |
+| `physics.add.overlap(sprite, layer)` | — | 相交瓦片全处理——**非碰撞瓦片的 tile 回调靠它触发** |
+| tile 回调签名 | `(gameObject, tile) => void` | 分离之前触发;返回 `true` 否决该次碰撞处理 |
+| `layer.setTileIndexCallback(gid, cb, ctx)` | — | 按 gid 全图生效,含运行后放置的同 gid 瓦片 |
+| `layer.setTileLocationCallback(x, y, w, h, cb, ctx)` | — | 瓦片坐标矩形区域;绑定区域内的 Tile 对象 |
+| `map.worldToTileX / worldToTileY / worldToTileXY` | `snapToFloor=true` | 世界坐标 → 瓦片坐标;`tileToWorldXY` 反向 |
+| `layer.putTileAt / putTileAtWorldXY` | `recalculateFaces=true` | 碰撞按 `collideIndexes` 自动套用 |
+| `layer.removeTileAt / removeTileAtWorldXY` | `replaceWithNull=true` | 格子变 `null`;碰撞与面随瓦片一起消失 |
+| `tile.index` / `tile.properties` / `tile.collides` / `tile.canCollide` | 空格 `index=-1` 或 `null` | `canCollide` = 有碰撞面**或**带回调 |
+
+## 快速上手
+
+最小闭环是三行:按属性圈定碰撞瓦片、给玩家注册 `collider` 站上地形、再注册一个 `overlap` 让拾取瓦片的回调有机会触发。
+
+```ts
+// 地形阻挡:tileset 里草地/石块带 { collides: true } 属性(见 5.1 的 Tiled 做法)
+layer.setCollisionByProperty({ collides: true });
+
+// 站在地形上:collider 只处理碰撞瓦片,分离结果写进 body.blocked
+this.physics.add.collider(player, layer);
+
+// 拾取/机关:金币瓦片不碰撞,它的 index 回调要走 overlap 这条通路
+this.physics.add.overlap(player, layer);
+layer.setTileIndexCallback(COIN_GID, collectCoin, this); // (gameObject, tile) => {}
+```
+
+把完整范例跑起来——它是小平台跳跃场景,手写 Tiled JSON + 自制瓦片集,覆盖本课全部机制:属性驱动碰撞、index / location 两类 tile 回调、对象层实体化、点击画布动态改图。
+
+<Canvas of={TilemapCollision.TilemapLab} />
+<Controls of={TilemapCollision.TilemapLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 初始加载 | 瓦片碰撞可视化默认开启:蓝块是碰撞瓦片,粉色描边是 interesting faces——地面**内部**瓦片整格变蓝但没有描边(被邻居埋住的面不 interesting) |
+| 按 `←`/`→`(先点击画布获得键盘焦点,该次点击也会编辑瓦片) | 玩家瓦片坐标随位置变化;走到草地边缘踩进坑(第 12 列)会下坠,脚下瓦片变 `has=false` |
+| 踩上金币瓦片(圆环图案) | 拾取计数 +1,最近 tile 回调变 `player ↔ tile(x,y) #4`;瓦片消失(`removeTileAt`),全图瓦片地形数 -1 |
+| 跨过红色尖刺 | 尖刺命中 +1 且玩家被弹起——区域回调(`setTileLocationCallback`)带冷却,持续接触不会每帧计数 |
+| 吃到对象层金币(小金圆) | 最近精灵拾取变 `coin-a(score=10)`——`score` 是 Tiled 对象自定义属性,落在 `sprite.data.values` |
+| 「放置图块」选 `stone`,点击空中空格 | 该格出现石块并**立即挡人**(放后重设了一次 `setCollisionByProperty`);碰撞瓦片数 +1 |
+| 点击已占用瓦片 | 瓦片消失,地形/碰撞计数 -1;玩家再从该处掉落 |
+| 「放置图块」选 `coin`,在玩家脚下空格放置 | 金币瓦片放上即被踩到拾取——index 回调按 gid 生效,运行时放置的瓦片免注册 |
+| 关闭「瓦片碰撞可视化」 | 蓝块与粉线消失,游戏行为不变 |
+| 打开「物理调试」 | 品红 body 描边与绿速度线;可见 body 贴着瓦片面,而不是整层包围盒 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `tilemap-lab.ts` 全文 |
+
+实例滚出视口或页面切到后台时会整体休眠以省资源,回到视口自动恢复;readout 冻结只说明循环暂停,不代表游戏状态变化。
+
+## 图块碰撞
+
+`setCollision` 家族做的事只有一件:**改瓦片上的碰撞标志**。四个入口按「怎么选中瓦片」区分:
+
+| 入口 | 选中规则 | 典型用法 |
+| --- | --- | --- |
+| `setCollision(indexes, collides?)` | 按 gid:单个数字或数组 | 代码里直接指定「石块 3 号挡人」 |
+| `setCollisionBetween(start, stop)` | gid 闭区间 | tileset 里一段连续地形 |
+| `setCollisionByProperty({ 键: 值 })` | 瓦片属性匹配;值可为数组(命中任一即可) | Tiled tileset 里给图块标 `{ collides: true }`,加新图块不用改代码 |
+| `setCollisionByExclusion(indexes)` | 反选: gid 不在数组里的全部 | 只有金币/装饰等少数不挡人时 |
+
+```ts
+// 以下三行等价地圈定本范例的草地/泥土/石块(gid 1、2、3):
+layer.setCollision([1, 2, 3]);
+layer.setCollisionBetween(1, 3);
+layer.setCollisionByProperty({ collides: true }); // 推荐:Tiled 里维护
+```
+
+两个共同参数:`collides`(默认 `true`,传 `false` 变成「取消这些 gid 的碰撞」)和 `recalculateFaces`(默认 `true`,重算全图 interesting faces,见下节;大批量设置时传 `false` 最后统一重算可提速)。`setCollision` 还多一个 `updateLayer`(默认 `true`):是否更新**现有**瓦片;传 `false` 只写 `layer.collideIndexes` 这张「未来瓦片」表,给空层预注册碰撞时能省一次全图扫描。
+
+一个关键差异要记住:**`setCollision` / `setCollisionBetween` / `setCollisionByExclusion` 会写 `layer.collideIndexes`,`setCollisionByProperty` 不会**。这张表是 `putTileAt` 给新瓦片套碰撞的依据(见[运行时改图](#运行时改图))——属性驱动的碰撞,运行时放的新瓦片不会自动挡人,需要重设。
+
+### 碰撞面与 interesting faces
+
+每个 `Tile` 有八个标志,两组语义:
+
+- **`collideUp / collideDown / collideLeft / collideRight`**——该侧是否挡人。`setCollision` 家族默认把四面全开(`tile.setCollision(true, true, true, true)`)。方向按瓦片自身视角:`collideDown` 挡的是从下方撞上瓦片底面的东西。
+- **`faceTop / faceBottom / faceLeft / faceRight`**——该侧是否「interesting」:**只有当这一侧的邻居不碰撞时才算**。两个相邻的碰撞瓦片共享的那条边不是 interesting face。
+
+interesting faces 不是装饰,它直接决定碰撞是否发生。Arcade 的 `collider(sprite, layer)` 每步先用 `{ isColliding: true, isNotEmpty: true, hasInterestingFace: true }` 过滤 body 附近的瓦片,再按面做分离;被同类瓦片四面埋住的「内部瓦片」直接跳过——这正是地面不把角色从地里顶出来的原因。`overlap(sprite, layer)` **没有这道过滤**,相交的瓦片全部进入判定,这是拾取瓦片必须配 overlap 的机制根源(见下节)。
+
+可视化用 `layer.renderDebug(graphics, styleConfig)`:碰撞瓦片铺色、interesting faces 画线。注意 `styleConfig` 三个颜色项要传 `Phaser.Display.Color` 实例(可带 alpha)或 `null`(不画),传裸数字不会生效;它画在 Graphics 自身坐标系里,从 `(0, 0)` 起,改图后碰撞会变,需要每帧重画。
+
+```ts
+const g = this.add.graphics().setDepth(998);
+// update 里持续执行(范例做法):
+g.clear();
+layer.renderDebug(g, {
+  tileColor: null,                                  // 非碰撞瓦片不画
+  collidingTileColor: new Phaser.Display.Color(67, 176, 255, 90),
+  faceColor: new Phaser.Display.Color(255, 75, 216, 230),
+});
+```
+
+## tile 回调
+
+「踩到某类瓦片时发生点什么」在瓦片层上有专门的回调机制,不走 collider 的回调参数。三个注册入口,粒度从粗到细:
+
+```ts
+// 1) 按 gid:全图所有(含以后放置的)金币瓦片踩上都触发
+layer.setTileIndexCallback(4, onCoin, this);
+
+// 2) 按区域:瓦片坐标矩形,区域内逐格绑定(范例的尖刺区 9,6 起 2×1 格)
+layer.setTileLocationCallback(9, 6, 2, 1, onSpike, this);
+
+// 3) 单个瓦片:直接绑在 Tile 对象上,优先级最高
+tile.setCollisionCallback(onTile, this);
+```
+
+回调签名固定是 `(gameObject, tile)`:第一个参数是与瓦片发生判定的游戏对象,第二个是命中的 `Tile`,可读 `tile.x / tile.y / tile.index / tile.properties`。三类回调的触发点相同——**在分离之前**跑(源码里的 `ProcessTileCallbacks`),因此:
+
+- **返回 `true` 会否决这次碰撞处理**:该瓦片这一步既不分离、collider 自己的回调也不触发,双方像互相不存在。单向平台、无敌帧这类「检测到但不响应」用它最直接。不返回值(或返回 falsy)则一切照常。
+- **每对每步触发一次**:持续重叠期间回调每个物理步都来。范例的做法是金币回调里 `removeTileAt` 让瓦片消失(天然去重),尖刺用时间窗冷却——按需选一种,别在回调里做重活。
+- **tile 级 > layer 级**:`tile.setCollisionCallback` 优先于同一瓦片上的 index 回调。
+
+最容易踩的坑:**回调要被触发,判定双方必须真的进入同一次检测**,而 `collider` 的瓦片过滤器(碰撞 + interesting face)会把不碰撞的拾取瓦片整个跳过。所以「金币瓦片 + `setTileIndexCallback`」的标准配对是**再注册一条 `physics.add.overlap(sprite, layer)`**——overlap 对相交瓦片全量判定,回调就有机会跑了。本课范例同时注册了 `collider` 与 `overlap` 各一条,分别负责「挡人」与「触发」。
+
+回调里读到的 `tile.properties` 是 Tiled tileset 属性在**解析时**合并上来的;运行时用 `putTileAt` 放的新瓦片不会回填属性(它只改 `index`),需要属性就手动 `tile.properties = { ... }` 补上。
+
+## 与精灵碰撞
+
+`TilemapLayer` 是合法的 `ArcadeColliderType`,精灵与瓦片层的注册和对象间碰撞完全同构:
+
+```ts
+// 只分离,不关心撞了哪格
+this.physics.add.collider(player, layer);
+
+// 带回调:签名 (gameObject, tile)——第二个参数是 Tile,不是游戏对象
+this.physics.add.collider(player, layer, (gameObject, tile) => {
+  if (tile.properties.lethal) kill(gameObject);
+});
+```
+
+与对象间碰撞的三点差异:
+
+- **瓦片回调的触发条件更严**:`collider` 的回调只在「该瓦片真正参与并完成分离」时触发;被 interesting face 过滤掉的瓦片(包括所有不碰撞瓦片)不会进回调。要「碰到就报信」,用 `overlap` 注册或 tile 回调。
+- **落地判定看 `body.blocked`**:瓦片分离把接触面写进 `blocked.down / up / left / right`(对象间碰撞写的是 `touching`)。惯用的跳跃条件两个都查:`body.blocked.down || body.touching.down`。
+- **防穿透有专门的 `tileBias`**:瓦片是静态薄块,高速 body 一帧跨过整块就会穿墙。`physics.arcade.tileBias` 默认 `16`(像素),高速弹幕类场景调大它(等价 `world.TILE_BIAS`),或降低速度。
+
+分墙壁、走斜坡、骑平台这些「怎么分开」的规则(投影分离、先分离重叠小的轴)与 [3.2 Arcade 碰撞](?path=/docs/arcade-collision--docs)的对象间分离一致;瓦片层永远是「不动的一侧」,只有动态 body 被推开。
+
+## 对象层
+
+Tiled 对象层(objectgroup)放的是「关卡里的实体」:出生点、金币、敌人、触发区。Phaser 提供两层 API:只读原始数据,或批量转成游戏对象。
+
+### 读对象层数据
+
+`map.getObjectLayer(name)` 返回解析后的 `ObjectLayer`(`null` 表示没有该层),`.objects` 是对象数组,每个对象保留 Tiled 里的 `id / name / type / x / y / width / height / visible / rotation / properties`。不想要游戏对象、只要坐标信息时直接读它——范例的出生点就是这么取的:
+
+```ts
+const entityLayer = map.getObjectLayer('Entities');
+const spawn = entityLayer?.objects.find((object) => object.name === 'spawn');
+player = this.physics.add.image(spawn?.x ?? 100, spawn?.y ?? 100, 'player');
+```
+
+矩形、点、圆、折线等形状会带 `rectangle / point / ellipse / polyline / polygon` 标记;`x / y` 是 Tiled 坐标系里的**左上角**(点对象就是位置本身)。注意匹配用的类型字段在 Phaser 侧是 `type`——在 Tiled 里对应对象属性面板中的类型字段;手写或导出 JSON 时确保该字段叫 `type`。
+
+### createFromObjects 批量生成
+
+`map.createFromObjects(layerName, config)` 把匹配的对象批量变成游戏对象(默认 `Sprite`),匹配条件四选一:`id`(唯一编号)、`gid`(贴图瓦片对象)、`name`(对象名)、`type`(类型,可继承自 tileset)。传数组可一次转换多类:
+
+```ts
+// 按 type 生成金币精灵;贴图用 key 指定
+const coins = map.createFromObjects('Entities', { type: 'coin', key: 'coin' });
+
+// 一次多类:不同 type 用不同类与贴图
+map.createFromObjects('Entities', [
+  { name: 'boss', classType: Boss, key: 'boss' },
+  { type: 'trigger', classType: Phaser.GameObjects.Zone },
+]);
+```
+
+生成时 Phaser 会设置 Tiled 对象的标准属性(`name / x / y / rotation / visible / flipX / flipY / displayWidth / displayHeight`),位置按精灵 origin 做了偏移换算。**自定义属性的传递规则**:对象上已有同名属性的直接赋值(如 `alpha: 0.5` 真的改透明度),没有的进 `sprite.data.values` 数据仓——范例金币的 `score: 10` 落在 `sprite.getData('score')`。
+
+config 里值得知道的字段:`classType`(自定义类,须能 `new classType(scene)`)、`container`(生成对象加入该容器而非场景)、`key / frame`(贴图;带 `gid` 的对象缺省继承 tileset 贴图与帧,`ignoreTileset: true` 关掉)、`scene`、`sortByY`。
+
+### 给生成体加物理
+
+`createFromObjects` 生成的是**普通游戏对象,没有 body**。最省事的做法是建物理组再逐个加入——组配置即最小物理属性:
+
+```ts
+const coinGroup = this.physics.add.group({ allowGravity: false }); // 最小配置:不吃重力
+coins.forEach((coin) => coinGroup.add(coin));                       // add 顺带启用 body
+this.physics.add.overlap(player, coinGroup, collect, undefined, this);
+```
+
+逐个启用用 `this.physics.add.existing(sprite)` 或 `this.physics.world.enable(sprite)`;body 属性(immovable、bounce 等)的语义属 [3.1](?path=/docs/arcade-physics--docs) 与 [3.2](?path=/docs/arcade-collision--docs)。
+
+## 运行时改图
+
+破坏地形、铺路、挖矿,都落在对图层的增删查上。所有方法都有 `TileAt`(瓦片坐标)与 `...AtWorldXY`(世界坐标,内部做换算)两个版本:
+
+```ts
+// 世界 ↔ 瓦片坐标:换算会扣除图层位置与摄像机滚动、除以缩放后的格宽高,
+// snapToFloor 默认 true(向下取整到所在格;传 false 得浮点格坐标)
+const { x: tileX, y: tileY } = map.worldToTileXY(worldX, worldY)!;
+const corner = map.tileToWorldXY(tileX, tileY)!; // 反向:返回该格左上角的世界坐标
+
+// 查:空格返回 null(removeTileAt 之后)或 index 为 -1 的空瓦片(从未放过)
+const tile = layer.getTileAt(tileX, tileY);          // 或 getTileAtWorldXY(x, y)
+const exists = layer.hasTileAt(tileX, tileY);        // 空瓦片与界外都是 false
+
+// 放:gid 即 tileset 里的编号;碰撞按 layer.collideIndexes 自动套用
+layer.putTileAt(3, tileX, tileY);
+layer.putTileAtWorldXY(3, pointer.worldX, pointer.worldY);
+
+// 删:默认 replaceWithNull=true,格子整个变 null
+layer.removeTileAt(tileX, tileY);
+layer.removeTileAtWorldXY(pointer.worldX, pointer.worldY);
+```
+
+范例的点击编辑就是查 + 二选一:空位放当前笔刷瓦片,占用则移除。
+
+批量遍历用 `layer.forEachTile(callback, context, tileX?, tileY?, width?, height?, filteringOptions?)`(或 `map.forEachTile(..., layer)`),回调对每个瓦片执行一次;`filteringOptions` 支持 `isNotEmpty / isColliding / hasInterestingFace` 三个筛子,范例的「全图瓦片(地形/碰撞)」读数就是两次带筛子的遍历:
+
+```ts
+let colliding = 0;
+layer.forEachTile(() => { colliding += 1; },
+  undefined, undefined, undefined, undefined, undefined, { isColliding: true });
+```
+
+### 改图后的碰撞重建
+
+改图不破坏碰撞体系,但有三条规则决定新瓦片的行为:
+
+1. **`putTileAt` 按 `layer.collideIndexes` 套碰撞**:放下的瓦片 gid 在这张表里(`setCollision` 家族写的)就立即四面可碰撞;不在就不碰撞。faces 只在该格碰撞状态变化时自动重算,不需要手动 `refresh`。
+2. **属性驱动的碰撞要重设**:`setCollisionByProperty` 不写 `collideIndexes`,所以靠它注册的地图,运行时放了同种瓦片也不挡人。范例在每次放石块后重跑一遍 `layer.setCollisionByProperty({ collides: true })`(全图一次,小图无感)。
+3. **新瓦片不带 tileset 属性**:瓦片属性是解析期从 tileset 合并的,`putTileAt` 只改 `index`。依赖 `tile.properties` 的逻辑要手动补,或改用「gid 在 `collideIndexes` 里」这条索引通路。
+
+`removeTileAt` 把格子替换成 `null`(默认)而不是空瓦片,原 Tile 对象连同碰撞标志、绑在它身上的 tile 级回调一起丢弃——这是干净语义,但也意味着**区域回调覆盖的格子被移除后,再放新瓦片不会自动恢复回调**(`setTileLocationCallback` 绑定的是当时的那批 Tile 对象),机关区重建后要重新注册。index 回调没有这个问题:它按 gid 存在 layer 上,新放的同 gid 瓦片自动生效——范例运行时放的金币瓦片即刻可拾取。
+
+## 最佳实践
+
+- **碰撞定义放 Tiled tileset 属性,代码用 `setCollisionByProperty` 消费。**加新地形图块只改数据不改代码;确需运行时大量放碰撞瓦片的场景,改用 `setCollision(gid 数组)` 把 gid 写进 `collideIndexes`,放下即碰撞、无需重设。
+- **按「挡人」与「报信」分开通路:实体阻挡 `collider`,拾取与机关 `overlap` + tile 回调。**不要试图用一条 collider 同时做两件事——不碰撞瓦片的回调它碰不到,把拾取瓦片设成碰撞又会让角色被道具顶飞。
+- **tile 回调里只做轻逻辑,一次性语义自己实现。**「每对每步一次」意味着持续接触每帧都回调:要么像金币一样移除瓦片,要么加时间窗冷却;返回 `true` 只用于「检测到但 veto 响应」,别当普通返回值用。
+- **改图后该重设的重设,该重画的重画。**属性驱动的碰撞在 `putTileAt` 后重跑 `setCollisionByProperty`;`renderDebug` 可视化每帧 `clear()` 重画;区域回调覆盖的格子被移除过就重新注册一次。
+- **判空用 `hasTileAt`,别拿 `getTileAt` 的返回值直接用。**空格可能是 `null` 也可能是 `index === -1` 的瓦片(取决于格子是被删过还是从来没放过),两种写法统一成 `hasTileAt` 最稳。
+
+## 常见问题
+
+- **玩家从地形上直接穿过去了。**
+  先开「瓦片碰撞可视化」:目标瓦片没铺蓝,是碰撞没注册(`setCollision*` 没覆盖该 gid,或属性名对不上);铺了蓝但玩家站的那几格没有粉色描边,是瓦片没有 interesting face(四面被碰撞瓦片埋住,或 `recalculateFaces` 被跳过)——collider 只处理「碰撞且有 interesting face」的瓦片。最后查 body:速度过快一帧跨过整块会穿透,调大 `physics.arcade.tileBias`(默认 16)或降速。
+- **金币瓦片的回调怎么都不触发。**
+  只注册了 `collider(sprite, layer)`——它的瓦片过滤器把不碰撞的金币瓦片整个跳过了,回调根本没有机会跑。补一条 `this.physics.add.overlap(sprite, layer)`,拾取类交互标准就是 overlap + `setTileIndexCallback` 配对。
+- **运行时 `putTileAt` 放的石块不挡人。**
+  碰撞来自 `setCollisionByProperty`(它不写 `layer.collideIndexes`,而 `putTileAt` 只按这张表套碰撞)。放图后重跑一次 `setCollisionByProperty({ collides: true })`,或改用 `setCollision([gid])` 注册。另外新瓦片不会回填 tileset 属性,读 `tile.properties` 拿不到 Tiled 里的值是正常的。
+- **拾取/命中计数疯狂上涨。**
+  tile 回调每对每物理步触发一次,持续接触就是每帧 +1。要「一次算一次」:金币式做法是回调里 `removeTileAt` 让瓦片消失;危险区式做法是加时间窗冷却(范例尖刺 600ms)。
+- **`createFromObjects` 生成的对象纹丝不动 / 不参与碰撞。**
+  它生成的对象没有 body。加入物理组(`group.add`)或 `physics.add.existing()` 启用;再检查是否需要 `allowGravity: false` 这类组配置,否则金币会直接掉出屏幕。
+- **移除瓦片后代码报 `Cannot read properties of null`。**
+  `removeTileAt` 默认 `replaceWithNull=true`,格子变 `null`;`getTileAt` 在该格返回 `null`。遍历或读取前用 `hasTileAt` 判断,或 `forEachTile` 配 `isNotEmpty` 筛子。
+- **尖刺区的位置回调在改图后失效了。**
+  `setTileLocationCallback` 绑定的是注册当时区域内的那批 Tile 对象;该格瓦片被移除后新对象不带回调。机关区被改过图就重新注册一次区域回调;按 gid 生效的 `setTileIndexCallback` 没有这个问题。
+
+## 总结回顾
+
+摘要:
+
+瓦片层碰撞是逐格数据:`setCollision` 家族按 gid / 区间 / 属性 / 反选改写瓦片的 `collideUp/Down/Left/Right`,其中 `setCollision` 与 `setCollisionBetween/ByExclusion` 会写 `layer.collideIndexes`(决定 `putTileAt` 新瓦片是否自动碰撞),`setCollisionByProperty` 只改现有瓦片。分离按 interesting faces 进行——邻居不碰撞的面才参与,collider 以「碰撞 + 非空 + 有 interesting face」过滤瓦片,埋在内部的瓦片被跳过;overlap 无此过滤,因此拾取瓦片的 `setTileIndexCallback` / `setTileLocationCallback` 回调依赖 overlap 注册触发。回调签名 `(gameObject, tile)`,在分离之前执行,返回 `true` 否决;每对每步触发,一次性语义靠移除瓦片或冷却。与精灵碰撞时瓦片层是静止一侧,落地判定读 `body.blocked`,防穿透调 `tileBias`。对象层用 `getObjectLayer` 读原始数据、`createFromObjects` 按 id/gid/name/type 批量生成,自定义属性同名直设、其余进 data store,生成体无 body 需自行启用。运行时改图用 put/remove/get + `worldToTileXY` 换算,`forEachTile` 带筛子遍历;改图后索引通路自动续接,属性通路要重设,新瓦片不回填 tileset 属性。
+
+一句话:
+
+> 碰撞数据长在每个瓦片上:collider 只看「碰撞且 interesting」的面,报信回调走 overlap 通路、先于分离且可否决,改图后只有 `collideIndexes` 里的 gid 自动接上碰撞。
+
+知识要点:
+
+- `setCollision` 家族四个入口分别按什么选中瓦片?哪些会写 `layer.collideIndexes`,这张表影响什么?
+- `collideUp/Down/Left/Right` 与 `faceTop/Bottom/Left/Right` 的语义差别?为什么地面内部瓦片不参与 collider?
+- tile 回调的签名是什么?在分离之前还是之后触发?返回 `true` 发生什么?为什么拾取瓦片必须配 `overlap` 注册?
+- 与瓦片层的 collider 回调何时触发?落地判定读 `blocked` 还是 `touching`?防穿透调哪个配置?
+- `createFromObjects` 的四种匹配条件是什么?自定义属性如何传递?生成体需要什么才能参与物理?
+- `putTileAt` / `removeTileAt` 各自的默认行为?放下的新瓦片什么时候自动碰撞、什么时候要重设?属性会回填吗?
+- 世界坐标与瓦片坐标怎么互转?判空该用哪个 API?`forEachTile` 的筛子有哪些?
+
+## 参考资料
+
+- [Phaser 官方文档](https://docs.phaser.io/):`Tilemap` / `TilemapLayer` 的 `setCollision` 家族、`setTileIndexCallback` / `setTileLocationCallback`、`createFromObjects`、`putTileAt` 系列与 `Tile` 字段核对。
+- [官方示例库](https://phaser.io/examples/):Tilemap 类目下碰撞、对象层与运行时改图的可运行示例。
+- [Phaser 4 Labs 示例浏览器](https://labs.phaser.io/phaser4-index.html):Phaser 4 专用示例,按主题检索 tilemap collision / create from objects 用法。
+- [phaserjs/phaser 仓库](https://github.com/phaserjs/phaser):`src/tilemaps/components/` 下的 `SetCollision`、`PutTileAt`、`CalculateFacesAt` 与 `src/physics/arcade/tilemap/` 下的 `ProcessTileCallbacks`、`SeparateTile` 源码,回调否决与面过滤的逐行语义。
+- [Tiled Map Editor](https://www.mapeditor.org/):对象层与自定义属性的编辑方式、tileset 图块属性的导出格式。
