@@ -5,6 +5,7 @@
 - [Canvas Engines Comparison](https://github.com/slaylines/canvas-engines-comparison)
 - [PixiJS](https://www.pixijs.com/)
 - [konva](https://github.com/konvajs/konva) - Konva.js is an HTML5 Canvas JavaScript framework that extends the 2d context by enabling canvas interactivity for desktop and mobile applications.
+- [LeaferJS](https://www.leaferjs.com/)
 - [Mesh.js](https://github.com/mesh-js/mesh.js)
 - [P5.js](https://p5js.org/)
 - [ZRender](https://github.com/ecomfe/zrender)
