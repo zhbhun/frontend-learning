@@ -1,0 +1,165 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as BackendWasm from './backend-wasm.stories';
+
+<Meta of={BackendWasm} name="Docs" />
+
+# WebAssembly 后端
+
+wasm 是 onnxruntime-web 的 CPU 基线后端：所有支持 WebAssembly 的现代浏览器都能跑、实现了全部标准算子（ai.onnx 与 ai.onnx.ml）、输出数据保证落在 CPU。本课讲清它的一份工件与三种运行形态——读完你应当能预测：给定部署环境（有没有跨域隔离响应头）与导入入口，这个页面的推理会以什么形态执行、该去哪里核对。
+
+一个贯穿全课的事实：1.30.0 只发布一族工件 `ort-wasm-simd-threaded`，SIMD 指令与线程能力都编译在同一份二进制里。**「单线程、SIMD、多线程」不是三份下载，而是同一工件在浏览器能力与 env 标志下的三种运行形态。**
+
+```mermaid
+flowchart LR
+  A["导入入口<br/>onnxruntime-web 或 /wasm"] -->|"构建期决定文件名"| B["ort-wasm 工件<br/>jsep 27MB · 纯 wasm 13.6MB"]
+  C["浏览器能力<br/>SIMD · 跨域隔离"] --> D["运行形态"]
+  E["env.wasm 标志<br/>simd · numThreads"] --> D
+  B --> D
+  D --> F["单线程 + SIMD<br/>（默认基线）"]
+  D --> G["多线程<br/>（需要跨域隔离）"]
+```
+
+| env.wasm 标志 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| `simd` | `true` | 运行时检测固定宽度 SIMD，不支持直接抛错；`'relaxed'` 只换检测项；`false` 跳过检测，不会关闭工件里的 SIMD 代码 |
+| `numThreads` | `0`（系统决定） | 未隔离环境静默回 1；隔离时自动取 min(4, ⌈硬件线程数÷2⌉)；显式大于 1 而未隔离会警告并回退单线程 |
+| `wasmPaths` | 未设置 | 只决定去哪取工件；取哪个工件由导入入口决定，见「工件与入口」 |
+| `wasmBinary` | 未设置 | 直接给定 wasm 二进制，设置后 `wasmPaths` 失效 |
+| `proxy` | `false` | 把 run 移入 worker 线程，见 [proxy 工作线程](?path=/docs/proxy-worker--docs) 课程 |
+| `initTimeout` | `0`（不限时） | wasm 后端初始化的超时毫秒数 |
+
+env 标志的设置时机与生效范围（必须在第一个会话创建之前等）见 [ort.env 全局配置](?path=/docs/ort-env--docs) 课程；本课关注这些标志各自决定了什么形态。
+
+## 运行形态
+
+形态由三个输入共同决定：**工件**（构建期由入口决定）、**浏览器能力**（SIMD、跨域隔离，运行时探测）、**env 标志**（读者设置）。排查「为什么推理这么慢、这么卡」之前，先知道当前形态是什么——ort 没有提供形态查询 API，但每一项都能自己检测：
+
+```ts
+// ort 内部同样用 WebAssembly.validate 探测能力，探测模块是固定字节序列
+// （完整字节见本课实例的 wasm-forms.ts，与 ort 1.30.0 自身的探测一致）：
+const supportsSimd = WebAssembly.validate(SIMD_PROBE); // 含向量指令的模块能否通过校验
+const supportsThreads =
+  typeof SharedArrayBuffer !== 'undefined' &&
+  WebAssembly.validate(THREADS_PROBE); // 共享内存 + 原子指令模块能否通过校验
+const isolated = self.crossOriginIsolated === true; // COOP/COEP 响应头生效才有 true
+```
+
+| 检测项 | 手段 | 读数含义 |
+| --- | --- | --- |
+| 固定宽度 SIMD | `WebAssembly.validate`（向量指令模块） | false 时 1.30 工件无法加载 |
+| Relaxed SIMD | `WebAssembly.validate`（relaxed 指令模块） | 只影响自建工件的选择，官方工件路径不依赖 |
+| 多线程能力 | SharedArrayBuffer 存在且原子模块可校验 | true 才谈得上多线程 |
+| 跨域隔离 | `self.crossOriginIsolated` | COOP/COEP 的结果，多线程生效的前提 |
+| 生效线程数 | 第一次 create 后读 `env.wasm.numThreads` | 归一化后的实际值 |
+| 所选工件 | DevTools Network 或 performance 资源记录过滤 `ort-wasm` | 实际拉取的文件名 |
+
+下方实例真实运行了全部检测：打开时探测能力 → 创建 wasm 会话（MNIST 模型与 wasm 工件都从 CDN 拉取）→ 用空输入跑一次推理计时。画布高亮三种形态里命中的组合，读数给出每项检测的原始值。
+
+<Canvas of={BackendWasm.Forms} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 打开实例并等待 | 「单线程」与「SIMD 向量加速」卡片高亮，读数给出全部检测项 |
+| 对照 numThreads 两行 | create 前「未设置」，create 后「1」——未隔离环境的静默归一化 |
+| 看「实际加载工件」 | `ort-wasm-simd-threaded.jsep.*`：默认入口加载的是 JSEP 工件 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `wasm-forms.ts` |
+
+实例刻意不设 `numThreads`，把归一化留给 ort，因此能观察到「未设置 → 1」；生产代码的口径见最佳实践。env 是全局单例、wasm 后端整页只初始化一次：若在同一个 Storybook 会话里先看过其他课程的推理实例，「create 前」读数会显示先前配置的值——这正是 env 语义的一部分。
+
+### 单线程
+
+一次 `run` 在一个线程内完成计算图的全部算子。三种情况必然单线程：页面没有跨域隔离（默认归一化为 1）、显式设置 `env.wasm.numThreads = 1`（不派生任何 worker）、运行在 Node.js（只支持单线程 wasm）。
+
+它最重要的行为边界：`run` 虽然返回 Promise，但 wasm 计算本身在 JS 主线程上同步执行——计算期间页面不响应输入，长推理的表现就是「页面卡住」。这是 [proxy 工作线程](?path=/docs/proxy-worker--docs) 与多线程形态存在的理由。
+
+适用：小模型、低频推理、兼容优先的默认选择。MNIST 这类毫秒级模型，单线程 SIMD 已经足够，多线程的调度开销反而不划算。
+
+### SIMD
+
+固定宽度 SIMD（v128 向量指令）让一条指令处理多个数据，是 CPU 推理的实际加速来源。1.19 起官方只发布这一份含 SIMD 的工件（此前还并存非 SIMD 变体）：SIMD 是硬性要求，不是可选优化。Chrome 91、Firefox 89、Safari 16.4 起可用，覆盖当前全部常青浏览器。
+
+`env.wasm.simd` 各取值的语义：
+
+| 取值 | 行为 |
+| --- | --- |
+| 未设置 / `true` / `'fixed'` | 检测固定宽度 SIMD，不支持时抛 `WebAssembly SIMD is not supported` |
+| `'relaxed'` | 改测 relaxed SIMD（指令选择更宽、行为随硬件变化）；官方工件没有 relaxed 变体，只在你自建工件时有意义 |
+| `false` | 跳过检测直接加载——工件里仍是 SIMD 代码，不支持的环境只会更晚失败，不要用它兼容旧浏览器 |
+
+实例读数「固定宽度 SIMD：支持」就是这段检测的现场；探测字节码与 ort 内部使用的一致，见 Show code。
+
+### 多线程
+
+wasm 工件里编译了 pthreads：`numThreads` 决定线程池规模（设 1 不派生 worker），计算图被切分给多个线程并行执行。生效有一条硬前提链：COOP/COEP 响应头 → `self.crossOriginIsolated === true` → SharedArrayBuffer 可用。响应头怎么配见 [多线程与跨域隔离](?path=/docs/cross-origin-isolation--docs) 课程。
+
+`numThreads` 的归一化规则（第一次 create 时生效）：
+
+| 设置值 | 未隔离环境 | 已隔离环境 |
+| --- | --- | --- |
+| 未设置 / `0` | 静默归一化为 1 | min(4, ⌈硬件线程数÷2⌉) |
+| `1` | 单线程 | 单线程 |
+| 大于 `1` | 两条警告，回退单线程 | 按设置值生效 |
+
+适用：大模型、计算密集的推理。规则的未隔离分支本页实例就是现场（crossOriginIsolated = 否，归一化为 1）；已隔离分支的完整展开——响应头配置、worker 池行为——见 [多线程与跨域隔离](?path=/docs/cross-origin-isolation--docs) 课程。
+
+## 工件与入口
+
+加载哪个工件文件由**导入入口在构建期决定**，`wasmPaths` 只决定去哪取。1.30.0 实测（读 dist 各入口 bundle 内嵌的文件名）：
+
+| 导入入口 | 加载的工件 | 内容 | 体积 |
+| --- | --- | --- | --- |
+| `onnxruntime-web`（默认） | `ort-wasm-simd-threaded.jsep.*` | wasm 后端 + JSEP（WebGPU/WebNN 分发器） | 约 27 MB |
+| `onnxruntime-web/wasm` | `ort-wasm-simd-threaded.*` | 纯 wasm 后端 | 约 13.6 MB |
+| `onnxruntime-web/webgpu` | `ort-wasm-simd-threaded.asyncify.*` | 带 Asyncify（WebNN 需要） | 约 25.5 MB |
+| `onnxruntime-web/jspi` | `ort-wasm-simd-threaded.jspi.*` | JSPI 变体（WebNN 需要） | 约 16 MB |
+
+三个推论：
+
+- **纯 CPU 推理时，默认入口在白白下载 27MB。** 切到 `/wasm` 入口体积近乎减半（见最佳实践）。
+- **目录里必须有当前入口对应的工件。** 只伺服了 jsep 文件却用 `/wasm` 入口（或反过来）时，create 会因拉取不到文件失败；用 DevTools Network 看 404 的确切文件名即可定位。`.mjs` 与 `.wasm` 成对出现，缺一不可。
+- **体积差来自 GPU 分发器，不来自 CPU 内核。** jsep 工件的 wasm 后端部分与纯工件相同，多出的是 WebGPU/WebNN 的算子分发代码。
+
+wasmPaths 的配置方法、自托管与 Vite 打包处理见 [ort.env 全局配置](?path=/docs/ort-env--docs) 与 [WASM 资源伺服](?path=/docs/wasm-serving--docs) 课程。
+
+## 最佳实践
+
+- **按部署能力选线程策略。** 普通静态托管（没有隔离响应头）：显式 `numThreads = 1`，行为可预测——留默认值也会静默回 1，但显式设置让意图可见（[第一次推理](?path=/docs/first-inference--docs) 课程的口径）。需要多线程：先配 COOP/COEP，再把 numThreads 交给默认自动值。
+- **按推理路径选入口。** 明确只用 CPU：从 `onnxruntime-web/wasm` 导入，工件体积减半。将来可能启用 WebGPU/WebNN：保留默认入口，省去换入口时的伺服目录调整。两个入口的 API 完全一致，切换只改 import 来源。
+- **把 wasm 当兜底，不当终点。** `executionProviders` 数组把 `'wasm'` 放在 GPU 后端之后，算子 GPU 不支持时落到 CPU 执行；顺序语义与回退机制见 [后端选择与回退](?path=/docs/backend-selection--docs) 课程。
+- **上线前在目标环境跑一次形态自检。** 本课检测片段可以原样嵌进应用，把六项读数打到控制台或埋点——「用户实际以什么形态在跑」是性能问题排查的第一手证据，[性能测量](?path=/docs/profiling--docs) 课程承接。
+
+## 常见问题
+
+- 控制台出现两条警告：`env.wasm.numThreads is set to N, but this will not work unless you enable crossOriginIsolated mode` 与 `WebAssembly multi-threading is not supported ... Falling back to single-threading`。
+  多线程没有生效，当前实际单线程。要并发：配置 COOP/COEP 响应头，见 [多线程与跨域隔离](?path=/docs/cross-origin-isolation--docs) 课程；否则显式置 1，消除「设了却没生效」的歧义。
+- 老浏览器抛 `WebAssembly SIMD is not supported in the current environment`，或 wasm 模块编译失败。
+  1.30 工件必须 SIMD，升级到常青浏览器是唯一正解。不要把 `simd: false` 当兼容开关——它只跳过运行时检测，工件里的 SIMD 代码照样无法编译，失败得更晚、更难定位。
+- 推理能出结果，但执行期间页面点不动。
+  单线程 wasm 在 JS 主线程上同步计算，长推理必然阻塞 UI。出路按代价从小到大：缩短单次输入、`proxy: true`（[proxy 工作线程](?path=/docs/proxy-worker--docs) 课程）、开启多线程（[多线程与跨域隔离](?path=/docs/cross-origin-isolation--docs) 课程）、换 WebGPU（[WebGPU 后端](?path=/docs/backend-webgpu--docs) 课程）。
+- 伺服目录里明明有 ort-wasm 文件，create 仍报加载失败。
+  先看 Network 面板里 404 的确切文件名——入口决定文件名，目录里必须有当前入口对应的那一对 `.mjs/.wasm`；用 `/wasm` 入口就不要只部署 jsep 工件，反之亦然。伺服配置本身见 [WASM 资源伺服](?path=/docs/wasm-serving--docs) 课程。
+
+## 总结回顾
+
+摘要：
+
+本课建立了 wasm 后端的共同模型：一份 `ort-wasm-simd-threaded` 工件，在浏览器能力与 env 标志下呈现三种运行形态。单线程是默认与兜底——未隔离环境自动归一化为 1，计算在 JS 主线程同步执行；SIMD 是硬性要求而非可选优化，`simd` 标志只控制检测策略，`false` 不能用来兼容旧浏览器；多线程需要 COOP/COEP 跨域隔离作为前提，未隔离时任何大于 1 的设置都会警告并回退。工件由导入入口在构建期决定：默认入口加载约 27MB 的 JSEP 工件，纯 CPU 场景切 `/wasm` 入口近乎减半，`wasmPaths` 只决定取文件的位置。全部形态都可检测——探测字节码、crossOriginIsolated、create 后读回 numThreads、performance 资源记录里的工件名，本课实例给出了完整的现场读数。
+
+一句话：
+
+> 单线程、SIMD、多线程不是三份下载，而是同一个 ort-wasm 工件在浏览器能力与 env 标志下的三种运行形态——工件由导入入口在构建期决定，wasmPaths 只决定去哪取。
+
+知识要点：
+
+- wasm 后端凭什么当兼容基线？
+- 怎样检测本页的实际运行形态？有哪六项读数？
+- numThreads 未设置时，未隔离与已隔离环境各发生什么？
+- `simd: false` 做什么、不做什么？为什么不能当兼容开关？
+- 默认入口与 `/wasm` 入口加载的工件有什么区别？
+- run 期间 UI 为什么会卡？出路按代价从小到大有哪些？
+
+## 参考资料
+
+- [microsoft/onnxruntime 仓库 js 目录](https://github.com/microsoft/onnxruntime/tree/main/js) —— js/web README 的算子覆盖说明（ai.onnx 与 ai.onnx.ml 全覆盖）、Node.js 单线程限制、dist 工件清单
+- [onnxruntime-web API 参考](https://onnxruntime.ai/docs/api/js/index.html) —— env.wasm 各标志（simd、numThreads、wasmPaths、wasmBinary、proxy、initTimeout）的类型、语义与默认值依据
+- [onnxruntime-web npm 发布页](https://www.npmjs.com/package/onnxruntime-web) —— 版本记录；本课工件体积与文件名以 1.30.0 的 dist 实测为准
