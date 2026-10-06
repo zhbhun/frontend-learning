@@ -1,0 +1,252 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Performance from './performance.stories';
+
+<Meta of={Performance} name="Docs" />
+
+# 性能调优
+
+前面的课程给出了可调的旋钮：[2.3.1 device 与 dtype](?path=/docs/device-dtype--docs) 决定在哪里算、加载哪份权重，[4.1 Web Worker 加载](?path=/docs/web-worker--docs) 把推理挪出主线程，[4.2 缓存与离线](?path=/docs/cache-offline--docs) 决定第二次加载多快。本课是「工程化」阶段的收官课，回答最后一个问题：**怎么用数据决定拧哪个旋钮**——一套可信的基准方法（怎么测才可信），加上三条调优轴的影响方向（device、dtype、KV 缓存）。方法部分与运行什么模型无关；三条轴只讲影响方向与测量方法，具体倍数以你自己的实测为准——浏览器推理的性能随设备、浏览器和库版本变化，任何抄来的数字都只是参考。
+
+读完本页你应该能预测实例的行为：页面加载分类模型后对同一句自动跑一轮计时——第 1 次（琥珀色条形，冷启动）显著慢于其余各次，且不计入中位数；把「推理次数」调大再跑一轮，本轮不再出现冷启动尖峰——预热只在页面会话里发生一次。
+
+```mermaid
+flowchart LR
+  A["固定基准条件<br>同一句 · 同一模型 · 同一浏览器"] --> B["只改一个变量<br>device / dtype / 模型"]
+  B --> C["预热：首推理单独记录<br>但不进对比"]
+  C --> D["多次计时<br>performance.now()"]
+  D --> E["取中位数与最小值"]
+  E -- "换下一组配置" --> B
+  E --> F["同时评估质量与卡顿<br>再看要不要换"]
+```
+
+| 回查项 | 默认 / 取值 | 要点 |
+| --- | --- | --- |
+| 首推理（冷启动） | 每页面会话只发生一次 | 单独记录，不进性能对比；来源见「首推理与热身推理」 |
+| 统计量 | 中位数，辅以最小值 | 平均值被离群值拉偏；每轮 5~10 次起步 |
+| 计时 API | `performance.now()` | 只测调用耗时，不测页面卡顿，见下文「计时正确不等于体验不卡」 |
+| 控制变量 | 一次只改 device / dtype / 模型之一 | 同机同浏览器、相邻时间窗内完成对比 |
+| `use_cache`（生成参数） | `true` | 单次生成内 KV 缓存自动复用 |
+| `past_key_values`（生成参数） | `null` | 传 `DynamicCache` 跨调用复用（v4.1+），用完 `dispose()` |
+| `device: 'auto'` | 环境 EP 列表交给 ONNX Runtime 逐个尝试 | 浏览器按 WebNN → WebGPU → WASM 排序，某个 EP 初始化失败自动落到下一个 |
+
+## 基准方法：怎么测才可信
+
+一切调优决策的前提是一把可信的尺子。浏览器推理的耗时受设备硬件、浏览器版本、系统负载影响，同一台机器相邻两分钟都可能差出可观的比例；不讲究方法的「我感觉快了」撑不起换档决策。四个要点按执行顺序展开。
+
+本课示例执行的就是参考表前四行的最小闭环。实例为了免安装依赖，库由官方 CDN 动态导入（模式与 [1.2 第一个 pipeline](?path=/docs/first-pipeline--docs) 相同）；模型与 1.2 / [3.1.1 文本分类与零样本](?path=/docs/text-classification--docs) / 4.1 课是同一份 q8 文件（约 67.6 MB），打开过即命中同源缓存。
+
+<Canvas of={Performance.Interactive} />
+<Controls of={Performance.Interactive} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 等待首次加载 | 「状态」从 加载中 变为 就绪，随后自动开始第 1 轮基准 |
+| 看第 1 轮条形 | 第 1 条琥珀色（冷启动）显著长于其余蓝色条形；「首推理（冷启动）」读数单独记录它 |
+| 看「本轮中位数（热身）」 | 中位数虚线落在蓝色条形区中部，与读数一致；冷启动样本不在统计内 |
+| 把「推理次数」调大 | 自动跑新一轮：本轮第 1 条不再异常长——冷启动不会第二次发生 |
+| 打开 Show code | 查看实例实际执行的 `inference-benchmark.ts`（计时与统计在 `runRound`） |
+
+### 首推理与热身推理
+
+模型会话在 `pipeline()` 返回之前就已建好（下载与会话初始化是加载阶段的事），但**第一次推理仍然显著慢**：它额外承担一次性的运行时预热——WASM 后端要做实例与 JIT 预热、首次内存分配，WebGPU 后端要编译管线与 shader、分配 GPU 缓冲。这些成本只发生一次，之后同一会话的每次推理都走在热身后的稳态上。
+
+处理方式是把两类耗时分开：
+
+- **首推理单独记录。** 它是真实用户体验的一部分（用户等的正是第一次），但不能代表稳态性能——用 cold 值回答「首次响应要多久」，用 warm 值回答「平时跑多快」。
+- **性能对比只用热身后的数据。** 实例的统计逻辑（`runRound`）把冷启动样本排除在中位数与最小值之外。
+
+实例里新一轮没有冷启动尖峰，正是「预热只发生一次」的直接证据；想给真实用户消除冷启动，用 4.1 课的思路在页面空闲时预热。
+
+### 多次计时取中位数
+
+计时本身两行代码：`await` 前后各取一次 `performance.now()`（亚毫秒精度，专为此设计）。关键是统计口径——单次耗时受 GC、系统调度等噪声影响呈长尾分布，一次偶发的尖峰会把平均值拉偏，而**中位数不受个别离群值影响**，最小值则代表「无噪声时的能力上限」。两者一起报，比单一数字更能反映真实分布。
+
+次数从 5~10 次起步：方差大就加次数，直到中位数稳定。实例把「推理次数」做成控件，就是为了让你亲手看到次数与稳定性的关系。
+
+### 控制变量：一次只改一个
+
+device、dtype、模型三个轴互相耦合：`device: 'webgpu'` 不指定 dtype 时默认 fp32，而 WASM 默认 q8——下载的文件、算子实现、计算量全都不同，同时改两个就说不清差异归谁。规则只有一条：**每次对比只动一个变量**，其余全部固定。
+
+- 同一句（或同一批）输入：输入长度直接影响耗时；
+- 同一台机器、同一浏览器、相邻时间窗内完成：跨天、跨设备的数字不可比；
+- 关掉重负载标签页；笔记本注意电源模式与温控降频——跑几轮基准把机器跑热，数字会漂移。
+
+### 计时正确不等于体验不卡
+
+`performance.now()` 的差值只回答「这次调用花了多久」，不回答「页面卡不卡」。主线程上的 WASM 推理即使单次只要几十毫秒，也会挤占 16.7 ms 的帧预算——掉不掉帧要看帧时间线，判定读数（帧率、最大帧间隔）见 [4.1 课](?path=/docs/web-worker--docs) 的实例。两条尺子平行动用：
+
+| 问题 | 尺子 | 改善手段 |
+| --- | --- | --- |
+| 单次推理要多久 | 本课的基准读数 | device / dtype / 更小的模型 |
+| 推理期间页面卡不卡 | 4.1 课的帧时间线 | Web Worker（把推理挪出主线程） |
+
+把推理搬进 worker 后，帧时间线变干净，但单次耗时几乎不变——worker 里 `performance.now()` 计出的数字与主线程同源。两个指标各自独立优化，别用一个代替另一个。
+
+## device：WASM 与 WebGPU 的实测对比
+
+对比之前先知道自己在比什么。背景一句带过：v4 起浏览器 WebGPU 运行时用 C++ 重写（ONNX Runtime WebGPU EP），并引入 GroupQueryAttention、MatMulNBits、QMoE 等自定义算子——官方 release notes 曾给出 BERT 类 embedding 模型数倍加速的数据。运行时本身在持续进化，这正是「结论自己测」的原因：换一个库版本，昨天的结论可能作废。
+
+WebGPU 的可用性检测（`navigator.gpu`、`shader-f16`、Safari 26+ 与 experimental 现状）与不支持时的行为，[2.3.1 课](?path=/docs/device-dtype--docs) 已完整讲过，这里只补对比方法。两个口径，回答两个不同的问题：
+
+- **比设备本身**：固定 dtype（例如都用 fp32 或都用 fp16），只切 device——差异纯粹来自执行位置；
+- **比产品组合**：让每种设备各用最优档（WASM + q8 对 WebGPU + fp16 / q4f16）——这是上线时真实可选的两个方案，但差异同时包含设备与档位。
+
+```js
+// 一次受控对比的骨架：同一模型、同一输入，每次只改一个参数
+// MODEL_ID 换成你要测的任意兼容模型
+import { pipeline } from '@huggingface/transformers';
+
+const TEXT = 'This movie was surprisingly good, I enjoyed every minute.';
+
+async function bench(device, dtype, times = 8) {
+  const extractor = await pipeline('feature-extraction', MODEL_ID, {
+    device,
+    dtype, // 显式指定：避免「webgpu 默认 fp32、wasm 默认 q8」混进结果
+  });
+  await extractor(TEXT); // 预热：首推理单独记录或直接丢弃，不进统计
+  const samples = [];
+  for (let i = 0; i < times; i += 1) {
+    const t0 = performance.now();
+    await extractor(TEXT);
+    samples.push(performance.now() - t0);
+  }
+  await extractor.dispose(); // 释放会话，避免两组配置同时驻留内存
+  samples.sort((a, b) => a - b);
+  return (samples[(times - 1) >> 1] + samples[times >> 1]) / 2; // 中位数
+}
+
+const wasmMs = await bench('wasm', 'q8');
+const webgpuMs = await bench('webgpu', 'fp16'); // fp16 需适配器支持 shader-f16
+```
+
+三个方向性提醒（每条都应实测验证）：
+
+- **WebGPU 通常在算力密集的大模型上拉开差距**；小模型或短输入时，GPU 调度开销可能吃掉收益，差距缩小甚至反转。
+- **「webgpu + 量化」不一定更快。** 量化算子在 GPU EP 上的覆盖有限，未被支持的算子会回落 CPU 执行——切换 device 后逐档重测，不要假设默认档最优。
+- **`device: 'auto'` 是把选择交给运行时**：库把当前环境支持的 execution provider 按优先级排成列表（浏览器为 WebNN → WebGPU → WASM）直接交给 ONNX Runtime，某个 EP 初始化失败自动落到下一个（v4.3.0 源码 `backends/onnx.js`）。它保证能跑，不保证最快——性能敏感的代码自己检测（回指 2.3.1）再显式指定。
+
+## dtype：量化对速度与质量的取舍
+
+dtype 的体积账在 [2.3.1 课](?path=/docs/device-dtype--docs) 已经算过（每档实测表），本课讲另外两笔账：速度与质量。
+
+**速度的方向。** dtype 决定权重访存量与可用算子：低比特权重小，内存带宽压力小，CPU（WASM）上 q8 常是速度与体积的甜点档；fp16 把访存减半，在支持 shader-f16 的 WebGPU 上通常有速度收益，WASM 下没有收益。方向归方向，具体快多少取决于模型结构与输入长度——用上一节的方法测。
+
+**质量的评估。** 量化是有损压缩，速度收益要用质量损失来换，而质量损失不能只看一句输出。最小流程三步：
+
+1. **固定一份测试集。** 几十条到几百条覆盖真实输入分布的样本（分类用带标签数据，生成用固定提示词列表）。
+2. **固定任务指标。** 分类任务对比准确率，或对比与 fp32 基线的输出一致率；生成任务与 fp32 基线输出对照，再辅以人工抽查——生成质量没有单一数值指标，小规模人工评估最可靠。
+3. **与 fp32 基线比较后再换档。** [2.3.1 课](?path=/docs/device-dtype--docs) 的结论可以复用：q8 的质量损失对多数任务可忽略，q4 及更低比特必须按任务评估。
+
+调优不是只看速度：一条档位要胜出，得同时过速度基准与质量评估两关。
+
+## KV 缓存：生成类模型的 past_key_values
+
+生成类模型（decoder / decoder-merged 会话）每一步都要用到「之前所有位置」的 Key/Value 中间结果。KV 缓存把这些张量存下来复用，避免每生成一个 token 就把全部历史重算一遍。它分两个层面：单次生成内的自动复用（默认开启），与跨调用复用（v4.1 起可用）。
+
+### 单次生成内：自动复用
+
+一次 `generate()` 的节奏是：**prefill 一次算完整段提示，之后每步只前向一个新位置**——每步能只算一个 token，靠的就是生成循环内部持续更新的 KV 缓存（源码 `modeling_utils.js`：每步 `getPastKeyValues` 更新缓存、会话按 `use_cache_branch` 走缓存分支）。生成配置 `use_cache` 默认 `true`（官方文档：是否复用 past key/value 状态以加速解码）。
+
+这解释了 [2.2.1 生成参数](?path=/docs/generation-options--docs) 的观察：生成用时随 `max_new_tokens` 近似线性增长——单步耗时近似恒定，总时长约等于步数乘以单步耗时。也解释了它的一个边界：上下文越长，缓存越大，长生成的内存占用与单步开销会随长度缓慢上涨——KV 缓存是用内存换时间。
+
+跨调用（例如多轮对话）时，这层缓存帮不上忙：pipeline 每次调用都是新的一轮生成，上一轮的缓存默认被丢弃，整段对话历史从头 prefill。
+
+### 跨调用复用：DynamicCache
+
+多轮对话的场景里，每轮对话历史只多出一条消息，重算整段历史是纯浪费。v4.1 起（Release notes：Cached generation improvements, PR #1638）generate 选项接受 `past_key_values`，把 KV 缓存显式留到你手里：
+
+```js
+import { pipeline, DynamicCache } from '@huggingface/transformers';
+
+const chat = await pipeline(
+  'text-generation',
+  'onnx-community/SmolLM2-135M-Instruct-ONNX',
+);
+const messages = [{ role: 'user', content: 'What is the capital of France?' }];
+const past_key_values = new DynamicCache();
+
+// 第 1 轮：缓存为空，prefill 整段对话；结束时缓存写回同一对象
+const turn1 = await chat(messages, { max_new_tokens: 64, past_key_values });
+messages.push(turn1[0].generated_text.at(-1));
+
+// 第 2 轮：同一缓存对象传回——已缓存前缀不再重算，只处理新增 token
+messages.push({ role: 'user', content: 'What about Germany?' });
+const turn2 = await chat(messages, { max_new_tokens: 64, past_key_values });
+
+await past_key_values.dispose(); // 缓存持有张量（WebGPU 下在 GPU 显存），不再复用时显式释放
+```
+
+用法要点与边界（均已在 v4.3.0 源码与官方测试核实）：
+
+- **缓存对象原地更新。** 不需要从返回值里取缓存：传入的同一个 `DynamicCache` 在生成过程中被持续写入（`get_seq_length()` 可查已缓存长度）。想绕过 pipeline 在手工链路（[2.1.2 model 前向推理](?path=/docs/model-inference--docs)）里复用，则给 `model.generate()` 传 `return_dict_in_generate: true`，返回值里含 `past_key_values`。
+- **只重算增量。** 库按缓存长度做前缀切片：下一轮输入中已缓存的部分直接跳过。前提是对话模板是「追加式」——新一轮的渲染结果恰好以前一轮缓存覆盖的 token 序列开头。主流 ChatML 类模板满足；手工拼消息、或模板会改写历史内容时，前缀不一致，复用结果就不再等价于全量重算。
+- **不传就释放。** generate 正常结束后，只有当你传入了 `past_key_values`（或设了 `return_dict_in_generate: true`）时缓存才保留，否则库自动释放（v4.3.0 源码 `keepCacheAlive` 逻辑）——所以「复用时传同一个对象、用完 `dispose()`」就是完整的生命周期管理。
+- **收益场景是多轮对话与重复前缀的长任务**；单次长生成不需要它——生成内部的缓存本来就在工作。官方测试（`multi-turn with past_key_values matches without`）验证了带缓存多轮的输出与不带缓存一致。
+
+## 最佳实践
+
+- **先建基线，再动旋钮。** 用默认组合（浏览器 WASM + q8）按「预热 → N 次取中位数」测出基线；之后每次只改一个变量、与基线同口径对比。没有基线的调优无法归因。
+- **两种对比口径分清楚。** 回答「设备值不值」用固定 dtype 比 device；回答「上线选哪个」用各自最优组合比（WASM + q8 对 WebGPU + fp16 / q4f16）——后者是真实可部署的方案对比。
+- **速度与质量、耗时与卡顿分开验收。** 换档位先过质量关（固定测试集对比 fp32 基线），提速先过体验关（4.1 课的帧时间线）；两关都过，改动才算数。
+- **多轮对话把缓存传起来。** `DynamicCache` 传回下一次调用，轮次越多省得越多；用完 `dispose()`。单次长生成、纯分类任务用不上它。
+- **结论有保质期。** 库版本、浏览器版本、驱动更新都会改变性能格局（v4 的 C++ WebGPU 运行时就是例证）——关键决策在升级后用同一套方法重测。
+
+## 常见问题
+
+- 第一次推理比后面慢好多倍，是不是哪里出错了
+  不是。首次推理承担一次性的运行时预热（WASM 预热、WebGPU shader 编译等），属于正常现象。基准里把它单独记录、不进对比；产品里给用户消除等待感的手段是空闲预热（4.1 课的 load 时机），而不是重装或改配置。
+- 换了 device 或 dtype，测出来没变快、甚至更慢
+  先检查三处：①是否同时改了多个变量——webgpu 默认 fp32、wasm 默认 q8，默认档不同会让对比失效，显式指定 dtype 重测；②量化模型上 WebGPU 的算子覆盖有限，不支持的算子回落 CPU 执行，可能反超不过 WASM；③环境噪声——同机同浏览器、相邻时间窗内重测，加大次数看中位数。
+- 每次基准的数字都不一样
+  正常方差：浏览器推理受 GC、系统调度、温控影响。取中位数而不是单次或平均值，加大每轮次数，固定输入与环境；对「是否值得换」这类决策，差距小于噪声波动的改动不值得做。
+- 多轮对话越聊越慢，等待越来越长
+  每轮都在从头 prefill 整段对话历史，历史越长重复计算越多。给每次调用传入同一个 `past_key_values`（`DynamicCache`），让已缓存前缀跳过重算，结束时 `dispose()`；注意前提是对话模板追加式、前缀逐 token 一致。
+- 用了 `past_key_values` 之后，第二轮开始的输出和全量重算对不上
+  缓存按长度做前缀切片，切片前提是新一轮渲染结果以缓存覆盖的前缀开头——手工拼消息时漏掉/多出 token、或模板改写了历史内容都会破坏这个前提。先逐 token 核对两轮渲染的前缀；无法保证一致就别复用缓存，让它全量重算。
+
+## 总结回顾
+
+摘要：
+
+性能调优的入口是一把可信的尺子：首推理（冷启动）来自一次性的运行时预热，单独记录、不进对比；对比数据来自热身后多次计时的中位数与最小值，`performance.now()` 负责计时；整个过程一次只改一个变量（device、dtype、模型之一），同机同浏览器相邻时间窗完成。耗时基准回答「跑多快」，帧时间线（4.1 课）回答「卡不卡」，两把尺子互不替代。三条轴的方向：device 上 WebGPU 偏向算力密集场景，`'auto'` 保证能跑但不保证最快，量化档位在 GPU 上未必占优；dtype 上低比特换速度要同时过质量关（固定测试集与 fp32 基线对比）；KV 缓存层面，单次生成内自动复用（`use_cache` 默认 `true`，每步只算一个新 token），多轮对话则把 `DynamicCache` 通过 `past_key_values` 传回下一次调用实现增量重算，用完 `dispose()`。所有具体倍数都应以自己实测为准——库与浏览器在进化，结论要定期重测。
+
+一句话：
+
+> 先用「预热后取中位数、一次只改一个变量」建立可信基线，再沿 device、dtype、KV 缓存三条轴逐项对比——每条改动都要同时通过速度与质量（或卡顿）两关。
+
+知识要点：
+
+- 首推理为什么慢？基准中应该怎么处理它？产品里怎么消除用户的冷启动等待？
+- 为什么取中位数而不是平均值或单次值？`performance.now()` 测量什么、不测量什么？
+- device 对比的两种口径分别固定什么？`device: 'auto'` 与显式 `'webgpu'` 的回退行为有何不同？
+- dtype 如何同时影响速度与质量？质量评估的最小流程是哪三步？
+- 单次生成内 KV 缓存如何工作？`use_cache` 的默认值是什么？它与 `max_new_tokens` 的线性耗时有什么关系？
+- 跨调用复用缓存用什么 API？收益场景、前缀一致性前提与释放方式分别是什么？
+- 哪些事件发生后应该重跑基准？
+
+## 参考资料
+
+- [generation/configuration_utils API](https://huggingface.co/docs/transformers.js/en/api/generation/configuration_utils)
+  `use_cache`（默认 `true`）等生成配置的官方定义与默认值。
+- [cache_utils.js（v4.3.0 源码）](https://github.com/huggingface/transformers.js/blob/4.3.0/packages/transformers/src/cache_utils.js)
+  `DynamicCache` 的构造、`get_seq_length()`、原地 `update()` 与 `dispose()`（释放 GPU 张量）。
+- [models/modeling_utils.js（v4.3.0 源码）](https://github.com/huggingface/transformers.js/blob/4.3.0/packages/transformers/src/models/modeling_utils.js)
+  生成循环内缓存的逐步更新、`keepCacheAlive` 释放逻辑、`return_dict_in_generate` 返回 `past_key_values`、`decoder_prepare_inputs_for_generation` 按缓存长度切片。
+- [generation/parameters.js（v4.3.0 源码）](https://github.com/huggingface/transformers.js/blob/4.3.0/packages/transformers/src/generation/parameters.js)
+  `past_key_values` 生成参数的官方文档（默认 `null`，传 `DynamicCache` 跳过重算）。
+- [tests/pipelines/test_pipelines_text_generation.js（v4.3.0）](https://github.com/huggingface/transformers.js/blob/4.3.0/packages/transformers/tests/pipelines/test_pipelines_text_generation.js)
+  官方测试「multi-turn with past_key_values matches without」：带缓存多轮输出与不带缓存一致的验证出处。
+- [v4.1.0 Release notes](https://github.com/huggingface/transformers.js/releases/tag/4.1.0)
+  "Cached generation improvements (+ past_key_values via pipeline function)"（#1638）。
+- [v4.0.0 Release notes](https://github.com/huggingface/transformers.js/releases/tag/4.0.0)
+  C++ 重写的 WebGPU 运行时与自定义算子（GQA / MatMulNBits / QMoE）的出处；文中 BERT 类模型加速数据来自这里，仅作方向参考。
+- [backends/onnx.js（v4.3.0 源码）](https://github.com/huggingface/transformers.js/blob/4.3.0/packages/transformers/src/backends/onnx.js)
+  `device: 'auto'` 解析为环境 EP 列表（浏览器 WebNN → WebGPU → WASM）并交给 ONNX Runtime 逐个尝试的实现。
+- [Transformers.js 官方文档 · WebGPU 指南](https://huggingface.co/docs/transformers.js/en/guides/webgpu)
+  WebGPU 的 experimental 性质与浏览器兼容现状说明。
+- [MDN · Performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now)
+  计时 API 的精度与语义。
+- [4.1 Web Worker 加载](?path=/docs/web-worker--docs)
+  帧时间线与「最大帧间隔」读数的来源课，用于区分耗时与卡顿。
+- [2.3.1 device 与 dtype](?path=/docs/device-dtype--docs)
+  WebGPU 可用性检测、各 dtype 文件体积实测与档位取舍的来源课。
