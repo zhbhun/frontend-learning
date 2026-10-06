@@ -1,0 +1,500 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="gpui-kit-data-table" title="生态实践/数据表格" name="Docs" />
+
+# 数据表格
+
+数据表格是业务应用的刚需：行情列表、订单管理、日志面板，动辄上万行，还要求排序、固定列和行选择。gpui-kit 用 `DataTable` 承接这一层——它不是把行全部渲染出来再滚动，而是「虚拟滚动」：无论数据多少行，同一时刻只构建可见区域内的那几十行元素，因此渲染开销只随窗口大小增长，不随数据量增长。工程口径沿用 7.1 课：单依赖 `gpui-kit = "0.7"`，GPUI 类型经 `use gpui_kit::*` 取用。
+
+`DataTable` 的核心分工是一个 delegate（委托）模型：`TableState` 是持有全部交互状态的 `Entity`（选择、排序标记、列宽、滚动位置），而 `TableDelegate` 由你的数据结构实现，负责回答「有多少列、多少行、第 i 列长什么样、第 r 行第 c 格渲染什么」。表格元素本身（`DataTable`）只是把状态实体挂到界面上的无状态外壳。理解「状态在 `TableState`、数据与渲染在 delegate」这条线，全部 API 都能对号入座。
+
+注意区分同模块下的两个表格：`Table` 是无状态、纯组合的简单表格（`TableHeader`/`TableRow`/`TableCell` 手工拼行），没有虚拟滚动和列管理，适合静态小表；本课主体是带状态与虚拟滚动的 `DataTable`。虚拟滚动的垂直方向直接复用 gpui 原生的 `uniform_list`（5.1 课讲过的机制），水平方向用 gpui-base 的 `VirtualList` 处理可变宽度列——`DataTable` 相当于把两套列表机制和表头、选择、排序编排到了一起。
+
+| 对象 | 角色 | 关键成员与默认值 |
+| --- | --- | --- |
+| `DataTable` | 渲染元素（无状态外壳） | `.stripe(false)`、`.bordered(true)`、`.scrollbar_visible(纵, 横)`、`.with_size(...)` |
+| `TableState` | 交互状态实体 | `row_selectable`/`col_selectable`(true)、`cell_selectable`(false)、`sortable`/`col_resizable`/`col_movable`/`col_fixed`(true)、`scroll_to_row`、`refresh` |
+| `TableDelegate` | 数据与渲染委托 | 必需 `columns_count`/`rows_count`/`column`/`render_td`；可选 `perform_sort`、`render_tr`/`render_th`、`load_more` 等 |
+| `Column` | 单列定义 | `width` 默认 100px、`min_width` 20px、`max_width` 无上限、`sort: None` 默认不可排序、`resizable`/`movable`/`selectable` 默认 true |
+| `ColumnSort` | 排序状态 | `Default`（未排）/ `Ascending` / `Descending` |
+| `ColumnFixed` | 固定列 | 只有 `Left` 一个变体 |
+| `ColumnGroup` | 分组表头单元格 | `label` + `span`（横跨列数），支持多层 |
+| `TableSelection` | 当前选择（单选模型） | `None` / `Row(usize)` / `Column(usize)` / `Cell(usize, usize)`，三模式互斥 |
+| `TableEvent` | 表格事件（10 种） | `SelectRow`/`DoubleClickedRow`/`SelectColumn`/`SelectCell`/`DoubleClickedCell`/`ColumnWidthsChanged`/`MoveColumn`/`RightClickedRow`/`RightClickedCell`/`ClearSelection` |
+
+## 列定义
+
+`Column` 是描述列的纯数据结构，通过 builder 链配置。`key` 是列在表格内的唯一标识，多数场景直接用数据源的字段名；`name` 是表头显示文字。常用配置一屏看完：
+
+```rust
+use gpui_kit::component::table::{Column, ColumnFixed};
+
+let columns = vec![
+    // key 与表头名；宽度默认 100px
+    Column::new("id", "ID")
+        .width(px(60.))
+        .min_width(px(40.))    // 拖拽缩放的下限，默认 20px
+        .max_width(px(100.))   // 上限，默认不设限
+        .fixed_left(),         // 固定在左侧，水平滚动时不随动
+    Column::new("name", "姓名").width(px(140.)),
+    Column::new("email", "邮箱").width(px(240.)).selectable(false), // 动作列不参与选择
+    Column::new("amount", "金额")
+        .sortable()            // 允许排序；默认 sort 为 None（不可排序）
+        .text_right()          // 声明右对齐；引擎不消费它，委托渲染时按 col.align 施加
+        .p_0(),                // 单元格内边距清零，适合数值列自己控制留白
+];
+```
+
+注意 `align` 的语义：`text_right` / `text_center` 只是把对齐记进列定义，表格引擎渲染单元格时不读它——对齐由委托在自己渲染时按 `col.align` 施加（官方示例用一个统一的单元格外框读取，见「自定义渲染」）。
+
+列级开关与状态级开关叠加生效：`Column::resizable(false)` 关掉单列拖宽，`TableState` 的 `col_resizable` 关掉整表拖宽；排序（`sortable` / `sortable()`）、移动（`movable` / `col_movable`）、固定（`fixed` / `col_fixed`）同理。`selectable` 是列级的：置 false 后该列不参与行/列/单元格选择，专为按钮列、勾选列这类动作列设计。
+
+两点工程约束：其一，固定列按「列序列前缀」计数——实现上先数出从列首开始连续的 `fixed_left` 列，把它们排除在水平滚动区外，所以固定列要放在列定义的最前面，夹在中间会错位；其二，`ColumnFixed` 目前只有 `Left`，没有右固定。
+
+### 分组表头
+
+`ColumnGroup` 把多列归到一个表头下，支持多层（`group_headers` 返回「按行分组」的二维结构）。声明在 delegate 上，不占 `Column` 本身：
+
+```rust
+use gpui_kit::component::table::ColumnGroup;
+
+impl TableDelegate for UserTable {
+    // 外层 Vec 是表头行，内层 Vec 是该行的分组
+    fn group_headers(&self, _: &App) -> Option<Vec<Vec<ColumnGroup>>> {
+        Some(vec![vec![
+            ColumnGroup::new("基本信息", 2), // 横跨 id、name 两列
+            ColumnGroup::new("账户", 3),     // 横跨其后 3 列
+        ]])
+    }
+}
+```
+
+运行期切换分组表头显隐这类改动后，调用 `TableState::refresh_header_layout(cx)` 重算表头布局（它内部会触发重绘）。
+
+## 数据绑定与虚拟滚动
+
+`TableDelegate` 是数据侧的协议，必需方法只有四个：
+
+```rust
+impl TableDelegate for UserTable {
+    // 列数、行数：行数只报逻辑数量，不要求先物化任何元素
+    fn columns_count(&self, _: &App) -> usize { self.columns.len() }
+    fn rows_count(&self, _: &App) -> usize { self.users.len() }
+
+    // 第 col_ix 列的定义；表格准备与刷新时调用
+    fn column(&self, col_ix: usize, _: &App) -> Column {
+        self.columns[col_ix].clone()
+    }
+
+    // 第 row_ix 行第 col_ix 格的内容；只对可见区域调用
+    fn render_td(
+        &mut self,
+        row_ix: usize,
+        col_ix: usize,
+        _: &mut Window,
+        _: &mut Context<TableState<Self>>,
+    ) -> impl IntoElement {
+        let user = &self.users[row_ix];
+        match self.columns[col_ix].key.as_ref() {
+            "id" => user.id.to_string().into_any_element(),
+            "email" => user.email.clone().into_any_element(),
+            _ => "--".into_any_element(),
+        }
+    }
+}
+```
+
+其余回调全部可选，按需实现：`render_th`（表头格内容，默认渲染列名）、`render_tr`（整行容器，可挂行级点击）、`context_menu`（行右键菜单）、`render_empty`（空态视图）、`loading`/`render_loading`（加载态）、`move_column`（拖拽换列时同步你的列序）、`visible_rows_changed`/`visible_columns_changed`（可视范围变化）、`load_more` 一族（增量加载）、`cell_text`（导出文本，配合 `dump` 导 CSV）。
+
+虚拟滚动的分工：垂直方向是 gpui 原生 `uniform_list` + `UniformListScrollHandle`（即 5.1 课的机制，要求行高一致，`DataTable` 的 `with_size` 决定行高），滚动回调只收到一个可见行号区间，区间外的行根本不构建元素；水平方向换成 gpui-base 的 `VirtualList`，因为列宽各不相同，固定列则被直接移出滚动区单独绘制。delegate 还能拿到两个通知：`visible_rows_changed` 给出当前可见行区间，官方用它做「只更新可见行数据」的优化——注意它滚动时高频触发，里面只做轻活，重活丢后台任务。
+
+### 完整示例
+
+一个可直接复制运行的最小工程：5 列、1 万行，含固定列、排序列、右对齐金额与选择事件。`Cargo.toml` 见 7.1 课（单依赖 `gpui-kit = "0.7"`）。
+
+```rust
+use gpui_kit::component::table::{
+    Column, ColumnSort, DataTable, TableDelegate, TableEvent, TableState,
+};
+use gpui_kit::*;
+
+struct User {
+    id: u64,
+    name: String,
+    email: String,
+    amount: f64,
+}
+
+// 委托：持有列定义与数据
+struct UserTable {
+    columns: Vec<Column>,
+    users: Vec<User>,
+}
+
+impl UserTable {
+    fn new() -> Self {
+        Self {
+            columns: vec![
+                Column::new("id", "ID").width(px(60.)).fixed_left(),
+                Column::new("name", "姓名").width(px(140.)),
+                Column::new("email", "邮箱").width(px(240.)),
+                Column::new("amount", "金额").sortable().text_right().p_0(),
+            ],
+            // 1 万行全量放在内存里；界面同一时刻只渲染可见行
+            users: (0..10_000)
+                .map(|i| User {
+                    id: i as u64,
+                    name: format!("用户{}", i),
+                    email: format!("user{}@example.com", i),
+                    amount: (i as f64) * 1.5,
+                })
+                .collect(),
+        }
+    }
+}
+
+impl TableDelegate for UserTable {
+    fn columns_count(&self, _: &App) -> usize {
+        self.columns.len()
+    }
+
+    fn rows_count(&self, _: &App) -> usize {
+        self.users.len()
+    }
+
+    fn column(&self, col_ix: usize, _: &App) -> Column {
+        self.columns[col_ix].clone()
+    }
+
+    // 点击表头排序时被回调；sort 状态已由表格切好，这里只负责排数据
+    fn perform_sort(
+        &mut self,
+        col_ix: usize,
+        sort: ColumnSort,
+        _: &mut Window,
+        _: &mut Context<TableState<Self>>,
+    ) {
+        let Some(key) = self.columns.get(col_ix).map(|c| c.key.as_ref()) else {
+            return;
+        };
+        match key {
+            "id" => self.users.sort_by(|a, b| match sort {
+                ColumnSort::Descending => b.id.cmp(&a.id),
+                _ => a.id.cmp(&b.id),
+            }),
+            "amount" => self.users.sort_by(|a, b| match sort {
+                ColumnSort::Descending => b
+                    .amount
+                    .partial_cmp(&a.amount)
+                    .unwrap_or(std::cmp::Ordering::Equal),
+                _ => a
+                    .amount
+                    .partial_cmp(&b.amount)
+                    .unwrap_or(std::cmp::Ordering::Equal),
+            }),
+            _ => {}
+        }
+    }
+
+    // 只对可见行、可见列调用：滚动时每次只构建视口内的几十个单元格
+    fn render_td(
+        &mut self,
+        row_ix: usize,
+        col_ix: usize,
+        _: &mut Window,
+        _: &mut Context<TableState<Self>>,
+    ) -> impl IntoElement {
+        let user = &self.users[row_ix];
+        match self.columns[col_ix].key.as_ref() {
+            "id" => user.id.to_string().into_any_element(),
+            "name" => user.name.clone().into_any_element(),
+            "email" => user.email.clone().into_any_element(),
+            "amount" => format!("{:.2}", user.amount).into_any_element(),
+            _ => "--".into_any_element(),
+        }
+    }
+}
+
+struct Example {
+    table: Entity<TableState<UserTable>>,
+    _subscriptions: Vec<Subscription>,
+}
+
+impl Example {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let table = cx.new(|cx| TableState::new(UserTable::new(), window, cx));
+
+        // 订阅表格事件：选择、双击、拖列等都在这里拿到
+        let _subscriptions = vec![cx.subscribe_in(&table, window, Self::on_table_event)];
+
+        Self {
+            table,
+            _subscriptions,
+        }
+    }
+
+    fn on_table_event(
+        &mut self,
+        _: &Entity<TableState<UserTable>>,
+        event: &TableEvent,
+        _: &mut Window,
+        _: &mut Context<Self>,
+    ) {
+        match event {
+            TableEvent::SelectRow(row_ix) => println!("选中行：{}", row_ix),
+            TableEvent::DoubleClickedRow(row_ix) => println!("双击行：{}", row_ix),
+            _ => {}
+        }
+    }
+}
+
+impl Render for Example {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        // DataTable 内部铺满 size_full，外层必须给出确定高度
+        div()
+            .size_full()
+            .p_4()
+            .child(DataTable::new(&self.table).stripe(true).bordered(true))
+    }
+}
+
+fn main() {
+    gpui_kit::application().run(|cx| {
+        gpui_kit::init(cx);
+
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            window.set_window_title("数据表格");
+            cx.new(|cx| Example::new(window, cx))
+        })
+        .expect("failed to open window");
+    });
+}
+```
+
+`cargo run` 后逐项核对：窗口出现带边框和斑马纹的表格；拖动底部水平滚动条时 `ID` 列钉在左侧不动；点击「金额」表头出现排序图标且数据重排；点击任意行终端打印选中行号；滚动到底部流畅无卡顿——万行数据从头到尾只渲染过可见部分。
+
+### 滚动到底增量加载
+
+数据来自网络时分页追加，而不是一次到齐。delegate 报告「还有更多」，表格在滚动接近底部时回调加载：
+
+```rust
+impl TableDelegate for UserTable {
+    // 滚动到底前是否还有数据；默认 false（关闭增量加载）
+    fn has_more(&self, _: &App) -> bool {
+        !self.loading && !self.eof
+    }
+
+    // 距底部多少行时触发 load_more；默认 20
+    fn load_more_threshold(&self) -> usize {
+        150
+    }
+
+    // 在后台任务里拉取并追加，完成后置回 loading
+    fn load_more(&mut self, _: &mut Window, cx: &mut Context<TableState<Self>>) {
+        self.loading = true;
+        self._load_task = cx.spawn(async move |view, cx| {
+            // 模拟网络延迟
+            cx.background_executor().timer(std::time::Duration::from_secs(1)).await;
+            _ = cx.update(|cx| {
+                let _ = view.update(cx, |view, _| {
+                    view.delegate_mut().users.extend(fetch_next_page());
+                    view.delegate_mut().loading = false;
+                });
+            });
+        });
+    }
+}
+```
+
+`load_more` 在后台执行，`loading` 返回 true 时表格整体显示加载态（默认骨架屏，可用 `render_loading` 换掉）。要主动定位某行用 `TableState::scroll_to_row(row_ix, cx)`，列对应 `scroll_to_col`。
+
+## 排序
+
+排序由声明和数据两侧配合完成：`Column::sortable()`（等价 `sort: Some(ColumnSort::Default)`）只负责「这一列可排序」——表头出现可点击的排序图标、点击循环切换状态；真正重排数据的是 delegate 的 `perform_sort`。点击循环固定为：未排序 → 降序 → 升序 → 未排序，且同一时刻全表只有一列处于排序态（点新列时旧列自动复位）。
+
+```rust
+// 声明侧：初始就按金额降序展示（图标为降序；首次点击会切到升序）
+Column::new("amount", "金额").sortable().descending()
+```
+
+注意声明只设定图标与循环起点，初始数据的排列顺序要应用自己排好。委托侧 `perform_sort` 的默认实现是空的——不实现它，点击表头只会切换图标，数据纹丝不动。
+
+编程排序（比如外部搜索框触发）没有专用入口，走「改数据 + 改列标记 + 刷新」三步：
+
+```rust
+self.table.update(cx, |table, cx| {
+    let delegate = table.delegate_mut();
+    // 1. 重排数据
+    delegate.users.sort_by(|a, b| {
+        a.amount.partial_cmp(&b.amount).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    // 2. 同步表头排序标记：目标列设为升序，其余已排序列复位
+    for col in delegate.columns.iter_mut() {
+        col.sort = match col.key.as_ref() {
+            "amount" => Some(ColumnSort::Ascending),
+            _ if col.sort.is_some() => Some(ColumnSort::Default),
+            _ => None,
+        };
+    }
+    // 3. 重新从委托读取列定义，再通知重绘
+    table.refresh(cx);
+    cx.notify();
+});
+```
+
+`refresh` 是「列定义变了之后」的统一入口：拖拽换列时表格内部也是先调 delegate 的 `move_column` 再同步自己的列序并发 `TableEvent::MoveColumn` 事件。
+
+## 选择与事件
+
+`DataTable` 的选择是单选模型：全表任一时刻最多选中一个对象，用 `TableSelection` 一个枚举表达——`Row` / `Column` / `Cell` 三种模式互斥，点行、点表头列、点单元格各自切换模式。三种模式各有开关，全部默认打开除单元格选择：
+
+| 开关（`TableState` 字段） | 默认 | 作用 |
+| --- | --- | --- |
+| `row_selectable` | true | 点击行选中整行 |
+| `col_selectable` | true | 点击表头选中整列 |
+| `cell_selectable` | false | 单元格选择模式，见下 |
+| `row_header` | true | 单元格模式下左侧的窄行头列，设 false 可隐藏 |
+| `loop_selection` | true | 键盘移动到边界后循环到另一端 |
+
+读与写对称：`table.selection()` 返回当前 `TableSelection`（推荐统一从这里判断）；`set_selected_row(row_ix, cx)` / `set_selected_col` / `set_selected_cell` 编程设置并自动滚动到位；`clear_selection(cx)` 清空。每次变化都伴随对应 `TableEvent`，在订阅里统一处理（订阅写法见完整示例）。
+
+键盘导航内建，无需应用绑键（`init(cx)` 时已注册到 `DataTable` 上下文）：方向键移动选择、`home`/`end` 跳首尾、`pageup`/`pagedown` 翻页、`tab`/`shift-tab` 横向移动、`escape` 取消选择。
+
+### 单元格选择模式
+
+`cell_selectable(true)` 后交互粒度下沉到单元格：点击选中单个格子，事件从 `SelectRow` 变为 `SelectCell(row_ix, col_ix)`，另有 `DoubleClickedCell`（双击进详情/编辑）与 `RightClickedCell`（右键菜单定位）；左侧出现行头窄列用于整行选择，不想要它就 `row_header(false)`。行头隐藏时，再点一次已选中的单元格会把选择升级为整行（需要 `row_selectable` 保持开启）。
+
+```rust
+let table = cx.new(|cx| {
+    TableState::new(UserTable::new(), window, cx).cell_selectable(true)
+});
+
+// 事件处理里区分粒度
+match event {
+    TableEvent::SelectCell(row_ix, col_ix) => println!("选中单元格：({}, {})", row_ix, col_ix),
+    TableEvent::DoubleClickedCell(row_ix, _) => open_detail(row_ix),
+    _ => {}
+}
+```
+
+### 多选勾选列
+
+内建选择是单选，没有多选模式。要「勾选一批行」的交互，用自建勾选列实现：delegate 持有一个已勾选集合，勾选列配 `Checkbox` 渲染，并把该列排除在选择系统之外：
+
+```rust
+use gpui_kit::component::checkbox::Checkbox;
+
+// 列定义：勾选列不参与选择、不参与拖拽换位
+Column::new("check", "").width(px(40.)).selectable(false).movable(false)
+
+// render_td 的勾选列分支；checked 集合放在 delegate 里
+"check" => div()
+    .child(
+        Checkbox::new(("check", row_ix))
+            .checked(self.checked.contains(&row_ix))
+            .on_click(cx.listener(move |table, checked: &bool, _, cx| {
+                // 切换勾选集合后通知重绘
+                table.delegate_mut().toggle_check(row_ix, *checked);
+                cx.notify();
+            })),
+    )
+    .into_any_element(),
+```
+
+勾选集合是你自己的状态，排序后行序变化时记得同步（比如改存行唯一 id 而不是行号），这是自建方案与内建单选的主要差别。
+
+## 自定义渲染
+
+`render_td` 是单元格渲染的唯一入口，返回任何 `impl IntoElement`——纯文本、带样式的 `div`、组件都可以。分发建议按 `Column` 的 `key` 而不是 `col_ix`：列默认可拖拽换位，下标会变，`key` 不变。列上声明的 `align` 要在这里兑现——官方示例为数值列维护一个统一外框，按 `col.align` 决定对齐方向：
+
+```rust
+// 官方示例的单元格外框：列声明了 text_right 就右对齐
+fn value_cell(&self, col: &Column) -> Div {
+    div()
+        .h_full()
+        .h_flex()
+        .items_center()
+        .when(col.align == TextAlign::Right, |this| this.justify_end())
+}
+```
+
+下面是几个典型渲染变体（延续完整示例的列）：
+
+```rust
+use gpui_kit::component::ActiveTheme;
+
+fn render_td(&mut self, row_ix: usize, col_ix: usize, _: &mut Window, cx: &mut Context<TableState<Self>>) -> impl IntoElement {
+    let user = &self.users[row_ix];
+    match self.columns[col_ix].key.as_ref() {
+        // 金额按正负着色：语义色来自主题
+        "amount" => {
+            let color = if user.amount >= 0.0 { cx.theme().danger } else { cx.theme().primary };
+            div().text_color(color).child(format!("{:.2}", user.amount)).into_any_element()
+        }
+        // 长文本截断：truncate 防止撑破列宽
+        "email" => div().truncate().child(user.email.clone()).into_any_element(),
+        // 状态徽标：直接在单元格里组合其他组件
+        "status" => match user.status {
+            Status::Active => Tag::success().child("启用").into_any_element(),
+            Status::Suspended => Tag::warning().child("停用").into_any_element(),
+        },
+        _ => "--".into_any_element(),
+    }
+}
+```
+
+行、表头、菜单、空态各有定制口：`render_tr` 返回整行容器，官方示例在这里挂 `.on_click` 做行级点击（回调里 `table.delegate_mut()` 记录行号再 `cx.notify()`）；`render_th` 定制表头内容——它只替换表头格里的内容部分，排序图标和拖拽换列由表格外壳负责，自定义后依然可用；`context_menu` 往行右键菜单里加菜单项；`render_empty` 换空态视图。表头之上的分组行用 `render_group_th` 定制单个分组格。
+
+## 最佳实践
+
+- **`render_td` 按轻元素设计。** 它在每次滚动时对可见行乘可见列全量调用，官方实测约 561 个单元格渲染在 0.3ms 量级——纯文本与简单 `div` 随便用，图表、语法高亮这类重组件要掂量；高频数据刷新（行情类）只更新可见行，借助 `visible_rows_changed` 把重活放进后台任务。
+- **分发用 `key`，不用 `col_ix`。** 列默认可拖拽换位（`col_movable`），列序随交互变化，`key` 才是稳定标识；不需要换位时再 `col_movable(false)` 一刀切关掉。
+- **大数据量接增量加载，别一次全量。** `rows_count` 报逻辑行数配合 `load_more` 分页追加；`dump` 导出会物化全表，大表用 `dump_range` 分批。
+- **动作列主动退出选择与换位。** 按钮、勾选列设 `.selectable(false)`，勾选列再 `.movable(false)`，避免点击动作误触发行选择、拖拽打乱列序。
+
+## 常见问题
+
+- `DataTable` 放进界面后表格不显示，或高度塌成一条
+  给外层容器一个确定高度再放表格：`DataTable` 内部是 `size_full` 铺满，官方示例都用 `div().h(px(300.))` 这类定高容器包一层；从窗口根到表格的每一层都要把高度传下去（`size_full` 链断在任意一层都会塌陷）。
+
+- 点击表头没有任何排序反应
+  依次核对三处：列有没有 `.sortable()`（`sort` 默认是 `None`，表格直接忽略点击）；`TableState` 的 `sortable` 是否被关过（默认开）；delegate 有没有实现 `perform_sort`——默认实现为空，不实现就只有图标切换没有数据重排。
+
+- 委托里的数据变了，表格界面还是旧的
+  数据在 delegate 手里，但渲染由 `TableState` 这个 `Entity` 驱动，外部改完数据必须触发它重绘：`self.table.update(cx, |table, cx| { table.delegate_mut().users = new_users; cx.notify(); })`；如果同时动了列定义（增删列、改列属性），再补一句 `table.refresh(cx)`。
+
+- 想要整表多选或一列勾选框，找不到对应 API
+  内建选择就是单选（`TableSelection` 三模式互斥），没有多选模式；勾选列用 `Checkbox` 自建，列上配 `.selectable(false)` 把它隔离在选择系统外，勾选状态自己存（建议存行唯一 id，避免排序后行号错位）。
+
+- 固定列没有钉住，水平滚动时跟着跑了
+  固定列按列序列前缀计数：`fixed_left` 的列必须连续排在列定义最前面，中间夹普通列会失效；另外确认 `TableState` 的 `col_fixed` 没被关（默认开）。
+
+## 总结回顾
+
+摘要：
+
+`DataTable` 是 gpui-kit 的数据表格组件，围绕 delegate 模型组织：`TableState` 实体持有选择、排序标记、列宽与滚动位置，`TableDelegate` 提供列定义（`columns_count`/`column`）与渲染（`rows_count`/`render_td`），`DataTable` 元素把两者挂上界面。虚拟滚动让渲染开销只随窗口大小增长——垂直方向复用 gpui 的 `uniform_list`，水平方向用 gpui-base 的 `VirtualList`，固定列移出滚动区按前缀钉在左侧。列配置走 `Column` builder：宽度与上下限、`sortable` 声明排序能力（点击循环未排 → 降序 → 升序，单列生效）、`fixed_left` 固定、`selectable(false)` 隔离动作列，`ColumnGroup` 提供多层分组表头。排序的实际重排由 `perform_sort` 委托完成，编程排序走「排数据、改 `sort` 标记、`refresh`」。选择是 `TableSelection` 表达的单选模型，行/列/单元格三模式互斥、各有开关，键盘导航与 10 种 `TableEvent` 内建；多选勾选列用 `Checkbox` 自建。单元格渲染集中在 `render_td`，按 `key` 分发，行、表头、右键菜单、空态各有定制回调，滚动到底可用 `load_more` 一族增量加载数据。
+
+一句话：
+
+> 数据交给 delegate、交互交给 `TableState`、虚拟滚动交给表格本身——列定义、排序标记、选择状态各归其位，万行数据也只画可见的那几十行。
+
+知识要点：
+
+- `DataTable` 与同模块简单 `Table` 的分工，以及 `DataTable` 状态、数据、渲染三层各自的职责
+- `TableDelegate` 的四个必需方法与常用可选回调（`perform_sort`、`render_tr`、`load_more`、`visible_rows_changed` 等）
+- `Column` 的常用配置与默认值，固定列为什么必须排在列序列最前面
+- 虚拟滚动的实现机制，与 gpui 原生 `uniform_list`（5.1 课）的关系
+- 排序声明与 `perform_sort` 的分工、点击循环顺序、编程排序的固定三步
+- `TableSelection` 单选模型、三种选择模式的开关与对应事件、单元格模式下的行头列
+- 多选勾选列为什么没有内建，自建时注意什么
+- 单元格、行、表头、右键菜单、空态各用哪个回调定制
+
+## 参考资料
+
+- [DataTable 组件文档（gpui-kit.com）](https://gpui-kit.com/docs/components/data-table/)
+- [Table 组件文档（gpui-kit.com）](https://gpui-kit.com/docs/components/table/)
+- [gpui-kit API 文档（docs.rs）](https://docs.rs/gpui-kit)
+- [table 模块源码（crates/component/src/table/）](https://github.com/longbridge/gpui-kit/tree/main/crates/component/src/table)
+- [官方示例 table_in_scrollable](https://github.com/longbridge/gpui-kit/tree/main/examples/table_in_scrollable)
+- [story 画廊 DataTable 示例（data_table_story.rs）](https://github.com/longbridge/gpui-kit/blob/main/crates/story/src/stories/data_table_story.rs)

@@ -1,0 +1,375 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="zed-ui-crate" title="生态实践/Zed ui crate 与源码阅读" name="Docs" />
+
+# Zed ui crate 与源码阅读
+
+gpui 是一个"源码即文档"的框架：API 演进快、教学资料少，而 Zed 编辑器本身就是最大的 gpui 应用。藏在 Zed 仓库里的 `crates/ui` 是官方维护的组件层——它完全用 gpui 公开 API 写成，没有特权接口，示范了组件如何组织、主题色如何解析、交互状态如何统一。想知道"生产级 gpui 代码怎么写"，读它比读任何二手教程都更接近官方答案。本课给两条阅读路径：先看懂 `crates/ui` 的组件层设计（可以直接借鉴的写法），再拿到 gpui 本体的模块地图（知道去哪个文件找什么），并把许可边界讲清楚。
+
+事实基线：本课源码事实于 2026-10-06 抓取自 zed 仓库 main 分支（commit `6ec43d63`）；与 crates.io gpui 0.2.2 的差异见常见问题。文中源码路径均相对 zed 仓库根目录。
+
+## 组件清单与源码入口
+
+`crates/ui` 的组件按 `src/components/` 下的模块组织，目录式组件（如 `button/`）内部再按角色拆文件。回查时按这张表找入口：
+
+| 分类 | 组件（模块） | 源码入口 |
+| --- | --- | --- |
+| 文本与图标 | `Label`、`Headline`、`Icon`、`KeyBinding`、`CountBadge`、`DiffStat`、`Indicator`、`Chip`、`Divider`、`IndentGuides`、`GradientFade` | `crates/ui/src/components/label/`、`icon/` 及同名单文件 |
+| 按钮与开关 | `Button`、`IconButton`、`ToggleButton`、`ButtonLink`、`CopyButton`、`SplitButton`、`ButtonLike`；`checkbox()` / `switch()`（`Checkbox`、`Switch`、`SwitchField`） | `crates/ui/src/components/button/`、`toggle.rs` |
+| 列表与数据 | `List`（`ListItem`、`ListHeader` 等）、`TreeViewItem`、`DataTable`、`Scrollbars` | `crates/ui/src/components/list/`、`data_table/`、`scrollbar.rs` |
+| 浮层与菜单 | `Popover`、`PopoverMenu`、`ContextMenu`、`RightClickMenu`、`DropdownMenu`、`Modal`、`Tooltip`、`AlertModal`、`Banner`、`Callout` | `crates/ui/src/components/popover.rs`、`modal.rs` 等 |
+| 布局与反馈 | `h_flex()` / `v_flex()`、`h_group()` / `v_group()`、`Tab`、`TabBar`、`Disclosure`、`ProgressBar`、`CircularProgress` | `crates/ui/src/components/stack.rs`、`group.rs`、`tab.rs`、`progress/` |
+| 人与插画 | `Avatar`、`Facepile`、`Vector`（Zed 插画素材，不是通用图片组件） | `crates/ui/src/components/avatar.rs`、`image.rs` |
+| Zed 专属 | `ai/`（Agent 相关）、`collab/`（协作通知、更新按钮）、`project_empty_state` 等 | `crates/ui/src/components/ai/`、`collab/` |
+
+源码入口：[zed 仓库 crates/ui](https://github.com/zed-industries/zed/tree/main/crates/ui)；gpui 本体入口：[zed 仓库 crates/gpui](https://github.com/zed-industries/zed/tree/main/crates/gpui)。
+
+## crates/ui 的定位与边界
+
+读之前先分清"它是什么、不是什么"，这决定你能拿它做什么：
+
+- **Zed 自用组件层。** crate 名就是 `ui`，只存在于 zed 工作区内；workspace 统一设置 `publish = false`，所以 crates.io 上没有它，无法 `cargo add`。
+- **GPL 许可。** `crates/ui/Cargo.toml` 声明 `license = "GPL-3.0-or-later"`（目录里有 `LICENSE-GPL`）。它依赖的兄弟 crate `theme`、`component` 同为 GPL；而 gpui 本体是 Apache-2.0。这组许可差异是"读"与"抄"的分界线，下一节展开。
+- **组件层，不是框架扩展。** 它依赖 gpui（另有 `theme`、`component`、`ui_macros`、`icons`、`menu` 等 Zed 内部 crate），但用的全是 gpui 公开 API：`RenderOnce`、`div()`、`Styled`。你在自己的工程里能写出结构完全一样的代码——这正是它值得读的原因。
+- **单行输入不在其中。** `ui.rs` 的模块文档写明，单行输入组件独立放在 `crates/ui_input`。
+- **与 gpui-kit 的边界。** 前 5 课讲的 gpui-kit（原 gpui-component）是可发布的第三方生产级组件库，和 `crates/ui` 是两套独立实现；要"直接用组件"选 gpui-kit，要"学官方写法"读 `crates/ui`。
+
+## 源码组织：components、styles、traits、utils
+
+crate 根 `src/ui.rs` 只做一件事：声明五个模块并统一导出。分层很浅，但职责分明：
+
+| 路径 | 职责 |
+| --- | --- |
+| `src/ui.rs` | crate 根：声明模块、导出 `components::*`、`styles::*` 等 |
+| `src/prelude.rs` | 预导出：gpui 常用类型 + 本 crate 高频组件、trait 与语义类型；官方注释说"在 Zed 里写 UI 几乎总是要导入它" |
+| `src/components/` | 43 个组件模块，全在 `components.rs` 里平铺声明后 `pub use` |
+| `src/styles/` | 9 个样式模块：`color`、`spacing`、`elevation`、`typography`、`animation`、`appearance`、`platform`、`severity`、`units` |
+| `src/traits/` | 8 个小 trait：`clickable`、`disableable`、`toggleable`、`styled_ext`、`fixed`、`visible_on_hover`、`transformable`、`animation_ext` |
+| `src/utils/` | 工具函数：颜色对比度计算、时间距离格式化等 |
+
+两个组织模式值得记住：
+
+- **目录式组件 + 转发文件。** 复杂组件用目录承载，目录旁放一个同名转发文件。例如 `components/button.rs` 只有 15 行，全是 `mod button_like;` 加 `pub use button_like::*;`；真正的实现按角色拆在 `button/` 目录里（`button.rs`、`button_like.rs`、`icon_button.rs`、`toggle_button.rs` 等）。`label/`、`list/`、`icon/`、`notification/` 同理。
+- **styles 与 traits 是组件的"词表"。** 语义 token（颜色、间距、层级）和能力 trait（可点击、可禁用）都定义在这两层，组件实现只是组合它们。读新组件卡住时，答案几乎总在这两层里。
+
+建议的初次阅读顺序：`prelude.rs`（看输出面）→ `styles/color.rs`（看语义 token）→ `components/button/`（看完整组件怎么组装）。
+
+## 组件的组织模式
+
+每个组件共享同一个模型：一个 `RenderOnce` 结构体 + builder 方法 + 若干能力 trait + 一份 `Component` 预览实现。以 `Button` 为例，这是它在 Zed 代码里的典型用法：
+
+```rust
+use ui::prelude::*;
+
+Button::new("save", "Save") // 元素 id + 标签
+    .style(ButtonStyle::Filled) // 语义样式，不是具体颜色
+    .start_icon(Icon::new(IconName::Check))
+    .toggle_state(true) // 可切换态，来自 Toggleable trait
+    .on_click(|_event, _window, _cx| {
+        // 处理点击
+    });
+```
+
+下面按这个模型的四个面拆开讲。
+
+### trait 扩展统一交互状态
+
+问题：按钮要能禁用、开关要能切换、列表项要能点击——每类组件都需要这批方法，逐个实现会写出大量重复签名。Zed 的解法是把每种能力定义成单方法小 trait，组件按需实现，调用方拿到统一的 API 名：
+
+```rust
+// crates/ui/src/traits/clickable.rs
+pub trait Clickable {
+    fn on_click(self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static) -> Self;
+    fn cursor_style(self, cursor_style: CursorStyle) -> Self;
+}
+
+// crates/ui/src/traits/disableable.rs
+pub trait Disableable {
+    fn disabled(self, disabled: bool) -> Self;
+}
+
+// crates/ui/src/traits/toggleable.rs（节选）
+pub trait Toggleable {
+    fn toggle_state(self, selected: bool) -> Self;
+}
+```
+
+读组件时先看它的 `impl` 列表，能力面一目了然。`Button` 一口气实现了 `Clickable`、`Disableable`、`Toggleable`、`SelectableButton`、`FixedWidth` 和 `ButtonCommon`（样式、尺寸、tooltip、焦点），而这些方法几乎全是"转发给底座再返回自身"：
+
+```rust
+// crates/ui/src/components/button/button.rs（节选）
+impl Disableable for Button {
+    fn disabled(mut self, disabled: bool) -> Self {
+        self.base = self.base.disabled(disabled); // 实际逻辑在 ButtonLike 里
+        self
+    }
+}
+```
+
+另一个模式是**组合优于继承**：`Button` 内部持有一个 `base: ButtonLike`，`Label` 内部持有 `LabelLike`。复杂组件的共享底座单独成结构体，供同族组件复用；`ButtonLike` 本身就是一个可以直接用的"自定义内容按钮"。
+
+### 语义 token：Color、DynamicSpacing 与 ElevationIndex
+
+组件的公开 API 不收裸的 `Hsla`、像素值，而是收语义枚举，render 时才解析成主题里的具体值。这是整个组件层最值得搬走的纪律：
+
+| token | 变体举例 | 解析落点 |
+| --- | --- | --- |
+| `Color` | `Default`、`Muted`、`Accent`、`Disabled`、`Error`、`Warning`、`Success`、`Custom(Hsla)` | `cx.theme().colors()` 的文本色 + `cx.theme().status()` 的状态色 |
+| `ButtonStyle` | `Filled`、`Subtle`、`Transparent`、`Outlined`、`Tinted(TintColor::Accent)` | 背景 / 边框 / 文字色的成组解析 |
+| `DynamicSpacing` | `Base04`、`Base08`、`Base16`（`Base` 后是默认密度下的像素值） | 按三档 UI 密度（Compact / Default / Comfortable）给出 `rems` |
+| `ElevationIndex` | `Surface`、`ElevatedSurface`、`ModalSurface` | 各层的背景色与对应强度阴影 |
+| 尺寸档位 | `ButtonSize`、`LabelSize`（`Default` / `Large` / `Small` / `XSmall` / `Custom(Rems)`）、`IconSize` | 语义尺寸档，不写死像素 |
+
+`Color` 的解析逻辑本身就是一个很好的阅读样本：
+
+```rust
+// crates/ui/src/styles/color.rs（节选）
+pub enum Color {
+    #[default]
+    Default, // 默认文本色
+    Muted, // 弱化文本
+    Disabled, // 禁用态
+    Error,
+    // ……共 20 多个语义变体，含版本控制专用的一组
+    Custom(Hsla),
+}
+
+impl Color {
+    // 语义色在 render 时才解析为主题里的具体 Hsla
+    pub fn color(&self, cx: &App) -> Hsla {
+        match self {
+            Color::Default => cx.theme().colors().text,
+            Color::Muted => cx.theme().colors().text_muted,
+            Color::Error => cx.theme().status().error,
+            // ……
+            Color::Custom(color) => *color,
+        }
+    }
+}
+```
+
+三处细节值得注意：
+
+- `DynamicSpacing` 由 `spacing.rs` 里的 `derive_dynamic_spacing!` 宏生成，每个档位给三档密度的值（如 `(2, 4, 6)` 表示三档密度下的像素），用时 `DynamicSpacing::Base04.rems(cx)` 直接拿到当前密度下的 `rems`。
+- `ElevationIndex` 把"元素离用户多近"编号成五层（`Background`、`Surface`、`EditorSurface`、`ElevatedSurface`、`ModalSurface`），`shadow(cx)` 与 `bg(cx)` 按层给出阴影和背景，模态框的阴影就是这样叠出来的。
+- `Color::Custom(Hsla)` 的文档原话是"强烈不建议使用——用了就脱离了跨主题的语义"。留逃生门，但语义优先，这是值得抄的取舍。
+
+### ActiveTheme：从主题取色
+
+`cx.theme()` 不是 gpui 的 API，它来自 Zed 的 `theme` crate：`ActiveTheme` trait 为 `App` 实现了一个访问器，主题本体存在 gpui 的 Global 里：
+
+```rust
+// crates/theme/src/theme.rs（节选）
+pub trait ActiveTheme {
+    fn theme(&self) -> &Arc<Theme>;
+}
+
+impl ActiveTheme for App {
+    fn theme(&self) -> &Arc<Theme> {
+        GlobalTheme::theme(self) // 主题存在 gpui Global 中
+    }
+}
+```
+
+`Theme` 持有 `ThemeStyles`，组件最常用两个入口：
+
+- `colors()`：`ThemeColors`，界面基础色——`text`、`border`、`background`、`surface_background`、`element_background`、`element_hover`、`element_selected` 等；
+- `status()`：`StatusColors`，状态色——`error`、`warning`、`success`、`info`、`created`、`modified` 等，并且多数带成对的 `*_background` / `*_border`，Alert 类组件直接成对取用。
+
+`crates/ui` 的 prelude 把 `ActiveTheme` 一并转出，组件代码里 `use theme::ActiveTheme as _;` 之后，render 的任意位置都能取到当前主题。值得学的是**分层**：`theme` crate 存具体颜色，`crates/ui` 的 styles 层存语义枚举，组件只碰语义枚举——换主题、换密度时，组件代码一行不改。
+
+### Component 预览注册
+
+`crates/ui` 里每个组件都实现了 `Component` trait（来自 `crates/component`）：声明描述、分类和一组示例，再由 `ui_macros` 的 `RegisterComponent` 派生宏配合 `inventory` 在运行时把所有组件注册进全局注册表；Zed 用 `crates/component_preview` 宿主这些预览，相当于内部的组件故事书：
+
+```rust
+// crates/ui/src/components/button/button.rs（节选）
+impl Component for Button {
+    fn scope() -> ComponentScope {
+        ComponentScope::Input
+    }
+
+    fn description() -> &'static str {
+        "A button triggers an event or action."
+    }
+
+    fn preview(_window: &mut Window, _cx: &mut App) -> AnyElement {
+        example_group_with_title("Button Styles", vec![
+            single_example("Default", Button::new("default", "Default").into_any_element()),
+            single_example(
+                "Filled",
+                Button::new("filled", "Filled")
+                    .style(ButtonStyle::Filled)
+                    .into_any_element(),
+            ),
+            // ……
+        ])
+        .into_any_element()
+    }
+}
+```
+
+对读者的实际价值：**`preview()` 是最权威的用法示例集**。想知道某组件有哪些形态、哪些组合，直接读它的 `preview()`，比任何文档都全。
+
+## 借用 Zed 的写法
+
+先把许可事实说透：`crates/ui` 与 `crates/theme` 均为 GPL-3.0-or-later。把它们的源码复制进你的项目，你的项目就需要以 GPL 兼容的方式发布；通过 git 依赖链接它们，结论相同。而 gpui 本体是 Apache-2.0，可以放心依赖。所以正确的借鉴姿势是**学写法、不搬代码**：
+
+- 建自己的语义 token 层：为颜色、间距、尺寸定义枚举，render 时才解析；
+- 用单方法能力 trait 统一组件 API（`Clickable`、`Disableable` 这套命名与粒度）；
+- 用 Global 存主题，为 `App` 实现访问 trait，得到 `cx.theme()` 式取色；
+- 组件用 `RenderOnce` + builder，同族组件共享一个 `*Like` 底座。
+
+"按 ActiveTheme 取色渲染按钮"在 Zed 源码里长这样——每种语义样式把背景、边框、文字色成组解析，而不是散落在各处硬编码：
+
+```rust
+// crates/ui/src/components/button/button_like.rs（ButtonStyle::enabled 节选）
+impl ButtonStyle {
+    pub(crate) fn enabled(
+        self,
+        elevation: Option<ElevationIndex>,
+        cx: &mut App,
+    ) -> ButtonLikeStyles {
+        match self {
+            ButtonStyle::Filled => ButtonLikeStyles {
+                // 背景按元素所在层级取主题色
+                background: element_bg_from_elevation(elevation, cx),
+                border_color: transparent_black(),
+                label_color: Color::Default.color(cx),
+                icon_color: Color::Default.color(cx),
+            },
+            ButtonStyle::Subtle => ButtonLikeStyles {
+                background: cx.theme().colors().ghost_element_background,
+                // ……同上，每种样式一组语义取色
+            },
+            // ……
+        }
+    }
+}
+```
+
+把它搬进自己项目时的最小骨架（简化示意，省略主题切换与密度）：
+
+```rust
+use gpui::{App, Global, Hsla, Window, div, prelude::*, RenderOnce};
+
+// 语义 token：只存语义，不存写死的界面值
+#[derive(Clone, Copy)]
+struct MyButtonStyle {
+    bg: Hsla,
+    text: Hsla,
+}
+
+// 主题存为 Global，为 App 实现访问 trait（cx.theme() 模式）
+#[derive(Clone, Copy)]
+struct MyTheme {
+    button: MyButtonStyle,
+}
+impl Global for MyTheme {}
+
+trait ActiveTheme {
+    fn theme(&self) -> &MyTheme;
+}
+impl ActiveTheme for App {
+    fn theme(&self) -> &MyTheme {
+        self.global::<MyTheme>()
+    }
+}
+
+// 组件 render 时按语义取色，换主题时组件零改动
+struct MyButton {
+    label: &'static str,
+}
+
+impl RenderOnce for MyButton {
+    fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let style = cx.theme().button;
+        div()
+            .flex()
+            .items_center()
+            .px_2()
+            .py_1()
+            .rounded_sm()
+            .bg(style.bg)
+            .text_color(style.text)
+            .child(self.label)
+    }
+}
+```
+
+对照两段代码可以看到同一模式的两级抽象：Zed 用 `Color` 枚举 + `theme` crate 做完整版；你可以在几十行内得到结构相同的简化版。之后项目再大，就沿着这条线补密度（`DynamicSpacing` 式）、层级（`ElevationIndex` 式）和能力 trait 即可。
+
+## gpui 本体源码阅读路径
+
+`crates/gpui/src/` 的模块地图。找实现、查行为时按"模块 → 职责 → 对应课程"定位：
+
+| 模块 | 职责 | 对应课程 |
+| --- | --- | --- |
+| `gpui.rs` | crate 根：模块声明与统一导出 | 1.1 |
+| `app.rs`、`app/` | `App` / `Context` 体系、`Entity` 存储（`app/entity_map.rs`）、各类测试上下文（`app/test_context.rs` 等） | 4.1、4.2、6.1 |
+| `window.rs`、`window/` | `Window`、绘制与事件管线、`FocusHandle`、无障碍（`window/a11y.rs`） | 1.2、3.3、6.2 |
+| `elements/` | 全部内置 Element：`div.rs`（最大，含 `InteractiveElement` 等交互 trait）、`list.rs`、`uniform_list.rs`、`text.rs`、`img.rs`、`svg.rs`、`canvas.rs`、`animation.rs`、`deferred.rs`、`anchored.rs`、`container_query.rs` | 2.1–2.5、3.1、5.1–5.5 |
+| `element.rs` | `Element` trait 协议（`request_layout` / `paint`） | 4.3 |
+| `style.rs`、`styled.rs` | `Style` 与 `Styled` 样式扩展 trait | 2.1、2.2、2.4 |
+| `taffy.rs` | Taffy flexbox 布局树集成 | 2.1 |
+| `key_dispatch.rs`、`keymap/` | 动作注册与按键分发 | 3.2 |
+| `interactive.rs` | 事件类型 trait：`MouseEvent`、`KeyEvent`、`GestureEvent` | 3.1、3.4 |
+| `executor.rs` | 前后台执行器与 `Task` | 4.4 |
+| `view.rs` | `View` / `Render` 抽象 | 1.2、1.3 |
+| `platform/`、`platform.rs` | 平台后端：事件循环调度、应用菜单、按键、屏幕 | 1.1、6.3 |
+| `text_system/`、`text_system.rs` | 字体发现、shaping 与文本布局 | 2.5 |
+| `color.rs`、`colors.rs` | `Hsla` / `Rgba` 颜色类型 | 2.4 |
+| `gestures.rs`、`input.rs` | 拖放手势、文本输入协议 | 3.4、3.5 |
+| `action.rs` | `actions!` 宏与 `Action` | 3.2 |
+| `_ownership_and_data_flow.rs` | 所有权与数据流的模块文档 | 4.2 |
+| `assets.rs`、`asset_cache.rs` | 资产加载与缓存 | 5.4 |
+| `profiler/`、`inspector.rs` | 性能剖析与运行时检查器 | 6.4 |
+
+体量提示：`window.rs` 约 9600 行、`elements/div.rs` 约 5600 行，不要按行读，按上表职责配合 IDE 符号跳转定位。
+
+建议按三条线读，别贪一次通读：
+
+1. **自上而下**：`crates/gpui/examples/` 的官方示例（各课已对照过）→ `crates/ui` 组件 → gpui 核心。先看见"怎么用"，再问"怎么做到"。
+2. **一次点击的生命周期**：`elements/div.rs`（交互挂载）→ `window.rs`（平台事件进绘制循环）→ `key_dispatch.rs`（动作分发）→ `app.rs`（effect 冲刷与 notify）。
+3. **一次渲染的生命周期**：`cx.notify()` → `app.rs`（调度）→ `window.rs` 的 draw → `element.rs`（`request_layout` / `paint`）。
+
+## 常见问题
+
+- 我能把 `crates/ui` 加进自己的 `Cargo.toml` 吗？
+  不能。它在 zed 工作区内且 workspace 统一 `publish = false`，crates.io 上不存在；即便写成 git 依赖强引，它是 GPL-3.0-or-later，你的项目也会被 GPL 约束。处理方式：把 `crates/ui` 当参考实现，照上一节借模式自建组件层；要直接可依赖的组件库则用 gpui-kit（见 [gpui-kit 入门](?path=/docs/gpui-kit-intro--docs)）。
+
+- 照 main 分支源码写的代码在 crates.io 0.2.2 上编译不过？
+  gpui 演进快，main 分支与已发布版本存在 API 差距（例如入口从 `Application::new().run` 演进为 main 分支的 `gpui_platform::application()`）。读源码时先确认目标文件属于哪个世界：跟发布版对齐就去 docs.rs 选对应版本核对 API；读 main 就整条链路都读 main。本手册的 gpui API 基线是 crates.io 0.2.2，本课的源码事实以 main 分支为准。
+
+- `crates/ui` 和 gpui-kit 是什么关系，该学哪个？
+  两套独立实现，没有派生关系。gpui-kit 是 longbridge 维护的可发布组件库（主题、表格、Dock、编辑器，见 7.1–7.5 课）；`crates/ui` 是 Zed 编辑器的内部组件层，组件面更贴 Zed 自身需求。要组件直接可用，选 gpui-kit；要理解官方怎么组织组件层，读 `crates/ui`。
+
+- 读源码时遇到 `&& let Some(x) = ...` 这种写法编译不过？
+  这是 Rust 2024 edition 的 let-chains 语法，zed 工作区用 `edition = "2024"`，`Button::render` 里就有。用较旧工具链或旧 edition 的项目不能直接照抄，需要拆成两层 `match` 或 `if let`。
+
+## 总结回顾
+
+摘要：
+
+本课把 Zed 仓库里两块最值得读的源码摊开成地图。`crates/ui` 是 Zed 自用的组件层：未发布、GPL 许可、完全用 gpui 公开 API 写成，按 `components`（43 个组件模块）、`styles`（语义 token）、`traits`（能力 trait）、`utils` 分层；组件共享"`RenderOnce` 结构体 + builder + 能力 trait + `Component` 预览"一个模型，用 `Color` / `DynamicSpacing` / `ElevationIndex` 等语义 token 在 render 时向 `cx.theme()` 解析具体值。这套写法因为许可原因只能学不能搬，本课给了从语义 token 到 Global 主题的最小借用骨架。gpui 本体则按模块地图阅读：`app.rs` 管 Context 与 Entity、`window.rs` 管窗口与绘制、`elements/` 管内置元素、`key_dispatch.rs` 管按键分发，沿"一次点击 / 一次渲染"的生命周期线把它们串起来。
+
+一句话：
+
+> `crates/ui` 是 gpui 的官方最佳实践样本——先读它的组件组织与语义 token，再沿模块地图进 gpui 本体，是掌握生产级 gpui 写法最短的路径。
+
+知识要点：
+
+- `crates/ui` 的定位、许可与发布状态分别是什么？
+- `crates/ui` 的四个分层各自放什么，读新组件时按什么顺序找答案？
+- Zed 用哪些能力 trait 统一组件的交互 API？
+- 语义 token 有哪几类，各自在 render 时解析成什么？
+- `ActiveTheme` 如何让组件拿到主题色，主题本体存在哪里？
+- 为什么不能直接依赖 `crates/ui`，正确的借鉴方式是什么？
+- gpui 本体的关键模块各自负责什么，"一次点击"和"一次渲染"分别经过哪些文件？
+
+## 参考资料
+
+- [Zed ui crate 源码（crates/ui）](https://github.com/zed-industries/zed/tree/main/crates/ui)
+- [Zed theme crate 源码（crates/theme，ActiveTheme 与 Theme）](https://github.com/zed-industries/zed/tree/main/crates/theme)
+- [Zed component crate 源码（crates/component，Component 预览注册）](https://github.com/zed-industries/zed/tree/main/crates/component)
+- [gpui 本体源码（crates/gpui）](https://github.com/zed-industries/zed/tree/main/crates/gpui)

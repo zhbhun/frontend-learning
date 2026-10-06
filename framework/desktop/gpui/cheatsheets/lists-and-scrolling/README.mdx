@@ -1,0 +1,368 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="lists-and-scrolling" title="实战能力/列表与滚动" name="Docs" />
+
+# 列表与滚动
+
+GPUI 不会为装不下的内容自动生成滚动条，更不会替你少渲染看不见的条目：滚与不滚、虚拟化与否，都是显式声明。本课覆盖三套方案的选择与用法——普通滚动容器（`div` + `overflow_scroll`，全量布局）、变高虚拟列表（`list` + `ListState`）、等高虚拟列表（`uniform_list`），以及配套的滚动位置控制（`ScrollHandle`、`UniformListScrollHandle`、`ListState` 的 `scroll_to_*` 家族）。读完你能判断：一个上万条的日志视图该选哪个入口、滚动条为什么忽长忽短、怎么让列表打开时直接定位到第 5000 条。
+
+方案选择入口，先记这张表：
+
+| 方案 | 入口 | 虚拟化 | 适用 |
+| --- | --- | --- | --- |
+| 普通滚动容器 | `div().id("...").overflow_scroll()` | 否，子元素全量布局 | 条目几百以内，内容随意变高 |
+| `list` | `list(ListState, 渲染回调)` | 是，逐条测量行高 | 上千到万级，行高不一 |
+| `uniform_list` | `uniform_list(id, 条数, 渲染回调)` | 是，只测一个条目 | 上千到万级，行高固定 |
+
+滚动与列表方法家族回查表（详细语义见后文小节）：
+
+| 方法 | 归属 | 用途与关键条件 |
+| --- | --- | --- |
+| `.overflow_scroll()` | `StatefulInteractiveElement` | x、y 两轴同时开滚动；必须先 `.id()` |
+| `.overflow_x_scroll()` / `.overflow_y_scroll()` | `StatefulInteractiveElement` | 单轴开滚动 |
+| `.overflow_hidden()` | `Styled` | 溢出部分裁剪，不可滚动 |
+| `.scrollbar_width(len)` | `StatefulInteractiveElement` | 预留滚动条渲染空间，仅 overflow 为 Scroll 时影响布局 |
+| `.track_scroll(&ScrollHandle)` | `StatefulInteractiveElement` | 给滚动容器绑句柄，读取并控制滚动位置 |
+| `ListState::new(count, alignment, overdraw)` | `ListState` | 建状态：对齐方向 + 视口外预渲染像素，overdraw 无默认值，需显式给 |
+| `.measure_all()` | `ListState` | 首帧测量全部条目，让滚动条尺寸准确 |
+| `.scroll_to_reveal_item(ix)` | `ListState` | 滚到第 ix 条完全可见 |
+| `uniform_list(id, count, f)` | 函数 | 回调签名 `Fn(Range<usize>, &mut Window, &mut App) -> Vec<R>`，只收可见范围 |
+| `.track_scroll(UniformListScrollHandle)` | `UniformList` | 与 div 的同名方法参数类型不同，别混用 |
+| `.scroll_to_item(ix, ScrollStrategy)` | `UniformListScrollHandle` | 按 `Top` / `Center` / `Bottom` 策略滚到某条 |
+
+以上均为 gpui 0.2.2（crates.io 最新发布版）已发布的 API。main 分支有两处明显演进，涉及处标注"仅 main"：`uniform_list` 的渲染回调改经 `cx.processor(...)`（签名带上 `self` 与 `&mut Context<T>`）；官方示例入口换成 `gpui_platform::application()`。不属于本课的近邻成员：滚轮事件 `on_scroll_wheel` 本身归 3.1 课；要"现成表格"能力时，gpui-kit 的数据表格自带虚拟滚动，归 7.3 课；`ScrollAnchor` 与 `anchor_scroll` 是滚动锚点的进阶入口，本课只留名字。
+
+## 滚动容器：overflow_scroll 与 ScrollHandle
+
+共同模型：overflow 决定"内容装不下怎么办"。元素默认没有滚动行为，`overflow_scroll` 把它声明成滚动容器后，滚轮事件按 3.1 课讲过的归属规则落进来——滚动归属于鼠标位置所在的最外层滚动容器。这条路线没有虚拟化：容器内的子元素无论是否滚出视口，每帧都真实参与布局。它解决"怎么滚"，不解决"内容太多"。
+
+### 滚动容器与嵌套
+
+`overflow_scroll` 定义在 `StatefulInteractiveElement` 上，滚动位置是元素状态，所以必须先 `.id()` 再调用（与 `on_click` 同一批前置，原因见 1.3 课）。三个变体按轴选择：
+
+```rust
+// 竖向滚动：容器给定高度，内容超出即可滚
+div()
+    .id("feed") // 滚动状态属于元素状态：先 .id() 再开滚动
+    .h_full()
+    .overflow_scroll() // x、y 两轴同时设为滚动
+    .child(/* 超出容器高度的内容 */)
+
+// 只开一个轴：另一个方向装不下时直接裁剪
+div()
+    .id("timeline")
+    .w_full()
+    .h_full()
+    .overflow_y_scroll()
+```
+
+滚动容器可以嵌套，每层各自持有滚动位置。模式取自官方 `scrollable.rs` 示例（内层简化为单轴）：
+
+```rust
+// 外层竖向滚，内层横向滚：滚轮落在哪里，事件就归属哪一层
+div()
+    .id("vertical")
+    .size_full()
+    .overflow_scroll()
+    .child("Two way scroll in nested layout")
+    .child(
+        div()
+            .h(px(5000.)) // 内容远超视口：外层可竖向滚
+            .border_1()
+            .child(
+                div()
+                    .id("horizontal") // 每层滚动容器各自要 id
+                    .overflow_x_scroll() // 只开横向
+                    .child(
+                        div()
+                            .w(px(2000.)) // 内容超宽：内层可横向滚
+                            .h(px(150.))
+                            .child("Scroll Horizontal"),
+                    ),
+            ),
+    )
+```
+
+运行后外层内容可以一直往下滚，滚到内层横向条上滚动滚轮，则由内层消费、横向移动。两个配套样式：`.scrollbar_width(len)` 给滚动条预留渲染空间（只在 overflow 为 Scroll 时生效）；`.overflow_hidden()` 把溢出内容裁掉且完全不可滚——后面 `uniform_list` 对容器的要求正是它。
+
+### ScrollHandle：读取与控制滚动位置
+
+滚动容器默认是个黑盒：想读当前滚到哪、或在回调里把它滚到某个位置，要绑一个 `ScrollHandle`。句柄在自己的视图里持有，渲染时通过 `.track_scroll(&ScrollHandle)` 交给元素：
+
+```rust
+struct LogView {
+    scroll: ScrollHandle,
+}
+
+impl Render for LogView {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .id("log")
+            .size_full()
+            .overflow_y_scroll()
+            .track_scroll(&self.scroll) // 绑定后才能读取与控制滚动
+            .child(/* 大量内容 */)
+    }
+}
+
+// 任意回调里读取与控制滚动位置：
+let offset = self.scroll.offset(); // 当前偏移：向下滚动时 y 为负
+let max = self.scroll.max_offset(); // 最大可滚动距离
+let top = self.scroll.top_item(); // 视口顶部停在第几个子元素
+self.scroll.set_offset(point(px(0.), px(0.))); // 回到顶部：偏移归零
+self.scroll.scroll_to_item(120); // 最小滚动到第 120 个子元素可见
+self.scroll.scroll_to_bottom(); // 滚到底
+cx.notify();
+```
+
+方法族回查（签名取自 docs.rs 0.2.2）：
+
+| 方法 | 说明 |
+| --- | --- |
+| `offset()` | 当前滚动偏移 `Point<Pixels>`；越往下滚 y 越负 |
+| `max_offset()` | 最大可滚动距离 `Size<Pixels>` |
+| `top_item()` / `bottom_item()` | 视口顶 / 底部第一个可见子元素的序号 |
+| `logical_scroll_top()` | `(usize, Pixels)`：顶部子元素序号 + 相对它的像素偏移 |
+| `bounds_for_item(ix)` | 某个子元素的窗口坐标，没渲染过返回 `None` |
+| `scroll_to_item(ix)` | 最小滚动让子元素可见：已可见则不动 |
+| `scroll_to_top_of_item(ix)` | 把子元素滚到视口顶部 |
+| `scroll_to_bottom()` | 滚到底 |
+| `set_offset(Point<Pixels>)` | 直接设偏移：内容左上角相对容器左上角的距离 |
+| `children_count()` | 已布局子元素的个数 |
+
+方向语义是这套句柄最容易踩的点：`set_offset` 的文档写明，偏移是"父容器左上角到第一个子元素左上角的距离"，越往下滚越负——回到顶部是 `point(px(0.), px(0.))`，不是某个正数。边界：句柄的 `top_item` / `bounds_for_item` 依赖真实布局出的子元素边界，所以这条路线天生和虚拟化无关；内容大到万级时布局本身先垮，交给下面两节。
+
+## List：变高虚拟列表
+
+`list` 解决"条目很多且行高不一"。模型是状态外置：`ListState` 由你的视图持有（官方称 intrusive state，直接存在 view 上以最小化重渲染），`list()` 元素每帧拿状态和逐条渲染回调，只布局视口加缓冲区覆盖到的条目；测量到的行高被缓存进一棵求和树（sum_tree），滚动时按像素快速换算出该渲染哪些条目。
+
+四十条变高数据的最小闭环（模式取自官方 `list_example.rs`）：
+
+```rust
+struct ActivityFeed {
+    list_state: ListState,
+}
+
+impl ActivityFeed {
+    fn new() -> Self {
+        Self {
+            // 条数、对齐方向、overdraw：视口外再预渲染 500px 的条目
+            list_state: ListState::new(40, ListAlignment::Top, px(500.)).measure_all(),
+        }
+    }
+}
+
+impl Render for ActivityFeed {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .size_full()
+            .flex()
+            .flex_col()
+            .child(
+                list(self.list_state.clone(), |ix, _window, _cx| {
+                    // 回调按需执行：只有视口 + overdraw 覆盖到的 ix 才会被调用
+                    // 行高各不相同也可以；返回类型是 AnyElement
+                    let height = px(30. + (ix % 5) as f32 * 10.);
+                    div()
+                        .h(height)
+                        .w_full()
+                        .flex()
+                        .items_center()
+                        .px_3()
+                        .border_b_1()
+                        .child(format!("Item {ix}"))
+                        .into_any()
+                })
+                .flex_1(), // 给列表一个确定高度：吃满剩余空间
+            )
+    }
+}
+```
+
+三个构造参数各有含义：
+
+- `item_count`：条目总数。数据条数变化时用 `splice` / `reset` 同步（见下文）。
+- `alignment`：`ListAlignment::Top` 是常规的自上而下列表；`ListAlignment::Bottom` 自下而上，第 0 条贴底——聊天记录用它，新消息往下生长时视口不用追着滚。
+- `overdraw`：视口上下各多渲染多少像素的条目，官方文档给它的职责是"让列表滚动时不闪现、不弹跳"。没有默认值，必须显式给；官方示例取 `px(500.)`。
+
+渲染回调的签名是 `FnMut(usize, &mut Window, &mut App) -> AnyElement`：只收条目序号，拿不到视图的 `Context`——需要读数据就在构造 `list()` 前把句柄或数据克隆进闭包，需要改状态走 `Entity::update`（4.2 课的模式）。
+
+变高路线有一条硬约束，官方源码的模块文档原文是：视口外的条目不能改变高度；高度变了必须通过 `splice` 或 `reset` 通知列表，否则高度缓存与真实内容错位：
+
+```rust
+// 原第 10..15 条被 3 条新数据取代：高度缓存同步重算
+self.list_state.splice(10..15, 3);
+
+// 数据整体换血：
+self.list_state.reset(new_count);
+```
+
+编程滚动与滚动事件都挂在 `ListState` 上（不在元素上）：
+
+```rust
+// 定位：滚到第 9000 条完全可见
+self.list_state.scroll_to_reveal_item(9000);
+cx.notify(); // 滚动在下一次渲染落地，改完记得通知
+
+// 精确偏移：滚到第 20 条，再在其内部下移 12px
+self.list_state.scroll_to(ListOffset { item_ix: 20, offset_in_item: px(12.) });
+
+// 相对滚动：往上滚 200px
+self.list_state.scroll_by(px(-200.));
+
+// 滚动监听：在构造视图时挂上，事件以条目为单位报告
+self.list_state.set_scroll_handler(|event: &ListScrollEvent, _window, _cx| {
+    // event.visible_range：本帧可见的条目序号范围
+    // event.count：可见条目数；event.is_scrolled：是否由滚动引起
+    // 要改回视图状态（如接近底部加载下一页），在构造处捕获 WeakEntity，
+    // 按 4.2 课的模式 upgrade 后 update
+});
+```
+
+`measure_all()` 在上面示例里出现过：不加它，总内容高度按"已测量过的条目"估算，滚动条会随测量进度忽长忽短；加了它，首帧把全部条目测量一遍，滚动条尺寸一次到位——代价是大列表的首帧更慢，取舍见最佳实践。
+
+## UniformList：等高虚拟列表
+
+`uniform_list` 解决"条目很多且行高一致"。它的快来自一个机制判断：既然所有条目等高，只需实际测量一个条目（源码里的 `measure_item`，默认测第 0 条），就能推导整张列表的布局，不再逐条测量。官方文档同时写明了容器条件：放进 overflow-y 为 hidden、高度固定（或最大）的容器里，`uniform_list` 只渲染可见子集。
+
+一千条数据、可点击的完整渲染（gpui 0.2.2 签名）：
+
+```rust
+struct Contacts {
+    names: Vec<String>, // 一千条数据
+    selected: Option<usize>,
+    scroll: UniformListScrollHandle,
+}
+
+impl Contacts {
+    fn new() -> Self {
+        Self {
+            names: (0..1000).map(|i| format!("Contact {i}")).collect(),
+            selected: None,
+            scroll: UniformListScrollHandle::new(),
+        }
+    }
+}
+
+impl Render for Contacts {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let view = cx.entity(); // 回调拿不到 Context<Self>：把自身句柄捕获进去
+        let count = self.names.len();
+
+        div().size_full().child(
+            uniform_list("contacts", count, move |range, _window, _cx| {
+                // range 是本帧可见的条目序号区间：
+                // 数据有一千条，这里每帧通常只产出二三十个元素
+                range
+                    .map(|ix| {
+                        let view = view.clone();
+                        div()
+                            .id(ix) // 条目要可点击，同样先挂 id
+                            .h(px(28.)) // 等高是 uniform_list 的前提：每行固定 28px
+                            .flex()
+                            .items_center()
+                            .px_3()
+                            .cursor_pointer()
+                            .hover(|s| s.bg(rgb(0x313244)))
+                            .on_click(move |_ev, _window, cx| {
+                                view.update(cx, |contacts, cx| {
+                                    contacts.selected = Some(ix);
+                                    cx.notify();
+                                });
+                            })
+                            .child(format!("Item {}", ix + 1))
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .h_full() // 固定（或最大）高度是虚拟化生效的条件
+            .track_scroll(self.scroll.clone()),
+        )
+    }
+}
+```
+
+注意 0.2.2 的回调签名是 `Fn(Range<usize>, &mut Window, &mut App) -> Vec<R>`：第一参数是元素 id（不是条目 id），第二参数是条目总数，回调按可见区间批量产出元素、拿不到视图的 `Context`。官方 main 分支示例已改成 `cx.processor(|this, range, window, cx| ...)`——回调直接拿到 `&mut self` 与 `&mut Context<Self>`，不再需要手工捕获句柄（仅 main）。
+
+编程滚动走 `UniformListScrollHandle`，典型的"选中搜索结果就滚过去"：
+
+```rust
+// 任意回调里：把第 932 条滚到视口顶部
+self.scroll.scroll_to_item(932, ScrollStrategy::Top);
+cx.notify();
+```
+
+定位策略 `ScrollStrategy` 三个变体：`Top` 对齐视口顶部；`Center` 尽量居中；`Bottom` 尽量贴底。官方注释写明 `Center` / `Bottom` 是尽力而为——上方条目不够时，条目放到最近的可达位置。四个滚动方法的分工：
+
+| 方法 | 行为 |
+| --- | --- |
+| `scroll_to_item(ix, strategy)` | 非严格：条目已在视口内就不再滚 |
+| `scroll_to_item_strict(ix, strategy)` | 严格：总是滚到策略位置 |
+| `scroll_to_item_with_offset(ix, strategy, offset)` | 非严格 + 把视口从对应边缘缩小 offset 个条目再定位，常用于选中时旁边留一行上下文 |
+| `scroll_to_item_strict_with_offset(...)` | 严格 + 同上的视口收缩 |
+
+`UniformList` 其余构建方法一句话回查：`with_sizing_behavior(ListSizingBehavior::Infer)` 让列表按内容收缩高度（默认 `Auto` 不计算固定尺寸，弹出面板常用 `Infer`）；`with_width_from_item(Some(ix))` 指定用第 ix 条测量宽度（默认第 0 条）；`with_horizontal_sizing_behavior(ListHorizontalSizingBehavior::Unconstrained)` 允许条目超宽并开横向滚动（默认 `FitList`）；`with_decoration(...)` 附加装饰元素（如粘性表头）；`y_flipped(true)` 翻转列表，第 0 条显示在底部——聊天、终端倒序输出用它。
+
+## 最佳实践
+
+- **先判断要不要虚拟化，再判断等高与否。** 条目可能超过几百条就该走虚拟化：普通滚动容器无论内容多大都全量布局，十万行日志塞进 `div` 会在首帧布局上拖死；`uniform_list` 与 `list` 只布局可见部分加缓冲。行高固定选 `uniform_list`（只测一个条目，API 也最简）；行高不一才用 `list`，并接受"视外条目不能变高"的约束。
+- **能固定行高就固定。** `uniform_list` 的性能与简洁都以等高为前提；确需变高时，尽量让行高只依赖数据本身（不依赖视口宽度等外部量），从根上减少触碰 `splice` / `reset` 的机会。
+- **滚动条精度与首帧成本二选一。** `list` 不加 `measure_all` 时滚动条按已测量条目估算，首帧快但拖动时长度会变；`measure_all` 换来一次到位的滚动条，代价是首帧全量测量。`overdraw` 越大滚动越顺滑、首帧与滚动中的测量越多，官方示例的 `px(500.)` 是合理起点。
+- **三套句柄各管各的，别混。** 滚动容器用 `ScrollHandle`（`track_scroll` 收引用）；`uniform_list` 用 `UniformListScrollHandle`（`track_scroll` 收值，内部包着一个 `ScrollHandle`）；`list` 的滚动控制直接在 `ListState` 上，不需要句柄。两个 `track_scroll` 名字相同、参数类型不同，编译器会拦下大多数误用。
+- **编程滚动是延迟生效的。** `scroll_to_item` 系列把意图记在句柄里，下一次渲染的 prepaint 阶段才落地；在事件回调里调用后要 `cx.notify()`，否则界面不动。
+
+## 常见问题
+
+- `.overflow_scroll(...)` 编译报方法不存在？
+  在链式调用里补上 `.id("...")`。`overflow_scroll`、`overflow_x_scroll`、`overflow_y_scroll`、`track_scroll`、`scrollbar_width` 都定义在 `StatefulInteractiveElement` 上，只有有状态的元素才有这些方法。`list` / `uniform_list` 本身不要求视图元素挂 id——`uniform_list` 的 id 是它自己的第一个参数。
+- `uniform_list` 或 `list` 高度塌成 0，或只显示一两条？
+  给列表一个确定的高度来源。父链上没有高度约束时，`h_full()` 或 `flex_1()` 断在某一环就会塌陷；`uniform_list` 还要求容器 overflow-y 为 hidden（官方文档的生效条件），外层套一个 `overflow_hidden` 或直接让列表 `h_full` 即可。
+- `list` 的滚动条忽长忽短，拖动时位置跳？
+  这是估算行为：总高度按已测量过的条目推算，滚到没测过的区域测量结果就更新。处理动作：给 `ListState` 加 `.measure_all()`，或调大 overdraw 减少测量进度对滚动条的影响；拖动中的稳定性由 `scrollbar_drag_started()` / `scrollbar_drag_ended()` 配合自绘滚动条保证。
+- `list` 中间插入或删除数据后，滚动错乱、条目闪现？
+  视口外条目的高度变了但列表不知道，高度缓存已经失真。数据变化处调用 `self.list_state.splice(old_range, new_count)` 同步受影响的区间；整体换数据用 `reset(new_count)`。
+- `set_offset` 填了正数，列表反而往上跑？
+  方向语义：偏移是"容器左上角到内容左上角"的距离，向下滚动意味着内容上移，偏移变负。回到顶部是 `point(px(0.), px(0.))`，滚到底参考 `max_offset()` 取负值。
+- `scroll_to_item(ix, ScrollStrategy::Center)` 没有真的居中？
+  `Center` / `Bottom` 在上方条目不足时按官方约定回退到最近可达位置，属于设计行为。需要精确落位用 `scroll_to_item_strict`，或先用 `Top` 验证条目序号本身是否正确。
+
+## 总结回顾
+
+摘要：
+
+滚动与列表在 GPUI 里是三套显式方案。普通滚动容器用 `overflow_scroll`（必须先 `.id()`）声明，配 `ScrollHandle` 读取偏移、编程滚动，内容全量布局，适合几百条以内。条目上万就走虚拟化：行高统一用 `uniform_list`，它只测量一个条目就能推导全局布局，回调按可见区间批量产出元素，编程滚动经 `UniformListScrollHandle` 的 `scroll_to_item(ix, ScrollStrategy)` 家族完成；行高不一用 `list`，状态外置在 `ListState`，逐条测量并缓存高度，受"视外条目不能变高"约束，数据增删要 `splice` / `reset`，定位用 `scroll_to_reveal_item`，滚动监听用 `set_scroll_handler`。编程滚动都是延迟生效，调用后记得 `cx.notify()`。
+
+一句话：
+
+> 条目少用 `overflow_scroll` 全量布局；条目多必须虚拟化——等高选 `uniform_list`（只测一条），变高选 `list`（守住建高度缓存的约束）。
+
+知识要点：
+
+- 三种方案的选择判据是什么，普通滚动容器在万级条目下会先垮在哪一步
+- `overflow_scroll` 为什么必须先 `.id()`，`overflow_x_scroll` / `overflow_y_scroll` / `overflow_hidden` / `scrollbar_width` 各管什么
+- `ScrollHandle` 的 `offset()` 方向语义，`scroll_to_item` 与 `set_offset` 分别适合什么场景
+- `ListState::new` 三个参数的含义，`measure_all` 解决什么问题、代价是什么
+- `list` 的变高约束是什么，数据增删后用什么方法同步
+- `uniform_list` 只测量一个条目的机制如何决定它的前提（等高）与容器条件（固定高度 + overflow-y hidden）
+- `ScrollStrategy` 三变体的差异，严格与非严格滚动方法的取舍
+- 三套滚动控制的句柄分别归属哪个方案，编程滚动为什么调用后要 `cx.notify()`
+
+## 参考资料
+
+- [list（函数与渲染回调签名）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/fn.list.html)
+- [uniform_list（函数与容器条件文档）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/fn.uniform_list.html)
+- [ListState（new、measure_all、splice、scroll_to_reveal_item、set_scroll_handler 等）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.ListState.html)
+- [UniformList（with_sizing_behavior、track_scroll、y_flipped 等）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.UniformList.html)
+- [UniformListScrollHandle（scroll_to_item 家族）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.UniformListScrollHandle.html)
+- [ScrollStrategy（Top / Center / Bottom 定位语义）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/enum.ScrollStrategy.html)
+- [ScrollHandle（offset、set_offset、top_item、scroll_to_item 等）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.ScrollHandle.html)
+- [ListAlignment（Top / Bottom 对齐方向）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/enum.ListAlignment.html)
+- [ListSizingBehavior（Infer / Auto 尺寸行为）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/enum.ListSizingBehavior.html)
+- [ListScrollEvent（visible_range、count、is_scrolled）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.ListScrollEvent.html)
+- [StatefulInteractiveElement（overflow_scroll、track_scroll、scrollbar_width、anchor_scroll）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/trait.StatefulInteractiveElement.html)
+- [Styled（overflow_hidden 等裁剪样式）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/trait.Styled.html)
+- [gpui 0.2.2 源码 elements/list.rs（变高约束的模块文档、高度缓存与 ListOffset）](https://docs.rs/crate/gpui/0.2.2/source/src/elements/list.rs)
+- [gpui 0.2.2 源码 elements/uniform_list.rs（measure_item 单条目测量、DeferredScrollToItem）](https://docs.rs/crate/gpui/0.2.2/source/src/elements/uniform_list.rs)
+- [gpui 0.2.2 源码 elements/div.rs（ScrollHandle 实现与 StatefulInteractiveElement 滚动方法）](https://docs.rs/crate/gpui/0.2.2/source/src/elements/div.rs)
+- [官方示例 list_example.rs（变高列表与 ListAlignment::Bottom、自绘滚动条读取）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/list_example.rs)
+- [官方示例 uniform_list.rs（main 分支：cx.processor 回调形态）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/uniform_list.rs)
+- [官方示例 scrollable.rs（横竖嵌套滚动容器）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/scrollable.rs)

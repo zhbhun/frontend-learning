@@ -1,0 +1,427 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="gpui-kit-editor" title="生态实践/编辑器与富内容" name="Docs" />
+
+# 编辑器与富内容
+
+这一课讲 gpui-kit 的三件富内容套件：代码编辑器（`EditorState` + `Editor`）、语法高亮（Tree-sitter 高亮器与语言注册表）、Markdown 渲染（`TextView` / `markdown`）。与前几课的关系一句话说清：第 3.5 课用 gpui 原生 API 从零拼一个输入框，这一课 gpui-kit 直接提供现成的多行代码编辑器组件——拿 `EditorState::new(window, cx)` 建状态、`Editor::new(&state)` 挂上界面，行号、折叠、多光标、内置搜索、语法高亮都是内置行为。
+
+三件套共享同一套语言基础设施：编辑器里 `.language("rust")` 选的高亮，和 Markdown 代码块 ```` ```rust ```` 围栏用的高亮，查的是同一张 `LanguageRegistry` 注册表，配色都来自主题里的 `HighlightTheme`。这也是本课最重要的模型：**语言名称字符串决定"用哪套语法"，Cargo feature 决定"有没有这套语法"，主题决定"用什么颜色画"**。本课基于 gpui-kit 0.7.1（GPUI 快照 `gpui-pre` =0.3.8）核对，分层口径沿用「gpui-kit 入门」。
+
+| 回查项 | 关键 API | 要点 |
+| --- | --- | --- |
+| 创建代码编辑器状态 | `EditorState::new(window, cx)` | 默认行号开、tab 宽 2 软空格、缩进参考线开、搜索开 |
+| 挂到界面 | `Editor::new(&state).h(px(320.))` | 带皮肤元素；等宽字体与 1.5 倍行高来自主题，可用 `Styled` 覆写 |
+| 初始文本 | `.default_value(src)` | 构造时一次性；运行时改用 `set_value(text, window, cx)` |
+| 读文本 | `state.value()` | 返回 `SharedString`；`text()` 返回 `Rope`，`selected_value()` 取选区 |
+| 变更事件 | `InputEvent::Change` | `cx.subscribe` 订阅；另有 `PressEnter` / `Focus` / `Blur` |
+| 选择语言 | `.language("rust")` / `set_highlighter(name, cx)` | 构造时与运行时各一个入口；`language_name()` 查当前值 |
+| 行号与折叠 | `.line_number(true)` / `.folding(true)` | 默认都开；运行时 `set_line_number` / `set_folding` / `unfold_at` |
+| 版面选项 | `.soft_wrap(...)` `.tab_size(...)` `.indent_guides(...)` `.show_whitespaces(...)` | 均有对应 `set_*` 运行时方法 |
+| 编辑规则 | `set_language_config(lang, rules, cx)` | 应用级自动闭合、智能缩进；编辑器上还有 `.auto_close` / `.smart_indent` |
+| 注册语法 | `LanguageRegistry::singleton().register(...)` | Tree-sitter grammar 加高亮查询；注册后编辑器与 Markdown 代码块都能用 |
+| 高亮配色 | `cx.theme().highlight_theme` | Zed 主题 JSON 兼容的 `HighlightTheme`，随明暗主题切换 |
+| LSP 入口 | `state.lsp_mut().completion_provider = ...` | 六类 provider；诊断走 `diagnostics_mut()` |
+| 搜索 | `open_search(false, cx)` / `close_search(cx)` | `Cmd-F` / `Ctrl-F` 打开内置面板；`set_searchable(false)` 让应用自管 |
+| 文本装饰 | `create_decorations_collection` / `create_range_decorations_collection` | 区间是 UTF-8 字节半开区间，随编辑自动跟随 |
+| 渲染 Markdown | `markdown(src)` / `TextView::markdown(id, src)` | 只读富文本；`TextView::html` 渲染简单 HTML |
+| Markdown 状态 | `TextViewState::markdown(src, cx)` + `push_str` | 追加即重新解析渲染；`stream_fade(true)` 逐块淡入 |
+| 代码块操作 | `.code_block_actions(...)` | 回调拿到 `lang()` 与 `code()`，可加复制、运行按钮 |
+
+## 快速上手：载入代码与渲染 Markdown
+
+依赖沿用 7.1 的口径，工程只列 `gpui-kit = "0.7"`。下面第一个程序把一段 Rust 代码装进编辑器：
+
+```rust
+use gpui_kit::component::input::{Editor, EditorState, TabSize};
+use gpui_kit::*;
+
+struct CodeViewer {
+    editor: Entity<EditorState>,
+}
+
+impl CodeViewer {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        let editor = cx.new(|cx| {
+            EditorState::new(window, cx)
+                .language("rust") // 选语法：真正着色还需 tree-sitter feature
+                .line_number(true)
+                .tab_size(TabSize { tab_size: 4, hard_tabs: false })
+                .default_value("fn main() {\n    println!(\"Hello, gpui-kit\");\n}")
+        });
+        Self { editor }
+    }
+}
+
+impl Render for CodeViewer {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        // Editor 是 RenderOnce 元素，每帧从 state 渲染
+        div().size_full().child(Editor::new(&self.editor).h(px(320.)))
+    }
+}
+
+fn main() {
+    application().run(|cx| {
+        init(cx);
+        open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| CodeViewer::new(window, cx))
+        })
+        .expect("failed to open window");
+    });
+}
+```
+
+此时编辑已完整可用：光标、选区、撤销、行号、括号匹配都在。想看到语法配色，给依赖加 feature：
+
+```toml
+gpui-kit = { version = "0.7", features = ["tree-sitter-rust"] }
+```
+
+第二个程序把一段 Markdown 字符串渲染成富文本：
+
+```rust
+use gpui_kit::component::text::{TextView, TextViewState};
+use gpui_kit::*;
+
+struct DocPreview {
+    text_view: Entity<TextViewState>,
+}
+
+impl DocPreview {
+    fn new(_: &mut Window, cx: &mut Context<Self>) -> Self {
+        let text_view = cx.new(|cx| {
+            TextViewState::markdown(
+                "# 标题\n\n一段 **Markdown**，含 `code`。\n\n```rust\nfn main() {}\n```\n",
+                cx,
+            )
+        });
+        Self { text_view }
+    }
+}
+
+impl Render for DocPreview {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div().size_full().child(
+            TextView::new(&self.text_view)
+                .selectable(true) // 默认已是可选中文本
+                .scrollable(true),
+        )
+    }
+}
+// main 与上面相同
+```
+
+纯静态内容不必建状态，`markdown("# Hello").scrollable(true)` 一行直出。若开启了 tree-sitter feature，代码块会按围栏标注的语言自动着色。
+
+## 代码编辑器
+
+编辑器是「状态 + 皮肤」两件套。`EditorState` 是 `InputBaseState<EditorMode>` 的类型别名：它和单行 `InputState`、多行 `TextareaState` 共享同一个编辑引擎（文本缓冲、选区、撤销、输入处理），但只有 `EditorMode` 这个形态带语言特性——语法高亮、行号、折叠、缩进参考线、诊断、装饰、LSP 都只存在于编辑器形态，普通输入框没有这些字段可碰。`Editor` 则是 component 层的皮肤元素：它把主题的 `mono_font_family` 与 `mono_font_size` 设为默认字体、行高固定为字号的 1.5 倍，你用普通 `Styled` 方法（`.text_sm()`、`.font_family(...)`）可以覆写，行号列与行高会跟着字号走。
+
+边界要知道：这个编辑器的定位是「简单的代码编辑与展示」，官方明确说它不是全功能代码编辑器——提供高亮、自动缩进、行号、折叠，能处理的文本量约在 5 万行以内；再往上要换方案。
+
+### 初始化与文本读写
+
+构造时的全部配置都是 builder 方法，链在 `EditorState::new(window, cx)` 后面：
+
+```rust
+let editor = cx.new(|cx| {
+    EditorState::new(window, cx)
+        .language("rust")             // 语法高亮语言
+        .line_number(true)            // 行号，默认 true
+        .folding(true)                // 代码折叠，默认 true
+        .soft_wrap(true)              // 软换行，默认 true
+        .indent_guides(true)          // 缩进参考线，默认 true
+        .show_whitespaces(false)      // 显示空白字符
+        .searchable(true)             // 内置搜索，默认 true
+        .tab_size(TabSize { tab_size: 2, hard_tabs: false })
+        .default_value(source)        // 初始文本
+        .placeholder("Enter code...")
+});
+```
+
+运行时读写走实体更新：
+
+```rust
+// 读
+let source = editor.read(cx).value(); // SharedString
+let rope = editor.read(cx).text();    // &Rope，适合大文本与偏移换算
+
+// 写
+editor.update(cx, |state, cx| {
+    state.set_value(new_source, window, cx);
+});
+
+// 订阅变更：本地状态与编辑器内容保持同步
+cx.subscribe(&editor, |this, state, event: &InputEvent, cx| {
+    if matches!(event, InputEvent::Change) {
+        this.source = state.read(cx).value();
+        cx.notify();
+    }
+});
+```
+
+外观由 `Editor` 元素控制：`.h(px(480.))` 定高（不设则按父容器布局）、`.bordered(true)` 画边框、`.aria_label("Rust source")` 给无障碍。两个易混开关要分清——`disabled(true)` 灰掉且完全不可交互；`readonly(true)` 外观不变，仍可聚焦、选择、复制、搜索，只拒绝用户修改，且 `set_value` 等程序写入照常工作。做「只读预览」用 `readonly`，不要用 `disabled`。
+
+### 行号、折叠与多光标
+
+行号与折叠都有构造时 builder 和运行时 `set_*` 两个入口，关闭折叠会清掉所有已折叠区间；`unfold_at(position, cx)` 只展开盖住某个位置的折叠，用来在跳转前先把目标位置露出来。软换行、缩进参考线、空白字符显示同理，另有 `set_scroll_beyond_last_line(Option<usize>)` 控制末尾可滚动余量、`set_cursor_surrounding_lines(Option<usize>)` 控制光标上下保持可见的行数。
+
+多光标是内置能力：输入与删除会同时作用在所有光标上。
+
+| 操作 | macOS | Windows / Linux |
+| --- | --- | --- |
+| 上 / 下方加光标 | `Cmd+Option+Up / Down` | `Ctrl+Alt+Up / Down`（Windows）、`Alt+Shift+Up / Down`（Linux） |
+| 鼠标加光标 | `Option+左键` | `Alt+左键` |
+| 矩形块选择 | `Option+Shift+拖动` | `Alt+Shift+拖动`（Linux 另认 `Ctrl+Alt+拖动`） |
+| 只留活动光标 | `Escape` | `Escape` |
+
+### 编辑规则：自动闭合与智能缩进
+
+自动闭合与智能缩进默认都开，编辑器上可用 `.auto_close(false)` / `.smart_indent(false)` 单独关。规则本身按语言配置，在应用级用 `set_language_config` 注册一次，所有编辑器的下一次编辑立即生效：
+
+```rust
+use gpui_kit::component::input::{
+    AutoClosingPair, BracketPair, SyntaxContext,
+    language_config::LanguageConfig, set_language_config,
+};
+
+let rules = LanguageConfig::default()
+    // 结构括号：影响匹配高亮与 Enter 缩进
+    .brackets([BracketPair::new("{", "}"), BracketPair::new("(", ")")])
+    // 自动闭合对：输入左半插入右半；not_in 指定在字符串、注释里不生效
+    .auto_closing_pairs([
+        AutoClosingPair::new("{", "}")
+            .not_in([SyntaxContext::String, SyntaxContext::Comment]),
+        AutoClosingPair::new("(", ")")
+            .not_in([SyntaxContext::String, SyntaxContext::Comment]),
+    ])
+    // 光标后是这些字符时也允许跳过 / 插入闭合
+    .auto_close_before(";:.,=}])>");
+set_language_config("rust", rules, cx);
+```
+
+规则要点：`auto_closing_pairs` 设 `None` 时退回用结构括号，设 `Some(vec![])` 彻底关闭自动对；`not_in` 依赖语法上下文，编辑器的 Tree-sitter grammar 开着才有字符串、注释判定，否则一律按普通代码处理；`IndentationRules::new(increase, decrease)` 接两个正则，决定 Enter 时加减缩进，没配就用结构括号兜底。注意有**两个同名 `LanguageConfig`**：编辑规则在 `input::language_config` 模块，高亮语法资源在 `highlighter` 模块（别名 `GrammarConfig`），别导错。
+
+### 内置搜索
+
+编辑器聚焦时按 `Cmd-F`（macOS）或 `Ctrl-F` 打开内置搜索面板：`Enter` 跳下一个匹配、`Shift+Enter` 上一个、`Escape` 关闭；只读编辑器照样可搜，只是替换 UI 自动隐藏。代码方式：
+
+```rust
+editor.update(cx, |state, cx| {
+    state.open_search(false, cx);   // 打开面板
+    state.close_search(cx);         // 关闭并清掉高亮
+});
+
+// 自定义搜索 UI：set_searchable(false) 后编辑器不再响应 Cmd-F，
+// 匹配引擎留给应用自己的输入框驱动
+editor.update(cx, |state, cx| {
+    state.set_search_query("needle", true, cx);
+    state.next_search_match(cx);    // 每次调用都会把匹配滚进视野
+    state.previous_search_match(cx);
+});
+```
+
+想读「第 2 / 5 个匹配」这类进度，走 `editor.read(cx).search_session().matcher` 的 `label()` / `len()` / `current()`；可编辑时还能 `replace_current_search_match` / `replace_all_search_matches`。让宿主容器接管 `Cmd-F` 的入口是 `gpui_kit::component::input::Search` 这个动作，在自家搜索框所在视图上 `on_action` 处理。
+
+## 语法高亮
+
+高亮分三层：**Cargo feature 决定哪些语言的 Tree-sitter grammar 被编译进来**；`LanguageRegistry` 单例保存每门语言的 grammar 与高亮查询（`.scm` 查询文本）；`HighlightTheme` 把高亮名（`comment`、`keyword`、`function` 等）翻译成颜色。`.language("rust")` 这个字符串只负责在注册表里选一套语法，任何一层缺失都不会报错——最常见的「没颜色」就是 feature 没开。
+
+### feature 与语言选择
+
+`gpui-kit` 默认 feature 不含任何 grammar（`tree-sitter` 基础 feature 只带 JSON）。按需开：
+
+```toml
+gpui-kit = { version = "0.7", features = ["tree-sitter-rust"] }        # 单语言
+gpui-kit = { version = "0.7", features = ["tree-sitter-languages"] }   # 全部内置语言
+```
+
+单语言 feature 已隐含基础 `tree-sitter`；内置覆盖 30 多门语言（bash、c、cpp、css、go、html、java、javascript、json、kotlin、lua、markdown、python、rust、sql、toml、tsx、typescript、yaml、zig 等）。语言选择两处入口：
+
+```rust
+// 构造时：字符串或 Language 枚举（impl Into<SharedString>）
+let editor = cx.new(|cx| {
+    EditorState::new(window, cx).language(Language::Markdown)
+});
+
+// 运行时切换：打开别的文件时换语言
+editor.update(cx, |state, cx| {
+    state.set_highlighter("python", cx);
+});
+```
+
+注意 `Language` 枚举的变体本身随 feature 条件编译——没开 `tree-sitter-markdown` 就没有 `Language::Markdown` 这个变体可写；字符串形式（`.language("markdown")`）不依赖 feature，永远可编译，只是着色与否取决于语法是否存在。
+
+没开对应 feature 时编辑器照常工作，文本不着色；开着也不会为不认识的语言名报错。
+
+### 注册自定义语言
+
+有 grammar crate 的语言，往 `LanguageRegistry` 单例注册一份语法资源即可，应用启动时做一次：
+
+```rust
+use gpui_kit::component::highlighter::{LanguageConfig, LanguageRegistry};
+
+fn init() {
+    LanguageRegistry::singleton().register(
+        "navi",
+        &LanguageConfig::new(
+            "navi",                                  // 语言名，编辑器与代码块都用它引用
+            tree_sitter_navi::LANGUAGE.into(),       // Tree-sitter grammar
+            vec![],                                  // 可注入的其他语言
+            tree_sitter_navi::HIGHLIGHTS_QUERY,      // 高亮查询（highlights.scm 内容）
+            "",                                      // injections 查询
+            "",                                      // locals 查询
+        ),
+    );
+}
+```
+
+注册立即生效：之前因「查无此语言」而按纯文本画的 Markdown 代码块，下一帧就会用新 grammar 重新着色。纯文本语言用 `LanguageConfig::plain(name)`；运行期才拿得到的 grammar（比如 WASM 编译的 parser）走 `register_parser_factory` 注册解析工厂，解析时优先于静态链接的 grammar。
+
+### 高亮主题
+
+配色载体是 `HighlightTheme`：JSON 格式与 Zed 主题兼容——`syntax` 下是 Tree-sitter 高亮名（`comment`、`string`、`keyword`、`number`、`function`、`type` 等），另有 `editor.background`、`editor.foreground`、`editor.active_line.background`、`editor.line_number`、`editor.active_line_number`、`editor.gutter.background` 等编辑器界面键。内置 `HighlightTheme::default_light()` / `default_dark()` 两套；组件的 `Theme` 里 `highlight_theme` 字段随主题明暗自动切换，主题 JSON 携带该字段即可整体自定义配色。编辑器与 Markdown 代码块读的是同一份，所以换主题时两边同时换色。
+
+## LSP 集成入口
+
+编辑器形态独有 `lsp()` / `lsp_mut()` 两个访问器，返回的 `Lsp` 结构挂着六个 provider 槽位。仓库不内置语言服务器客户端，应用按 trait 自己实现或桥接：
+
+| provider 槽位 | trait | 提供什么 |
+| --- | --- | --- |
+| `completion_provider` | `CompletionProvider` | 补全项与内联补全（ghost text） |
+| `code_action_providers` | `CodeActionProvider`（可多个） | 代码动作，经 `apply_lsp_edits` 回写文本 |
+| `hover_provider` | `HoverProvider` | 悬停文档浮层 |
+| `definition_provider` | `DefinitionProvider` | `Ctrl/Cmd` 点击跳转定义 |
+| `document_color_provider` | `DocumentColorProvider` | 颜色字面量色块 |
+| `semantic_tokens_provider` | `DocumentRangeSemanticTokensProvider` | 语义 token，按主题 token 名上色 |
+
+接线就是把实现 `Rc` 塞进槽位：
+
+```rust
+editor.update(cx, |state, cx| {
+    let lsp = Rc::new(MyLspStore::new());
+    state.lsp_mut().completion_provider = Some(lsp.clone());
+    state.lsp_mut().hover_provider = Some(lsp.clone());
+    state.lsp_mut().definition_provider = Some(lsp.clone());
+    state.lsp_mut().code_action_providers = vec![lsp];
+    cx.notify();
+});
+```
+
+诊断不走 provider，直接写集合：`state.diagnostics_mut()` 拿到 `Option<&mut DiagnosticSet>`，`clear()` 后 `extend` 一批 `Diagnostic::new(start..end, message).with_severity(severity)` 再 `cx.notify()`，行内波浪线与诊断浮层就出来了。官方示例 `examples/editor` 把六类 provider 全部接了一遍，是完整的参考实现。
+
+## Markdown 渲染
+
+`TextView` 是只读富文本元素：输入 Markdown（或简单 HTML）字符串，解析成 CommonMark/GFM 兼容的 AST 后按主题渲染，标题、列表、表格、代码块、链接、图片、行内代码都有默认样式，文本默认可选可复制。规范实现住在 `gpui-base`，`gpui_kit::component::text` 是兼容再导出并额外接上组件主题（前景、链接色、表格圆角等都从 `cx.theme()` 来）。
+
+### 基本渲染
+
+三个入口按场景选：
+
+```rust
+// 静态内容一行直出：内部自建状态
+markdown("# Hello\n\nThis is **Markdown**.").scrollable(true)
+
+// 需要稳定 id 或无状态引用
+TextView::markdown("preview", markdown_source)
+TextView::html("html-preview", "<strong>Hello</strong>")
+
+// 内容要动态更新（预览、聊天）：状态单独持有
+let state = cx.new(|cx| TextViewState::markdown(source, cx));
+TextView::new(&state)
+```
+
+限高预览用 `.max_lines(n)`：高度封顶在 n 倍行高，整行裁剪不会切半个字形，配合 `state.is_clamped()` 判断是否真的截断，用来决定要不要显示「展开」按钮。`scrollable(true)` 与 `max_lines` 互斥，滚动优先。
+
+### 流式更新
+
+聊天回复逐块到达时，往 `TextViewState` 追加即可，视图自动重新解析渲染：
+
+```rust
+// 新 chunk 到达：追加并自动重解析
+text_view.update(cx, |state, cx| {
+    state.push_str(&chunk, cx);
+});
+
+// 整体替换（切换文档、清空重放）
+state.set_text("", cx);
+```
+
+`.stream_fade(true)` 让每个新 chunk 落点处淡入（约 350ms ease-out），已完成的 Markdown 标记（`**bo` 变成粗体 `bold`）只淡入变化的字形，不闪整段；`reduced motion` 下自动关闭。想自定时长、缓动或逐词出现，传一个 `TextViewMotion` 给 `.motion(...)`。正在流式渲染时高亮区间、搜索结果都会跟着内容走。
+
+### 代码块高亮与操作
+
+组件初始化时已自动装好代码块高亮器：只要 tree-sitter feature 开着，围栏代码块按 info string 里的语言名查 `LanguageRegistry`，查到就按 `HighlightTheme` 着色，查不到保持纯文本——与编辑器共享同一套注册与配色。（只用 `gpui-base` 不用组件层的应用需要自己装：`TextViewDefaults` 的 `with_code_block_highlighter`，或单个视图的 `code_block_highlighter` 方法。）
+
+每个代码块还能挂自定义操作条：
+
+```rust
+TextView::new(&self.text_view)
+    .code_block_actions(|code_block, _window, _cx| {
+        // lang() 是 info string（Option<SharedString>），code() 是代码文本
+        h_flex()
+            .gap_1()
+            .child(Clipboard::new("copy").value(code_block.code().clone()))
+    })
+```
+
+表格有对称的 `.table_actions(...)`，回调拿到表头、行数据与重新序列化成的 GFM 文本。
+
+### 链接、图片与插件
+
+链接默认走 `App::open_url` 打开；`.on_link_click(|url, event, window, cx| ...)` 接管后可区分左右键与修饰键（右键出菜单、`Ctrl+点击` 站内打开等），装了回调就不再触发默认打开。图片 `![alt](src)` 走 gpui 的 `img` 加载：`http(s)://` 与 `data:` 直接处理，相对路径、`file://`、自定义 scheme 会作为 URI 交给外层 `ImageCache` 决定怎么加载。
+
+项目专属语法靠插件扩展：实现 `MarkdownPlugin`（`is_block()` 区分块级 / 行内，`parse` 从 `markdown_ast::Node` 产出带类型的 `MarkdownNode`，`render` 画成任意 gpui 元素），`.plugin(...)` 挂上即可，比如把 `$AAPL.US` 渲染成行情徽标。YAML frontmatter 是可选扩展：`MarkdownExtensions::default().frontmatter()` 开解析、挂 `FrontmatterPlugin` 渲染成键值列表；MDX 风格属性有 `.markdown_mdx()` 入口。
+
+## 最佳实践
+
+- **feature 按需选，别默认全开。** 只编辑 Rust 就 `tree-sitter-rust`；要做「任意语言文件查看器」再上 `tree-sitter-languages`（多语言 grammar 会明显增加编译时间与体积）。无论哪种，先确认部署目标里 grammar 资源能被找到，否则用户只看到「能编辑、没颜色」。
+- **只读预览用 `readonly`，纯展示用 `TextView`。** 需要选择、复制、搜索的代码预览用 `Editor::new(&state).readonly(true)`；Markdown、日志这类根本不是代码的内容直接 `TextView`，不要拿只读编辑器凑。
+- **编辑规则与语言注册集中在应用初始化。** `set_language_config` 和 `LanguageRegistry::singleton().register` 都在启动时做一次；名字用小写惯用名（`rust`、`python`），内置别名（`py`、`pyi` 与 `python` 同源）自动共享，自定义注册会覆盖内置别名。
+- **大文本走 `Rope` 而不是 `value()` 字符串。** 5 万行是编辑器的舒适上限；偏移换算、按行取文本用 `state.text()` 的 `Rope`，订阅 `InputEvent::Change` 时避免每键都 `to_string()` 整个文档。
+- **流式 Markdown 用 `push_str`，别 `set_value` 整段重灌。** `push_str` 增量追加并复用已解析内容，`stream_fade(true)` 的淡入也按 chunk 计算；整体替换会打断淡入与选择。
+
+## 常见问题
+
+- 加了 `.language("rust")` 编辑器没有颜色
+  检查 Cargo 依赖是否开了对应 feature（如 `features = ["tree-sitter-rust"]` 或 `tree-sitter-languages`）。语言名只是选择器，feature 才是语法来源；未注册语言静默按纯文本处理，不报错。自定义语言确认已在 `LanguageRegistry` 注册且名字对得上。
+- Markdown 代码块不高亮
+  同一个原因：feature 未开，或围栏 info string 的语言名在 `LanguageRegistry` 里查不到。代码块与编辑器共用注册表，注册后已渲染为纯文本的代码块下一帧自动重着色。
+- `readonly` 的编辑器怎么还能输入 `set_value`
+  这是设计行为：只读只拒绝用户键入，程序化 API（`set_value`、`replace_all`）照常生效，便于做「预览 + 代码填充」。要彻底冻结用 `disabled(true)`。
+- 在 `Editor` 上找不到 prefix / suffix、清除按钮、掩码
+  刻意没有。这些是单行 `Input` 的专属修饰，`Editor` 只保留代码编辑需要的表面（行号列、当前行背景、滚动条）；要工具栏就自己在编辑器上方拼 `div`，右键菜单可用 `.context_menu(...)` 自定义，粘贴载荷可用 `.on_paste(...)` 拦截。
+- 两个 `LanguageConfig` 导入哪个
+  编辑规则（自动闭合、缩进）用 `gpui_kit::component::input::language_config::LanguageConfig`；语法资源（grammar、高亮查询）用 `gpui_kit::component::highlighter::LanguageConfig`，它有别名 `GrammarConfig`。按模块路径区分，不要凭名字猜。
+
+## 总结回顾
+
+摘要：
+
+gpui-kit 把「代码编辑器 + 语法高亮 + Markdown 渲染」做成一套共享语言基础设施的组件群。编辑器由 `EditorState`（`InputBaseState` 的代码形态，独享语言、行号、折叠、诊断、LSP）与 `Editor` 皮肤元素组成，构造时 builder 配置、运行时 `set_*` 与 `set_value` 调整，内置多光标与搜索面板。语法高亮三层解耦：Cargo feature 供给 Tree-sitter grammar，`LanguageRegistry` 保存语法与高亮查询，`HighlightTheme`（Zed 兼容 JSON）出颜色，`set_highlighter` 运行时切换。LSP 通过 `lsp_mut()` 的六个 provider 槽位接入，诊断直接写 `DiagnosticSet`。Markdown 由 `TextView` / `TextViewState` 承载，字符串进、富文本出，`push_str` 流式追加、`max_lines` 限高、`stream_fade` 淡入、`code_block_actions` 挂代码块操作，代码块高亮与编辑器共享同一张注册表与主题。
+
+一句话：
+
+> 语言名字符串选语法、Cargo feature 供语法、`HighlightTheme` 出颜色——编辑器和 Markdown 代码块共用这套三层模型。
+
+知识要点：
+
+- 编辑器两件套怎么分工，`EditorState` 与 `InputState` 共享什么、独享什么，编辑器的文本量边界在哪
+- 初始化有哪些默认值，`default_value` 与 `set_value`、`value()` 与 `text()` 各怎么用，`readonly` 与 `disabled` 差在哪
+- 语法高亮为什么「没颜色」，feature、`LanguageRegistry` 注册、`HighlightTheme` 各管什么
+- 自定义语言怎么注册，编辑规则（自动闭合、智能缩进）在哪配，两个同名 `LanguageConfig` 怎么区分
+- LSP 的六个 provider 槽位是什么，诊断怎么写进编辑器
+- Markdown 渲染有哪些入口，流式追加怎么写，代码块高亮与操作怎么接
+- `max_lines`、`stream_fade`、`on_link_click`、`MarkdownPlugin` 各解决什么问题
+
+## 参考资料
+
+- [Editor — gpui-kit 组件文档](https://gpui-kit.com/component/editor)
+- [TextView — gpui-kit 组件文档](https://gpui-kit.com/component/text-view)
+- [GPUI Base TextView — gpui-kit 文档（语法高亮 opt-in 说明）](https://gpui-kit.com/base/text-view)
+- [gpui-kit 源码：crates/base/src/input/editor（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/tree/v0.7.1/crates/base/src/input/editor)
+- [gpui-kit 源码：crates/component/src/highlighter（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/tree/v0.7.1/crates/component/src/highlighter)
+- [gpui-kit 源码：crates/base/src/text（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/tree/v0.7.1/crates/base/src/text)
+- [gpui-kit 官方示例：examples/editor（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/blob/v0.7.1/examples/editor/src/main.rs)
+- [gpui-kit 官方示例：examples/markdown（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/blob/v0.7.1/examples/markdown/src/main.rs)
+- [gpui-kit 官方示例：examples/stream-markdown（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/blob/v0.7.1/examples/stream-markdown/src/main.rs)

@@ -1,0 +1,326 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="colors-and-visuals" title="布局与样式/颜色与视觉" name="Docs" />
+
+# 颜色与视觉
+
+布局决定盒子在哪、多大，本课决定盒子长什么样。GPUI 把视觉样式拆成四组能力：颜色怎么表示（`Rgba` 与 `Hsla` 两种纯数据类型）、颜色涂在哪（`.bg()` 背景）、盒子边界长什么样（`rounded` 圆角与 `border` 边框）、立体与透明怎么表达（`BoxShadow` 阴影、`linear_gradient` 渐变、两层透明度机制）。它们全部是 `Styled` trait 上的链式方法，`div()` 之后一路点下去即可。读完本课，你能独立写出一个带圆角、描边、多层阴影、渐变背景、可控透明度的卡片，并说清每种写法的取值刻度。
+
+版本口径：本课 API 全部以发布版 gpui 0.2.2（docs.rs）核对，只有一处例外——main 分支给 `BoxShadow` 新增了 `new` 构造函数和链式方法，正文单独标注；另有一个反向事实：`hsl()` 这种三参数函数在 0.2.2 和 main 里都不存在，HSL 只有 `hsla()` 四参数一种写法。
+
+| 目标 | 最小写法 | 回查要点 |
+| --- | --- | --- |
+| 十六进制色 | `rgb(0x4a9eff)` / `rgba(0x4a9eff80)` | `u32` 字面量；`rgba` 最低 8 位是 alpha |
+| HSL 色 | `hsla(0.59, 1.0, 0.65, 1.0)` | 四个参数全是 0.0–1.0，色相不是角度 |
+| 命名色 | `gpui::red()`、`gpui::opaque_grey(0.5, 1.0)` | 返回 `Hsla` 的函数；没有 `hsl()` |
+| 背景 | `.bg(rgb(0x4a9eff))` | 接受 `Rgba` / `Hsla` / `Background`（渐变） |
+| 圆角 | `.rounded(px(8.))` 或 `.rounded_lg()` | 预设 `xs`=2px 到 `3xl`=24px，`full`=9999px |
+| 边框 | `.border_1().border_color(...)` | 宽度与颜色两条声明都非零才绘制 |
+| 阴影 | `.shadow_md()` 或 `.shadow(vec![...])` | 手写阴影 0.2.2 用结构体字面量 |
+| 渐变 | `.bg(linear_gradient(45., 起, 止))` | 角度单位是度，0° 朝上、顺时针 |
+| 颜色透明度 | `hsla(.., .., .., 0.4)` / `color.alpha(0.4)` | 只影响使用该颜色的那一层绘制 |
+| 元素透明度 | `.opacity(0.4)` | 整个元素连子元素一起变淡 |
+
+边界：文本颜色（`text_color`、`text_bg`）等字体与文本相关样式不在本课范围，见 2.5 课。
+
+## 颜色：Rgba 与 Hsla
+
+GPUI 的颜色不是 trait 对象，是纯数据：`Rgba` 和 `Hsla` 都是四个 `f32` 字段的 `#[repr(C)]` 结构体，每个分量取值 0.0–1.0。两者随时可以互转，样式方法靠 `Into` 自动接受两种类型，所以"先用哪种"只取决于手头信息：设计稿给十六进制就用 `Rgba`，要派生透明度、做色彩过渡就转到 `Hsla`。另外框架自带一个 `colors` 模块（`Colors`、`GlobalColors`），存放 GPUI 默认全局色，属于主题化入口，本课只处理自己的颜色。
+
+### Rgba：十六进制写法
+
+`rgb()` 按 `0xRRGGBB` 解析 `u32` 字面量，alpha 固定 1.0；`rgba()` 按 `0xRRGGBBAA` 解析，最低 8 位是 alpha。两者都返回 `Rgba`：
+
+```rust
+use gpui::{rgb, rgba, Rgba};
+
+// 同一个半透明蓝的三种写法：alpha 0x80 = 128/255 ≈ 0.5
+let a = rgba(0x4a9eff80);            // 8 位十六进制，末两位是 alpha
+let b = rgb(0x4a9eff);               // 6 位十六进制，alpha 恒为 1.0
+let c = Rgba::try_from("#4a9eff80").unwrap(); // 字符串解析：#rgb、#rgba、#rrggbb、#rrggbbaa 都支持
+```
+
+`Rgba` 的 `r`/`g`/`b`/`a` 字段是公有的，可以直接读写。0.2.2 中 `Rgba` 自身的方法只有 `blend(other)`——按 `other` 的 alpha 把两色混合；想调 alpha 请转 `Hsla`，见下节。
+
+### Hsla：0–1 色相与派生方法
+
+`hsla(h, s, l, a)` 四个参数全是 0.0–1.0 的比例值，超界自动夹回。最容易踩的坑是**色相不是角度**：`h = 角度 / 360`。
+
+| CSS 角度 | h 值 | 颜色 |
+| --- | --- | --- |
+| 0° | 0.0 | 红 |
+| 60° | 1/6 | 黄 |
+| 120° | 1/3 | 绿 |
+| 180° | 1/2 | 青 |
+| 240° | 2/3 | 蓝 |
+| 300° | 5/6 | 品红 |
+
+`hsla` 返回 `Hsla`，和 `Display` 打印 `Hsla` 时色相都会乘回 360 度换算。命名色是一组返回 `Hsla` 的函数（多数是 `const fn`）：`red()`、`blue()`、`green()`、`yellow()`、`white()`、`black()`、`transparent_black()`、`opaque_grey(lightness, opacity)`，`Hsla` 类型上还有同名关联函数（如 `Hsla::red()`）。
+
+`Hsla` 的价值在派生方法——状态色、禁用色都从这里来：
+
+```rust
+use gpui::{rgb, Hsla};
+
+let base: Hsla = rgb(0x4a9eff).into(); // From<Rgba> for Hsla，十六进制转 HSL
+let hover    = base.alpha(0.8);        // alpha 直接替换为 0.8，其余不变
+let disabled = base.opacity(0.5);      // alpha 乘以 0.5（1.0 变 0.5）
+let muted    = base.grayscale();       // 保 hue 和 lightness，饱和度清零
+```
+
+| 方法 | 作用 | alpha 语义 |
+| --- | --- | --- |
+| `alpha(a)` | 返回同 hsl、新 alpha 的副本 | 替换 |
+| `opacity(factor)` | 返回 alpha 乘 factor 的副本 | 乘法 |
+| `fade_out(factor)` | 就地淡出，factor 介于 0.0–1.0 | 乘法，改自身 |
+| `grayscale()` | 返回饱和度清零的副本 | 不变 |
+| `blend(other)` | 按 other 的 alpha 把 other 叠加到自身 | 混合 |
+| `is_opaque()` / `is_transparent()` | 判断是否完全不透明 / 全透明 | 只读 |
+
+### 互转与打印
+
+```rust
+use gpui::{rgb, Hsla, Rgba};
+
+let hex_blue = rgb(0x4a9eff);
+let hsl_blue: Hsla = hex_blue.into(); // From<Rgba> for Hsla
+let back: Rgba = hsl_blue.to_rgb();   // 反向既有 From<Hsla> for Rgba，也有更直白的 to_rgb()
+```
+
+调试时核对颜色值有三个入口：`Hsla` 实现了 `Display`，输出形如 `hsla(212, 100%, 65%, 1)`（色相已乘回 360 度）；`Rgba` 的 `Debug` 输出形如 `rgba(0x4a9effff)`；还有 `From<Rgba> for u32` 可以取回 `0xRRGGBBAA` 整数。用 `println!` 打出来和设计稿比对即可。
+
+## 背景与圆角边框
+
+`.bg()` 是设置背景的唯一入口，签名 `bg(fill: impl Into<Fill>) -> Self`：`Rgba`、`Hsla`、`Background`（渐变的载体）都实现了 `Into<Fill>`，三种值直接传。圆角和边框作用在盒子边界上，与背景组合出卡片、按钮、分隔线的基本外观。
+
+### 背景 bg
+
+```rust
+use gpui::{div, hsla, linear_color_stop, linear_gradient, rgb};
+
+div().bg(rgb(0x4a9eff));              // Rgba：十六进制
+div().bg(hsla(0.59, 1.0, 0.65, 1.0)); // Hsla：同一个蓝，hsl(212°, 100%, 65%)
+div().bg(gpui::red());                // 命名色
+div().bg(linear_gradient(45., linear_color_stop(gpui::red(), 0.), linear_color_stop(gpui::blue(), 1.)));
+// Background：渐变，写法见「渐变」节
+```
+
+前两个调用渲染出完全相同的颜色——`0x4a9eff` 就是 hue 212°、饱和 100%、亮度 65% 的蓝，两种表示只是记法不同。
+
+### 圆角 rounded
+
+自定义档位 `.rounded(px(8.))`，参数是 `impl Into<AbsoluteLength>`（`px()` 像素、`rems()` 相对字号都行）；预设方法无参数：
+
+| 预设 | 值 |
+| --- | --- |
+| `rounded_none()` | 0 |
+| `rounded_xs()` | 2px |
+| `rounded_sm()` | 4px |
+| `rounded_md()` | 6px |
+| `rounded_lg()` | 8px |
+| `rounded_xl()` | 12px |
+| `rounded_2xl()` | 16px |
+| `rounded_3xl()` | 24px |
+| `rounded_full()` | 9999px（正方形直接变圆或胶囊） |
+
+每侧控制用方位前缀加同一档位后缀：`rounded_t_`（上）/`rounded_b_`/`rounded_l_`/`rounded_r_` 四边，`rounded_tl_`/`rounded_tr_`/`rounded_bl_`/`rounded_br_` 单角，如 `.rounded_tl_lg()` 只圆左上角。同一盒子换档位的效果：
+
+```rust
+// 同一个 64px 盒子，只改圆角：从直角卡片渐变到圆形（官方 shadow.rs 的分组方式）
+let sharp  = div().size(px(64.)).bg(rgb(0xffffff)).rounded(px(0.));
+let soft   = div().size(px(64.)).bg(rgb(0xffffff)).rounded(px(4.));  // 等效 rounded_sm
+let round  = div().size(px(64.)).bg(rgb(0xffffff)).rounded(px(12.)); // 等效 rounded_xl
+let circle = div().size(px(64.)).bg(rgb(0xffffff)).rounded_full();   // 圆形
+```
+
+### 边框 border
+
+边框 = 宽度 + 颜色两条声明，缺一不可：
+
+```rust
+use gpui::{div, hsla, px};
+
+div()
+    .size(px(64.))
+    .border_1()                             // 宽度：预设是固定像素（非 rem）
+    .border_color(hsla(0.0, 0.0, 0.0, 0.1)) // 颜色：10% 黑，官方示例的标准描边
+    .border_dashed();                       // 可选：虚线
+```
+
+宽度预设从 `border_0()` 到 `border_9()`，再往上是 `border_10()`、`border_11()`、`border_12()`、`border_16()`、`border_20()`、`border_24()`、`border_32()`，值为对应像素数；自定义宽度用 `.border(px(2.))`。每侧控制：`border_t_`/`border_b_`/`border_l_`/`border_r_` 四边前缀、`border_x_`/`border_y_` 轴前缀，加同样数字后缀，如 `.border_t_2()` 只画 2px 顶边。`border_color()` 接受 `impl Into<Hsla>`，`Rgba` 会自动转。
+
+绘制条件要记牢（0.2.2 源码 `is_border_visible`）：颜色已设置且非全透明，**并且**至少一边宽度非零，两个条件同时满足才画。只写 `.border_color(...)` 什么都看不见。
+
+## 阴影
+
+阴影是 `Vec<BoxShadow>`，叠几层画几层。0.2.2 中 `BoxShadow` 是四个公有字段的结构体，手写用结构体字面量：
+
+```rust
+use gpui::{div, hsla, point, px, BoxShadow};
+
+div().shadow(vec![BoxShadow {
+    color: hsla(0.0, 0.0, 0.0, 0.3), // 阴影色：30% 黑
+    offset: point(px(0.), px(8.)),   // 偏移：x 向右为正，y 向下为正
+    blur_radius: px(8.),             // 模糊半径
+    spread_radius: px(0.),           // 扩散半径，可为负（往里收）
+}])
+```
+
+四字段各管一件事：`color` 决定浓淡与色相，`offset` 决定光从哪来，`blur_radius` 决定边缘软硬，`spread_radius` 决定阴影比元素大多少。四方向阴影只改 `offset` 正负，左上负、右下正。
+
+main 分支新增了构造函数加链式方法的写法，官方 shadow.rs 已改用它：
+
+```rust
+// 仅 main 分支：0.2.2 没有 new 和 blur_radius()/spread_radius()，照抄会编译失败
+BoxShadow::new(px(0.), px(8.), hsla(0.0, 0.0, 0.0, 0.3))
+    .blur_radius(px(8.))
+    .spread_radius(px(2.));
+```
+
+日常多数场景不用手写，预设从 `shadow_2xs()` 到 `shadow_2xl()` 一共八档（值为 0.2.2 宏展开的实际数据，阴影色全是黑）：
+
+| 预设 | 等效阴影 |
+| --- | --- |
+| `shadow_none()` | 清空，无阴影 |
+| `shadow_2xs()` | 偏移 (0,1)，alpha 0.05 |
+| `shadow_xs()` | 偏移 (0,1)，alpha 0.05，模糊 2px |
+| `shadow_sm()` | 两层：(0,1) 模糊 3 ＋ (0,1) 模糊 2、扩散 -1，alpha 0.1 |
+| `shadow_md()` | 两层：(0,4) 模糊 6、扩散 -1 ＋ (0,2) 模糊 4、扩散 -2，alpha 0.1 |
+| `shadow_lg()` | 两层：(0,10) 模糊 15、扩散 -3 ＋ (0,4) 模糊 6、扩散 -4，alpha 0.1 |
+| `shadow_xl()` | 两层：(0,20) 模糊 25、扩散 -5 ＋ (0,8) 模糊 10、扩散 -6，alpha 0.1 |
+| `shadow_2xl()` | 偏移 (0,25)，alpha 0.25，模糊 50px，扩散 -12px |
+
+可观察行为：官方 shadow.rs 一页摆全了这些变量。圆角行里同一个 2xs 阴影配方角、4/8/12px 圆角和正圆，阴影形状跟着盒子圆角走；模糊行从 blur 0 到 16 边缘越来越散，扩散行从 0 到 16 阴影圈越来越大；方向行验证 `offset` 正负；末行的圆形盒子叠四层红黄绿蓝阴影，展示 `vec` 多层叠加。
+
+## 渐变
+
+`linear_gradient(angle, from, to)` 返回 `Background`，直接传给 `.bg()`：
+
+```rust
+use gpui::{div, linear_color_stop, linear_gradient, px, ColorSpace};
+
+div()
+    .size(px(64.))
+    .bg(linear_gradient(
+        45.,                                 // 角度：度数，0° 朝上，顺时针
+        linear_color_stop(gpui::red(), 0.),  // 起点色与位置（0.0–1.0）
+        linear_color_stop(gpui::blue(), 1.), // 终点色与位置
+    ));
+```
+
+角度约定与 CSS 的 `linear-gradient` 一致：渐变轴指向哪个方向，颜色就朝那边过渡。
+
+| 角度 | 渐变轴指向 | 观感 |
+| --- | --- | --- |
+| 0° | 上 | 从下往上过渡 |
+| 90° | 右 | 从左往右 |
+| 180° | 下 | 从上往下 |
+| 270° | 左 | 从右往左 |
+
+stop 的位置不必是 0 和 1，位置自由摆放能做出两种常用效果：
+
+```rust
+// 部分渐变：两端留白，只在中段过渡（官方 gradient.rs 的写法）
+linear_gradient(90., linear_color_stop(gpui::red(), 0.05), linear_color_stop(gpui::blue(), 0.95));
+// 硬分界：两个 stop 放同一位置，无过渡拼色
+linear_gradient(90., linear_color_stop(gpui::red(), 0.5), linear_color_stop(gpui::blue(), 0.5));
+```
+
+签名只收 from/to 两个 stop，要三色分段需要叠 `div`，这点和 CSS 的多 stop 渐变不同。插值色彩空间默认是 `ColorSpace::Srgb`（枚举 0 号变体），红到蓝这类大跨度过渡在 sRGB 里中途会发灰；挂在 `Background` 上的 `color_space()` 可以切到 `ColorSpace::Oklab`，中间色明显更均匀：
+
+```rust
+div().bg(
+    linear_gradient(45., linear_color_stop(gpui::red(), 0.), linear_color_stop(gpui::blue(), 1.))
+        .color_space(ColorSpace::Oklab), // 注意写在 .bg() 的参数里，它属于 Background
+);
+```
+
+可观察行为：官方 gradient.rs 把 0°/45°/90°/135°/180°/225°/315° 各角度的红蓝、红绿、绿黄、色到白渐变摆成一页，还有 0.05/0.95 部分渐变与 0.5/0.5 硬分界行；点击按钮在 Oklab 和 Srgb 间切换，同一段代码的中间色肉眼可见地变化。该示例是 main 分支版（入口不同），但 `linear_gradient`、`linear_color_stop`、`color_space` 三个 API 与 0.2.2 签名一致，本节代码 0.2.2 可直接编译。
+
+## 透明度
+
+GPUI 有两层透明度，改之前先想清楚要淡的是"一层颜色"还是"整个盒子"：
+
+| 写法 | 层级 | 影响范围 |
+| --- | --- | --- |
+| 颜色 alpha：`hsla` 第 4 参、`rgba` 末字节、`color.alpha(a)`、`color.opacity(f)`、`Background::opacity(f)` | 颜色级 | 只有使用该颜色的那一层绘制变淡 |
+| `.opacity(f)`（`Styled` 方法，参数 `f32`） | 元素级 | 背景、边框、阴影、子元素（含文本）整体变淡 |
+
+元素级的原理：0.2.2 中 `div` 的整棵绘制被 `window.with_element_opacity` 包住，透明度乘在子树的绘制输出上——所以子元素跟着变淡是设计行为。两种写法放在一起看：
+
+```rust
+use gpui::{div, hsla, px, rgb};
+
+// 颜色级：alpha 写进颜色，只有背景这一层变淡
+let bg_only = div()
+    .size(px(64.))
+    .bg(hsla(0.59, 1.0, 0.65, 0.4)) // 同一个蓝，40% 不透明
+    .child("文字不透明");
+
+// 元素级：整个盒子连文字一起变成 40% 不透明
+let whole = div()
+    .size(px(64.))
+    .bg(rgb(0x4a9eff))
+    .opacity(0.4)
+    .child("文字一起变淡");
+```
+
+渐变也能整体调淡——`Background` 上有 `opacity(factor)`：
+
+```rust
+let faded = linear_gradient(45., linear_color_stop(gpui::red(), 0.), linear_color_stop(gpui::blue(), 1.))
+    .opacity(0.5); // 只淡渐变这一层
+```
+
+官方 opacity.rs 是元素级的完整闭环：面板初始 `.opacity(0.5)`，点击后每帧把 `opacity` 字段加 0.005 并调用 `window.request_animation_frame()` 驱动重绘，涨到 1.0 停止——一次淡入动画，就是不断用新值调 `.opacity(self.opacity)`。
+
+## 最佳实践
+
+- **基础色定一处，状态色靠派生：** 把设计稿的十六进制集中定义成 `Rgba` 常量，hover、disabled 等状态 `into()` 成 `Hsla` 后用 `alpha()` / `opacity()` 派生；改主题色只动一处。
+- **阴影预设优先，手写兜底：** `shadow_sm()` 到 `shadow_2xl()` 覆盖了卡片、浮层、弹窗的常规层级感；确需对齐设计稿的 offset、blur、spread 时再手写 `BoxShadow`。
+- **大跨度渐变选 Oklab：** 红到蓝这类色相大跨度过渡用 `ColorSpace::Oklab`，中间色比默认 Srgb 均匀；同色系小范围渐变两者差异不大，保持默认即可。
+- **透明度先选层级：** 整组内容（卡片连文字）淡入淡出用元素 `.opacity()`；只让背景或边框某一层变淡、内容保持可读，把 alpha 写进颜色。
+
+## 常见问题
+
+- 写了 `.border_color(...)` 却看不到边框
+  补上宽度声明，如 `.border_1().border_color(...)`。边框可见需要同时满足"颜色已设置且非全透明"与"至少一边宽度非零"，只给颜色不绘制。
+- `hsla(120., 1., 0.5, 1.)` 得到的不是绿色
+  色相参数范围是 0.0–1.0，不是 0–360 度：120° 应写 `hsla(1.0 / 3.0, 1.0, 0.5, 1.0)`。`hsl()` 三参数函数不存在，别按 CSS 习惯找它。
+- `.opacity(0.5)` 之后子元素文字也透明了
+  元素级透明度乘在整个子树的绘制输出上（`with_element_opacity` 包住子元素），这是设计行为。只想让背景半透明、内容保持清晰，把 alpha 写进背景颜色，如 `.bg(hsla(0.59, 1.0, 0.65, 0.5))`。
+- 照抄 Zed 仓库示例的 `BoxShadow::new(...)` 编译失败
+  `BoxShadow::new` 与 `.blur_radius()` / `.spread_radius()` 链式方法是 main 分支新增，发布版 0.2.2 没有。0.2.2 用结构体字面量：`BoxShadow { color: hsla(..), offset: point(..), blur_radius: px(..), spread_radius: px(..) }`。
+
+## 总结回顾
+
+摘要：
+
+GPUI 的颜色是纯数据：`Rgba` 承接十六进制（`rgb()` 按 0xRRGGBB、`rgba()` 按 0xRRGGBBAA，也可从 `#rrggbbaa` 字符串解析），`Hsla` 用四个 0–1 比例值表示且色相不是角度；两者靠 `From` 与 `to_rgb()` 互转，`alpha()`、`opacity()` 等派生方法定义在 `Hsla` 上。样式侧，`.bg()` 是唯一背景入口，接受 `Rgba`、`Hsla`、`Background` 三种值；圆角用 `.rounded(px(..))` 自定义或 `rounded_xs()` 到 `rounded_full()` 预设，可按边按角控制；边框要宽度和颜色两条声明同时非零才绘制；阴影是 `Vec<BoxShadow>`（0.2.2 用结构体字面量，main 分支新增 `BoxShadow::new` 链式写法），预设从 `shadow_2xs()` 到 `shadow_2xl()`。渐变 `linear_gradient(角度, 起, 止)` 以度数指定方向（0° 朝上、顺时针），两个 stop 的位置自由摆放可做部分渐变与硬分界，`color_space()` 可把插值切到 Oklab。透明度分两层：颜色 alpha 只淡一层绘制，元素 `.opacity()` 淡出整个子树。
+
+一句话：
+
+> 先分清层级再动手：改某一层颜色用 alpha，动整个盒子连内容用 `.opacity()`；其余视觉属性各守各的刻度——色相 0–1、边框双条件、阴影四字段、渐变角度 0–360 度顺时针。
+
+知识要点：
+
+- `rgb()`、`rgba()`、`hsla()` 的参数各按什么布局解析？色相 120° 在 GPUI 里怎么写？
+- 边框需要哪两条声明才可见？只写 `border_color()` 会怎样？
+- `rounded_*` 预设有哪些档位？正方形变圆形用哪个？
+- 0.2.2 手写阴影怎么写？`BoxShadow` 四个字段各控制什么？main 分支的写法差异在哪？
+- `linear_gradient()` 的角度方向约定是什么？`color_space(ColorSpace::Oklab)` 改变了什么？
+- 颜色级透明与元素级 `.opacity()` 的作用范围差别是什么？
+
+## 参考资料
+
+- [官方示例 gradient.rs（main 分支）](https://raw.githubusercontent.com/zed-industries/zed/main/crates/gpui/examples/gradient.rs)
+- [官方示例 shadow.rs（main 分支）](https://raw.githubusercontent.com/zed-industries/zed/main/crates/gpui/examples/shadow.rs)
+- [官方示例 opacity.rs（main 分支）](https://raw.githubusercontent.com/zed-industries/zed/main/crates/gpui/examples/opacity.rs)
+- [docs.rs：gpui 0.2.2 Rgba](https://docs.rs/gpui/0.2.2/gpui/struct.Rgba.html)
+- [docs.rs：gpui 0.2.2 Hsla](https://docs.rs/gpui/0.2.2/gpui/struct.Hsla.html)
+- [docs.rs：gpui 0.2.2 Styled trait](https://docs.rs/gpui/0.2.2/gpui/trait.Styled.html)
+- [docs.rs：gpui 0.2.2 BoxShadow](https://docs.rs/gpui/0.2.2/gpui/struct.BoxShadow.html)
+- [docs.rs：gpui 0.2.2 linear_gradient](https://docs.rs/gpui/0.2.2/gpui/fn.linear_gradient.html)
+- [docs.rs：gpui 0.2.2 colors 模块](https://docs.rs/gpui/0.2.2/gpui/colors/index.html)
+- [gpui 0.2.2 color.rs 源码](https://docs.rs/gpui/0.2.2/src/gpui/color.rs.html)
+- [gpui-macros 0.2.2 styles.rs 源码（rounded/border/shadow 预设值）](https://docs.rs/gpui-macros/0.2.2/src/gpui_macros/styles.rs.html)

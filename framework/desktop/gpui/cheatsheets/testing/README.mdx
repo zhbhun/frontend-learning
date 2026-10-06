@@ -1,0 +1,485 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="testing" title="工程化/测试" name="Docs" />
+
+# 测试
+
+GUI 框架的代码最难测：逻辑挂在实体里，行为由鼠标、键盘和焦点驱动，任务在后台跑，计时器在滴答，而窗口本身离不开 GPU 和窗口系统。GPUI 的解法是把这些运行时依赖整体换掉——开启 `test-support` feature 后，框架提供一套自带的测试基建：`#[gpui::test]` 宏把普通测试函数接进框架，注入一个 `TestAppContext`；它内部跑着一个货真价实的 `App`，但平台是假的（`TestPlatform`/`TestWindow`，不碰真实 GPU 与窗口系统），调度是单线程确定性的（`TestDispatcher`），时钟是虚拟的。于是"点一下按钮、按一个键、等一个后台任务"都变成可在 `cargo test` 里毫秒级跑完的确定性操作。
+
+本课的主线沿着测试对象的复杂度展开：先用宏与 `TestAppContext` 测无窗口的实体逻辑，再用确定性执行器与虚拟时间控制异步任务，然后换 `VisualTestContext` 建窗口、模拟动作与鼠标键盘的完整交互，最后用多个 `TestAppContext` 模拟多实例并发。核心判断只有三条：**同步副作用在 `update` 调用返回后立即生效，后台任务必须显式让控制权（`run_until_parked` 或 `await`）才会跑，测试执行器等待外部 IO 会 panic（这是死锁检测，不是缺陷）**。签名一律核对自 gpui 0.2.2 与 main 分支源码；两者不一致处单独标注（测试类型被 feature 门控，docs.rs 默认文档页不含它们，回查以源码为准）。
+
+| 名称 | 类别 | 用途与要点 |
+| --- | --- | --- |
+| `#[gpui::test]` | 宏 | 把函数变成 GPUI 测试，按参数类型注入上下文；属性：`iterations = 1`、`retries = 0`、`seed` / `seeds`、`on_failure` |
+| `TestAppContext` | 上下文 | 无窗口的测试 App；实现了 `AppContext`，`cx.new` / `cx.update` / `read_with` 与正式代码同构 |
+| `VisualTestContext` | 上下文 | 带窗口的测试上下文，deref 到 `TestAppContext`；负责模拟输入与窗口操作 |
+| `TestDispatcher` | 执行器 | 确定性调度器（`#[doc(hidden)]`，宏内部使用）；种子决定任务交错顺序 |
+| `TestWindow` | 平台窗口 | 假窗口后端，支持模拟 resize / 关闭 / 标题读取，不真实渲染 |
+| `cx.add_window(build)` | 建窗 | `TestAppContext` 上直接建窗，返回 `WindowHandle<V>`，尺寸为最大化 |
+| `cx.add_window_view(build)` | 建窗 | 一步返回 `(Entity<V>, &mut VisualTestContext)`，交互测试的惯用入口 |
+| `cx.run_until_parked()` | 驱动 | 反复 tick 执行器直到没有待跑任务；后台任务由此得以上台 |
+| `cx.dispatch_action(action)` | 模拟输入 | 把动作发给当前焦点节点（`VisualTestContext` 上免传 window） |
+| `cx.simulate_keystrokes("a b enter")` | 模拟输入 | 空格分隔的按键序列，走完整按键分发流程，结束自动 run_until_parked |
+| `cx.simulate_input("hello")` | 模拟输入 | 逐字符输入文本 |
+| `cx.simulate_click(position, modifiers)` | 模拟输入 | 在坐标处模拟左键 down + up；命中要求元素已布局 |
+| `cx.debug_bounds(selector)` | 断言辅助 | 读取设置了 `debug_selector` 的元素的实际 bounds（仅含 `debug_assertions` 的构建） |
+| `cx.notifications(&entity)` | 断言辅助 | `Stream<Item = ()>`，实体每次 notify 收到一项 |
+| `cx.events(&entity)` / `entity.next_event(cx)` | 断言辅助 | 以流 / future 的形式等待实体事件 |
+| `cx.condition(&entity, predicate)` | 断言辅助 | 异步等待谓词成立，内置 3 秒虚拟时钟超时 |
+| `cx.executor().allow_parking()` | 时间控制 | 允许测试线程在无任务时停放，用于等待真正的外部线程 |
+| `cx.executor().advance_clock(d)` | 时间控制 | 推进虚拟时钟，让到期的 `timer` 就绪；不会自己跑任务 |
+
+## 启用 test-support
+
+`TestAppContext`、`VisualTestContext`、`run_test` 这些类型在 gpui 源码里都被 `#[cfg(any(test, feature = "test-support"))]` 门控：只有开了 feature（或 gpui 自己跑测试）才存在。用户工程的写法是把带 feature 的 gpui 放进 `dev-dependencies`——Cargo 只在编译测试、示例和 bench 时合并这里的 feature，正式交付构建不受影响：
+
+```toml
+# Cargo.toml
+[dependencies]
+gpui = "0.2.2"
+
+[dev-dependencies]
+# 只在 cargo test 构建中启用测试基建
+gpui = { version = "0.2.2", features = ["test-support"] }
+# 使用 #[gpui::test(iterations = N)] 注入 StdRng 时需要
+rand = "0.9"
+# 官方示例用 futures 的 oneshot channel 模拟外部系统
+futures = "0.3"
+```
+
+这正是 Zed 仓库内部的做法：`crates/settings/Cargo.toml` 的 `[dev-dependencies]` 里就是 `gpui = { workspace = true, features = ["test-support"] }`，再包一层自己的 `test-support` feature 向下游传递。
+
+两个容易误判的点：
+
+- `#[gpui::test]` 宏本身（来自 `gpui_macros`）是**无条件导出**的，`use gpui::prelude::*` 或直接写宏都能通过编译；真正报 `cannot find type TestAppContext` 是因为类型被门控，解决方式只有开 feature。
+- gpui 0.2.2 的 `test-support` feature 内容为 `leak-detection`、`rand`、`util/test-support`、`http_client/test-support`、`collections/test-support` 加平台后端——也就是说开了它顺带获得了实体泄漏检测（实体句柄未释放会在测试结束时报告）和一个 404 假 HTTP 客户端。main 分支上 feature 集合已调整为引入 `proptest`、`futures-concurrency`、`postage` 等依赖，`leak-detection` 拆为独立 feature（也可用环境变量 `GPUI_LEAK_DETECTION` 开启）。
+
+官方示例 `examples/testing.rs` 自带测试模块，验证环境的最短路径：
+
+```bash
+# 官方仓库内运行（示例文件头注释原文的命令）
+cargo test -p gpui --example testing --features test-support
+```
+
+## gpui::test 宏
+
+宏做的事很少但很关键：把你的函数体包进一个标准 `#[test]` 外壳，调用 `gpui::run_test`——按迭代次数生成种子序列，每个种子构造一个全新的 `TestDispatcher` 与测试世界，失败时按 `retries` 同种子重试并报告 failing seed。同步函数直接调用；`async fn` 则由前台执行器的 `block_test` 驱动到完成。所以宏对同步与异步测试一视同仁，写法只差一个 `async`：
+
+```rust
+#[cfg(test)]
+mod tests {
+    use gpui::{TestAppContext, VisualTestContext};
+
+    // 同步测试：宏注入 &mut TestAppContext
+    #[gpui::test]
+    fn basic_testing(cx: &mut TestAppContext) {
+        // ... 断言实体状态
+    }
+
+    // 异步测试：同样加宏，函数体里可以直接 await
+    #[gpui::test]
+    async fn test_async_operations(cx: &mut TestAppContext) {
+        // ... await 任务、run_until_parked
+    }
+}
+```
+
+宏的属性参数共五个，全部有默认值：
+
+| 属性 | 默认值 | 作用 |
+| --- | --- | --- |
+| `iterations = N` | `1` | 同一测试跑 N 次，第 k 次种子为 k；每次都是全新世界。参数测试与并发测试用它扫不同执行序 |
+| `retries = N` | `0` | 失败后同种子重试 N 次；仍失败则 panic，多次迭代时会打印 failing seed |
+| `seed = N` | 无 | 固定单个种子，用于复现某次失败（配合日志里的 failing seed） |
+| `seeds = [a, b]` | 无 | 显式给出一组种子，逐个运行 |
+| `on_failure = "path::to::fn"` | 无 | 测试最终失败时调用的函数（如转储状态） |
+
+种子还可以从环境变量覆盖，便于在命令行调试而不改代码：`ITERATIONS=20 cargo test my_test` 提高迭代数，`SEED=7 cargo test my_test` 单跑某个种子。
+
+### 测试函数的参数注入
+
+宏按**参数类型**决定注入什么，识别不了的类型直接编译错误。可用参数有四类：
+
+| 参数写法 | 注入内容 | 说明 |
+| --- | --- | --- |
+| `cx: &mut TestAppContext` | 一个测试 App | 可写多个（重命名为 `cx_a`、`cx_b`…），共享同一调度器，见下文多应用测试 |
+| `rng: StdRng` | 以本次种子播种的随机数生成器 | 需引入 `rand::prelude::*` 与 `rand` 依赖；配合 `iterations` 做随机化测试 |
+| `executor: BackgroundExecutor` | 本轮的后台执行器 | 需要直接操控执行器的场景 |
+| `cx: &mut App`（仅同步测试） | 直接的 `&mut App` 借用 | 少数想绕过 `TestAppContext` 包装的场合 |
+
+随机化测试的完整形态（官方示例 `test_counter_random_operations` 的骨架）：
+
+```rust
+use rand::prelude::*;
+
+// iterations = 10：同一测试用 10 个种子各跑一遍
+#[gpui::test(iterations = 10)]
+fn test_counter_random_operations(cx: &mut TestAppContext, mut rng: StdRng) {
+    // ... 用 rng.random_bool(0.5) 决定随机操作序列，再对照手算的期望值断言
+}
+```
+
+## TestAppContext：无窗口测试
+
+`TestAppContext` 实现了 `AppContext` trait，因此 1.3、4.2 课学过的实体操作原样可用：`cx.new(...)` 建实体、`counter.update(cx, ...)` 改状态、`Entity::read_with(cx, ...)` 读状态。它内部持有一个完整的 `App`（跑在假平台上），`cx.update(|cx: &mut App| ...)` 与 `cx.read(|cx: &App| ...)` 则给出整个应用的访问。
+
+一个读取上的限制要提前知道：`Entity::read(cx)` 需要直接的 `&App`，而 `TestAppContext` 不是 `App`，所以读状态统一走 `read_with`（官方示例专门注释了这一点）。被测对象沿用一个计数器实体：
+
+```rust
+// 被测对象：贯穿本课的计数器实体
+actions!(counter, [Increment, Decrement]);
+
+struct Counter {
+    count: i32,
+    focus_handle: FocusHandle,
+}
+
+impl Counter {
+    fn new(cx: &mut Context<Self>) -> Self {
+        Self {
+            count: 0,
+            focus_handle: cx.focus_handle(),
+        }
+    }
+
+    fn increment(&mut self, _: &Increment, _window: &mut Window, cx: &mut Context<Self>) {
+        self.count += 1;
+        cx.notify();
+    }
+}
+
+impl Focusable for Counter {
+    fn focus_handle(&self, _cx: &App) -> FocusHandle {
+        self.focus_handle.clone()
+    }
+}
+
+// Render 实现省略：一个显示 count 的 div，按钮用 cx.listener 绑定 increment
+```
+
+最基本的测试闭环——建实体、改状态、断言：
+
+```rust
+#[gpui::test]
+fn basic_testing(cx: &mut TestAppContext) {
+    let counter = cx.new(|cx| Counter::new(cx));
+
+    counter.update(cx, |counter, _| {
+        counter.count = 42;
+    });
+
+    // TestAppContext 不支持 Entity::read(cx)，读状态用 read_with
+    let updated = counter.read_with(cx, |counter, _| counter.count);
+    assert_eq!(updated, 42);
+}
+```
+
+### 副作用时机
+
+GPUI 的效果系统（observe、subscribe 等回调）不是在注册点就地执行的，而是排进效果队列，在**当次 `update` 结束时**统一刷新。测试世界的确定性让这件事变得可断言：`update` 一返回，同步副作用就已经跑完。官方示例让计数器订阅自己的事件并把 `count` 改成 999，然后在一个测试里精确验证这个时机：
+
+```rust
+// Counter::new 里注册：cx.subscribe_self(|this, _event, _cx| { this.count = 999; })
+
+#[gpui::test]
+fn test_side_effects(cx: &mut TestAppContext) {
+    let counter = cx.new(|cx| Counter::new(cx));
+
+    // emit 事件——订阅回调在这次 update 返回后立即执行
+    counter.update(cx, |_, cx| {
+        cx.emit(CounterEvent);
+    });
+
+    // 不需要任何"等待"：副作用已经跑完
+    let count = counter.read_with(cx, |counter, _| counter.count);
+    assert_eq!(count, 999, "Side effects should run after update completes");
+}
+```
+
+对照地，**异步副作用**（spawn 出的后台任务）不在这个保证之内——它们要等控制权让出，见下一节。
+
+### 事件与通知的断言辅助
+
+`TestAppContext` 内置了几组把"副作用发生了"变成可等待对象的辅助，签名核对自 0.2.2 的 `src/app/test_context.rs`：
+
+```rust
+// 实体每次 notify 发出一个 ()，事件每次 emit 发出一个事件克隆
+let mut notified = cx.notifications(&counter);
+let events = cx.events::<CounterEvent, _>(&counter);
+
+// 在 async 测试里，可以以 future 形式等下一个事件
+let event = counter.next_event(cx).await;
+```
+
+- `cx.notifications(&entity)`：返回 `Stream<Item = ()>`，实体每次 `cx.notify()` 推一项，实体释放时流关闭。
+- `cx.events(&entity)`：返回 `UnboundedReceiver<Evt>`，订阅实体的全部事件。
+- `entity.next_event(cx)`：返回 future，解析出下一个事件；没有事件到来会以 panic 报告，不会静默挂死。
+- `cx.condition(&entity, predicate)`：异步循环检查谓词，每次 notify 后重查，超过 3 秒（虚拟时钟）超时失败——比裸轮询更适合"等到某状态出现"的断言。
+
+Global 的测试辅助也在这层：`cx.set_global`、`cx.read_global`、`cx.try_read_global`、`cx.update_global`、`cx.has_global`，语义与 `App` 上的同名方法一致。
+
+## 异步与虚拟时间
+
+测试执行器的共同模型：`TestDispatcher` 把所有任务排进一个**单线程**队列，`run_until_parked` 反复取任务执行直到队列清空；多个测试 App 共享调度器时，取哪个 App 的任务是随机的（由种子决定，见多应用测试）。配合三条规则，异步代码的每一步都可控：
+
+**规则一：同步代码路径上的副作用立即生效，后台任务不跑。** `update` 闭包里 spawn 并 `detach` 的任务，在当前调用栈让出控制权之前不会执行任何一步。
+
+**规则二：`await` 一个任务就是让出控制权。** 被等待的任务跑完才继续；`run_until_parked` 则是"跑完当前所有已就绪任务"的手动入口。
+
+**规则三：时间不流逝，直到你推动它。** 计时器挂在虚拟时钟上，`timer(d)` 创建后不会自己到期。
+
+官方示例的异步测试完整展示了前两条：
+
+```rust
+#[gpui::test]
+async fn test_async_operations(cx: &mut TestAppContext) {
+    let counter = cx.new(|cx| Counter::new(cx));
+
+    // 直接 await：任务跑完才拿到控制权
+    counter.update(cx, |counter, cx| counter.load(cx)).await;
+    let count = counter.read_with(cx, |counter, _| counter.count);
+    assert_eq!(count, 100, "Load task should have set count to 100");
+
+    // detach 的任务：现在还一步都没跑
+    counter.update(cx, |counter, cx| counter.reload(cx));
+    let count = counter.read_with(cx, |counter, _| counter.count);
+    assert_eq!(count, 100, "Detached reload task shouldn't have run yet");
+
+    // 跑完所有待办任务
+    cx.run_until_parked();
+
+    let count = counter.read_with(cx, |counter, _| counter.count);
+    assert_eq!(count, 150, "Reload task should have run after parking");
+}
+```
+
+`cx.run_until_parked()` 是本节的核心 API：它跑完队列里所有任务后返回，不会等待任何尚未到期（虚拟）时间或外部事件。`VisualTestContext` deref 后同样有这个方法。
+
+### 外部等待：allow_parking 与死锁检测
+
+测试执行器有个反直觉但刻意为之的行为：**`await` 一个不依赖 GPUI 调度的 future（读文件、等网络、等别的线程）会让测试 panic**——调度器跑空了，测试线程没有任务可执行，框架宁可报错也不让你挂死。官方文档明确说这是特性：可以用来检测异步代码里的潜在死锁。正确姿势是 mock 外部系统；确实要等一个真实 OS 线程时，先 `allow_parking()` 放行：
+
+```rust
+#[gpui::test]
+async fn test_allow_parking(cx: &mut TestAppContext) {
+    // 允许调度器跑空时线程停放（等待外部系统）
+    cx.executor().allow_parking();
+
+    // 用 OS 线程模拟外部系统（如文件系统）
+    let (tx, rx) = futures::channel::oneshot::channel();
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(5));
+        tx.send(42).ok();
+    });
+
+    // 没有 allow_parking()，这个 await 会 panic
+    let result = rx.await.unwrap();
+    assert_eq!(result, 42);
+}
+```
+
+`allow_parking` 可以用 `forbid_parking` 关回（宏生成的收尾代码每个测试结束时都会调用它，所以外放不会泄漏到下一个测试）。
+
+### 虚拟时钟 advance_clock
+
+`BackgroundExecutor::timer(d)` 在测试里返回的任务挂在虚拟时钟上：不推时钟，它永远不就绪。两个入口控制时间（源码注释原文："in tests, move time forward. This does not run any tasks, but does make timers ready"）：
+
+```rust
+// 推进虚拟时钟 5 秒：到期的 timer 变为就绪（但不会自动执行）
+cx.executor().advance_clock(Duration::from_secs(5));
+
+// 之后再跑任务：到期 timer 的后续逻辑此时才执行
+cx.run_until_parked();
+
+// 或单步：只推到下一个最近的 timer 到期点，返回是否还有 timer
+cx.executor().advance_clock_to_next_timer();
+```
+
+测试本身是 `async fn` 时有更顺手的组合：`entity.next_notification(advance_clock_by, cx)` 会先推进指定时长再等实体的下一次 notify，适合测"超时后刷新"这类逻辑；`cx.condition(...)` 的 3 秒超时也是虚拟时钟上的——写 `cx.condition(...).await` 不会真等 3 秒，只有时钟被推动（或状态提前满足）才结束。
+
+## VisualTestContext：带窗口交互测试
+
+纯实体测试覆盖不了依赖窗口的行为：动作分发要靠渲染出的元素树找到处理器，点击命中吃布局坐标，hover、焦点、窗口尺寸都是窗口概念。`VisualTestContext` 就是"测试世界的 `Window` + `App`"：它 deref 到内部的 `TestAppContext`（所以上一节所有方法它都有），同时提供窗口访问与全套输入模拟。官方示例强调：与同步副作用一样，**每次 `update` 调用后窗口都会重新绘制**，所以渲染依赖的行为（元素树、命中测试）在测试里如实工作。
+
+### 搭建窗口
+
+三种建窗方式，按需选用：
+
+```rust
+#[gpui::test]
+fn test_counter_in_window(cx: &mut TestAppContext) {
+    // 方式一：走正式的 open_window，再包一层 VisualTestContext（官方示例口径）
+    let window = cx.update(|cx| {
+        cx.open_window(Default::default(), |_, cx| cx.new(|cx| Counter::new(cx)))
+            .unwrap()
+    });
+    let mut cx = VisualTestContext::from_window(window.into(), cx);
+    let counter = window.root(&mut cx).unwrap();
+
+    // 方式二：add_window 直接拿到 WindowHandle
+    // let window = cx.add_window(|_, cx| Counter::new(cx));
+
+    // 方式三：add_window_view 一步到位，返回 (实体, 上下文)，惯用写法是 shadow cx
+    // let (counter, cx) = cx.add_window_view(|_, cx| Counter::new(cx));
+}
+```
+
+- `cx.add_window(build)`：窗口尺寸为测试显示器的最大化 bounds。
+- `cx.add_window_view(build)`：建窗、等首轮绘制、返回 `(Entity<V>, &mut VisualTestContext)`，交互测试的最短入口；`cx.add_empty_window()` 则给一个空窗口，多用于单独测某个 element 的布局。
+- main 分支新增 `cx.open_window(size, build)`，可指定窗口尺寸（布局敏感的测试需要）；0.2.2 上要指定尺寸须走方式一手写 `WindowOptions`。
+- 窗口后端是 `TestWindow`：不出真实 OS 窗口，但记录标题、尺寸、可见性，可被 `cx.window_title()` 等读取；main 分支另有 `cx.skip_drawing()` 跳过绘制开销（0.2.2 无）。
+
+### 模拟动作与按键
+
+动作与按键走真实分发链路。动作发给焦点节点，所以先建立焦点；按键则按 `key_context` 与绑定表逐级解析，与真机行为一致：
+
+```rust
+#[gpui::test]
+fn test_action_and_keystrokes(cx: &mut TestAppContext) {
+    let (counter, mut cx) = cx.add_window_view(|_, cx| Counter::new(cx));
+    cx.update(|window, cx| {
+        cx.bind_keys([KeyBinding::new("up", Increment, Some("Counter"))]);
+    });
+
+    // 动作：发给当前焦点节点（接收 owned 值；FocusHandle::dispatch_action 才收引用）
+    cx.focus(&counter);
+    cx.dispatch_action(Increment);
+    let count = counter.read_with(&cx, |c, _| c.count);
+    assert_eq!(count, 1);
+
+    // 按键：走完整按键分发（焦点上下文 -> 绑定匹配 -> 动作），结束自动 run_until_parked
+    cx.simulate_keystrokes("up");
+    let count = counter.read_with(&cx, |c, _| c.count);
+    assert_eq!(count, 2, "simulate_keystrokes 应命中 up 绑定并触发 Increment");
+}
+```
+
+- `cx.dispatch_action(action)`：动作直接派给焦点节点，等价于真机上触发快捷键的最后一步；不带 window 参数（`TestAppContext` 上的同名方法则需要传 `AnyWindowHandle`）。
+- `cx.simulate_keystrokes("cmd-shift-p enter")`：空格分隔的按键串，逐个解析成 `Keystroke` 再分发；修饰键写法与绑定串一致（`cmd-`、`shift-`、`secondary-` 等）。
+- `cx.simulate_input("hello")`：按文本逐字符输入，适合测输入框而不是快捷键。
+- `cx.focus(&view)` 聚焦根视图；`FocusHandle` 已在 `track_focus` 的元素上时按键才会被它的 `key_context` 捕获——按键没生效先查焦点。
+
+### 模拟鼠标点击
+
+`simulate_click(position, modifiers)` 在坐标处发一对左键 down/up 事件，事件会走命中测试找到目标元素。难点只有一个：坐标从哪来。答案是让测试自己读布局——给按钮设置 `debug_selector`，用 `cx.debug_bounds(selector)` 拿实际渲染区域：
+
+```rust
+// render 里的按钮：设置 debug_selector 供测试定位
+div()
+    .id("increment")
+    .debug_selector(|| "increment-button".to_string())
+    .on_click(cx.listener(|this, _, _, cx| {
+        this.count += 1;
+        cx.notify();
+    }))
+    // ... 样式省略
+```
+
+```rust
+#[gpui::test]
+fn click_increment_button(cx: &mut TestAppContext) {
+    let (counter, mut cx) = cx.add_window_view(|_, cx| Counter::new(cx));
+
+    // 读取按钮的实际布局区域（需要元素已渲染；debug_selector 仅在含 debug_assertions 的构建中记录）
+    let bounds = cx.debug_bounds("increment-button").expect("按钮未渲染");
+    let center = bounds.center();
+
+    cx.simulate_click(center, Modifiers::none());
+
+    let count = counter.read_with(&cx, |c, _| c.count);
+    assert_eq!(count, 1, "点击按钮后计数应为 1");
+}
+```
+
+鼠标家族还有更细的成员，事件模型与 3.1 课一致：`simulate_mouse_move(position, button, modifiers)`、`simulate_mouse_down` / `simulate_mouse_up`（可指定 `MouseButton`、`click_count` 固定为 1）、`simulate_modifiers_change`、`simulate_capslock_change`；滚轮等更底层的事件用 `cx.simulate_event(event)` 发（需先有绘制好的帧，或用 `cx.draw(origin, space, f)` 手动画一个 element）。窗口层面的模拟也在这个上下文上：`cx.simulate_resize(size)`、`cx.simulate_close()`、`cx.deactivate_window()`（模拟窗口失焦）。
+
+## 多应用测试
+
+`#[gpui::test]` 允许声明多个 `&mut TestAppContext` 参数：每个参数是一个独立世界（独立的实体、Global、窗口），但**共享同一个调度器**。调用任一方的 `run_until_parked` 时，调度器在多个 App 的任务间随机挑选（顺序由种子决定）——这正是模拟"两个进程通过网络协作"的基础：消息走后台任务，交错顺序被随机化，`iterations` 让每个种子都跑一遍，验证代码对任意交错都正确。
+
+官方示例用 `MockNetwork` 演示了最小结构：
+
+```rust
+#[gpui::test]
+fn test_app_sync(cx_a: &mut TestAppContext, cx_b: &mut TestAppContext) {
+    let network = MockNetwork::new();
+    let a = cx_a.new(|_| NetworkedCounter::new(network.a_client()));
+    let b = cx_b.new(|_| NetworkedCounter::new(network.b_client()));
+
+    // B 本地递增并广播——本地状态立即生效，广播还在后台任务里
+    b.update(cx_b, |b, cx| b.increment(42, cx));
+    b.read_with(cx_b, |b, _| assert_eq!(b.count, 42));
+    a.read_with(cx_a, |a, _| assert_eq!(a.count, 0));
+
+    cx_b.run_until_parked();          // B 的广播消息发出
+    a.update(cx_a, |a, _| a.sync());  // A 收信并应用
+
+    b.read_with(cx_b, |b, _| assert_eq!(b.count, 42));
+    a.read_with(cx_a, |a, _| assert_eq!(a.count, 42)); // 两侧最终一致
+}
+
+// 每个种子随机化操作序列，扫不同交错（官方示例 test_random_interleaving 的思路）
+#[gpui::test(iterations = 10)]
+fn test_random_interleaving(cx_a: &mut TestAppContext, cx_b: &mut TestAppContext, mut rng: StdRng) {
+    // ... 随机决定每步操作发给哪个 App，最后 run_until_parked 后断言两侧一致
+}
+```
+
+要点：跨 App 的"网络"就是你自己的抽象（channel、共享结构皆可），gpui 只负责让两侧的任务以受控且可随机化的顺序交错；`TestAppContext::new_app()` 还能在测试中途基于同一调度器再派生一个 App。
+
+## 最佳实践
+
+- **断言实体状态，而不是渲染结果。** 这套基建没有截图比对，`TestWindow` 不产出像素；UI 的正确性通过"状态 + 交互行为"表达（点击后状态变了、按键后动作触发了），`debug_bounds` 只用于给点击定位或粗查布局。
+- **测试走用户路径，而不是绕过它。** 优先 `dispatch_action` / `simulate_keystrokes` / `simulate_click` 驱动行为，让按键绑定、焦点上下文、命中测试都在被测范围内；直接调用私有方法会让"绑定写错了"这类事故漏测。
+- **用 `iterations` 主动抓竞态。** 默认的单线程确定性只保证"同一世界内可复现"，不保证"只有一种执行序"——凡是 spawn 出后台任务的地方，都值得 `#[gpui::test(iterations = 20)]` 加 `StdRng` 扫一遍；失败日志会给出 failing seed，用 `seed = N` 固定住再修。
+- **外部系统一律 mock。** HTTP 用 gpui test-support 自带的 404 假客户端或自己的 fake 实现，文件与网络走 trait 注入；只有等待真实 OS 线程时才 `allow_parking()`，并把它当成排查死锁的信号而不是日常手段。
+- **每个测试自带世界。** 宏为每个 `TestAppContext` 参数、每次迭代都构造全新环境，实体与 Global 互不泄漏；需要共享的配置显式放进 Global 或构造函数参数，不要依赖执行顺序。
+
+## 常见问题
+
+- `cannot find type TestAppContext`，或在 docs.rs 上搜不到 `TestAppContext` / `VisualTestContext` 的文档页
+  在 `dev-dependencies` 里给 gpui 加 `features = ["test-support"]`。docs.rs 的默认构建不开这个 feature，所以门控类型没有文档页——查 API 直接看源码 `src/app/test_context.rs`（0.2.2 与 main 的差异见本课各处标注）。
+
+- 测试里 `await` 读文件或等网络时 panic（调度器跑空相关报错）
+  这是测试执行器的死锁检测：GPUI 控制之外就绪的 future 会让队列永远跑不空。处理：mock 外部系统；确需等待外部线程时先调 `cx.executor().allow_parking()`。这个 panic 有时正是你要找的死锁证据。
+
+- 断言时后台任务"还没生效"
+  `detach` 的任务不会自动执行，同步断言前需要 `cx.run_until_parked()`，或改为 `await` 那个任务。注意同步副作用（subscribe 回调）不受此影响——它们在 `update` 返回时就已执行。
+
+- `simulate_click` 点了没反应
+  坐标不在目标元素的命中区：先确认窗口已至少绘制过一帧（`add_window_view` 已内建），再用 `cx.debug_bounds(selector)` 拿真实 bounds、取 `bounds.center()` 作为点击点。注意 `debug_bounds` 只在含 `debug_assertions` 的构建里返回数据（默认 `cargo test` 满足），且要求元素在 `render` 里调用了 `debug_selector`。
+
+- `simulate_keystrokes("up")` 没有触发绑定
+  按键分发没有找到匹配：先确认焦点在目标上（`cx.focus(&view)`，且渲染里 `track_focus` 了对应的 `FocusHandle`），再确认 `key_context` 与绑定里的 context 名一致（如 `Some("Counter")` 对应 `key_context("Counter")`）。
+
+## 总结回顾
+
+摘要：
+
+GPUI 的测试基建随 `test-support` feature 提供：`#[gpui::test]` 宏把测试函数接进框架，按参数类型注入 `TestAppContext`（可多个、可加 `StdRng`），属性控制迭代（`iterations`，默认 1）、重试（`retries`，默认 0）、种子（`seed`/`seeds`，可用 `SEED`/`ITERATIONS` 环境变量覆盖）。每个测试跑在全新世界里：平台是假的，调度是单线程确定性的，时钟是虚拟的。无窗口测试用 `cx.new` / `update` / `read_with` 断言实体状态，同步副作用在 `update` 返回时立即生效，事件与通知可用 `events` / `notifications` / `next_event` / `condition` 等待；异步代码遵守"让出控制权才推进"——`await` 任务或 `run_until_parked`，等待 GPUI 之外的东西会 panic（死锁检测，`allow_parking` 例外），计时器靠 `advance_clock` 推进。带窗口的交互测试换 `VisualTestContext`：`add_window_view` 一步建窗，`dispatch_action` 发动作、`simulate_keystrokes` / `simulate_input` 走真实按键分发、`simulate_click` 配合 `debug_selector` + `debug_bounds` 定位命中。多个 `TestAppContext` 共享调度器，交错顺序随种子随机化，配合 `iterations` 验证多实例协作对任意执行序的正确性。
+
+一句话：
+
+> gpui 测试不是渲染快照，而是把整个 App 搬进一个单线程、虚拟时钟的确定性世界——状态用 `read_with` 断言，交互用 `simulate_*` 驱动，时间用 `run_until_parked` 和 `advance_clock` 控制。
+
+知识要点：
+
+- `test-support` 怎么开（dev-dependencies 加 feature），为什么 docs.rs 上搜不到测试类型
+- `#[gpui::test]` 的五个属性参数、四类可注入参数，以及 `SEED` / `ITERATIONS` 环境变量的调试用法
+- 同步副作用与后台任务各自的生效时机，`run_until_parked` 解决什么问题
+- 测试执行器为何 `await` 外部 IO 会 panic，`allow_parking` 与 `advance_clock` 各自的适用场景
+- `VisualTestContext` 的三种建窗方式，动作、按键、点击各自的模拟入口与前置条件（焦点、绘制、`debug_selector`）
+- 多 `TestAppContext` 参数的语义：独立世界、共享调度器、种子化随机交错
+
+## 参考资料
+
+- [官方测试示例 examples/testing.rs（本课主要参照，含全部测试形态）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/testing.rs)
+- [main 分支 src/app/test_context.rs（TestAppContext 与 VisualTestContext 全量 API）](https://github.com/zed-industries/zed/blob/main/crates/gpui/src/app/test_context.rs)
+- [gpui 0.2.2 源码 src/app/test_context.rs（0.2.2 口径的测试上下文实现）](https://docs.rs/crate/gpui/0.2.2/source/src/app/test_context.rs)
+- [gpui 0.2.2 源码 src/test.rs（run_test 的种子生成、重试与环境变量逻辑）](https://docs.rs/crate/gpui/0.2.2/source/src/test.rs)
+- [main 分支 crates/gpui_macros/src/test.rs（宏的属性参数与参数注入实现）](https://github.com/zed-industries/zed/blob/main/crates/gpui_macros/src/test.rs)
+- [gpui_macros 0.2.2 源码 src/test.rs（发布版宏定义，参数与 main 一致）](https://docs.rs/crate/gpui_macros/0.2.2/source/src/test.rs)
+- [gpui 0.2.2 源码 src/platform/test/dispatcher.rs（TestDispatcher：确定性调度与虚拟时钟）](https://docs.rs/crate/gpui/0.2.2/source/src/platform/test/dispatcher.rs)
+- [gpui 0.2.2 源码 src/executor.rs（timer、advance_clock、allow_parking、block_test 的门控实现）](https://docs.rs/crate/gpui/0.2.2/source/src/executor.rs)
+- [gpui 0.2.2 源码 src/platform/test/window.rs（TestWindow 假窗口后端）](https://docs.rs/crate/gpui/0.2.2/source/src/platform/test/window.rs)
+- [zed 仓库 crates/settings/Cargo.toml（dev-dependencies 开 test-support 的官方写法）](https://github.com/zed-industries/zed/blob/main/crates/settings/Cargo.toml)

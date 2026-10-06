@@ -1,0 +1,244 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="advanced-examples" title="实战能力/复杂示例导读" name="Docs" />
+
+# 复杂示例导读
+
+GPUI 官方示例有 40 多个，此前各课都从中摘取过单机制片段；但把一个几百行、十来个 struct 的复合示例完整读懂，是另一项能力——考验的不是 API 量，而是阅读路径。本课不引入新 API：精读三个官方示例，示范一条固定的读法——从入口找到根实体，从 `Render` 实现入手认出元素树骨架，再顺着事件流把"谁改了哪个状态、谁被唤醒重渲染"走一遍。三个示例刻意选了三种形态：popover 是小而精的交互演示（约 200 行），data_table 是数据密集的复合应用（约 500 行），tree 是几乎无状态的压力测试（约 60 行）。读完你应该能拿着任何一个官方示例，从 `main` 函数开始一步步拆到事件回调。
+
+版本口径：本课示例代码抓取自 main 分支（2026-10），示例入口统一是 `gpui_platform::application()`——`gpui_platform` 尚未发布到 crates.io，属"仅 main"形态；发布版 gpui 0.2.2 的等价写法是 `Application::new().run(...)`（见 1.1 课）。其余 main 分支演进在涉及处随文标注。
+
+| 示例（规模） | 演示什么 | 关键机制 | 对应课程 |
+| --- | --- | --- | --- |
+| `popover.rs`（约 200 行） | 浮层弹出面板：默认展开、点击打开、点击外部关闭、两层嵌套 | `deferred`、`anchored`、`Anchor`（仅 main，0.2.2 为 `Corner`）、`priority`、`on_mouse_down_out`、`cx.listener`、`.when` | 1.3、3.1 |
+| `data_table.rs`（约 500 行） | 10000 行行情表：虚拟滚动 + 可拖拽的自绘滚动条 | `uniform_list` + `cx.processor`（仅 main）、`UniformListScrollHandle`、`RenderOnce`、`canvas`、`window.on_mouse_event`、`Rc` 共享 | 3.1、4.2、4.3、5.1、5.2 |
+| `tree.rs`（约 60 行） | 深层级嵌套压力测试（不是树形控件） | `Render` 内循环构造嵌套 `div`、`LazyLock` 读环境变量 | 1.2 |
+
+## popover：浮层与嵌套浮层
+
+读任何示例前先读文件头注释定意图。popover.rs 的头注释只有一句 "An example show use deferred to create a floating layers"——它演示的是 `deferred` 浮层机制，不是教你做 popover 组件。
+
+**第一步：找根实体，列出状态清单。** 整个示例只有一个实体、两个开关：
+
+```rust
+struct HelloWorld {
+    open: bool,           // 第一层浮层开 / 关
+    secondary_open: bool, // 第二层（嵌套）浮层开 / 关
+}
+```
+
+入口在文件尾：`application().run(...)` → `cx.open_window(...)` → `cx.new(|_| HelloWorld { ... })`，main 分支示例的入口都长这样。
+
+**第二步：从 `Render` 实现认骨架。** render 是三层结构：整页容器 → 按钮行 → 四条彩线。两个自由函数是纯样式构造器——不持状态、不碰 `self`，先当黑盒跳过：
+
+```rust
+fn button(id: &'static str) -> Stateful<Div> { /* 黑底白字的小按钮 */ }
+fn popover() -> Div { /* 白底圆角带阴影的浮层容器 */ }
+```
+
+彩线 `line(color)` 更简单：证明浮层真的浮在普通内容之上。其中 "Opened Popover" 按钮没有挂任何事件，浮层默认展开——专门用来看层叠效果。
+
+**第三步：顺事件流走回路。** 打开浮层的完整闭环，回调只改状态加通知（1.3 课）：
+
+```rust
+button("popover1")
+    .child("Open Popover")
+    .on_click(cx.listener(|this, _, _, cx| {
+        this.open = true;
+        cx.notify();
+    }))
+    .when(self.open, |this| {   // 状态为真才挂浮层
+        this.child(
+            deferred(
+                anchored()
+                    .anchor(Anchor::TopLeft) // 仅 main：0.2.2 的参数类型是 Corner
+                    .snap_to_window_with_margin(px(8.))
+                    .child(/* 浮层内容 */),
+            )
+            .priority(1),
+        )
+    }),
+```
+
+这三个浮层机制是本示例的主角，给读懂所需的最小解释：`deferred` 把子树从文档流里拿出来，推迟成浮层绘制；`anchored` 决定浮层锚在哪个角；`snap_to_window_with_margin(px(8.))` 在快出屏时把浮层贴回窗口边缘并留 8px 边距；同窗口多个浮层用 `priority` 排层级。三者 0.2.2 均已发布（`Deferred` / `Anchored`，docs.rs 可查），`Anchor` 是 main 分支对 `Corner` 的演进改名。
+
+关闭走另一条事件通道——`on_mouse_down_out` 在"按下时鼠标位于元素外"触发，属 Capture 阶段，规则见 3.1 课：
+
+```rust
+.on_mouse_down_out(cx.listener(|this, _, _, cx| {
+    this.open = false;
+    cx.notify();
+}))
+```
+
+**第四步：精读嵌套浮层的两处细节**，这是全示例最值得学的部分。第一层浮层内部又挂了一个 `priority(2)` 的 `deferred`（子浮层），源码注释直言 "Now GPUI supports nested deferred!"。两处配合保证层级正确：
+
+- **挂载顺序即层级。** 子浮层要写在父浮层内容的后面，源码注释 "Here we need render popover after the content to ensure it will be on top layer"——同一优先级内，后提交者在上。
+- **关闭守卫。** 父浮层的 `on_mouse_down_out` 包在 `.when(!self.secondary_open, ...)` 里：子浮层开着时暂时摘掉父层的"点外关闭"，否则在子浮层外点击会把两层一起关掉。一个状态位同时控制"渲染什么"和"挂不挂监听"，是 GPUI 条件渲染的惯用手法。
+
+## data_table：状态分层与事件回写
+
+三个示例里最接近真实应用的一个：10000 行股票行情、24 列、虚拟滚动，外加一条可拖拽的自绘滚动条。组织方式概括为**三层 struct 分工**：
+
+```rust
+pub struct Quote { /* 20 余个行情字段：name、last_done、volume…… */ }
+// 纯数据模型：附派生方法 change()、change_color()、turnover_ratio()
+
+#[derive(IntoElement)]
+struct TableRow { ix: usize, quote: Rc<Quote> }   // 无状态行元素
+impl RenderOnce for TableRow { /* 一行的 div 横排 */ }
+
+struct DataTable {                                // 根实体：全部可变状态
+    quotes: Vec<Rc<Quote>>,
+    visible_range: Range<usize>,
+    scroll_handle: UniformListScrollHandle,
+    drag_position: Option<Point<Pixels>>,
+}
+```
+
+- `Quote` 不含任何 GPUI 类型，只在启动时 `generate()` 一次，之后只读；`Rc` 让 10000 行共享同一份行情数据，源码注释原话："Use `Rc` to share the same quote data across multiple items, avoid cloning"。
+- `TableRow` 是 4.3 课讲的组件配方：`RenderOnce` + `#[derive(IntoElement)]`，`render(self, ...)` 拿到值本身，用完即弃、不占实体。行不持状态，正是它经得起虚拟列表反复重建的原因。列宽收敛在常量表 `FIELDS: [(&str, f32); 24]`，表头与单元格都从它迭代——单一真源。
+- `DataTable` 的四个字段各管一类状态：业务数据（`quotes`）、视图回写（`visible_range`）、句柄（`scroll_handle`）、临时交互态（`drag_position`）。
+
+### 虚拟列表：渲染回调里回写实体状态
+
+表格主体是一个 `uniform_list`（机制详见 5.1 课）：
+
+```rust
+uniform_list(
+    "items",
+    self.quotes.len(),
+    cx.processor(move |this, range: Range<usize>, _, _| {
+        this.visible_range = range.clone();   // 把可见区间记回实体
+        let mut items = Vec::with_capacity(range.end - range.start);
+        for i in range {
+            if let Some(quote) = this.quotes.get(i) {
+                items.push(TableRow::new(i, quote.clone()));
+            }
+        }
+        items
+    }),
+)
+.track_scroll(&self.scroll_handle)
+```
+
+`cx.processor` 让回调直接拿到 `&mut self` 与上下文（仅 main；0.2.2 的回调签名不含 `self`，见 5.1 课）。示例用它做了件小事：每次滚动都把可见区间写进 `visible_range`，窗口顶部的 "Total 10000 items, visible range: …" 随滚动变化——这就是虚拟化的可观察证据：数据始终 10000 条，变的只有可见范围。
+
+### 滚动条：canvas 的 paint 阶段注册底层鼠标事件
+
+表格容器是 `.overflow_hidden()`，原生滚动条不可见；示例用 `div` + `canvas` 手绘一条可拖拽的 thumb。定位计算在 `render_scrollbar` 里：从 `scroll_handle` 读出滚动偏移与内容总高，按百分比算出 thumb 的 `top` 偏移（示例直接借用了句柄的内部字段，读懂意图即可）。拖拽是全示例最"底层"的一段——`canvas` 的 paint 闭包里连续注册三个 `window.on_mouse_event`：
+
+```rust
+canvas(
+    |_, _, _| (),
+    move |thumb_bounds, _, window, _| {
+        // 按下：命中 thumb 才记起点（entity 是 cx.entity() 克隆出的句柄）
+        window.on_mouse_event(move |ev: &MouseDownEvent, _, _, cx| {
+            if !thumb_bounds.contains(&ev.position) { return; }
+            entity.update(cx, |this, _| {
+                this.drag_position = Some(
+                    ev.position - thumb_bounds.origin - table_bounds.origin,
+                );
+            });
+        });
+        // 抬起：清掉拖拽态
+        window.on_mouse_event(move |_: &MouseUpEvent, _, _, cx| {
+            entity.update(cx, |this, _| this.drag_position = None);
+        });
+        // 拖动：换算百分比，直接驱动列表滚动
+        window.on_mouse_event(move |ev: &MouseMoveEvent, _, _, cx| {
+            if !ev.dragging() { return; }
+            let Some(drag_pos) = entity.read(cx).drag_position else { return; };
+            // ……按百分比换算 offset_y
+            scroll_handle.set_offset(point(px(0.), -offset_y));
+            cx.notify(entity.entity_id());
+        });
+    },
+)
+```
+
+读这段抓三个点：`cx.entity()` 把实体句柄克隆进闭包，回调里 `entity.update(cx, ...)` 改状态——4.2 课的句柄用法落地；`ev.dragging()` 只表示"移动时有鼠标键按住"，与 3.4 课的拖放 API（`drag()` / `DragEvent`）无关，别混；滚完 `cx.notify(entity.entity_id())`（`App` 层按实体 id 唤醒）让 thumb 位置跟上新滚动值。canvas 两段闭包的分工见 5.2 课，元素级鼠标事件的归属规则见 3.1 课。
+
+## tree：最小示例也有可读点
+
+按"复合示例"的预期打开 tree.rs 会扑空：它不是树形控件，全文件 60 余行，连交互都没有。文件头注释交代了真实意图：
+
+```rust
+//! Renders a div with deep children hierarchy. This example is useful to exemplify that Zed can
+//! handle deep hierarchies (even though it cannot just yet!).
+```
+
+它是**深层级嵌套的压力测试**：把 `div` 一层层套起来，验证布局系统扛得住多深的元素树（注释末尾还自嘲"虽然现在还不行"）。这补全了读示例的第一课：官方示例分两类——特性演示与压力/最小验证，文件头注释是区分它们的第一个入口。
+
+组织方式一分钟读完：
+
+```rust
+struct Tree {}   // 零字段实体：没有任何状态
+
+static DEPTH: LazyLock<u64> = LazyLock::new(|| {
+    std::env::var("GPUI_TREE_DEPTH")
+        .ok()
+        .and_then(|depth| depth.parse().ok())
+        .unwrap_or_else(|| 50)
+});
+
+impl Render for Tree {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        // ……四种颜色循环取色，next_div() 每次产出一个带底色的 div
+        let mut innermost_node = next_div();
+        while depth > 0 {
+            innermost_node = next_div().child(innermost_node);
+            depth -= 1;
+        }
+        innermost_node
+    }
+}
+```
+
+两个可读点：深度是**只读配置**，用 `LazyLock` + 环境变量首次访问时读一次（默认 50 层，`GPUI_TREE_DEPTH` 可调），不进实体——会变的才是状态，这条判据在 1.3 课立过；嵌套树不需要递归函数，`render` 里一个 while 循环逐层 `.child()` 即可——`Render` 实现就是元素树的总装车间（1.2 课）。
+
+## 通用阅读路径
+
+三个示例走完，路径可以固定成四步：
+
+1. **从入口找根实体。** 文件尾的 `run_example`（或 `main`）→ `open_window` → `cx.new(|_| 根实体 { ... })`。根实体的字段清单就是全局状态清单：popover 两个 `bool`，data_table 四个分类字段，tree 零个。字段数量直接预告复杂度。
+2. **从 `Render` 实现入手认骨架。** 先扫最外层 `div` 的嵌套骨架，再分辨零件：自由函数（`button()`、`popover()`）是不持状态的样式构造器，先当黑盒；`&self` 方法（`render_scrollbar`、`render_secondary_popover`）可能读状态，要进去看。
+3. **给状态分类归位。** 字段按四类过一遍：业务数据（`Vec<Rc<Quote>>`，多数只读）、视图状态（`open`、`visible_range`）、句柄（`scroll_handle`、`Entity<T>`）、临时交互态（`drag_position`）。状态在哪个实体，修改就该发生在哪个实体的回调里，通知也落在哪。
+4. **顺事件流走回路。** 每个交互找到"入口事件 → 改了哪个字段 → 谁被唤醒"三段：常规交互是 `cx.listener` + `cx.notify()`；条件出现/消失的 UI 用 `.when(状态, ...)` 挂载；底层入口（`on_mouse_down_out`、canvas paint 里的 `window.on_mouse_event`）和跨实体联动（句柄 + `observe` / `subscribe`，4.2 课）各归各位。
+
+## 常见问题
+
+- 读到一半迷路了，helper 越追越多怎么办？
+  退回第 1 步：重看根实体字段清单，再从 `render` 骨架重新进入，把没读到的自由函数标记为黑盒继续往下走——复合示例的事件回路通常只有两三条，主干读完黑盒自然解开。遇到不认识的机制关键词（如 `deferred`），去 examples 目录找只演示它的最小示例对照，比硬啃复合示例快。
+- 示例代码照着抄，和发布版 API 对不上？
+  示例抓取自 main 分支，已知三处差异：入口 `application()`（仅 main）对应 0.2.2 的 `Application::new().run(...)`；`Anchor::TopLeft` 对应 0.2.2 的 `Corner::TopLeft`；`uniform_list` 的 `cx.processor` 回调（仅 main）对应 0.2.2 不带 `self` 的回调签名。核对一律以 docs.rs 对应版本页面为准，不要拿 main 示例直接对 0.2.2 文档。
+- 想把这三个示例跑起来，怎么做？
+  克隆 zed 仓库，在仓库根目录按 cargo 约定运行：`cargo run -p gpui --example popover`（示例都在 `crates/gpui/examples/` 下，可换成 `data_table`、`tree`；`tree` 可加 `GPUI_TREE_DEPTH=200` 调深度）。main 分支示例依赖 workspace 内尚未发布的 `gpui_platform`，所以要克隆整个仓库跑，不能在自己的 0.2.2 工程里直接编译 main 示例源码。
+
+## 总结回顾
+
+摘要：
+
+本课没有新 API，精读了三个官方示例并固定一条阅读路径。popover（约 200 行）示范小交互示例的组织：单实体两个 `bool`，`deferred` + `anchored` + `priority` 组织浮层，`on_mouse_down_out` 实现点击外部关闭，嵌套浮层靠挂载顺序与 `.when` 关闭守卫保证层级正确。data_table（约 500 行）示范复合应用的组织：`Quote` 纯数据模型 + `RenderOnce` 无状态行 + 根实体四类状态；`uniform_list` 的渲染回调回写 `visible_range` 作为虚拟化的可观察证据，滚动条在 canvas paint 阶段用 `window.on_mouse_event` 捕获按下、抬起、拖动。tree（约 60 行）提醒官方示例还有压力测试一类，文件头注释定意图。四步路径：入口找根实体 → `Render` 认骨架 → 状态分类归位 → 顺事件流走回路。
+
+一句话：
+
+> 读复杂 GPUI 示例的固定路径：从入口找根实体，从 `Render` 实现认元素树骨架，给状态分类归位，再顺着"事件 → 改状态 → notify"走完每个交互回路。
+
+知识要点：
+
+- 三个示例各演示什么、分别用到哪些机制、对应哪些课程？
+- `deferred` / `anchored` / `priority` 在浮层示例中各承担什么？嵌套浮层为什么需要关闭守卫？
+- data_table 的三层 struct（`Quote` / `TableRow` / `DataTable`）各自承担什么？行元素为什么用 `RenderOnce` 而不是 `Render`？
+- 滚动条拖拽为什么在 canvas 的 paint 闭包里注册事件？`ev.dragging()` 与 3.4 课的拖放 API 有什么区别？
+- 读复杂 GPUI 项目的四步路径是什么？迷路时的出口在哪里？
+
+## 参考资料
+
+- [官方示例 popover.rs（main 分支）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/popover.rs)
+- [官方示例 data_table.rs（main 分支）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/data_table.rs)
+- [官方示例 tree.rs（main 分支）](https://github.com/zed-industries/zed/blob/main/crates/gpui/examples/tree.rs)
+- [官方示例目录 crates/gpui/examples（main 分支）](https://github.com/zed-industries/zed/tree/main/crates/gpui/examples)
+- [Anchored（anchor / snap_to_window_with_margin / position 等）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.Anchored.html)
+- [Deferred（priority / with_priority）- docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/struct.Deferred.html)
+- [RenderOnce trait - docs.rs/gpui 0.2.2](https://docs.rs/gpui/0.2.2/gpui/trait.RenderOnce.html)

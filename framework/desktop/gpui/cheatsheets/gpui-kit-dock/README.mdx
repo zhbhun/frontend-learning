@@ -1,0 +1,514 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="gpui-kit-dock" title="生态实践/Dock 布局" name="Docs" />
+
+# Dock 布局
+
+Dock 是 IDE 式的可停靠面板工作区：中间是主内容区（编辑器、表格、画布），左、右、下各可以挂一条可收起的停靠边区；每个区域内部由「标签组」和「拆分容器」自由嵌套。Zed 左侧的文件树、底部的终端面板，Longbridge 生产环境的工作区，都是这个形态。gpui-kit 的 Dock 最特别的一点是：整个布局是一棵纯数据树，拖拽重排、调整尺寸、切换标签都是对这棵树的编辑，而这棵树随时可以整体序列化成 JSON，下次启动原样恢复。
+
+分层口径沿用「gpui-kit 入门」：`gpui-base` 拥有数据模型、布局计算与拖放行为；`gpui-component` 在其上提供现成皮肤（标签条、分割线、拖拽预览、未知面板占位）。应用代码统一从 `gpui_kit::component::dock` 取类型，用 `DockSkin` 一行接入皮肤。本课基于 gpui-kit 0.7.1（GPUI 快照 `gpui-pre` =0.3.8）核对。
+
+| 回查项 | 关键 API | 要点 |
+| --- | --- | --- |
+| 创建带皮肤的 Dock 区域 | `DockSkin::dock_area(id, version, window, cx)` | 返回 `(Entity<DockArea>, Rc<DockSkin>)`；`version` 为 `Option<usize>`，是布局 schema 版本 |
+| 描述布局（纯值） | `DockLayout::h_split()` / `v_split()` / `tabs()` | 开窗口之前就能构造、比较、序列化 |
+| 布局子节点 | `.child(layout, size)` / `.panel_view(handle, cx)` / `.active_index(ix)` | `size` 为 `Option<Pixels>`，`None` 占满剩余；`child` 只对 split 合法，后两者只对 tabs 合法 |
+| 区域位置 | `DockPlacement::Center` / `Left` / `Bottom` / `Right` | serde 标签冻结为 `"center"` 等小写字符串 |
+| 面板行为 trait | `BasePanel`，必实现 `panel_name()` | 持久化身份，发布后不可更改 |
+| 面板表现 trait | `Panel`，必实现 `title()` | 标签标题、工具栏、菜单，其余钩子全有默认 |
+| 面板包装 | `panel_handle(entity)` | 让皮肤拿到表现能力，布局里统一用它装面板 |
+| 安装布局 | `set_center` / `set_dock` / `remove_dock` | 中心必装，边区可选；每次安装发 `DockEvent::LayoutChanged` |
+| 运行时编辑 | `add_panel_view` / `remove_panel` / `select_panel` / `move_panel` / `split_at` | 一个面板实体同一时刻只在一个区域 |
+| 边区开合与尺寸 | `toggle_dock` / `set_dock_size` / `set_dock_collapsible` | 新边区默认 200px；最小 `PANEL_MIN_SIZE` 100px |
+| 内置动作 | `ToggleZoom` / `ClosePanel` | 默认无按键绑定，需自行 `bind_keys` |
+| 导出布局 | `dump(cx)` 返回 `DockAreaState` | 结构体全量实现 `Serialize` / `Deserialize` |
+| 恢复布局 | `load(state, window, cx)` | 面板按名字经 `register_panel` 注册的工厂重建 |
+| 布局事件 | `DockEvent::LayoutChanged` / `DragDrop` | 前者每次编辑都发，持久化需防抖 |
+
+## 快速上手：三区工作区
+
+依赖沿用 7.1 的口径，工程只列 `gpui-kit = "0.7"`。下面是一个完整可复制的三区工作区：左区挂文件面板，中心是上下拆分的「编辑器 + 预览」。用到了两个面板类型、三个面板实例——一个面板实体同一时刻只能待在一个区域，同一类型可以开多个实例。
+
+```rust
+use gpui_kit::component::dock::{
+    DockArea, DockLayout, DockPlacement, DockSkin, PanelEvent, panel_handle,
+};
+use gpui_kit::*;
+
+// ---- 面板一：左侧文件列表 ----
+struct FilesPanel {
+    focus_handle: FocusHandle,
+}
+
+impl FilesPanel {
+    fn new(cx: &mut Context<Self>) -> Self {
+        Self {
+            focus_handle: cx.focus_handle(),
+        }
+    }
+}
+
+// 面板向外发出的事件；暂时空实现
+impl EventEmitter<PanelEvent> for FilesPanel {}
+
+impl Focusable for FilesPanel {
+    fn focus_handle(&self, _: &App) -> FocusHandle {
+        self.focus_handle.clone()
+    }
+}
+
+// 行为 trait：panel_name 是持久化身份，一经发布不可更改
+impl BasePanel for FilesPanel {
+    fn panel_name(&self) -> &'static str {
+        "FilesPanel"
+    }
+}
+
+// 表现 trait：标签上画什么标题
+impl Panel for FilesPanel {
+    fn title(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        "文件"
+    }
+}
+
+impl Render for FilesPanel {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div().size_full().p_3().child("main.rs / lib.rs / dock.rs")
+    }
+}
+
+// ---- 面板二：编辑器（中心的“预览”是同类型的第二个实例）----
+struct EditorPanel {
+    label: SharedString,
+    focus_handle: FocusHandle,
+}
+
+impl EditorPanel {
+    fn new(label: impl Into<SharedString>, cx: &mut Context<Self>) -> Self {
+        Self {
+            label: label.into(),
+            focus_handle: cx.focus_handle(),
+        }
+    }
+}
+
+impl EventEmitter<PanelEvent> for EditorPanel {}
+
+impl Focusable for EditorPanel {
+    fn focus_handle(&self, _: &App) -> FocusHandle {
+        self.focus_handle.clone()
+    }
+}
+
+impl BasePanel for EditorPanel {
+    fn panel_name(&self) -> &'static str {
+        "EditorPanel"
+    }
+}
+
+impl Panel for EditorPanel {
+    fn title(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        self.label.clone()
+    }
+}
+
+impl Render for EditorPanel {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div().size_full().p_3().child(self.label.clone())
+    }
+}
+
+// ---- 工作区：持有 DockArea，装好三个区域 ----
+struct Workspace {
+    dock_area: Entity<DockArea>,
+}
+
+impl Workspace {
+    fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
+        // 第二个参数是布局 schema 版本：保存的 JSON 会带上它，
+        // 旧布局再也无法恢复时递增
+        let (dock_area, _skin) = DockSkin::dock_area("main-dock", Some(1), window, cx);
+
+        // 三个面板实体；editor 与 preview 同类型不同实例
+        let files = cx.new(|cx| FilesPanel::new(cx));
+        let editor = cx.new(|cx| EditorPanel::new("编辑器", cx));
+        let preview = cx.new(|cx| EditorPanel::new("预览", cx));
+
+        // 中心：上下拆分。上半占满剩余（None），下半固定 180px
+        let center = DockLayout::v_split()
+            .child(
+                DockLayout::tabs().panel_view(panel_handle(editor), cx),
+                None,
+            )
+            .child(
+                DockLayout::tabs().panel_view(panel_handle(preview), cx),
+                Some(px(180.)),
+            );
+
+        dock_area.update(cx, |area, cx| {
+            area.set_center(center, window, cx);
+
+            // 左停靠区：标签组里放文件面板
+            area.set_dock(
+                DockPlacement::Left,
+                DockLayout::tabs().panel_view(panel_handle(files), cx),
+                window,
+                cx,
+            );
+            // 新边区默认 200px 宽，这里调成 240px
+            area.set_dock_size(DockPlacement::Left, px(240.), window, cx);
+        });
+
+        Self { dock_area }
+    }
+}
+
+impl Render for Workspace {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div().size_full().child(self.dock_area.clone())
+    }
+}
+
+fn main() {
+    application().run(|cx| {
+        init(cx);
+        open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| Workspace::new(window, cx))
+        })
+        .expect("failed to open window");
+    });
+}
+```
+
+`cargo run` 后逐项核对：
+
+- 左侧一条 240px 的停靠边区，标签「文件」，边缘有可拖动的分割手柄；
+- 中心上下两块：上面「编辑器」占满剩余高度，下面「预览」固定 180px；
+- 按住任何标签拖动，可以合并、拆分、跨区域搬家——拖拽重排是内置行为，一行代码没写；
+- 拖动边区与中心之间的手柄可以改尺寸，拖到很窄再松手，边区会收起。
+
+## 区域与布局树
+
+一个 `DockArea` 拥有四棵布局树：中心区（必有），加上可选的左、右、下三个边区。树是纯数据：容器只有 `Split`（拆分）和 `Tabs`（标签组）两种，面板只能活在标签组里；树里的节点用稳定的 `NodeId`、面板用 `PanelId` 编址，不藏任何 GPUI 实体句柄。正因为是纯数据，布局才能在没有窗口时构造、比较、序列化，整棵树也能当成普通值写单元测试；`DockArea` 的职责是把这棵树「对账」成活的实体——拖拽之后没有被动过的面板，实体原封不动，滚动位置和焦点都不会丢。
+
+### 用 DockLayout 描述布局
+
+`DockLayout` 是布局的构建器，三种起点对应两种容器：
+
+- `h_split()`：子节点左右并排；
+- `v_split()`：子节点上下堆叠；
+- `tabs()`：一个标签组，面板叠在一起、从标签条选择显示。
+
+子节点的接法跟着容器类型走：
+
+```rust
+// split 上用 child()：第二个参数是槽位尺寸，None 表示占满剩余
+let split = DockLayout::h_split()
+    .child(DockLayout::tabs().panel_view(panel_handle(files), cx), Some(px(240.)))
+    .child(DockLayout::tabs().panel_view(panel_handle(editor), cx), None);
+
+// tabs 上用 panel_view() 追加面板，active_index() 选初始显示的标签
+let tabs = DockLayout::tabs()
+    .panel_view(panel_handle(editor), cx)
+    .panel_view(preview_handle, cx)
+    .active_index(1);
+```
+
+接错位置（往 `tabs()` 上调 `child()`、往 split 上加面板）在 debug 构建下触发断言，release 下静默忽略。`panel_view()` 接收包装好的面板句柄；如果你直接依赖 `gpui-base` 写自定义皮肤，对应的入口是 `panel()`，接裸的 `Entity<P>`。
+
+布局描述完并不代表它已生效，还要安装进区域，见下面两节。描述与安装分离是刻意设计：同一份 `DockLayout` 值可以先比较、再序列化、最后才装进窗口。
+
+### 左、右、下停靠区
+
+中心区用 `set_center` 安装；三个边区用 `set_dock` 按 `DockPlacement` 指定位置，传 `DockPlacement::Center` 等价于转调 `set_center`：
+
+```rust
+dock_area.update(cx, |area, cx| {
+    area.set_center(center_layout, window, cx);
+    area.set_dock(DockPlacement::Left, left_layout, window, cx);
+    area.set_dock(DockPlacement::Bottom, bottom_layout, window, cx);
+});
+```
+
+边区的几条规则：
+
+- 新建的边区默认 200px 宽（`PANEL_MIN_SIZE` 的两倍）、展开状态；
+- 对已有边区重新 `set_dock` 只换内容，保留原尺寸与开合状态，所以「重新填充」不会把用户调好的宽度冲掉；
+- `remove_dock` 把边区连面板一起彻底移除；`toggle_dock` 只是把边区收起，内容还在，见「尺寸与收起」。
+
+## 面板与标签页
+
+面板要实现的东西分两层。`BasePanel`（即 `gpui-base` 的行为 trait，在 `gpui_kit::component::dock` 下改名导出）负责身份与行为；`Panel` 负责表现。此外还要实现 `EventEmitter<PanelEvent>`、`Focusable`、`Render` 三个 gpui 基础 trait。
+
+`BasePanel` 的钩子：
+
+| 方法 | 默认 | 用途 |
+| --- | --- | --- |
+| `panel_name()` | 必须实现 | 持久化身份与面板工厂的查找键 |
+| `visible()` | `true` | 返回 `false` 时面板藏起来但保留标签位 |
+| `closable()` | `true` | 能否关闭；这是许可不是保证，容器仍可拒绝 |
+| `zoomable()` | `true` | 能否放大占满区域 |
+| `set_active()` | 空 | 成为或不再是显示中的标签时收到通知 |
+| `set_zoomed()` | 空 | 所在标签组放大/还原时通知当前显示的面板 |
+| `on_added_to()` | 空 | 加入标签组时收到组的弱引用 |
+| `on_removed()` | 空 | 被关闭或被整体替换出布局时收到，兼作失活信号 |
+| `dump()` | 只记名字 | 面板写入布局的私有持久化载荷 |
+
+`Panel` 的钩子里只有 `title()` 值得必写（默认画一个「未命名」占位）：`tab_name()` 给折叠态的短名，`title_style()` 给标题配色，`toolbar_buttons()` 与 `dropdown_menu()` 往标签条上加按钮和菜单，`title_bar()` 返回 `false` 可以让自带标题栏的面板不画标签条。
+
+包装入口是 `panel_handle(entity)`：它把面板包成 base 认识的句柄，皮肤靠向下转型找回表现能力。如果绕过它把裸实体直接交给 base 的 `panel()`，区域照样能拖能存，只是标签上只剩 `panel_name` 文本，没有标题元素、工具栏和菜单。
+
+### 标签组与激活标签
+
+标签组是面板的基本容器，几个面板进同一个 `tabs()` 就得到一条标签栏：
+
+```rust
+// 同一组放三个标签，初始显示第二个
+let tabs = DockLayout::tabs()
+    .panel_view(panel_handle(files), cx)
+    .panel_view(panel_handle(editor), cx)
+    .panel_view(panel_handle(preview), cx)
+    .active_index(1);
+```
+
+组里只剩一个面板时的外观由 `DockSkin` 的 `PanelStyle` 决定：默认 `PanelStyle::Auto` 画一个简单标题，`PanelStyle::TabBar` 强制总画标签条。运行时切换：
+
+```rust
+// 需要保留 DockSkin::dock_area 返回的 skin 句柄
+skin.set_panel_style(PanelStyle::TabBar, cx);
+```
+
+`title()` 返回的是元素不是字符串，所以标签里可以画图标、徽标或带样式的片段；返回 `String` 也合法，会按普通文本渲染。
+
+### 运行时增删与选择
+
+布局装好之后，所有编辑都走 `DockArea` 的方法，并且每次生效的编辑都会发出 `DockEvent::LayoutChanged`：
+
+```rust
+dock_area.update(cx, |area, cx| {
+    // 加入一个区域：合并进该区域第一个标签组；区域为空则新建一组
+    area.add_panel_view(panel_handle(new_panel), DockPlacement::Right, None, window, cx);
+
+    // 按面板身份切换显示，不改变它所在的位置
+    area.select_panel(panel_id, window, cx);
+
+    // 从布局中移除
+    area.remove_panel(panel_entity, window, cx);
+});
+```
+
+`add_panel_view` 的第三个参数是尺寸：目标边区还不存在时它充当新边区的初始宽度，合并进已有标签组时忽略。`add_panel` 是它的裸实体版本。再往下还有 `move_panel`（把面板搬到指定目标，拖拽内部就靠它）与 `split_at`（在某个容器旁拆出新组），日常应用多数用不到，知道入口在即可。
+
+## 拖拽重排
+
+拖拽重排完全是内置行为：按住标签拖动即可。应用不需要写任何拖拽代码，能做的操作有四类：
+
+- **合并**：把标签拖到另一个标签组的标签条上，松手后变成该组的新标签；
+- **拆分**：把标签拖到某个组的内容区边缘，出现放置指示器后松手，拆出一个相邻的新组；
+- **区域内重排**：在同一标签条内拖动调整前后顺序；
+- **跨区域移动**：中心区与左、右、下边区之间互相拖动，面板直接搬家。
+
+拖动不会破坏未触及的面板：树的节点 id 在编辑中保持稳定，`DockArea` 按差异对账实体，所以其他标签的滚动位置、焦点、状态都原样保留。
+
+两个相关的入口：
+
+```rust
+// 放大：某个标签组占满整个 DockArea（再执行一次还原）。
+// 动作已内置，默认没有按键，按需绑定：
+cx.bind_keys(vec![
+    KeyBinding::new("shift-escape", ToggleZoom, None),
+    KeyBinding::new("ctrl-w", ClosePanel, None),
+]);
+
+// 代码方式放大/还原与查询
+dock_area.update(cx, |area, cx| {
+    area.set_zoomed_in(node_id, window, cx);
+    let zoomed = area.is_zoomed();
+});
+```
+
+外部拖入（比如把文件拖进工作区）会以 `DockEvent::DragDrop` 事件报告，事件里带着宿主数据的 `AnyDrag` 与落点 `DropTarget`。与第 3.4 课的 gpui 原生拖放 API 的关系一句话说清：Dock 的标签拖拽底层就建在原生 `on_drag` / `drag_over::<DragPanel>` 之上，但组件已经把全部接线封装完，应用一般只需要订阅 `DockEvent`。
+
+一个边界要知道：0.7.1 不支持把面板拖出成独立浮动窗口，拖拽的终点永远是某个区域内的标签组。想临时独占空间，用 `ToggleZoom` 放大当前组。
+
+## 布局序列化与恢复
+
+序列化是 Dock 的头等能力：`dump` 把整个工作区导出成 `DockAreaState`，字段全量实现了 Serde；`load` 把状态装回去，返回 `Result`。两步都是普通值操作：
+
+```rust
+use gpui_kit::component::dock::DockAreaState;
+
+// 保存：导出并写盘
+let state = dock_area.read(cx).dump(cx);
+let json = serde_json::to_string_pretty(&state)?;
+std::fs::write("workspace.json", json)?;
+
+// 恢复：读盘并装入
+let json = std::fs::read_to_string("workspace.json")?;
+let state: DockAreaState = serde_json::from_str(&json)?;
+dock_area.update(cx, |area, cx| area.load(state, window, cx))?;
+```
+
+`DockAreaState` 的形状对应四个区域：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `version` | `Option<usize>` | 建区域时传入的 schema 版本，随 JSON 一起保存 |
+| `center` | `PanelState` | 中心区布局树 |
+| `left_dock` / `right_dock` / `bottom_dock` | `Option<DockState>` | 边区树加上位置、尺寸与开合状态；没有就整体省略 |
+
+树上的每个节点也序列化成 `PanelState`（`panel_name` + `children` + `info`）。容器占用两个保留名：拆分是 `StackPanel`，标签组是 `TabPanel`；叶子才是你面板的 `panel_name`。下面的 JSON 对应快速上手的工作区（省略部分子节点）：
+
+```json
+{
+  "version": 1,
+  "center": {
+    "panel_name": "StackPanel",
+    "children": [
+      {
+        "panel_name": "TabPanel",
+        "children": [
+          {
+            "panel_name": "EditorPanel",
+            "children": [],
+            "info": { "panel": { "label": "编辑器" } }
+          }
+        ],
+        "info": { "tabs": { "active_index": 0 } }
+      }
+    ],
+    "info": { "stack": { "sizes": [0.0, 180.0], "axis": 1 } }
+  },
+  "left_dock": {
+    "panel": {
+      "panel_name": "TabPanel",
+      "children": [
+        { "panel_name": "FilesPanel", "children": [], "info": { "panel": null } }
+      ],
+      "info": { "tabs": { "active_index": 0 } }
+    },
+    "placement": "left",
+    "size": 240.0,
+    "open": true
+  }
+}
+```
+
+注意 `sizes` 里的 `0.0`：它是「占满剩余」的哨兵，不是真零像素。`dump` 把 `None` 槽位解析成实际测量值写出，`load` 读到 `0.0` 再还原成 `None`；两个方向的换算只在新版本之间成立，拿老版本程序读这份 JSON 会得到真 0px 的面板。
+
+恢复的关键是面板工厂：JSON 里只有名字，实体要靠 `register_panel` 注册的工厂重建。在应用初始化时为每个可恢复的面板注册一次：
+
+```rust
+use gpui_kit::component::dock::{PanelInfo, register_panel};
+
+fn register_panels(cx: &mut App) {
+    register_panel(cx, "FilesPanel", |_state, _window, cx| {
+        panel_handle(cx.new(|cx| FilesPanel::new(cx)))
+    });
+
+    register_panel(cx, "EditorPanel", |state, _window, cx| {
+        // state.info() 是面板 dump 时写入的私有载荷，这里还原 label
+        let label = match state.info() {
+            PanelInfo::Panel(v) => v["label"].as_str().unwrap_or("编辑器").to_string(),
+            _ => "编辑器".to_string(),
+        };
+        panel_handle(cx.new(|cx| EditorPanel::new(label, cx)))
+    });
+}
+```
+
+工厂拿到的 `PanelBuildContext` 提供 `state()`（所在 `PanelState`）与 `info()`（面板私有载荷）。私有载荷由面板自己通过 `dump()` 钩子写进去，默认只记名字：
+
+```rust
+impl BasePanel for EditorPanel {
+    fn panel_name(&self) -> &'static str {
+        "EditorPanel"
+    }
+
+    // 把自己的状态写进布局，恢复时经工厂的 state.info() 拿回
+    fn dump(&self, _: &App) -> PanelState {
+        let mut state = PanelState::new(self.panel_name());
+        state.info = PanelInfo::panel(serde_json::json!({ "label": self.label }));
+        state
+    }
+}
+```
+
+两个健壮性设计值得知道：
+
+- **未知面板不丢数据。** JSON 里出现没注册的名字时，`DockSkin` 会放一个「未知面板」占位视图，占位原样保留这份 `PanelState`——存档先经旧版本程序再回到新版本，面板仍能恢复；
+- **版本门槛。** `load` 之前比较 `state.version` 与当前版本，不一致时提示重置或走默认布局。版本号只在建区域时传入一次，语义是「这份布局 schema 我还认不认」，不是简单的计数器。
+
+## 尺寸与收起
+
+尺寸分两级：split 的槽位尺寸和边区的整体尺寸。
+
+split 槽位在描述布局时用 `child(layout, size)` 定：`Some(px(240.))` 是固定像素，`None` 占满剩余。`dump` 时槽位会被解析成具体像素写进 JSON（优先取实际测量值，其次树上的值，最后退到最小值），所以恢复出来的比例与保存时屏幕上看到的一致。
+
+边区尺寸与开合是 `DockArea` 上的运行时状态，不进布局树：
+
+```rust
+dock_area.update(cx, |area, cx| {
+    // 读取与设置整体尺寸
+    let width = area.dock_size(DockPlacement::Left);
+    area.set_dock_size(DockPlacement::Left, px(300.), window, cx);
+
+    // 收起 / 展开；closed 状态下面板保留在树里，只是不可见
+    area.toggle_dock(DockPlacement::Left, window, cx);
+
+    // 禁止收起：之后 toggle 对展开状态的边区无效
+    area.set_dock_collapsible(DockPlacement::Bottom, false, window, cx);
+});
+```
+
+边界值：`PANEL_MIN_SIZE` 是 100px，任何边区拖不到比它更小；拖动边框手柄越过收起位置时按松手点就近判定——离收起条更近就直接收起，离最小值更近就以最小尺寸展开。界面上那颗收起按钮由皮肤控制显隐：
+
+```rust
+// 需要保留 DockSkin::dock_area 返回的 skin 句柄
+skin.set_toggle_button_visible(true, cx);
+```
+
+面板级还有一个易混点：`closable()` 返回 `true` 只表示「允许关」，最后一个标签的组、不可收起的边区都会拒绝关闭，这是容器层面的保护。
+
+## 最佳实践
+
+- **持久化要防抖。** `DockEvent::LayoutChanged` 在每次编辑后都发，一次拖动可能连发多次。官方示例的做法是订阅后等 10 秒定时器，再与上一次保存的状态比较，有变化才写盘；同时用 `on_app_quit` 在退出时兜底 `dump` 一次。订阅要挂在 `dock_area` 实体上，不是面板上。
+- **版本号按 schema 递增。** 面板结构大改、旧布局无法再恢复时才递增建区域时的 `version`；`load` 前先比较，不一致就提示用户重置，不要试图兼容一切历史格式。官方示例里版本不匹配时用 `window.prompt` 问用户是否重置。
+- **工厂注册集中放初始化。** 所有可恢复面板的 `register_panel` 调用集中在应用启动处，名字与 `BasePanel::panel_name()` 完全一致；对已从产品里移除的面板保留兜底分支（占位会保数据，但功能没了）。
+- **把布局当值用。** `DockLayout` 不依赖窗口，可以从应用状态（比如打开的文件列表）生成布局，也可以为布局逻辑写纯数据测试——这是选 Dock 而不是手搓 split 的核心理由之一。
+
+## 常见问题
+
+- 恢复后某个标签显示「未知面板」占位
+  该 `panel_name` 没有注册工厂，或注册名与 `BasePanel::panel_name()` 不一致。在应用初始化时补上 `register_panel`；占位本身无害，它保留了原状态，修好注册后同一份存档即可恢复。
+- 保存的 JSON 中心区外面总包着一层 `StackPanel`
+  正常现象。中心区根要求是拆分容器，直接安装标签组时会自动包一层水平 split 再序列化；手工编辑 JSON 时不要删这层。
+- `sizes` 数组里出现 `0.0`
+  那是「占满剩余」的哨兵值，`load` 会还原成 `None`，不是布局损坏。只有拿旧版本程序（没有哨兵概念）读这份 JSON 时才会变成真 0px 面板。
+- 最后一个标签关不掉、边区收不起来
+  `closable()` 是许可不是保证，组的最后一个面板会拒绝关闭；`set_dock_collapsible(false)` 的边区对展开状态拒绝 `toggle_dock`。先检查这两处，再排查是不是拖到了就近收起的判定区间。
+
+## 总结回顾
+
+摘要：
+
+Dock 把 IDE 式工作区建成一棵纯数据树：`DockSkin::dock_area` 一步创建带皮肤的区域，`DockLayout` 用 `h_split` / `v_split` / `tabs` 描述布局，`set_center` 与 `set_dock` 把它装进中心区与三个边区。面板实现 `BasePanel` 与 `Panel` 两层 trait，经 `panel_handle` 包装进标签组；拖拽合并、拆分、重排、跨区移动全部内置，编辑结果通过 `DockEvent::LayoutChanged` 报告。`dump` / `load` 借助 Serde 把整棵树（含每个面板的私有载荷）完整往返于 JSON，未注册的面板以占位兜底，`version` 字段为 schema 演进留出退路。边区尺寸、收起与最小值都在 `DockArea` 上直接控制。
+
+一句话：
+
+> 布局是纯数据树——用 `DockLayout` 描述、`DockArea` 安装、拖拽编辑、`dump` / `load` 在 JSON 里完整往返。
+
+知识要点：
+
+- `DockArea` 的四个区域分别怎么安装、移除与查询，重新安装边区时尺寸和开合状态如何处理
+- 一个面板需要实现哪些 trait，`BasePanel` 与 `Panel` 怎么分工，`panel_handle` 解决什么问题
+- 拖拽重排支持哪四类操作，为什么拖动不会破坏未触及面板的状态，当前版本不支持什么
+- 布局如何保存成 JSON 又如何恢复，容器在 JSON 里叫什么，未注册面板会怎样
+- split 槽位与边区尺寸各在哪里设置，`PANEL_MIN_SIZE`、默认边区宽度、`sizes` 里的 `0.0` 哨兵各是什么含义
+
+## 参考资料
+
+- [Dock — gpui-kit 组件文档](https://gpui-kit.com/component/dock)
+- [gpui-kit 源码：crates/base/src/dock（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/tree/v0.7.1/crates/base/src/dock)
+- [gpui-kit 源码：crates/component/src/dock（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/tree/v0.7.1/crates/component/src/dock)
+- [gpui-kit 官方示例：examples/dock（v0.7.1 标签）](https://github.com/longbridge/gpui-kit/blob/v0.7.1/examples/dock/src/main.rs)
