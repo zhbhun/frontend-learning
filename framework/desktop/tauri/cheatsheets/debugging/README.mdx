@@ -1,0 +1,356 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Debugging from './debugging.stories';
+
+<Meta of={Debugging} name="Docs" />
+
+# 调试与日志
+
+Tauri 应用的可观察面有两个:WebView 里的前端,和 Rust 核心进程——两侧工具不通用,devtools 看不到 Rust,断点看不到 DOM。所以排查的第一步不是找工具,而是判断两件事:**现象发生在哪一侧**、**当前构建形态下哪些工具可用**(`tauri dev` 开发态与打包产物的可用工具差得很远)。本课沿这个模型展开三条人工排查通道——WebView DevTools、Rust 侧终端与断点、`log` 插件——外加 panic 的专项路径;下方的实例把「现象 → 通道」的判定做成可调模拟,选一个现象、换一个构建形态,读数直接给出该去哪里、先做什么。WebDriver 驱动的端到端自动化测试不在本课范围,这里只讲人工排查。
+
+通道速查(打包后是否可用是关键差异):
+
+| 通道 | 覆盖侧 | 入口 | 打包后 |
+| --- | --- | --- | --- |
+| WebView DevTools | 前端 | 右键 Inspect Element、`Cmd+Opt+I` / `Ctrl+Shift+I`、`open_devtools` | 默认禁用(需 `devtools` feature) |
+| 终端 + 断点 | Rust 核心进程 | 跑 `tauri dev` 的终端;VSCode / RustRover 断点 | 无终端;断点用 IDE 配置指向产物 |
+| log 插件 | 两侧 | `log::info!`、前端 `info()` | 可用,日志文件在 LogDir |
+| panic 排查 | Rust(致命) | `RUST_BACKTRACE=1`;panic hook | 只剩日志文件 |
+
+实例:现象 → 通道判定。左侧是现象卡与它发生的侧别,右侧给出首选通道、第一步动作与依据,「可用性」两行对比 dev / release 下的状态(当前形态高亮):
+
+<Canvas of={Debugging.Interactive} />
+<Controls of={Debugging.Interactive} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 选「invoke 的 Promise 永远不 resolve」 | 判定走 panic 排查路径,第一步指向终端的 `panicked` 输出 |
+| 把构建形态切到 release | 「可用性」高亮换行,禁用项给出替代方案 |
+| 选「按钮点了没反应」再切 release | 通道不变,可用性提示需 `devtools` feature 或 `--debug` 构建 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `example.ts` |
+
+## 快速上手
+
+前提:已有[第一个应用](?path=/docs/first-app--docs)生成的 React 工程。最小闭环:接上 `log` 插件,前后端各打一条日志,在终端和日志文件里都看到它们——这条管线是本课后面所有观察点的地基,也是打包后唯一可靠的通道。
+
+1. 安装(自动完成 Cargo 依赖、`.plugin(…)` 注册、前端 `@tauri-apps/plugin-log` 依赖,并在 capabilities 写入 `log:default`):
+
+```bash
+npm run tauri add log
+```
+
+2. 前端打一条,放进 `src/main.tsx`:
+
+```tsx
+import { info } from '@tauri-apps/plugin-log';
+
+info('前端日志就绪');
+```
+
+3. Rust 打一条,放进模板的 `greet` 命令:
+
+```rust
+#[tauri::command]
+fn greet(name: &str) -> String {
+    log::info!("greet 被调用:name={name}");
+    format!("Hello, {name}!")
+}
+```
+
+`log::info!` 来自 `log` crate;编译找不到时,在 `src-tauri/Cargo.toml` 补 `log = "0.4"`。
+
+4. `npm run tauri dev`。终端出现两行 `[INFO]` 日志(默认格式 `日期[TARGET][LEVEL] 消息`)——默认 target 是 Stdout + LogDir,所以文件里也有同样内容。
+
+5. 找日志文件:macOS 在 `~/Library/Logs/{bundle identifier}`,Windows 在 `{FOLDERID_LocalAppData}/{bundle identifier}/logs`,Linux 在 `$XDG_DATA_HOME/{bundle identifier}/logs`;文件名默认取应用包名。
+
+## WebView 开发者工具
+
+前端问题的主战场。Tauri 窗口的内容就是系统 WebView,devtools 不是 Tauri 自造的,而是 WebView 自带的检查器——能力与浏览器 devtools 一致,Console、Elements、Network、Sources 都在;invoke 的报错也落在它的 Console 里,ACL 拒绝的三类文案与判定层对应关系见[权限与能力](?path=/docs/capabilities--docs)一课。
+
+打开方式三选一:
+
+- 右键 → Inspect Element;
+- 快捷键:macOS `Cmd+Opt+I`,Windows / Linux `Ctrl+Shift+I`;
+- 程序化打开,通常用 `#[cfg(debug_assertions)]` 圈住,只在非 release 构建生效:
+
+```rust
+use tauri::Manager;
+
+// debug_assertions 在 tauri dev 与 tauri build --debug 下都为真,
+// release 构建里这段代码整个被编译剔除。
+tauri::Builder::default()
+    .setup(|app| {
+        #[cfg(debug_assertions)]
+        app.get_webview_window("main")
+            .expect("main 窗口应已定义")
+            .open_devtools();
+        Ok(())
+    })
+```
+
+三个平台各用自己的 WebView,检查器也各不相同:
+
+| 平台 | WebView | 检查器 |
+| --- | --- | --- |
+| macOS | WKWebView | Safari 的检查器 |
+| Windows | WebView2 | Microsoft Edge DevTools |
+| Linux | webkit2gtk | WebInspector |
+
+可用性规则决定「能不能看」:
+
+- `tauri dev` 与 debug 构建(`npm run tauri build -- --debug`,产物在 `src-tauri/target/debug/bundle`)默认启用;
+- release 构建默认禁用,要开就给 `src-tauri/Cargo.toml` 里的 tauri 加 `devtools` feature:
+
+```toml
+[dependencies]
+tauri = { version = "2", features = ["devtools"] }
+```
+
+- macOS 上 devtools 依赖私有 API,开启的应用无法上架 App Store——诊断用 `--debug` 构建,别把这个 feature 带进上架包。
+
+边界:devtools 只覆盖 WebView 侧。前端没毛病但行为不对时,观察窗要换到 Rust 侧。
+
+## Rust 侧调试
+
+Rust 核心进程是个普通二进制:它的 stdout / stderr 就是跑 `tauri dev` 的那个终端,崩溃栈、打点输出、编译警告全在这里。devtools 对这一侧完全不可见——排查入口只有终端、日志与调试器。
+
+### 终端输出与 RUST_BACKTRACE
+
+- 临时打点:命令里 `println!` / `eprintln!`,输出直接出现在 `tauri dev` 终端。它只进终端,打包后必丢;要留痕的都走 log 插件(见下节)。
+- 崩溃栈:`RUST_BACKTRACE=1 npm run tauri dev`(PowerShell 先 `$env:RUST_BACKTRACE=1` 再跑)。
+- 两个「开发态」标志不要混用:
+
+| 标志 | 为 true 的时机 | 典型用途 |
+| --- | --- | --- |
+| `tauri::is_dev()` / `cfg!(dev)` | 仅 `tauri dev` | 指向 dev server 等只在开发存在的路径 |
+| `cfg!(debug_assertions)` | `tauri dev` 和 `tauri build --debug` | `open_devtools` 这类非 release 能力 |
+
+- 想脱离 `tauri dev` 看输出:从终端直接运行 `src-tauri/target/debug/<app-name>`(release 同理);双击启动时控制台随进程退出,报错一闪而过——要从终端里启动。
+
+### 断点调试(VSCode / RustRover)
+
+断点调的是 Rust 核心进程。共同思路:绕过 tauri CLI、直接用 cargo 启动,代价是 `beforeDevCommand` 不再自动执行,dev server 要自己接上;并且必须传 `--no-default-features`——Tauri 的默认 feature 会让应用读打包资产而不是 dev server。
+
+VSCode(vscode-lldb 扩展),`.vscode/launch.json`:
+
+```json
+{
+  "type": "lldb",
+  "request": "launch",
+  "name": "Tauri Development Debug",
+  "cargo": {
+    "args": [
+      "build",
+      "--manifest-path=./src-tauri/Cargo.toml",
+      "--no-default-features"
+    ]
+  },
+  "preLaunchTask": "ui:dev"
+}
+```
+
+`.vscode/tasks.json` 接上 dev server(命令对齐 `tauri.conf.json` 的 `beforeDevCommand`,后台任务最好配一个能识别「就绪」的 problemMatcher):
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ui:dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+F5 之后断点写在任意 Rust 文件都生效。Windows 上可换 `"type": "cppvsdbg"` 的配置,`"program"` 指向 `src-tauri/target/debug/<app-name>.exe`,需要 C/C++ 扩展。
+
+RustRover:先在 View | Tool Windows | Cargo 挂上 `src-tauri`;Run | Edit Configurations 新建 **Cargo** 配置,并在 Cargo 参数里手动加 `--no-default-features`;再建一个 npm(或 Shell Script)配置跑 dev server。先起 dev server,再点 Debug——断点写在任意 Rust 文件都会被自动识别。两套 IDE 的共同注意点:CLI 专属的功能(如配置生成)不会执行,涉及 `resources`、`sidecar` 路径的行为要留意差异。
+
+## log 插件
+
+`tauri-plugin-log` 是 `log` crate 门面(facade)的官方接线:Rust 侧照常写 `log::info!`,前端从 `@tauri-apps/plugin-log` 调同名函数,两条来源进同一条管线。日志去哪、留多少、什么格式,全由 Builder 配置决定。默认配置 = Stdout + LogDir,即「终端看得见,文件落得下」;默认级别是 `Trace`(最全),收口靠本节末尾的 level 配置。
+
+### 输出 target 与日志位置
+
+默认配置等价于:
+
+```rust
+use tauri_plugin_log::{Target, TargetKind};
+
+tauri::Builder::default()
+    .plugin(
+        tauri_plugin_log::Builder::new()
+            .targets([
+                Target::new(TargetKind::Stdout),
+                Target::new(TargetKind::LogDir { file_name: None }),
+            ])
+            .build(),
+    )
+```
+
+| TargetKind | 去处 | 何时用 |
+| --- | --- | --- |
+| `Stdout` / `Stderr` | 终端 | dev 期肉眼跟 |
+| `LogDir { file_name }` | 平台标准日志目录 | 打包后兜底(默认已含) |
+| `Folder { path, file_name }` | 自定义目录 | 要自己管理目录时 |
+| `Webview` | 经 `log://log` 事件转发进 WebView | 要在 devtools 控制台看 Rust 日志(配 `attachConsole`) |
+
+LogDir 的平台位置:
+
+| 平台 | 目录 |
+| --- | --- |
+| macOS | `~/Library/Logs/{bundle identifier}` |
+| Windows | `{FOLDERID_LocalAppData}/{bundle identifier}/logs` |
+| Linux | `$XDG_DATA_HOME/{bundle identifier}/logs`(回退 `$HOME/.local/share/{bundle identifier}/logs`) |
+
+`file_name: None` 时文件名默认取应用包名,传 `Some("app".into())` 自定义。
+
+### 前后端日志汇合
+
+两个方向,各解决一半「两侧日志对不上」的问题:
+
+- 前端 console → log 管线。console 输出只进 WebView devtools,打包后没有 devtools 就丢;转发之后走统一管线、随 LogDir 落文件:
+
+```tsx
+import { debug, error, info, warn } from '@tauri-apps/plugin-log';
+
+// 包一层:先保留原行为,再把内容转进 log 插件
+function forwardConsole(
+  fnName: 'log' | 'debug' | 'info' | 'warn' | 'error',
+  logger: (message: string) => Promise<void>,
+) {
+  const original = console[fnName];
+  console[fnName] = (...args: unknown[]) => {
+    original(...args);
+    logger(args.map((arg) => String(arg)).join(' '));
+  };
+}
+
+forwardConsole('debug', debug);
+forwardConsole('info', info);
+forwardConsole('warn', warn);
+forwardConsole('error', error);
+```
+
+- Rust 日志 → devtools 控制台。Builder 加 `Target::new(TargetKind::Webview)`,前端订阅(React 里随组件卸载停止):
+
+```tsx
+import { attachConsole } from '@tauri-apps/plugin-log';
+
+useEffect(() => {
+  let detach: (() => void) | undefined;
+  attachConsole().then((fn) => (detach = fn));
+  return () => detach?.();
+}, []);
+```
+
+### 级别、过滤与轮转
+
+全部挂在 Builder 上:
+
+```rust
+tauri_plugin_log::Builder::new()
+    .level(log::LevelFilter::Info)
+    .level_for("app_core::commands", log::LevelFilter::Trace)
+    .filter(|metadata| metadata.target() != "hyper")
+    .max_file_size(50_000)
+    .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+    .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
+```
+
+| 配置 | 默认 | 作用 |
+| --- | --- | --- |
+| `level` | `Trace` | 全局最高级别,低于它的被丢弃 |
+| `level_for` | — | 按模块单独放宽,如只给自己的 crate 开 Trace |
+| `filter` | — | 按元数据丢弃,常用于屏蔽噪声依赖 |
+| `max_file_size` | 40,000 字节 | 单文件上限 |
+| `rotation_strategy` | `KeepOne`(到上限丢弃重来) | `KeepAll` 按日期改名保留全部 |
+| `timezone_strategy` | `UseUtc` | `UseLocal` 换本地时区 |
+| `format` | `日期[TARGET][LEVEL] 消息` | 自定义行格式;`clear_format()` 清空 |
+
+## panic 排查
+
+panic 是 Rust 的致命错误,不走命令的 `Result` 通道——**不会变成 invoke 的 reject**。两种典型症状:同步命令(主线程)的 panic 常把整个应用直接带崩;异步命令的 panic 常表现为 Promise 永远不 resolve、前端毫无动静。stderr 里的 panic 输出只在有终端的地方可见,这正是打包应用最容易「无声死」的原因。命令该用 `Result` 表达的错误不要用 panic(错误处理见[命令](?path=/docs/commands--docs)一课)。
+
+排查路径三步:
+
+1. **dev 下复现,看终端。** `tauri dev` 终端里 `thread 'main' panicked at src/…` 的行直接给出文件与原因。
+2. **加栈。** `RUST_BACKTRACE=1 npm run tauri dev`,panic 行后面跟完整调用栈。
+3. **打包应用(没有终端)。** 让 panic 落进日志文件:挂 panic hook,把信息导进 log 管线,随 LogDir target 落成文件:
+
+```rust
+fn main() {
+    // panic 默认只写 stderr;打包应用没有终端,stderr 直接丢失。
+    // 挂 hook 把 panic 导进 log 管线,随 LogDir target 落成文件。
+    std::panic::set_hook(Box::new(|info| {
+        log::error!("panic: {info}");
+    }));
+
+    tauri::Builder::default()
+        .plugin(tauri_plugin_log::Builder::new().build())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
+
+边界:hook 依赖插件先初始化——命令、事件回调里的 panic 都能落文件;更早的 panic(启动阶段)仍只能靠 dev 终端复现。
+
+## 最佳实践
+
+- **排查一律在 dev / `--debug` 构建做。** devtools 完整、ACL 报错完整、panic 有终端;release 只留统一文案与静默。release 的问题先想办法在 dev / debug 态复现。
+- **要留痕的输出走 log 插件,别用 `println!`。** `println!` 只进终端,打包后必丢;log 插件的 Stdout 管开发期肉眼,LogDir 管打包后兜底,一条管线两侧通用。
+- **release 的日志量要收口。** `level` 收到 Info,`level_for` 只给自己的模块开 Trace,`filter` 屏蔽噪声依赖;文件配上轮转,别让日志无限膨胀。
+- **panic hook + LogDir 是打包应用的黑匣子,上线前装好。** 命令的错误用 `Result` 表达,panic 只留给真正的 bug。
+
+## 常见问题
+
+- invoke 的 Promise 永远不 resolve,前端没有任何报错
+  优先怀疑 Rust 侧 panic:看 `tauri dev` 终端有没有 `thread … panicked at`;没有终端就 `RUST_BACKTRACE=1` 重跑。长期修正:命令用 `Result` 返回错误,别让 panic 逃出命令。
+- 打包应用(dev 正常)一打开就闪退,什么信息都没有
+  release 没有终端,panic 的 stderr 丢了。先用 `tauri build --debug` 复现拿终端输出;要在线上留痕,装 log 插件 + panic hook,去 LogDir 找文件。
+- 前端 console.log 打包后看不到了
+  console 输出只进 WebView devtools,而 release 默认没有 devtools。开发期开 devtools 看;需要打包后保留,用 forwardConsole 把 console 转进 log 管线落文件。
+- release 包里想用 Elements / Console 查样式
+  给 tauri 加 `devtools` feature,或改用 `npm run tauri build -- --debug` 的产物;注意 macOS 开 `devtools` 后无法上架 App Store。
+- 日志文件里的时间像差了几小时
+  插件默认 UTC(`TimezoneStrategy::UseUtc`),Builder 上 `.timezone_strategy(TimezoneStrategy::UseLocal)` 换本地时区。
+
+## 总结回顾
+
+摘要:Tauri 应用有两个可观察面——WebView 与 Rust 核心进程,排查先判断现象在哪一侧、构建形态下哪些工具可用。前端问题进 WebView DevTools(右键 Inspect、快捷键、`open_devtools` 三种打开方式;三平台检查器不同;只在 dev / debug 构建默认可用,release 要加 `devtools` feature);Rust 问题看 `tauri dev` 终端(`println!`、`RUST_BACKTRACE`)与断点(VSCode / RustRover 绕过 CLI 直连 cargo,需 `--no-default-features` 并自备 dev server)。`log` 插件把两侧日志汇进一条管线,默认 Stdout + LogDir 两个 target,devtools 与终端之外的第三条路;console 转发与 `attachConsole` 各管一个汇合方向,级别、过滤、轮转、时区都在 Builder 上配。panic 不走 `Result` 通道、不 reject invoke:dev 下看终端加 `RUST_BACKTRACE`,打包应用靠 panic hook 把 panic 写进 LogDir 的日志文件。
+
+一句话:
+
+> 先判断现象在哪一侧,再挑构建形态下可用的工具;打包后唯一可靠的通道,是 log 插件落在 LogDir 里的日志文件。
+
+知识要点:
+
+- 三条通道各覆盖哪一侧?打包后分别是什么状态?
+- WebView devtools 有哪三种打开方式?三平台的检查器有什么差异?
+- release 启用 devtools 的条件是什么?macOS 上有什么额外限制?
+- `cfg!(dev)` 与 `cfg!(debug_assertions)` 的区别是什么?
+- 断点调试为什么要绕过 tauri CLI?`--no-default-features` 起什么作用?
+- log 插件的默认 target 是什么?LogDir 在三个平台各落在哪?
+- console 转发与 `attachConsole` 各解决哪个方向的汇合?
+- 级别、过滤、轮转、时区分别在 Builder 上怎么配?各自默认值是什么?
+- panic 为什么不会 reject invoke?dev 与打包应用的 panic 排查路径各是什么?
+
+## 参考资料
+
+- [Debugging - Tauri 官方文档](https://tauri.app/develop/debug/)
+  devtools 三种打开方式、三平台检查器、debug/release 可用性与 `devtools` feature、`tauri build --debug`、`println!` 与 `RUST_BACKTRACE`、`cfg(dev)` / `debug_assertions` 标志的来源。
+- [Logging 插件 - Tauri 官方文档](https://tauri.app/plugin/logging/)
+  插件安装、前后端用法、forwardConsole 与 `attachConsole`、target / 级别 / 格式 / 轮转配置、LogDir 平台路径、`log:default` 权限的来源。
+- [tauri-plugin-log Builder - docs.rs](https://docs.rs/tauri-plugin-log/latest/tauri_plugin_log/struct.Builder.html)
+  默认 target(Stdout + LogDir)、默认级别 `Trace`、`max_file_size` 默认 40,000 字节、`KeepOne` 与 `UseUtc` 等默认值的核对来源。
+- [log 插件源码 lib.rs - tauri-apps/plugins-workspace](https://github.com/tauri-apps/plugins-workspace/blob/v2/plugins/log/src/lib.rs)
+  `TargetKind` 变体(含 `Webview` 的 `log://log` 事件)与 `RotationStrategy` 变体定义的来源。
+- [Debug in VS Code - Tauri 官方文档](https://tauri.app/develop/debug/vscode/)
+  vscode-lldb 的 launch.json / tasks.json、Windows `cppvsdbg` 备选与「绕过 CLI、自备 beforeDevCommand」代价的来源。
+- [Debug in RustRover - Tauri 官方文档](https://tauri.app/develop/debug/rustrover/)
+  Cargo 配置 + dev server 配置双入口、手动加 `--no-default-features` 的来源。
+- [tauri 源码:command 宏 wrapper.rs](https://github.com/tauri-apps/tauri/blob/dev/crates/tauri-macros/src/command/wrapper.rs)
+  命令宏不捕获 panic、panic 不被转化为 IPC reject 的依据。

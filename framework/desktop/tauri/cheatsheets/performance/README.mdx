@@ -1,0 +1,260 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Performance from './performance.stories';
+
+<Meta of={Performance} name="Docs" />
+
+# 性能与体积
+
+Tauri 的性能不是一件事,而是三个阶段各自的账:构建期决定安装包多大,启动期决定多久看到首帧,运行期决定界面跟不跟手。本课把三个阶段的杠杆各讲一遍——`[profile.release]` 的官方推荐块及每项的代价、feature 与命令的裁剪入口、依赖审计工具、冷启动时间线的构成与"感觉更快"的手段,最后给一份克制的 WebView 渲染注意事项。两个实例都做成了可调模拟:一个调 profile 选项看四条权衡读数,一个拨启动条件看时间线怎么变。
+
+本课不重复既有的判断依据:与 Electron 的体积量级对比见[认识 Tauri](?path=/docs/about-tauri--docs),这里只讲"怎么压"。
+
+性能发生在一条直线上,每个阶段的问题不同、手段不同、证据来源也不同:
+
+```mermaid
+flowchart LR
+  A["构建期:安装包体积<br/>release profile · feature 裁剪 · 依赖审计"] --> B["启动期:多久看到首帧<br/>资源嵌入 · 重活异步化 · splashscreen"]
+  B --> C["运行期:界面跟不跟手<br/>主线程纪律 · 通用前端实践"]
+```
+
+本课最常回查的一张表——`[profile.release]` 五个选项的 Cargo 默认值与官方推荐值(默认值出自 Cargo Book,推荐值出自官方「App Size」页):
+
+| 选项 | Cargo 默认(release) | 官方推荐 | 含义与代价 |
+| --- | --- | --- | --- |
+| `opt-level` | `3` | `"s"` | `3` 优先运行速度,`"s"` 优先体积,`"z"` 更激进;官方与 Cargo 都提示 `"s"/"z"` 不保证一定更小,需实测 |
+| `lto` | `false` | `true` | 链接期跨 crate 优化;编译明显变慢 |
+| `codegen-units` | `16` | `1` | 单个编译单元优化更充分;失去并行度,编译变慢 |
+| `panic` | `"unwind"` | `"abort"` | 去掉 unwind 代码;`catch_unwind` 失效,panic 立即退出 |
+| `strip` | `"none"` | `true` | 剥离调试符号;崩溃日志难以符号化定位 |
+
+## 快速上手
+
+前提:沿用[第一个应用](?path=/docs/first-app--docs)生成的工程,`src-tauri/` 是一个普通 cargo 包。最小闭环:量出体积基线 → 贴入官方推荐块 → 复测对比。
+
+1. 量基线,不改任何配置:
+
+```bash
+npm run tauri build
+ls -lh src-tauri/target/release/
+```
+
+记录列表里主可执行文件的大小。注意 `tauri dev` 用的是 dev profile,本课改的 `[profile.release]` 对 dev 构建没有影响。
+
+2. 把官方推荐块贴进 `src-tauri/Cargo.toml`(任意位置,与现有 section 平级):
+
+```toml
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+```
+
+3. 复测对比。预期:体积可感知地变小,编译时间可感知地变长——幅度因项目而异,这正是"每次改动都要实测"的原因。
+
+4. (可选)看体积都花在哪:
+
+```bash
+cargo tree -d            # 被重复编译的依赖
+cargo install cargo-bloat
+cargo bloat --release    # 二进制里按函数与 crate 排的大头
+```
+
+## 体积
+
+先建立一个体积模型:发布的安装包,主件是 Rust 二进制;而前端产物在 `build.frontendDist` 为相对路径时会**全部嵌入应用二进制**(配置参考原文:"all files are embedded in the application binary")。所以安装包体积有四个杠杆:编译选项、feature 与命令裁剪、依赖、前端产物本身。前三个在 Rust 侧,最后一个连回前端工程——dist 多 1 MB,二进制就大 1 MB。
+
+### release profile
+
+上面的推荐块可以整块照抄,但每个选项都值得知道它换掉了什么:
+
+- **`opt-level = "s"`** —— Cargo 的 release 默认是 `3`(速度优先);`"s"` 转向体积优先,`"z"` 更激进(额外禁用循环向量化)。Cargo Book 特意提醒:体积结果可能出人意料,`"s"/"z"` 不保证比默认更小,逐档实测。
+- **`lto = true`** —— 链接期优化(LTO),让 LLVM 跨 crate 一体化优化、消除冗余代码。`"thin"` 是折中档;`true`(fat)是官方推荐档,代价是链接阶段明显变慢。
+- **`codegen-units = 1`** —— 默认 `16` 是为了并行编译;改成 `1` 后整个 crate 作为一个编译单元交给优化器,优化更充分、体积更小,并行度没有了。
+- **`panic = "abort"`** —— 默认 `"unwind"` 会为可能 panic 的代码生成展开(stack unwinding)代码;`"abort"` 去掉这批代码,panic 时进程立即退出。代价:`catch_unwind` 不再捕获任何东西,依赖"捕获 panic 继续运行"的逻辑失效。
+- **`strip = true`** —— 等价于 `"symbols"`,剥离调试符号。代价:崩溃日志只剩地址、难以符号化定位(排查思路见质量与发布阶段的调试课程)。
+- 同页官方还给 `[profile.dev] incremental = true` —— 它管的是开发期编译速度(增量编译),与发布体积无关,顺手一起抄没有副作用。
+
+下方的调优台把五个选项做成可调输入:左栏画出当前的 `[profile.release]` 片段(灰值 = Cargo 默认,蓝值 = 相对默认已改),右栏给出体积、编译时间、运行性能、调试能力四条相对"默认 release"的定性读数:
+
+<Canvas of={Performance.Interactive} />
+<Controls of={Performance.Interactive} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 把 `opt-level` 从 `3` 切到 `"s"` | 体积条走低,运行性能条提示"可能略降";TOML 该行变蓝 |
+| 依次打开 `lto=true`、`codegen-units=1` | 编译时间条持续走高——降体积的编译期账单 |
+| 开关 `strip` | 调试能力条在"≈ 默认"与"受损"之间切换 |
+| 把 `panic` 切到 `"abort"` | 体积再降一档,依据列表注明 `catch_unwind` 失效 |
+| 全部保持默认 | 四条读数都是"≈ 默认",并提示先实测基线再逐项改 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `example.ts` |
+
+读数是定性示意:方向有据(Cargo Book 与「App Size」页),幅度因项目而异,别把条长当数据。
+
+### feature 裁剪
+
+`[profile.release]` 之外,第二层杠杆是"别把用不到的能力编进去"。`tauri` crate 的 feature 分两类——默认就开的,和按配置自动启用的(docs.rs feature 清单):
+
+| feature | 状态 | 用途与裁剪时机 |
+| --- | --- | --- |
+| `wry` | 默认 | WebView 运行时;只在自定 runtime 时才考虑关闭 |
+| `compression` | 默认 | 嵌入资源的压缩;官方说明:**仅为更快的编译时间才关闭**,代价是产物更大 |
+| `x11` | 默认 | Linux X11 支持;只面向 Wayland 时可关 |
+| `dbus` | 默认 | Linux 的主题支持;确认不依赖主题相关行为时可关 |
+| `common-controls-v6` | 默认 | Windows 上预定义"关于"菜单项所需的 Common Controls v6 |
+| `dynamic-acl` | 默认 | 运行期 `add_capability`;不用动态能力时才考虑 |
+| `tray-icon` | 按配置启用 | 配置了 `trayIcon` 才由 CLI 自动启用——不配托盘就不进二进制 |
+| `devtools` | debug 默认 | 开发者工具;release 想开需显式加 feature(macOS 走私有 API,上架 App Store 的应用不可开) |
+| `custom-protocol` | CLI 管理 | 生产模式标记:`tauri build` 启用、`tauri dev` 不启用(见「启动」一节) |
+| `protocol-asset` | CLI 管理 | 配置 `assetProtocol.enable` 时自动启用(见[自定义协议](?path=/docs/custom-protocol--docs)) |
+
+第三层是命令注册:`generate_handler!` 注册的命令会生成进二进制,包括插件提供但从未被授权调用的命令。官方给出配置项 `build.removeUnusedCommands`,在 `tauri build` 期间按 ACL 清单移除从未被允许的命令:
+
+```json
+{
+  "build": {
+    "removeUnusedCommands": true
+  }
+}
+```
+
+三个边界(配置参考):默认 `false`;不统计 `dynamic-acl`(默认启用)动态添加的 ACL;需要 tauri 2.4+ 与 tauri-plugin 2.1+。
+
+### 依赖审计
+
+最后一层是依赖本身,工具链现成:
+
+- `cargo tree` —— 看依赖树;加 `-d`(`--duplicates`)列出被重复编译的包,它们同时是体积与编译时间的常见来源。
+- `cargo bloat` —— 按函数与 crate 报告二进制大头(`cargo install cargo-bloat`),定位"到底谁占的"。
+- 前端侧:`frontendDist` 嵌入的是构建产物,tree-shaking、生产构建这些常规前端纪律在 Tauri 下直接变成安装包体积;动态 `import()` 不减少嵌入总量,但把非首屏代码挪出首帧的解析执行路径——它优化的是启动,不是体积。
+
+顺序上先测量再裁剪:`cargo tree -d` 与 `cargo bloat` 告诉你裁谁,产物大小告诉你裁得值不值。
+
+## 启动
+
+生产模式的冷启动可以压成一条时间线:进程创建 → Rust 核心初始化 → WebView 初始化 → 加载首屏 → 前端首帧。两个事实决定它的形状:**前端资源在编译期就进了二进制**(由 `generate_context!` 生成 Context 时嵌入资源、图标与 ACL),生产首屏不经网络;**没有 `async` 的命令默认在主线程执行**(官方 calling-rust 文档),启动期的重活会直接推迟首帧或冻住已显示的界面。
+
+下方的启动时间线把三组开关放进同一条时间线——运行模式、启动重活放哪、要不要 splash:
+
+<Canvas of={Performance.Timeline} />
+<Controls of={Performance.Timeline} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 模式从生产切到开发 | 时间线最前面多出 cargo 编译(dev),首屏加载段变长(devUrl 往返) |
+| 重活从同步切到异步 | 主线程条回到"空闲",首帧竖线不再被推迟,虚线表示后台执行 |
+| 打开 splashscreen | 「用户看到」行在进程创建后立即有内容;首帧竖线位置纹丝不动——感知变了,时间没变 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `startup-timeline.ts` |
+
+时间线时长是示意、非实测;相对关系有据:`frontendDist` 嵌入、同步命令默认在主线程执行,都出自官方文档。
+
+### 资源嵌入与生产模式
+
+`build.frontendDist` 指向相对路径时,构建把该目录**全部文件嵌入应用二进制**,以 `index.html` 为入口(配置参考);宏 `generate_context!` 负责在编译期读取配置、生成携带这些资源的 `Context`(docs.rs 原文:"Reads the config file at compile time and generates a `Context` based on its content")。
+
+`custom-protocol` feature 是 dev 与生产的分界开关,由 CLI 管理:`tauri build` 时启用,应用以"生产环境"自处、页面从嵌入资源供给;`tauri dev` 时不启用,页面来自 `devUrl`(如 `http://localhost:1420`)。推论:发布产物的首屏等待上限在 WebView 初始化与前端首帧,而不是网络请求——前提是 `frontendDist` 用的是本地路径;配成远程 URL 时资源不嵌入,这条推论不成立。
+
+嵌入资源的压缩由 `compression` feature(默认启用)承担;官方说明只有想要更快编译时间时才关,代价是二进制更大。
+
+### 启动重活与主线程
+
+官方文档对同步命令的描述是:没有 `async` 关键字的命令在主线程执行,除非写成 `async fn` 或标 `#[tauri::command(async)]`;官方建议重活用异步命令,"以不造成 UI 冻结或变慢的方式执行"。把它翻译成启动纪律:
+
+```rust
+// setup 里要做的重活:spawn 到 async runtime,别占主线程
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                // 重活在这里跑,首帧不被拖住
+            });
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
+
+前端侧是同一条纪律的另一半:别让单个同步任务占住 WebView 主线程,长任务切片执行(通用前端实践)。
+
+### splashscreen
+
+官方 splashscreen 方案是一个纯感知手段:主窗口配置 `visible: false`,splash 窗口立即可见;初始化完成后 `main_window.show()`、`splash.close()`。实例里的证据很直白:打开 splash 后首帧竖线位置不变——它改变"等多久有东西看",不改变首帧到来的时间。官方指南自己也是这么提醒的:splashscreen 是"对加载速度的认输",主窗口里放个转圈通常更好。
+
+## WebView 渲染注意事项
+
+渲染这一层,可靠的结论不多,克制的清单如下。
+
+**基准是系统 WebView。** 渲染特性与性能特性都随平台(WKWebView / WebView2 / WebKitGTK)与操作系统版本走,不受你控制(平台对应关系见[认识 Tauri](?path=/docs/about-tauri--docs))。在开发机浏览器里调"丝滑"不算数,评估渲染性能以目标平台实测为准。
+
+**主线程纪律是最大的单点。** 界面卡顿时,先怀疑"有活占着主线程",再怀疑引擎慢:Rust 侧是同步命令(上一节),前端侧是长任务。这两类问题共用同一修法——把活挪开。
+
+**通用前端实践照常适用。** 动画走 `transform` / `opacity` 等合成器路径;避免频繁强制同步布局;图片按显示尺寸提供资源。这些是通用 Web 性能实践、非 Tauri 特有,遇到渲染问题时先按常规方法排查。
+
+**平台特有项的回查入口**(出自配置参考与字段文档):
+
+- Windows 的 `additionalBrowserArgs`:默认 wry 传 `--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection`;自定义时会**替换**默认参数,需要的要自己带上。官方同时警告:不同 browser args 的 WebView 实例必须使用不同的数据目录。
+- 透明窗口创建时的白闪:字段文档提示用 `noRedirectionBitmap` 缓解。
+
+## 最佳实践
+
+- **先测量,再逐项改。** 建立基线(产物大小、启动体感)后一次只动一个杠杆,`tauri build` 复测——`"s"/"z"` 不保证更小,LTO 与单 codegen-unit 的收益也因项目而异,条形读数只是方向。
+- **推荐块整块起步,按需回退。** 官方推荐块是权衡好的起点;确实依赖 `catch_unwind` 时才把 `panic` 改回 `"unwind"`,并接受体积回吐;上架 Mac App Store 的应用不要为 release 开 `devtools`。
+- **发布档与开发档分开。** `[profile.dev] incremental = true` 管开发期编译速度,`[profile.release]` 管发布体积;dev 构建不受 release 项影响,不要用 dev 的编译时长预估发布编译。
+- **feature 与命令按需存在。** 不配托盘就不引 `tray-icon`,不开 asset 协议就不引 `protocol-asset`,发布构建配 `removeUnusedCommands`;`compression` 保持默认,除非编译时间真的不可忍。
+- **重活异步化是启动与渲染共用的纪律。** Rust 侧 `async` 命令与 `async_runtime::spawn`,前端侧长任务切片——同一原则:别占主线程。
+- **splash 只解决"没反馈",不解决"慢"。** 官方的态度很明确:优先做快,其次才做感知。
+
+## 常见问题
+
+- `[profile.release]` 写了,`tauri build` 的产物却没变化
+  先确认写在正确的文件:Cargo 只认 workspace 根 `Cargo.toml` 里的 profile 设置(`src-tauri/` 不是 workspace 成员时,它就是那个根)。再确认构建档位:`tauri build` 默认 release,`--debug` 走 debug 档——推荐块只对前者生效。
+- 切到 `opt-level = "z"` 产物没更小、甚至更大
+  Cargo Book 明确提示结果可能出人意料:`"s"` / `"z"` 不保证比默认更小。回到方法:逐档实测,选实测最小的那个。
+- `panic = "abort"` 之后,"捕获 panic 继续运行"的代码失效了
+  预期行为:`"abort"` 的定义就是 panic 立即退出进程,`catch_unwind` 不再捕获。这是该选项换体积的已知代价;测试不受影响——Cargo 的 test / bench profile 忽略 panic 设置。
+- 关掉 `compression` 想让编译快点,结果产物变大了
+  与官方说明一致:该 feature 管嵌入资源的压缩,关闭只为换取更快的编译时间,产物更大是它的定义,不是 bug。
+- 前端 bundle 减小了,安装包几乎没变
+  嵌入的是前端构建产物——先确认 dist 确实变小(对比 `dist/` 与安装包里嵌入的部分),再记住体积模型:安装包主件是 Rust 二进制,大头优先在 Rust 侧找(`cargo bloat`),前端产物只是其中一份拷贝。
+- 自定义 `additionalBrowserArgs` 后,某些 WebView 行为变了
+  自定义参数会替换而非追加 wry 的默认参数——需要时把 `--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection` 自己带上;并遵守官方限制:不同 browser args 的 webview 必须使用不同的数据目录。
+
+## 总结回顾
+
+摘要:
+
+性能分三个阶段各有各的账。构建期决定安装包体积:主件是 Rust 二进制,前端产物也整体嵌入其中,杠杆依次是 `[profile.release]` 五项(opt-level / lto / codegen-units / panic / strip,官方推荐块逐项给出代价)、feature 与命令裁剪(默认 feature、`removeUnusedCommands`)、依赖审计(`cargo tree -d`、`cargo bloat`)。启动期决定首帧:前端资源在编译期由 `generate_context!` 嵌入二进制,`custom-protocol` 是 dev(走 devUrl)与生产(走嵌入)的分界;没有 `async` 的命令默认在主线程执行,启动重活用 `async_runtime::spawn` 与异步命令挪开,首帧才不被拖住;splashscreen 只改善感知,官方称之为"对加载速度的认输"。运行期决定流畅:基准是系统 WebView,评估以目标平台实测为准,卡顿先查主线程上的活,Windows 特有项有 `additionalBrowserArgs` 与透明窗口白闪的 `noRedirectionBitmap`。
+
+一句话:
+
+> 体积是编译期挣来的,首帧是启动期省出来的,流畅是运行期让出主线程换来的——每个阶段先测量,再逐项改。
+
+知识要点:
+
+- 官方推荐的 `[profile.release]` 五项各自默认是什么、换来什么、失去什么?
+- 为什么 `"s"` / `"z"` 不保证更小?`panic = "abort"` 让哪些代码失效?
+- 前端资源怎样进入二进制?`custom-protocol` 与 `devUrl` 分别对应哪条加载路径?
+- 没有 `async` 的命令默认在哪执行?对首帧和界面响应意味着什么?
+- splashscreen 改变什么、不改变什么?
+- `additionalBrowserArgs` 的替换行为与数据目录限制是什么?`noRedirectionBitmap` 缓解什么?
+
+## 参考资料
+
+- [App Size - Tauri 官方文档](https://tauri.app/concept/size/)
+  `[profile.release]` 推荐块与逐项注释、`[profile.dev] incremental`、`removeUnusedCommands` 的来源。
+- [Cargo Book: Profiles](https://doc.rust-lang.org/cargo/reference/profiles.html)
+  release 各项默认值(`opt-level=3`、`lto=false`、`codegen-units=16`、`panic='unwind'`、`strip='none'`)、`"s"`/`"z"` 语义与"不保证更小"提示、panic 设置被 test/bench 忽略、profile 只认 workspace 根的来源。
+- [配置参考 - Tauri 官方文档](https://tauri.app/reference/config/)
+  `build.frontendDist` 相对路径"all files are embedded in the application binary"、`build.removeUnusedCommands` 默认值与版本前提、`additionalBrowserArgs`、`noRedirectionBitmap` 的来源。
+- [tauri crate 文档(docs.rs)](https://docs.rs/tauri)
+  feature 清单与默认值(`compression`、`x11`、`dbus`、`common-controls-v6`、`dynamic-acl`、`tray-icon`、`devtools`、`custom-protocol`、`protocol-asset`)的来源。
+- [generate_context! - docs.rs](https://docs.rs/tauri/latest/tauri/macro.generate_context.html)
+  "Reads the config file at compile time"、Context 嵌入前端资源 / 图标 / ACL 的来源。
+- [Calling Rust from the Frontend - Tauri 官方文档](https://tauri.app/develop/calling-rust/)
+  同步命令默认在主线程执行、`#[tauri::command(async)]`、异步命令避免 UI freezes 的来源。
+- [Splashscreen - Tauri 官方文档](https://tauri.app/learn/splashscreen/)
+  主窗口 `visible: false`、`show()` / `close()` 时序与"对加载速度的认输"注记的来源。
