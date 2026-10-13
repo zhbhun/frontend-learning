@@ -1,0 +1,229 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ModelingData from './modeling-data.stories';
+
+<Meta of={ModelingData} name="Docs" />
+
+# 数据建模手册
+
+Automerge 不给文档强加 schema：文档就是一棵 JSON 式的树，形状完全由你决定。而形状决定三笔账单——并发合并的质量、整份文档的体积与加载耗时、历史记录的增长速度。本课按官方 cookbook 的建模主线，把决策收敛为四个问题：一份数据放几个文档、初始结构与迁移怎么做到并发安全、集合用 map 还是 list、字段用什么写法落笔。所有结论都在 `@automerge/automerge@3.5.0` 上实测校准：字节数由 automerge 确定性地生成，同版本同内容必然复现；耗时数字仅作量级参考（Node 24 实测）。
+
+先给决策速查表，每个结论的依据与实测读数在对应小节：
+
+| 建模决策 | 结论 | 深入 |
+| --- | --- | --- |
+| 一份数据放几个文档 | 一个协作小组一个文档起步；整文档体积出现痛感再拆 | 拆分文档的时机 |
+| 初始结构怎么来 | 一处初始化并 save，各端 load 同一份字节 | 初始结构与迁移 |
+| 集合用 map 还是 list | 实体用 map 按键存，顺序单独用 id 清单表达 | map 还是 list |
+| 字段用什么写法 | 高频整段替换用 `ImmutableString`，计数用 `Counter.increment` | 控制变更粒度 |
+
+## 拆分文档的时机
+
+官方 cookbook 给的定位是：Automerge 文档最适合作为**两个人或一个小组之间的协作单元**。粒度过细（比如每个对象一个文档）会让待同步、待加载的文档数量膨胀，早期版本的 PushPin 就因此付出过很高的同步开销；粒度过粗则每个打开文档的人都要为整份历史买单。所以第一个建模问题不是"怎么设计字段"，而是"这份数据是谁和谁在协同编辑"。
+
+拆不拆，先看成本结构。实测一组对照：向不同规模的 list 正中间插入一项，观察单次变更体积与整文档体积：
+
+| list 规模 | 中插一项的变更 | 全文档 save | 全文档 load（量级） |
+| --- | --- | --- | --- |
+| 100 项 | 123 字节 | 763 字节 | 小于 1 ms |
+| 1000 项 | 125 字节 | 5.2 KB | 约 4 ms |
+| 10000 项 | 128 字节 | 59 KB | 约 28 ms |
+
+单次编辑的代价**不随集合变大**——插入操作锚定的是相邻元素的身份，不重写后续下标；随规模线性增长的是整文档的 save、load 与同步体积。结论：**拆分的信号是整文档的体积与加载时长，不是"这个集合很大"**。实操上按协作单元划线：不同人群编辑的不同部分拆成不同文档；出现启动变慢、同步量失控再继续拆。
+
+拆开之后，文档之间用 URL 互相引用：父文档里存 `handle.url()`（`automerge:` 前缀的字符串），需要时 `repo.find(url)` 打开子文档。URL 的寻址语义见 [Repo 与 DocHandle](?path=/docs/repo-and-dochandles--docs)。
+
+<Canvas of={ModelingData.ScaleLab} />
+<Controls of={ModelingData.ScaleLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 把「集合规模」从 100 切到 10000 | 「单次插入变更」停在约 128 字节，「全文档 save」从约 0.7 KB 涨到约 59 KB |
+| 打开 Show code | 看到该 Canvas 实际执行的 `collection-scale.ts`，读数由 `measureScale` 计算 |
+
+## 初始结构与迁移
+
+### 并发初始化的陷阱
+
+schema 是代码里的类型，不是文档里的数据：两台设备各自 `A.from(同样的初始值)`，得到的是**两棵没有共同祖先的树**。合并它们时，根上的同名键构成并发赋值冲突——只有一个分支的 `cards` 可见，另一分支往 `cards` 里加的数据全部"消失"在败者的对象里。实测读数：
+
+```ts
+const m = A.merge(A.clone(d1), A.clone(d2));
+m.cards; // ["from-b"] —— aaaa 加的 from-a 不在可见列表里
+A.getConflicts(m, 'cards');
+// { '1@aaaa': ['from-a'], '1@bbbb': ['from-b'] } —— 两个候选 list，各含各的元素
+```
+
+正确做法是把初始结构变成**共享的祖先**：一处执行初始化，`save` 出字节，所有设备 `load` 同一份字节再各自追加：
+
+```ts
+// 构建期执行一次，把 SEED_BYTES 作为常量发布给所有端
+const SEED_BYTES = A.save(A.from<TaskDoc>({ cards: [] }, 'c0ffee'));
+
+// 每台设备、每个副本都从同一份字节开始，actorId 各自不同
+const doc = A.load<TaskDoc>(SEED_BYTES, myActorId);
+```
+
+实测同样的两步并发追加，从共享种子出发合并后 `cards` 是 `["from-b", "from-a"]`，无冲突记录。注意 actorId 必须是 hex 字符串（传 `'seed'` 这类非 hex 会直接抛 `RangeError`）。
+
+### schema 版本与迁移
+
+演化结构时在文档里嵌一个版本字段，加载后按版本执行迁移：
+
+```ts
+type DocV2 = { schemaVersion: 2; cards: Card[]; archived: Card[] };
+
+function migrate(doc: A.Doc<DocV2>): A.Doc<DocV2> {
+  if (doc.schemaVersion >= 2) {
+    return doc;
+  }
+  // 读旧版本、写新结构的 change 放在这里
+  return A.change(doc as A.Doc<any>, (d) => {
+    d.schemaVersion = 2;
+    d.archived = [];
+  });
+}
+```
+
+迁移本身也是 change，所以上一小节的陷阱在这里原样重现：两台设备对同一份旧文档**各自跑一遍迁移**，会产生两条并发的迁移分支。cookbook 给的对策与初始化一致——把迁移 change 的字节也固定下来：一处执行迁移并 `save`，其他端直接 `load` 迁移后的字节；至少要保证迁移逻辑是确定性的纯函数，不读时钟、不用随机数、不依赖本地状态。
+
+## map 还是 list
+
+容器只有 map 和 list 两种，选择标准是**身份与顺序哪个是这份数据的主语义**：
+
+| 需求 | 建模 | 并发行为 |
+| --- | --- | --- |
+| 按身份存取实体（用户、任务、文档） | map：id 指向实体对象 | 并发加不同键全保留，无冲突 |
+| 顺序本身是数据（有序列表） | list | 并发插入都保留，顺序由操作 ID 定序 |
+| 既要顺序又要富实体 | order 清单（id 的 list）+ entities map | 见下一小节 |
+
+并发添加的对照实测（两个副本从共享种子分叉，各加一个成员）：list 上并发 `push` 得到 `["共同起点", "来自 B", "来自 aaaa"]`——两个值都保留，先后由操作 ID 决定（与谁先谁后无关）；map 上并发加两个新键，两键都保留且**没有冲突记录**。同一键或同一索引上各自赋值才构成冲突，收敛规则见[集合类型与冲突](?path=/docs/collections-and-conflicts--docs)。
+
+<Canvas of={ModelingData.ConcurrentAdd} />
+<Controls of={ModelingData.ConcurrentAdd} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 修改「副本 bbbb 写入」 | list 合并结果两项俱在、顺序不变；map 两个键各自保留 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `concurrent-shapes.ts`，两个副本从同一份种子字节 load |
+
+### 顺序建模：清单与实体
+
+既要有顺序、实体内容又丰富时，把两件事拆开建模：顺序放进一个只装 id 的 `order` 清单，实体内容放进按 id 索引的 `entities` map：
+
+```ts
+type Board = {
+  order: string[]; // 有序的 id 清单，元素是小标量
+  entities: Record<string, { title: string; done: boolean }>;
+};
+
+// 移动 c 到首位：只写 order，实体内容不动
+A.change(doc, (d) => {
+  d.order.splice(d.order.indexOf('c'), 1);
+  d.order.unshift('c');
+});
+```
+
+这个拆分的价值在并发下兑现：移动只产生 117 字节的小变更，且**只碰清单**——另一个副本同时改 `entities.b.title` 时，合并后顺序与标题都完整保留，互不干扰。
+
+删除实体要同时动两处：`order` 里移除 id，`delete` 掉 `entities[id]`。这里有一条实测边界：**删除键会吞掉并发落在实体内部的编辑**。副本 aaaa `delete entities.b`、副本 bbbb 同时写 `entities.b.title = 'B2'`，合并后 `b` 整个消失，B2 无处可读；对照组里，bbbb 改为整键赋值 `entities.b = {...}` 时，赋值照 1.3 的规则保留。建模上需要"删除与编辑并存"的场景（比如工单关闭后仍有人补评论），用标记删除（`archived: true`）代替物理删除。
+
+<Canvas of={ModelingData.OrderedMove} />
+<Controls of={ModelingData.OrderedMove} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 修改「副本 bbbb 写入」（b 的新标题） | 合并后 `order` 变为 `["c","a","b"]` 且标题更新同时生效，读数为「是」 |
+| 打开 Show code | 看到 `ordered-manifest` 分支：移动只写 `order` 清单 |
+
+### list 内移动的陷阱
+
+如果直接把富实体放进一个 list，"移动"会暴露三个问题。Automerge 没有 move 操作，移动靠 delete 加 insert 拼出来：
+
+- **标量元素**：`deleteAt` 加 `insertAt`，实测 2 个 op，成本低；
+- **对象元素想原样搬**：做不到。把读到的对象插回去会抛 `RangeError: Cannot create a reference to an existing document object`——[对象身份规则](?path=/docs/collections-and-conflicts--docs)禁止文档内对象二次赋值；
+- **spread 重建搬运**：`{ ...d.items[i] }` 能插进去，但它是**全新身份的对象**（实测 ObjID 从 `4@…` 变成 `15@…`）。原位置上并发的字段编辑不会跟过来。
+
+第三条是真实的丢数据路径，实测对照：副本 aaaa 把末尾的 `c` spread 移动到首位，副本 bbbb 同时把 `c.title` 改成 `'C2'`——合并后 `c` 在首位但 `title` 仍是 `'C'`，编辑丢失；同样的并发编辑在**不移动**时完整保留。两个副本并发移动两个不同元素时更乱：双方都把目标插到首位，合并结果会把其中一个元素漂移到列表末尾，不等于任何一方的本地结果。
+
+<Canvas of={ModelingData.MovedElementEdit} />
+<Controls of={ModelingData.MovedElementEdit} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 保持默认输入 | 合并后 `c` 在首位但 `title` 是 `'C'`，读数为「否（丢失）」 |
+| 打开 Show code | 看到 `moved-element` 分支的 spread 重建与并发编辑路径 |
+
+## 控制变更粒度
+
+历史增长的账单按 **op 数**结算，不是按字节数：save 的列式编码能把字节压得很小，但加载文档要逐 op 重放物化，op 数没有任何压缩。实测一组对照（同一 44 字符内容，单个副本连续整段覆盖 20 次）：
+
+| 写法 | 20 次覆盖后总 op 数 | 全文档 save | load 耗时（量级） |
+| --- | --- | --- | --- |
+| 普通字符串 `d.t = 内容` | 921 | 923 字节 | 约 6.7 ms |
+| `ImmutableString` 整段覆盖 | 21 | 376 字节 | 约 0.4 ms |
+
+差距的来源在[值与容器](?path=/docs/collections-and-conflicts--docs)的结论里：**普通字符串是文本容器**，整段赋值等于新建文本对象并为每个字符落一个 op——首次写入就是 1 + 44 = 45 个 op。这是逐字符并发合并能力的代价。字段被高频地整体替换（URL、状态、整段快照）时，这层能力用不上，成本却照付；改用 `ImmutableString` 标注"整体替换"语义，每次写入 1 个 op，并发赋值走冲突规则。反过来的场景——真正逐字编辑的正文——就该用普通字符串，让并发编辑在字符级合并。
+
+计数字段的取舍同理：`Counter.increment` 每次 1 个 op，并发的增量自动相加（实测两副本各加 20 次合并得 40，无冲突候选）；普通数字赋值也是每次 1 个 op，但并发后只剩一个胜出值。两者都便宜，选哪个由语义决定：可累加的量（点赞、票数、离线累积的修改量）用 `Counter`，"最新值"用赋值。
+
+| 字段形态 | 写法 | 单次 op 数 | 并发语义 |
+| --- | --- | --- | --- |
+| 逐字编辑的文本 | 普通字符串，回调内 `A.splice` | 每字符 1 op | 字符级合并 |
+| 高频整体替换 | `ImmutableString` 赋值 | 1 op | put 冲突规则 |
+| 可累加的量 | `Counter.increment` | 1 op | 增量相加，无冲突 |
+| 最新值标量 | 普通赋值 | 1 op | put 冲突规则 |
+
+<Canvas of={ModelingData.GranularityLab} />
+<Controls of={ModelingData.GranularityLab} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 在「每次写入的内容」里加长文本 | 「单次写入 op 数」随字符数同步上涨，`ImmutableString` 场景始终为 1 |
+| 把「字段写法」切到计数字段 | 合并读数给出 `Counter = 40`（增量相加）与 `number` 的胜出值对照 |
+| 打开 Show code | 看到该 Canvas 实际执行的 `change-granularity.ts` |
+
+## 最佳实践
+
+- **按协作单元拆文档，从一个文档开始。** 不同人群编辑的不同部分才值得拆；拆开后父文档存 `handle.url()` 引用子文档。判断依据是整文档的体积与加载时长，不是集合大小。
+- **初始化与迁移都共享字节。** 初始结构在一处 `from` + `save`，各端 `load` 同一份字节；迁移 change 同理，至少保证迁移是确定性纯函数。
+- **集合默认 map-of-entities。** 实体按 id 存进 map，顺序单独用 id 清单表达；list 只在"元素是小标量、顺序就是数据"时直接用。
+- **字段写法跟着写入形态走。** 高频整段替换用 `ImmutableString`，可累加的量用 `Counter.increment`，逐字编辑的文本才用普通字符串的字符编辑。
+- **大集合的分页放在界面层。** 3.5.0 的单次写入代价不随集合增长，需要分页的是渲染：只物化、只渲染窗口内的数据；数据层的等价手段是把大集合按协作单元拆成多个文档。
+
+## 常见问题
+
+- 两台设备各自初始化后，一方的数据"不见了"，合并后读不到对方加的条目
+  用 `A.getConflicts(doc, '字段')` 检查根键：出现两个候选数组或对象就是并发初始化。改为共享初始字节：一处 `from` + `save`，各端 `load` 同一份字节；已经分叉的数据只能手工把败者分支的条目搬进胜者分支。
+- 删除实体后，另一副本对它内部字段的修改没有出现
+  删除键胜过并发落在实体内部的嵌套写，编辑随旧对象一起不可达。需要"删除与编辑并存"的语义就用标记删除（`archived: true`）代替 `delete`；物理删除前先 `merge` 能把窗口缩到最小，但无法根治并发。
+- 移动列表项之后，对它的并发编辑丢了
+  list 没有 move 操作：对象元素只能 spread 重建，产生的新对象与原对象身份不同，落在原位置的编辑不会跟过来。把顺序建模挪到 id 清单（见「顺序建模：清单与实体」），实体本身留在 map 里不动。
+- 文档越用越卡，save 出来的文件越来越大
+  历史只增不减，3.5.0 没有裁剪历史的公开 API，`free` 只释放内存不裁历史。先排查变更粒度：整段覆盖普通字符串的字段改成 `ImmutableString`，可累加的量改 `Counter`；文档膨胀到不可收拾时，把当前状态 `toJS` 后写入新建文档，旧文档归档。
+
+## 总结回顾
+
+摘要：
+
+Automerge 的建模自由度全在一棵 JSON 树上，四个决策决定协作质量。拆分上，文档是协作小组的单元：单次编辑代价不随集合增长，整文档的 save/load 才随规模线性膨胀，拆分与引用（存 `handle.url()`）跟着协作单元走。初始化与迁移必须共享祖先：各端独立 `from` 会造出两棵无根的树，合并时同名根键冲突、败者数据不可见，正解是一处初始化后 `save`、各端 `load` 同一份字节，迁移同理。集合建模上，身份进 map（并发加键互不干扰），顺序进 list 或 id 清单；富实体加顺序用 order 清单加 entities map，移动只写清单即可与并发编辑干净合并；直接在 list 里移动对象没有 move 语义，spread 重建产生新身份，原位置的并发编辑会丢失。变更粒度上，历史成本按 op 数结算：普通字符串整段赋值每字符一个 op，`ImmutableString` 与 `Counter.increment` 每次一个 op，字段写法跟着写入形态选。
+
+一句话：
+
+> 建模的账单由 op 数和文档数支付：字段按写入形态选类型，集合按身份与顺序选容器，文档按协作单元拆分，初始化与迁移共享同一份字节。
+
+知识要点：
+
+- 为什么单次插入的变更体积不随集合变大？什么随规模线性增长，拆分信号是什么？
+- 两台设备各自 `from` 同一份 schema 会发生什么？安全的初始化与迁移怎么做？
+- map 和 list 分别适合承载什么？既要顺序又要富实体时的标准组合是什么？
+- 在 list 里移动对象元素为什么丢并发编辑？三条移动路径各自的代价是什么？
+- 普通字符串整段赋值的 op 成本怎么算？哪两种类型能把成本降到每次 1 op？
+- 删除实体键时，并发落在实体内部的编辑会怎样？什么场景该用标记删除？
+
+## 参考资料
+
+- [Modeling Data — Automerge Docs](https://automerge.org/docs/cookbook/modeling-data/)
+- [Simple Values — Automerge Docs](https://automerge.org/docs/reference/documents/values/)
+- [Lists — Automerge Docs](https://automerge.org/docs/reference/documents/lists/)
+- [Conflicts — Automerge Docs](https://automerge.org/docs/reference/documents/conflicts/)
+- [DocHandles — Automerge Docs](https://automerge.org/docs/reference/repositories/dochandles/)
