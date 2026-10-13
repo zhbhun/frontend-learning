@@ -1,0 +1,114 @@
+# yhub 完整拓扑范例(课程 4.5「部署」一节配套)
+# 演示内容:本机跑起 yhub 的生产形最小拓扑——Valkey(Redis 协议)+ Postgres + RustFS(S3 兼容)
+#   三件套,加一次性 init 服务建表,再分进程起 server 与 worker。
+# 前置状态:克隆 yjs/yhub 仓库,把本文件放到仓库根目录(server/worker/init 从仓库 Dockerfile 构建);
+#   或在自有镜像中安装 @y/hub 后把 build 改为 image。
+# 主要操作:
+#   docker compose up -d       # init 先跑(幂等建表 + 建 bucket),server / worker 随后启动
+#   docker compose logs -f worker
+#   docker compose down -v     # 停止并清空数据卷
+# 预期结果:y-websocket 客户端连 ws://localhost:4400/api/ws/v1/my-org/my-doc 可同步;
+#   docker compose stop server 后客户端退避重连,内容经 Redis 追平不丢。
+# 阅读主线:valkey / postgres / s3 三件套 → init(唯一执行 DDL 的环节)→ server / worker 的环境变量接线。
+# 本范例是官方 compose.yaml 的带注释改写:官方版用 env_file 与 --profile app,这里内联开发默认值、
+# 并给 Valkey 显式配上生产必需的 --maxmemory-policy volatile-lru 与 --appendonly yes(原因见课程正文)。
+
+services:
+  # Redis 协议实时层:既分发更新,也是 worker 落盘前「未持久化更新的真源」。
+  # volatile-lru + AOF 是生产硬约束;allkeys-* 驱逐策略会直接丢未持久化的更新。
+  valkey:
+    image: docker.io/valkey/valkey:alpine
+    command: valkey-server --appendonly yes --maxmemory-policy volatile-lru
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - valkey:/data
+
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    environment:
+      POSTGRES_USER: yhub
+      POSTGRES_PASSWORD: yhub
+      POSTGRES_DB: yhub
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  # S3 兼容存储(MinIO 社区版已归档,官方改用 RustFS);bucket 由 init 自动创建。
+  s3:
+    image: docker.io/rustfs/rustfs:1.0.0
+    environment:
+      RUSTFS_ACCESS_KEY: yhubdev
+      RUSTFS_SECRET_KEY: yhubdevsecret
+    ports:
+      - '127.0.0.1:9010:9000' # S3 API
+      - '127.0.0.1:9011:9001' # 控制台
+    volumes:
+      - s3:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-sf', 'http://localhost:9000/health']
+      interval: 2s
+      retries: 30
+
+  # 一次性初始化:创建 yhub_ydoc_v1 / yhub_ydoc_tombstones_v1 / yhub_ydoc_versions_v1
+  # 三张表与 S3 bucket。幂等,可重跑;升级到新增表的版本后必须再跑一次。
+  # 等价于仓库里的 npm run start:init(node ./bin/init-db.js)。
+  init:
+    build: .
+    command: node ./bin/init-db.js --no-colors
+    environment: &yhub-env
+      REDIS: redis://valkey:6379
+      REDIS_PREFIX: yhub
+      POSTGRES: postgres://yhub:yhub@postgres:5432/yhub
+      S3_ENDPOINT: s3
+      S3_PORT: '9000'
+      S3_SSL: 'false'
+      S3_ACCESS_KEY: yhubdev
+      S3_SECRET_KEY: yhubdevsecret
+      S3_YHUB_BUCKET: yhub
+      PORT: '4400'
+      LOG_LEVEL: info
+      # 浏览器跨域直连时才需要(未设 = 跨域关闭;勿在生产用 *):
+      # CORS_ORIGIN: https://app.example.com
+      # 优雅停机排水上限(默认 15000);调大时同步调大 stop_grace_period:
+      # SHUTDOWN_DRAIN_MS: '15000'
+    depends_on:
+      postgres:
+        condition: service_started
+      valkey:
+        condition: service_started
+      s3:
+        condition: service_healthy
+
+  # 无状态接入层:文档仅在初次同步时拼装进内存,之后不驻留 Yjs 状态。
+  # 水平扩展 = 加副本放到支持 WebSocket Upgrade 的 LB 后(内容经 Redis 收敛,无需 sticky session);
+  # 多副本时注意宿主端口不冲突(每副本各自映射,或只在 LB 上暴露)。
+  server:
+    build: .
+    command: node ./bin/server.js --no-colors
+    environment: *yhub-env
+    ports:
+      - '127.0.0.1:4400:4400'
+    # Docker 默认 10 秒 stop 超时太短:停机时 server 以 4503 关闭连接并排水
+    # (SHUTDOWN_DRAIN_MS 15s),叠加 S3 延迟删除,最坏约 28 秒退出。
+    stop_grace_period: 30s
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  # 压缩与持久化:consumer group 认领 compact 任务(幂等,可重跑),写 Postgres/S3 后修剪 Redis。
+  # 至少跑一个;没有它 Redis stream 只增不剪,持久层永远落后。可多实例并行提高吞吐。
+  worker:
+    build: .
+    command: node ./bin/worker.js --no-colors
+    environment: *yhub-env
+    stop_grace_period: 30s
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+volumes:
+  valkey:
+  postgres:
+  s3:

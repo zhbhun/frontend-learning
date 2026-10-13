@@ -1,0 +1,310 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="yhub" title="服务端/yhub" name="Docs" />
+
+# yhub
+
+yhub(npm 包 `@y/hub`)是 yjs 官方的可扩展 y-websocket 兼容后端，仓库 [yjs/yhub](https://github.com/yjs/yhub) 自述定位逐字为「Alternative backend for y-websocket」，并明确标注 **beta 软件**。它把 4.1 的参考服务端与 4.2 的水平扩展思路收编为一个完整产品：无状态 WebSocket 接入层 + Redis 实时层 + Postgres/S3 持久层 + 后台压缩 worker，鉴权、权限、REST 管理 API 全部内建。本课讲它的定位源流、架构分工、部署接线、鉴权权限模型、客户端兼容性，以及对照既有方案的选型边界。
+
+先建立三个能预测全文的事实：
+
+- **两个进程角色 + 三样共享设施**：`server` 无状态接连接(文档仅在初次同步时拼装，之后不留内存)、`worker` 专职压缩落盘；Redis(Valkey)既是实时分发总线，也是**尚未持久化更新的权威存储**；Postgres 存元数据与内联 blob,S3 兼容存储按需卸载 blob。
+- **客户端零改动**:yhub 说标准 y-protocols，任何 [y-websocket](?path=/docs/y-websocket--docs) 客户端直接连；房间名就是 URL 路径里的 `{org}/{docid}`，鉴权用 JWT 走 `yauth` 参数，awareness 与文档 update 走同一条 Redis stream——**跨实例天然成立**(4.2 的 1.0.3 做不到这一点)。
+- **先过两道门再谈架构**:beta(0.x 之间有过破坏性变更，未知配置键被静默忽略)+ AGPL-3.0 / 商业双许可。这两个约束常常比功能更早决定选型。
+
+一个常见误传需要就地纠正：yhub 常被称作「官方 Rust 服务端」。逐字核对 package.json 的依赖(`uws`、`redis`、`postgres`、`minio`、`@y/y`、`@y/protocols`）可知其实现是 **Node.js**;Rust 只出现在一个默认关闭的实验特性里——用 yrs 的 neon 绑定(`@y-crdt/yn`)原生执行 `mergeUpdates`(`USE_Y_NATIVE=1` 开启，README 原话警告 "Do not enable in production")。本文一切以仓库 README 与源码为准。
+
+```mermaid
+flowchart LR
+  CA[客户端 A] <-->|WebSocket| S1
+  CB[客户端 B] <-->|WebSocket| S2
+  subgraph 接入层
+    S1["server ×N(无状态)"]
+    S2["server(初次同步时<br/>拼装文档)"]
+  end
+  S1 <-->|"stream + pub/sub"| R[("Redis / Valkey<br/>实时层 + 未持久化更新的真源")]
+  S2 <-->|"stream + pub/sub"| R
+  W["worker ×N<br/>压缩 / 落盘 / 清理"] --> R
+  W --> P[("PostgreSQL<br/>元数据 + 内联 blob")]
+  W -.->|"可选:S3PersistenceV1"| S3[("S3 兼容存储<br/>blob 卸载")]
+  S1 --> P
+```
+
+以下关键事实逐条核对自仓库 README、package.json(0.9.1)、npm registry 与 GitHub releases(2026-10 核对）:
+
+| 项 | 值 | 回查要点 |
+| --- | --- | --- |
+| npm 包 | `@y/hub`,latest `0.9.1`(2026-09-30) | 旧名 `@y/redis`(0.1.x,2024);npm 另有 `redis6.0` dist-tag 兼容老 Redis |
+| docker 镜像 | `ghcr.io/yjs/yhub/standalone:latest` | 单容器内嵌 Node 22 + PostgreSQL 16 + Valkey;**开放鉴权**，仅供开发评估 |
+| 默认端口 | `4400` | 环境变量 `PORT` |
+| WebSocket 路径 | `/api/ws/v1/{org}/{docid}` | 房间名 = `"{org}/{docid}"` 两段路径；`branch` 参数默认 `main` |
+| REST API | `/api/ydoc/v1/...` 等 | 默认 lib0-any 编码，可按请求切 JSON，见 HTTP API 一节 |
+| 持久层 | PostgreSQL(必须)+ S3 兼容存储(插件可选) | 建表只由 `npm run start:init` 执行，幂等 |
+| 许可 | `AGPL-3.0 OR PROPRIETARY`(package.json 逐字) | 商用需向作者购买许可，见选型一节 |
+| 成熟度 | beta(README:"This is beta software!") | 0.7 / 0.8 / 0.9 均含破坏性变更 |
+
+## 快速上手
+
+官方 standalone 镜像一条命令起全套环境——单容器内同时跑 PostgreSQL 16、Valkey 与 yhub，无需任何外部服务：
+
+```bash
+docker run -p 4400:4400 ghcr.io/yjs/yhub/standalone:latest
+# 持久化(否则数据随容器停止丢失):
+docker run -p 4400:4400 -v yhub-data:/data ghcr.io/yjs/yhub/standalone:latest
+# 浏览器跨域直连时(未设 CORS_ORIGIN 则跨域访问关闭):
+docker run -p 4400:4400 -e CORS_ORIGIN=https://app.example.com ghcr.io/yjs/yhub/standalone:latest
+```
+
+客户端就是标准的 y-websocket `WebsocketProvider`，不做任何改造。注意房间名的写法：它会被拼到 baseUrl 之后，正好填满路由里的 `:org/:docid` 两段：
+
+```js
+import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
+
+const ydoc = new Y.Doc()
+// 实际连接 URL:ws://localhost:4400/api/ws/v1/my-org/my-doc
+// → DocRef { org: 'my-org', docid: 'my-doc', branch: 'main'(默认) }
+const provider = new WebsocketProvider(
+  'ws://localhost:4400/api/ws/v1',
+  'my-org/my-doc',
+  ydoc,
+)
+ydoc.getText('content').insert(0, '你好,yhub!')
+```
+
+验证闭环：两个浏览器上下文各建一个 `WebsocketProvider` 连同一房间即互同步（客户端机制见 [y-websocket](?path=/docs/y-websocket--docs));REST 侧 `curl -H 'Accept: application/json' http://localhost:4400/api/ydoc/v1/my-org/my-doc` 可取回文档状态（默认返回 lib0-any 编码，加 `Accept` 头切 JSON，见 HTTP API 一节）。
+
+边界：standalone 容器**开放鉴权**——README 原话「any client can read/write any document」，只用于开发与评估；它也不配置 S3,blob 内联存 Postgres。生产形态见部署一节。
+
+## 源流
+
+yhub 不是凭空出现的新项目，而是两条官方线的汇合点（版本事实均核对自 npm registry 与仓库历史）:
+
+| 线 | 现状 | 与 yhub 的关系 |
+| --- | --- | --- |
+| `y-redis@1.0.3`(2021，见 [y-redis 水平扩展](?path=/docs/y-redis--docs)) | npm 最新仍停在 1.0.3 | 旧架构：list + 时钟 pub/sub 的持久化适配层 |
+| `@y/redis@0.1.x`(2024-06 首发，止于 0.1.6) | 2024 年重写线的第一个包名 | 改为每房间一条 Redis stream、无状态 server + 独立 worker |
+| `@y/hub`(0.9.x，现行） | 重写线的现名；`github.com/yjs/y-redis` 已重定向到 `yjs/yhub` | 本课对象：重写架构 + 鉴权/权限/REST API/命名版本 |
+
+另一端的收编证据在 y-websocket 仓库 README：官方列举的替代后端里，`@y/hub` 被描述为可扩展、「provides auth」、可持久化到不同后端的那一个；关闭码约定一节还把 yhub 文档列为该方案的完整示例。也就是说，4.1 讲的「参考实现、自己 fork」与 4.2 讲的「自己拼 Redis 扩展层」，官方给出的现行答案就是 yhub。
+
+## 架构
+
+一句话模型：**客户端的 update 追加进房间的 Redis stream 并立即经 pub/sub 广播；worker 经任务队列认领压缩任务，把合并结果写进 Postgres（元数据 + 内联 blob）或 S3(blob 卸载），再修剪 Redis。**
+
+```mermaid
+sequenceDiagram
+  participant C as 客户端
+  participant S as server
+  participant R as Redis
+  participant W as worker
+  participant DB as Postgres / S3
+  C->>S: update(ws /api/ws/v1/{org}/{docid})
+  S->>R: XADD {prefix}:room:{org}:{docid}:{branch}
+  R-->>S: pub/sub 通知所有订阅实例
+  S-->>C: 广播给本实例连接(含 awareness 消息)
+  Note over R: compact 任务入队 {prefix}:worker<br/>防抖 10s(REDIS_TASK_DEBOUNCE)
+  W->>R: consumer group 认领任务(同一房间同一时刻仅一个 worker)
+  W->>DB: 合并后写 Postgres(元数据)与 S3(blob,可选)
+  W->>R: XTRIM 修剪已持久化消息(至少保留 REDIS_MIN_MESSAGE_LIFETIME=60s)
+```
+
+### server：无状态接入层
+
+`bin/server.js` 接受 WebSocket 连接、跑同步协议的一端、把更新经 Redis stream 分发。关键性质：**文档只在初次同步时被拼装进内存**（合并 Redis 与持久层中的 update 应答握手），之后服务端不驻留 Yjs 状态——「Memory efficient」是 README 自列的第一特性。推论：server 实例可以随意增减、放在负载均衡器后，同房间落在哪个实例都正确（内容经 Redis 收敛，无需 sticky session)。
+
+awareness 与文档 update 走同一条 stream：源码里 awareness 消息以 `type: 'awareness:v1'` 追加进房间 stream 并同样经 pub/sub 分发，所以光标、在线状态**跨实例可见**——这正是 4.2 的 1.0.3 做不到的（它只在各实例内部广播 awareness)。
+
+### worker：压缩与持久化
+
+`bin/worker.js` 不接客户端，专职把 Redis 里的瞬时数据搬进持久层。协调机制是 Redis stream consumer group(`{prefix}:worker`，默认 `yhub:worker`)：每个 compact 任务只被一个 worker 认领；worker 为长任务续租约，worker 死亡的任务在防抖窗口后被回收——**任务可能执行多次，但压缩结果幂等**，这是整个重试设计的地基。README 建议至少跑一个 worker，可多实例并行提高吞吐。
+
+### 存储布局
+
+文档地址是三元组 **DocRef `{ org, docid, branch }`**(`branch` 默认 `main`;0.8.0 前叫 `Room`)。三样设施各司其职：
+
+| 设施 | 内容 | 关键布局 |
+| --- | --- | --- |
+| Redis / Valkey | 实时层：每个活跃文档一条 stream,update 与 awareness 都追加在这里；同时是**未持久化更新的权威存储**(worker 落盘前，它不是缓存） | 文档流 `{prefix}:room:{org}:{docid}:{branch}`；任务队列 `{prefix}:worker` |
+| PostgreSQL | 元数据 + 内联 blob：合并后的文档状态、state vector、删除标记、命名版本 | `yhub_ydoc_v1`(按 `(org, docid, branch, t)` 主键逐行累加）、`yhub_ydoc_tombstones_v1`、`yhub_ydoc_versions_v1`(0.9.1 新增，命名版本） |
+| S3 兼容存储（可选） | blob 卸载：`S3PersistenceV1` 插件把大块 update 字节卸载出去，Postgres 里只留引用；>5MB 走 multipart | 对象键形如 `id:ydoc:v1/{org}/{docid}/{branch}/{gc:0\|1}/{timestamp}` |
+
+三个来自文档与源码的边界：
+
+- 建表只由 `bin/init-db.js`(`npm run start:init`）执行，幂等；server 与 worker **从不执行 DDL**，其数据库凭证无需 DDL 权限。升级到新增表的版本后必须重跑（如 0.9.1 的 `yhub_ydoc_versions_v1`)，否则报 `relation "..." does not exist`。
+- S3 插件的 `branches` 选项可只卸载指定分支（其余内联 Postgres);`enable: false` 暂停新写入的卸载、已有引用仍可解析——官方注释这是「不停机迁出 S3」的开关；`deleteDelay` 默认 10 秒且**必须保持 ≥10 秒**，否则与进行中的读取竞争。
+- 删除以 DocRef 为单位记录在 tombstone 表：软删保留内容供恢复、压缩继续；硬删立即不可逆清除。删除发生时服务端以关闭码 `4404` 踢掉在线客户端。
+
+## 部署
+
+完整拓扑需要三样外部设施：Redis 协议库（官方 compose 与 standalone 都用 Valkey)、PostgreSQL、S3 兼容存储（AWS S3 / Cloudflare R2 / RustFS 均可；MinIO 社区版已归档，官方镜像 2026-09 起改用 RustFS)。进程形态：开发时 `npm start` 单进程同跑 server+worker（入口 `bin/yhub.js`，即包的 `yhub` bin)；生产分两个进程跑——`node ./bin/server.js` 与 `node ./bin/worker.js`（官方 Dockerfile 的 CMD 即此；npm scripts 的 `start:server` / `start:worker` 会先经 `dev:up` 起本地依赖，面向开发）。
+
+环境变量（逐字核对自 README 与 DEPLOYMENT.md):
+
+| 变量 | 默认值 | 回查要点 |
+| --- | --- | --- |
+| `REDIS` | `redis://localhost:6379` | Redis 连接串 |
+| `REDIS_PREFIX` | `yhub` | 全部 Redis 键前缀；多环境共库时按前缀隔离 |
+| `POSTGRES` | 无（必填） | 如 `postgres://user:pass@localhost:5432/yhub` |
+| `S3_ENDPOINT` / `S3_PORT` / `S3_SSL` | `localhost` / `9000` / `false` | S3 兼容存储地址 |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | 无（配 S3 时必填） | IAM 需 CreateBucket/GetObject/PutObject/DeleteObject 等权限 |
+| `S3_YHUB_BUCKET` | `yhub` | bucket 不存在时插件自动创建 |
+| `PORT` | `4400` | server 监听端口 |
+| `CORS_ORIGIN` | 未设 = 跨域关闭 | 逗号分隔 allowlist，支持通配符；设 `*` 向所有来源开放并记录警告。浏览器跨域直连必须配 |
+| `LOG_LEVEL` | `info` | `trace\|debug\|info\|warn\|error\|fatal\|silent` |
+| `SHUTDOWN_DRAIN_MS` | `15000` | 优雅停机排水上限，见下 |
+| `REDIS_MIN_MESSAGE_LIFETIME` | `60000` | 专家项：stream 消息最短保留时长（压缩后修剪的下限） |
+| `REDIS_TASK_DEBOUNCE` | `10000` | 专家项：compact 任务防抖延迟 |
+| `USE_Y_NATIVE` | 关闭 | 实验性 yrs 原生 merge;README 明示勿用于生产 |
+| `AUTH_PRIVATE_KEY` / `AUTH_PUBLIC_KEY` | 无 | 由**你的应用**读取（鉴权插件用）,yhub 自身不读，见鉴权一节 |
+
+课程目录的 `docker-compose.yml` 是官方 `compose.yaml` 的带注释改写：Valkey + Postgres + RustFS 三件套、一次性 `init` 服务建表、`server` + `worker` 分进程。复制到 yhub 仓库克隆根目录后：
+
+```bash
+docker compose up -d        # init 先跑(幂等建表),server/worker 随后启动
+# 客户端连 ws://localhost:4400/api/ws/v1/my-org/my-doc
+docker compose down -v      # 停止并清空数据卷
+```
+
+生产部署的四条硬约束（均逐字来自 DEPLOYMENT.md，违反即丢数据或割不断连接）:
+
+- **Redis 驱逐策略必须 `volatile-lru`**。禁用一切 `allkeys-*` 策略——更新流被驱逐 = 未持久化数据直接丢失。同理 Redis 要开持久化（AOF/RDB)，内存按「峰值负载下全部瞬时更新可放入」来配并留余量：worker 落盘前，Redis 就是真源。
+- **优雅停机要给足时间**。停机时 server 以关闭码 `4503` 关闭 WebSocket（客户端视其为临时错误，重连到其他实例），排水上限 `SHUTDOWN_DRAIN_MS`(15s)，叠加 S3 插件的延迟删除，worker 最坏约 28 秒退出。Docker 默认 10 秒 stop 超时太短：compose 里设 `stop_grace_period: 30s`;Kubernetes 侧对应提高 `terminationGracePeriodSeconds`。
+- **升级后重跑 `npm run start:init`**。它幂等建表建 bucket;server/worker 不会替你建。漏跑的症状是 `relation "yhub_..." does not exist`。
+- **LB 须支持 WebSocket Upgrade**。官方文档未提供健康检查端点，探活端点需要自行确认或经自定义 API 添加。
+
+水平扩展三个方向各自独立：server 多实例放 LB 后（无状态，随意扩缩）;worker 多实例靠 consumer group 瓜分任务；Postgres 与 S3 按自身手段扩容。
+
+## 鉴权与权限
+
+鉴权在 server 进程内完成，没有独立的认证服务器。接线方式是 auth 插件：`createAuthPlugin` 实现两个回调，传给 `createYHub()` 的 `server.auth`:
+
+- `authenticate(req)`:验身份。典型做法是从 query 取 `req.getQuery('yauth')` 的 JWT，用 `jwt.verifyJwt(publicKey, token)` 验签，payload 作为 `user` 返回；匿名返回 `null`（匿名不能写文档，持写权限会得 `401 unauthenticated`)，凭证非法抛 `apiError(401, ...)`。也可以解析 cookie 走会话。
+- `authorize`:按 scope 返回权限对象，**拒绝是返回 `null` 而不是抛错**(README 原话："Denial is a value, never a throw")。
+
+ECDSA 密钥对用官方集成指南给出的逐字命令生成（产物即 `AUTH_PRIVATE_KEY` / `AUTH_PUBLIC_KEY` 两个环境变量）:
+
+```bash
+npx 0ecdsa-generate-keypair --name auth   # 生成 AUTH_PRIVATE_KEY / AUTH_PUBLIC_KEY
+```
+
+权限对象是**位置化 CRUD 掩码**(4 字符，`-` 表示拒绝），逐 facet 核对自 API.md:
+
+| facet | 掩码示例 | 控制内容 |
+| --- | --- | --- |
+| `ydoc` | `'cru-'` | `r`:ws 连接 / GET / changeset;`u`：写更新（会创建文档）;`c`/`d` 保留 |
+| `awareness` | `'-ru-'` | `r`：接收在线状态；`u`：广播自己的状态 |
+| `history` | `{ from: 0 }` | 历史起点（`gc=false` 连接需 `from: 0`);`rollback`/`prune` 按名授予 |
+| `delete` | `['soft']` | 允许的删除类型；写掩码永不隐含删除权 |
+| `endpoint` | `'r---'` 等 | 按端点名 + HTTP 动词位置控制 REST 与 ws 路由，`'*'` 兜底 |
+
+客户端一侧：token 走 `params: { yauth: authToken }`(query 参数）或 WebSocket 子协议 `yauth-${authToken}`(README 示例的模板字符串写法）;JWT 默认 1 小时过期，官方示例每 30 分钟刷新一次——`provider.params.yauth = <新 token>`，下一次（重）连时生效。长连接上权限被收紧时，服务端会主动断开（见关闭码表）。
+
+部署 standalone 时没有任何鉴权：任何客户端可读写任何文档。需要「有鉴权的快速验证」时，只能上完整拓扑配 auth 插件。
+
+## HTTP API
+
+WebSocket 之外，yhub 内建一组 REST 管理端点（均带 `?branch` 参数，默认 `main`；空 `?branch=` 返回 400)。速查表（逐字核对自 API.md):
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| GET | `/api/ydoc/v1/{org}/{docid}` | 取文档状态 `{ doc, awareness? }` |
+| PATCH | `/api/ydoc/v1/{org}/{docid}` | 服务端侧应用 update / awareness（0.9.1 起直接追加 stream，不读文档） |
+| DELETE | `/api/ydoc/v1/{org}/{docid}` | 删除文档：默认软删，`?hard=true` 硬删 |
+| POST | `/api/rollback/v1/{org}/{docid}` | 按区间 / 作者回滚更改 |
+| POST | `/api/prune/v1/{org}/{docid}` | 永久清除「插入后又删除」的历史 |
+| GET | `/api/changeset/v1/{org}/{docid}` | 带归因的差异（可视化审阅用） |
+| GET | `/api/activity/v1/{org}/{docid}` | 编辑时间线（分组 / 分页 / 排序参数） |
+| GET/POST/PATCH/PUT/DELETE | `/api/version/v1/{org}/{docid}` | 命名版本 CRUD 与发布；PATCH/DELETE 需带 `updatedAt` 做乐观并发 |
+
+两个通用约定：
+
+- **编码**：默认 lib0-any(`application/x-lib0any`)；逐请求用 `Accept: application/json` / `Content-Type: application/json` 切 JSON——二进制字段为 base64,`bigint` 为十进制字符串，`Date` 为毫秒时间戳。
+- **自定义端点**：插件可挂 `/{apiPrefix}/{name}/{version}/...` 三种 scope 的自有 API；内置名(`ydoc`、`rollback` 等）禁止占用。
+
+关闭码约定（客户端重连策略的依据，与 [y-websocket](?path=/docs/y-websocket--docs) 一课的约定同源）:
+
+| 关闭码 | 语义 | 客户端动作 |
+| --- | --- | --- |
+| `4400`–`4499` | 永久错误：`4401` 权限撤销、`4404` 文档已删 | **停止自动重连**，先解决原因（刷新 token / 确认文档存在） |
+| `4500`–`4599` | 临时错误：`4503` 服务端优雅停机排水 | 退避重连（会落到其他实例） |
+| `1013` / 无关闭帧 | 稍后重试 / 按临时处理 | 退避重连 |
+
+## 选型
+
+同一客户端协议下的五个服务端选项，按「谁来运维、怎么扩展、如何定制」分野（各方案细节见对应课程）:
+
+| 方案 | 定位 | 扩展模型 | 持久化 | 鉴权 | awareness 跨实例 |
+| --- | --- | --- | --- | --- | --- |
+| [y-websocket 服务端](?path=/docs/y-websocket-server--docs)(4.1) | 官方参考实现，fork 改造 | 单进程；多实例须按房间路由 | `setPersistence` 钩子自接 | upgrade 钩子自写 | 否（单进程内存） |
+| [y-redis 1.0.3](?path=/docs/y-redis--docs)(4.2) | 持久化适配层 + 4.1 组合 | 多实例共享 Redis(list + 时钟） | Redis list 即真源，压缩靠冷作业 | 同 4.1 | 否 |
+| [Hocuspocus](?path=/docs/hocuspocus--docs)(4.3) | 插件化服务端框架 | 取决于部署形态 | 插件 | 插件钩子 | 见该课 |
+| [y-sweet](?path=/docs/y-sweet--docs)(4.4) | 托管 + 自托管服务 | 托管侧自动 | 内建 | 内建 token | 见该课 |
+| **yhub（本课）** | 官方可扩展后端 | 无状态 server ×N + worker ×N | worker 压缩到 Postgres + S3 | 内建 auth 插件（JWT + 权限掩码） | **是**（同一条 stream) |
+
+yhub 自己的三条边界，先于功能对照：
+
+- **许可**:AGPL-3.0 / 商业双许可。以 AGPL 使用时，修改并对外提供网络服务也需按 AGPL 公开源码；不能接受就买商业许可（README 指明联系作者邮箱）。这条常常直接决定是否进入候选。
+- **成熟度**:beta。0.7.0 把 CORS 默认关掉、0.8.0 用权限系统取代 `AccessType` 并把 `Room` 改名 `DocRef`、0.9.x 加命名版本——0.x 之间确有破坏性变更；且 CHANGELOG 明示「Unknown config keys are ignored」，旧配置键改名后**不报错、静默失效**，升级必须对照 CHANGELOG。
+- **无官方托管版**:README 未提任何托管 / 云服务。要托管协同后端，路线里是 y-sweet(4.4)。
+
+判断口径：想要官方血统、自托管、真水平扩展，且过得了许可与 beta 两道门 → yhub；房间规模单进程扛得住、想完全掌控代码 → 4.1 fork；要插件化业务集成（鉴权、webhook 深嵌自有后端）→ 4.3；不想运维 → 4.4。
+
+## 最佳实践
+
+- 生产拆进程跑：`start:server` ×N(LB 后）+ `start:worker` ≥1;`npm start` 的单进程形态只用于开发。worker 可以只跑一个，但不能没有——没有它 Redis stream 只增不剪，持久层永远落后。
+- Redis 当真源运维：`volatile-lru` + AOF + 按峰值瞬时更新量配内存；别把它当可丢弃缓存。
+- 升级流程固定为「对照 CHANGELOG → 改配置键 → 重跑 `npm run start:init`」；未知键静默忽略，不会有人提醒你。
+- CORS 最小授权：默认就是关，逐域名加 allowlist；`*` 会向所有来源开放并刷警告日志。
+- 客户端把关闭码当协议处理：`4400–4499` 停重连、`4503` 等临时码退避重连；token 30 分钟一刷（`provider.params.yauth`)。
+- standalone 只用于评估：开放鉴权 + 无 S3 + 不挂卷即丢数据，三个性质都写在快速上手一节，别带进生产。
+
+## 常见问题
+
+- 浏览器跨域连不上，服务端日志也没有明显报错？
+  0.7.0 起跨域默认关闭：未设 `CORS_ORIGIN` 时跨源请求与升级一律拒绝。standalone 加 `-e CORS_ORIGIN=https://app.example.com`，完整部署在 `.env` 里配逗号分隔的 allowlist；同源部署（前端与 ws 同域经反向代理）不受影响。
+- 升级 yhub 后启动或访问报 `relation "yhub_ydoc_versions_v1" does not exist`？
+  新版本加了表，而建表从不由 server/worker 自动执行。跑一次 `npm run start:init`（幂等）即可；把这一步固化进升级流程。
+- Redis 重启或内存紧张后，最近的编辑丢了？
+  两个常见根因：驱逐策略是 `allkeys-*`（更新流被当缓存逐出）或 Redis 没开持久化。worker 落盘前 Redis 就是真源——策略改 `volatile-lru`、开 AOF、内存按峰值瞬时更新量留余量。
+- 权限被撤销后客户端还在不停重连刷日志？
+  权限撤销走 `4401` 关闭码，属永久错误，客户端应停止自动重连；只有 `4500–4599`（如停机排水 `4503`）与 `1013` 才该退避重试。y-websocket 客户端的关闭码处理写法见 [y-websocket](?path=/docs/y-websocket--docs)。
+- standalone 容器重启后文档全没了？
+  数据在容器内文件系统。加 `-v yhub-data:/data` 挂卷；另外记住 standalone 是开放鉴权的评估镜像，本就不该承载真实数据。
+- 配置项设了却不生效，也不报任何错？
+  0.x 之间配置键改过名（如 compute pool 相关键）,CHANGELOG 明示未知键被静默忽略。核对当前版本的键名，以 CHANGELOG 与 README 配置一节为准。
+- 想开 `USE_Y_NATIVE=1` 用 Rust 加速合并？
+  别在生产开。README 原话 "Do not enable in production"：它只是 yrs 经 neon 绑定的实验性 `mergeUpdates` 加速，默认关闭；yhub 本体是 Node.js 实现。
+
+## 总结回顾
+
+摘要：
+
+yhub 是 yjs 官方把「可扩展 y-websocket 兼容后端」收编成的现行产品：它接续 2024 年 `@y/redis` 重写线（npm 现名 `@y/hub`,y-redis 仓库已重定向过去），也被 y-websocket README 列为带鉴权、可持久化的可扩展替代后端。架构上分无状态 server（文档仅在初次同步时拼装）与压缩 worker(consumer group 认领幂等任务），共享设施里 Redis 身兼实时分发与未持久化更新的真源，Postgres 存元数据与内联 blob,S3 插件按需卸载 blob;awareness 与 update 走同一条 stream，跨实例天然成立。部署的硬约束集中在 Redis(volatile-lru、AOF、内存余量）与优雅停机（4503 排水、`stop_grace_period: 30s`)，建表永远靠幂等的 `start:init`。鉴权内建在 server 进程：JWT 走 `yauth` 参数，权限用位置化 CRUD 掩码表达，拒绝是返回 `null`;REST 侧有 ydoc / rollback / prune / changeset / activity / version 一整组管理端点。客户端零改动，标准 `WebsocketProvider` 直连，房间名即 `{org}/{docid}`。选型先过两道门：AGPL / 商业双许可与 beta 成熟度（0.x 破坏性变更 + 未知配置键静默忽略），再按「运维意愿 × 扩展需求 × 定制深度」对照 4.1 / 4.3 / 4.4。顺带纠正一个误传：yhub 是 Node.js 实现，Rust 只出现在默认关闭的实验性原生 merge 里。
+
+一句话：
+
+> yhub = 官方把「生产级 y-websocket 后端」收编为 server（无状态）+ worker（幂等压缩）+ Redis（实时层兼未持久化真源）+ Postgres/S3（持久层）的现行答案——客户端协议不变、awareness 跨实例，但 AGPL / 商业双许可与 beta 状态是选型时先于功能的门槛。
+
+知识要点：
+
+- server 与 worker 各做什么？为什么说 server 无状态，这个性质带来什么部署自由？
+- Redis 在架构里承担哪两个角色？为什么驱逐策略必须 `volatile-lru`、为什么停机排水要 30 秒？
+- 一份 update 从客户端到落盘经过哪些组件？compact 任务的幂等性由什么保证？
+- DocRef 三元组是什么？客户端房间名怎么写，`branch` 默认值是什么？
+- 鉴权插件的两个回调各自返回什么，「拒绝」如何表达？`yauth` token 怎么传、多久刷新？
+- `4401` 与 `4503` 关闭码对客户端重连行为的要求有何不同？
+- 升级 yhub 的固定三步是什么？`yhub_...` 表由谁创建？
+- yhub 的许可模型是什么？对照 4.1 / 4.2 / 4.3 / 4.4 各自的选型条件？
+
+## 参考资料
+
+- [yjs/yhub 官方仓库(README:定位、架构、配置、Quick Start)](https://github.com/yjs/yhub)
+- [yhub GETTING-STARTED(集成步骤、密钥生成、鉴权接线)](https://github.com/yjs/yhub/blob/master/GETTING-STARTED.md)
+- [yhub DEPLOYMENT(拓扑、Redis 驱逐策略、优雅停机)](https://github.com/yjs/yhub/blob/master/DEPLOYMENT.md)
+- [yhub STORAGE-ARCHITECTURE(Redis 键布局、Postgres 表、S3 对象、worker 队列)](https://github.com/yjs/yhub/blob/master/STORAGE-ARCHITECTURE.md)
+- [yhub API(REST 端点、关闭码、权限掩码、编码约定)](https://github.com/yjs/yhub/blob/master/API.md)
+- [yhub CHANGELOG(0.x 破坏性变更与「未知配置键静默忽略」警告)](https://github.com/yjs/yhub/blob/master/CHANGELOG.md)
+- [npm:@y/hub(版本与 dist-tag,latest 0.9.1)](https://www.npmjs.com/package/@y/hub)
+- [y-websocket 官方仓库(替代后端列表与关闭码约定)](https://github.com/yjs/y-websocket)
+- [官方论坛公告:Y-redis: An alternative backend to y-websocket(重写线起点)](https://discuss.yjs.dev/t/y-redis-an-alternative-backend-to-y-websocket/2509)

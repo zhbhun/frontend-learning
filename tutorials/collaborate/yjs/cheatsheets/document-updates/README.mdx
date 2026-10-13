@@ -1,0 +1,221 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as Stories from './document-updates.stories';
+
+<Meta of={Stories} name="Docs" />
+
+# 文档更新与同步协议
+
+yjs 的同步不依赖任何 Provider 或网络库：一份文档的全部变更都能编码成二进制 update（`Uint8Array`)，谁拿到 update、对谁执行 `applyUpdate`，谁就完成一次同步。本课讲清这套协议的原语与组装方式，并手工跑通两个文档之间的完整同步握手——不连任何网络。
+
+协议只有三个原语，理解它们之后，任何 Provider 的实现都只是传输层替换：
+
+- **update 事件**：每个非空事务提交后，yjs 把本次变更编码成一条增量 update 交给监听者——这是变更的出口。
+- **state vector(sv)**：一份文档「已有什么」的紧凑摘要；把它交给对端，对端就能只编码你缺的部分（差量 update)。
+- **applyUpdate**：把 update 合入本地文档。它幂等、可交换、可结合——乱序、重复投递都不破坏最终一致。
+
+```mermaid
+sequenceDiagram
+  participant A as 文档 A
+  participant B as 文档 B
+  A->>B: ① state vector A(我有什么)
+  B->>A: ① state vector B
+  A->>B: ② 差量 update(你缺的部分)
+  B->>A: ② 差量 update
+  Note over A,B: ③ applyUpdate 合入,两端收敛;此后在线期间逐条转发增量 update
+```
+
+| API | 签名 / 默认值 | 回查要点 |
+| --- | --- | --- |
+| `doc.on('update', f)` | `f: (update, origin, doc, transaction)` | 每个非空事务一条增量；同步与持久化共用出口 |
+| `Y.encodeStateVector(doc)` | 返回 `Uint8Array` | 编码 `Map(clientID → clock)`；空文档 1 字节，随客户端数增长 |
+| `Y.encodeStateAsUpdate(doc, targetSv?)` | 不传 sv 为全量编码 | 传对方 sv 只编码其缺失部分；无差异时 2 字节 |
+| `Y.applyUpdate(doc, update, origin?)` | `origin` 默认 `undefined` | 幂等：重复 apply 已知内容静默跳过；无效 update 抛错 |
+| `Y.decodeStateVector(sv)` | 返回 `Map<number, number>` | 调试时查看 sv 内容 |
+| `Y.mergeUpdates(updates)` | 多条合并为一条 | 去重压缩；不做 GC（见无文档工具一节） |
+| `Y.encodeStateVectorFromUpdate(update)` / `Y.diffUpdate(update, sv)` | 无需 Y.Doc | 只存 update 不加载文档的场景（如服务端） |
+| `Y.logUpdate(update)` | 控制台打印 update 结构 | 实验性调试工具，可能随时变更 |
+
+## update 与 applyUpdate
+
+`update` 事件是同步协议与持久化的共同出口：Provider 把它发到网络，本地数据库 Provider 把它写进磁盘。「一个事务一条合并 update」的语义与它在事务生命周期中的位置见[事务与变更事件](?path=/docs/transactions-and-events--docs)，本课聚焦它的载荷——那串 `Uint8Array` 怎么生产、怎么消费。
+
+`applyUpdate` 是消费端，四个语义必须记住：
+
+- **origin**: 第三参存入 `transaction.origin`，且该事务 `transaction.local` 为 `false`；事件侧的读取方式见事务一课。
+- **幂等**：已合入的内容再 apply 静默跳过——不触发 `update` 事件、不改变状态。实测同一 update 连续 apply 3 次，`update` 事件只触发 1 次。
+- **乱序收敛**: 以任意顺序 apply 最终状态相同（官方原文：updates are commutative, associative, and idempotent)；依赖未齐的 update 先挂起，缺口补齐时一次性合入。
+- **无效 update 抛错**：截断或损坏的字节抛 `Unexpected end of array` 之类的解码错误，传输层必须保证字节完整（常见坑见常见问题）。
+
+在线期间的最小可靠同步——双向转发增量，并用 origin 标记挡住回声：
+
+```ts
+import * as Y from 'yjs';
+
+const docA = new Y.Doc();
+const docB = new Y.Doc();
+
+docA.on('update', (update, origin) => {
+  // 只转发本地产生的 update;origin 为 'sync' 的是合入产生的回声
+  if (origin !== 'sync') {
+    Y.applyUpdate(docB, update, 'sync');
+  }
+});
+docB.on('update', (update, origin) => {
+  if (origin !== 'sync') {
+    Y.applyUpdate(docA, update, 'sync');
+  }
+});
+```
+
+一个反直觉的细节：不过滤 origin 并不会死循环——幂等性让回声发一圈就停（对端再 apply 已知的 update 是静默的），但每条编辑会多出一条来回的冗余消息，实测一次编辑产生 2 条消息（过滤后 1 条）。[安装与第一个协同文档](?path=/docs/getting-started--docs) 的双文档实例可交互演示这条链路；origin 的完整约定见常见问题。
+
+## state vector 与差量编码
+
+state vector 回答「我有什么」:`Y.encodeStateVector(doc)` 把每个客户端已合入的时钟编码成 `Uint8Array`,clock 是该客户端下一期望时钟（相当于已合入的修改条目数）。它是纯摘要，永远不装内容——空文档 1 字节，之后每多一个有过编辑的客户端只多几个字节（实测 8 个客户端不足 50 字节）。调试时用 `Y.decodeStateVector(sv)` 解出 `Map(clientID → clock)` 查看。
+
+差量编码回答「你缺什么」:`Y.encodeStateAsUpdate(doc, targetSv)` 只编码目标 sv 之后的部分。**方向是发送方的 doc、接收方的 sv**，写反了方向就会把对方已有的内容原样发回去：
+
+```ts
+const sv = Y.encodeStateVector(docB);          // B 的状态摘要
+const diff = Y.encodeStateAsUpdate(docA, sv);  // 只编码 B 缺的部分
+Y.applyUpdate(docB, diff);                     // B 补齐
+```
+
+边界：
+
+- 两端已收敛时再编码差量，得到 2 字节的空编码——空差量不是错误，apply 它是 no-op。
+- 对全新端（空 sv）编码差量，结果就是全量：新端首次接入时两种方案等价，握手只在此后才有收益。
+
+## 同步握手
+
+把三个原语组装起来就是完整的对等同步握手，三步收敛：
+
+```ts
+// ① 互换 state vector
+const svA = Y.encodeStateVector(docA);
+const svB = Y.encodeStateVector(docB);
+// ② 各自按对方的 sv 编码差量
+const diffAB = Y.encodeStateAsUpdate(docA, svB);
+const diffBA = Y.encodeStateAsUpdate(docB, svA);
+// ③ 互发并合入,两端收敛
+Y.applyUpdate(docB, diffAB);
+Y.applyUpdate(docA, diffBA);
+```
+
+代价对比（yjs 13.6.33 实测，场景：两端已同步 100 次编辑的历史、每次插入 3–4 字符，之后 A 离线又写 5 次）:
+
+| 方案 | 交换内容 | 字节 |
+| --- | --- | --- |
+| 互发全量 | `encodeStateAsUpdate` 不带 sv | 430 + 405 ≈ 835 B |
+| 差量握手 | sv 8 + 8 B，差量 44 + 2 B | 共 62 B |
+
+历史越长差距越大；sv 的开销固定且极小。代价是差量方案多一次往返（先发 sv 再发差量），全量一次到位——所以在线期间不需要握手，逐条转发 `update` 事件的增量即可；握手只用于首次接入与断线重连。
+
+下面实例手工执行这套握手：两端从共同历史分叉，「同步阶段」逐档推进，协议条上标注的是每一步真实编码的字节数：
+
+<Canvas of={Stories.Handshake} />
+<Controls of={Stories.Handshake} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 「同步阶段」从「离线分叉中」逐档拨到「收敛完成」 | 两步协议条依次点亮（蓝点 → 绿勾）；收敛档两端面板内容一致，底部出现绿色对照行 |
+| 调大「共享历史编辑次数」 | 「互发全量对照」读数显著变大，「差量方案合计」几乎不动 |
+| 把「A 离线编辑次数」调为 0 | 差量 A→B 变为 2 B（空编码）,B 的内容本来就没缺 |
+| 打开 Show code | 看到 `sync-handshake.ts` 实际执行的握手：sv 互换、按对方 sv 编码差量、按阶段 apply |
+
+与 Provider 的关系：真实 Provider 传输的就是这套消息——y-protocols 定义 `SyncStep1`(state vector)→ `SyncStep2`（差量 update)→ `Update`（在线增量），本课的手工握手正是它的徒手版；各网络 Provider 的封装见 [y-websocket](?path=/docs/y-websocket--docs) 与[自定义 Provider](?path=/docs/custom-provider--docs) 两课。[安装与第一个协同文档](?path=/docs/getting-started--docs) 的手动 relay 演示过「监听 update → 转发 → apply」的直觉，本课讲的是协议本身。
+
+## 分叉合并与幂等
+
+离线场景是握手之外最常见的同步形态：两端各自累积多条增量 update，重连时一次性互发。由于 update 可交换、可结合、幂等，这一步对传输层零要求：
+
+- **乱序**: 到达顺序任意。依赖未齐的 update 先挂起，缺口补齐时一次性合入——实测逆序投递 4 条 update,`update` 事件只在最后缺口补齐时触发 1 次，内容照样收敛。
+- **重复**: 已合入的 update 再 apply 完全静默，不触发事件、不改状态。
+- 因此重发、乱序、多路径投递都安全，传输层可以是任意不可靠管道。
+
+下面实例让两端离线分叉后按所选模式互投离线 update，观察投递过程与最终状态：
+
+<Canvas of={Stories.OfflineMerge} />
+<Controls of={Stories.OfflineMerge} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 「投递模式」选「每条重复投递 3 次」 | 泳道出现灰色重复方块；「投递 update 总数」×3 而「update 事件触发」不变，「重复被忽略」读数增加 |
+| 选「完全逆序」 | 泳道方块序号倒序；「update 事件触发」降为每方向各 1 次（挂起的 update 在缺口补齐时一次性合入）；两端仍一致 |
+| 调「A / B 离线编辑次数」 | 泳道长度与计数同步变化；任何组合下「两端一致」恒为「是」 |
+| 打开 Show code | 看到 `offline-merge.ts` 的离线队列收集、投递模式构造与事件计数 |
+
+## 无文档工具：mergeUpdates 家族
+
+服务端、存储层经常只想保存 update 字节，不愿加载 Y.Doc（省内存，或不关心内容）。三个函数直接在 update 字节上操作，覆盖「只存不载」的场景：
+
+- `Y.mergeUpdates(updates: Uint8Array[]): Uint8Array`：多条合并为一条，去除重复并压缩编码。
+- `Y.encodeStateVectorFromUpdate(update): Uint8Array`：从 update 推出 state vector。
+- `Y.diffUpdate(update, sv): Uint8Array`：等价于带 sv 的 `encodeStateAsUpdate`，但输入是 update 而非文档。
+
+```ts
+// 两份存量 update,各留对方缺的部分,再合并为一条
+const svA = Y.encodeStateVectorFromUpdate(fullA);
+const svB = Y.encodeStateVectorFromUpdate(fullB);
+const merged = Y.mergeUpdates([fullA, Y.diffUpdate(fullB, svA)]);
+```
+
+边界：
+
+- **mergeUpdates 不做 GC**：被删除的内容仍以 tombstone 形式占字节。实测「插入 200 字符又全部删除」的两条 update(215 + 11 B),mergeUpdates 得 224 B；加载进 Y.Doc 再 `encodeStateAsUpdate` 只剩 24 B。真正瘦身要过一次文档。
+- **不能直接 JSON 序列化**:`JSON.stringify(update)` 会把 `Uint8Array` 变成 `{}`。存数据库或走 JSON 通道时用 base64（官方示例用 js-base64 的 `fromUint8Array` / `toUint8Array`)，或直接使用二进制通道。
+
+## V2 编码格式
+
+yjs 13.6 附带一套 V2 编码格式（进一步压缩字节），官方标注为实验性、勿用于生产；`doc.on('updateV2')` 发出的就是 V2 载荷（见[事务与变更事件](?path=/docs/transactions-and-events--docs) 的生命周期表）。回查：
+
+| API | 用途 |
+| --- | --- |
+| `Y.encodeStateAsUpdateV2(doc, sv?)` / `Y.applyUpdateV2(doc, update, origin?)` | V2 版全量 / 差量编码与合入 |
+| `Y.mergeUpdatesV2(updates)` / `Y.diffUpdateV2(update, sv)` / `Y.encodeStateVectorFromUpdateV2(update)` | V2 版无文档工具 |
+| `Y.convertUpdateFormatV1ToV2(update)` / `Y.convertUpdateFormatV2ToV1(update)` | 两种格式互转 |
+| `Y.logUpdate(update)` / `Y.logUpdateV2(update)` | 打印 update 内部结构，调试用；实验性，可能随时变更或移除 |
+
+## 最佳实践
+
+- 分场景选编码：在线期间逐条转发增量 update；首次接入与断线重连走 sv + 差量握手；持久化快照存全量。别把全量当心跳发。
+- 自定义转发与 Provider 必须给 `applyUpdate` 传固定 origin，并在 `update` 监听里跳过它——官方同样推荐所有 Provider 设置 transaction origin，便于调试与回声过滤。
+- 存储侧只收 update 时，定期 `mergeUpdates` 压缩；要真正瘦身（去掉已删内容的 tombstone)，加载进 Y.Doc 再编码一次。
+
+## 常见问题
+
+- 手动转发 update 后，每条编辑都多出一条来回的冗余消息？
+  这是回声：`applyUpdate` 合入时触发的 `update` 事件，载荷与收到的 update 完全相同，不过滤来源就会被当成「本地修改」又发回去。幂等性保证它发一圈就停，不会死循环，但流量翻倍。给 `applyUpdate` 传固定 origin（如 `'sync'`)，监听器开头判断 `origin === 'sync'` 直接 return。
+- `applyUpdate` 抛 `Unexpected end of array`?
+  update 字节在传输中损坏，最常见的原因是把 `Uint8Array` 当 JSON 文本发送（`JSON.stringify(update)` 会得到 `{}`)。改用二进制通道或 base64 编码；损坏的 update 不会被合入，修复传输后重发完整字节即可。
+- 重连后对方发来一大段历史 update，会不会把已有内容重复一遍？
+  不会。`applyUpdate` 幂等：已合入的内容静默跳过，不触发 `update` 事件、不改变状态。这也是差量握手敢直接互发、传输层敢重发的原因。
+- 服务端存的 update 体积一直涨，`mergeUpdates` 也压不下去？
+  `mergeUpdates` 只合并去重，不做垃圾回收——被删除的内容仍以 tombstone 占字节。把存量 update 加载进一个临时 Y.Doc，再 `encodeStateAsUpdate` 一次，才能得到 GC 后的紧凑编码。
+
+## 总结回顾
+
+摘要：
+
+本课拆解了 yjs 不依赖任何 Provider 的同步协议。`update` 事件是每个非空事务的增量编码出口，`applyUpdate` 是合入入口：它幂等（重复 apply 静默跳过）、可交换可结合（乱序到达先挂起、缺口补齐一次性合入）、对损坏字节直接抛错。state vector 是「每个客户端已合入时钟」的紧凑摘要，体积只随客户端数量增长、永远不装内容；`encodeStateAsUpdate` 带上对方的 sv 就只编码其缺失的差量，方向是发送方 doc、接收方 sv。三者组装成握手：互换 sv → 互发差量 → apply 收敛，比互发全量省一个数量级的带宽，代价是多一次往返，因此只用于首次接入与重连；在线期间逐条转发增量即可。离线分叉重连时乱序与重复投递都不破坏收敛。服务端不想加载文档时，`mergeUpdates` / `diffUpdate` / `encodeStateVectorFromUpdate` 直接在 update 字节上合并与求差，但不做 GC，瘦身要过一次 Y.Doc。y-protocols 的 SyncStep1 / SyncStep2 / Update 正是这套握手的消息封装，各 Provider 只是换了传输层。
+
+一句话：
+
+> 同步协议的全部工作就是：用 state vector 说出自己有什么，让对方编码你缺的差量，再 applyUpdate 幂等合入——乱序、重复、断开重连都不破坏收敛。
+
+知识要点：
+
+- `update` 事件什么时候触发、载荷是什么？`applyUpdate` 的 origin 与 `transaction.local` 各是什么？
+- state vector 编码了什么？为什么它的体积只随客户端数量增长？
+- 三步握手每一步传什么？差量方案比全量省在哪、贵在哪？
+- 差量编码的方向是什么（谁的 doc、谁的 sv)？对全新端编码差量会得到什么？
+- 重复或乱序 apply 同一批 update 分别会怎样？损坏的 update 呢？
+- 不过滤 origin 的转发会发生什么，为什么不会死循环？
+- `mergeUpdates` 与「加载进 Y.Doc 再编码」的体积差异从哪来？
+
+## 参考资料
+
+- [Yjs 官方文档：Document Updates](https://docs.yjs.dev/api/document-updates)
+- [Yjs 官方文档：Y.Doc API](https://docs.yjs.dev/api/y.doc)
+- [yjs 官方仓库](https://github.com/yjs/yjs)
+- [y-protocols 官方仓库(同步消息协议)](https://github.com/yjs/y-protocols)
