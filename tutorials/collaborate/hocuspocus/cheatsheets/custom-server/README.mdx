@@ -1,0 +1,324 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="custom-server" title="服务端核心/接入现有服务器" name="Docs" />
+
+# 接入现有服务器
+
+「Server 配置」课里的 `Server.listen()` 只是快捷方式：Hocuspocus 的内核类 `Hocuspocus` 自己不监听任何端口，它对外暴露的入口是 `handleConnection`——把一次 WebSocket 连接「翻译」成文档连接。当你已经有一个 express 应用（或任何 node:http 服务），想把协同编辑挂到同一端口、复用现有中间件与部署形态时，就不该让 Hocuspocus 另起炉灶，而是由你的服务器处理 WebSocket 升级，再把连接递给 `handleConnection`。内置 `Server` 本质上就是官方替你写好的那份接线代码。读完你应能预测：漏转一条 message，客户端会「连上却永不同步」；把 Node 请求对象直接当 web Request 传进去，钩子里一取请求头就报错；而 `onUpgrade`、`onRequest`、`onListen` 这三个钩子在自己接线的服务器里永远不会触发。
+
+版本基线为 Hocuspocus v4（4.7.x，要求 Node 22+）。工作区 `tester/server.js` 是 v3 写法（锁定 3.4.4），本课涉及 v3 差异处以对照表和短段落标注，均已对照 v4 源码（`packages/server/src`）与官方升级指南核实。
+
+```mermaid
+flowchart LR
+  p["浏览器 provider"] -->|"WebSocket 升级请求"| http["你的 HTTP 服务：express + node:http"]
+  http -->|"server.on upgrade"| up["升级处理：crossws 或 ws 的 handleUpgrade"]
+  up -->|"Node 请求转 web Request，底层 socket 适配成 WebSocketLike"| hc["handleConnection"]
+  hc --> cc["ClientConnection"]
+  cc -->|"你的代码转发 message 与 close"| hooks["钩子链与内置 Server 完全一致"]
+```
+
+## 何时需要自定义服务器
+
+三个典型动机，按出现频率排序：
+
+- **复用现有应用**：express 应用已有鉴权中间件、日志、监控、静态资源，协同编辑只是多一类流量——不想为它单独部署一个进程。
+- **统一端口与路由**：同端口上既有 HTTP 接口（健康检查、API）又有 WebSocket 协同，升级请求要按路径分流。
+- **完全掌控握手**：升级阶段就做来源校验、限流、按路径拒绝，而不是等连接建立后再在钩子里踢人。
+
+反过来说，如果协同服务本来就独立部署，直接用内置 `Server.listen()` 即可（配置项见 [Server 配置](?path=/docs/server-config--docs) 课），本课的全部接线工作内置 Server 都已替你做了。两种形态的差异：
+
+| 维度 | 内置 Server.listen() | 自定义服务器接入 |
+| --- | --- | --- |
+| 端口监听 | Server 自己创建 node:http 服务并监听 | 你的 HTTP 服务（express 等）监听 |
+| 升级处理 | Server 内置 crossws 接线 | 你的代码处理 upgrade 事件 |
+| 升级请求对象 | crossws 代转成 web Request | crossws 代转；ws 直连时自己构造 |
+| 消息与关闭转发 | Server 的钩子代劳 | 你的代码转发给 ClientConnection |
+| onUpgrade / onRequest / onListen | 正常触发 | 不会触发（官方明确警告） |
+| 适合场景 | 独立协同服务 | 协同能力挂进现有应用 |
+
+客户端零改动：provider 只认一个 WebSocket 地址，服务器从内置换成自定义接入，「第一个协同文档」课的浏览器代码原样能连（见 [第一个协同文档](?path=/docs/first-document--docs) 课）。
+
+## 核心模型：handleConnection
+
+v4 的签名（经源码 `Hocuspocus.ts` 核对）：
+
+```ts
+handleConnection(
+  incoming: WebSocket | WebSocketLike,
+  request: Request, // web 标准 Request，不是 Node 的 IncomingMessage
+  defaultContext: Context = {} as Context,
+): ClientConnection
+```
+
+三个参数与一个返回值，逐个看。
+
+**incoming：只要三个成员的 WebSocketLike。** v4 不绑定具体 WebSocket 实现，只要求一个最小接口（经源码 `types.ts` 核对）：
+
+```ts
+interface WebSocketLike {
+  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void;
+  close(code?: number, reason?: string): void;
+  readyState: number;
+}
+```
+
+`ws` 包的原生 WebSocket、Bun 与 Deno 的内置 WebSocket 都天然满足这三个成员，所以同一份接入代码能跑在 Node 之外的运行时——这正是 v4 跨运行时改造的落点。
+
+**request：必须是 web Request。** 这是 v3 迁移最大的坑。v4 全链路假设请求对象是 web 标准：钩子 payload 的 `requestHeaders` 直接取自 `request.headers` 供 `get()` 取值（见 [鉴权与上下文](?path=/docs/auth--docs) 课），query 参数经 `getParameters` 从 `request.url` 解析。`getParameters` 做过兼容，完整 URL 与纯路径两种形式都能解析（经源码 `util/getParameters.ts` 核对）；但 `headers` 没有兼容层——传入 Node 的 IncomingMessage，钩子里一调 `requestHeaders.get()` 就是运行时错误。crossws 这类适配器会在升级时替你完成转换；用 `ws` 直连时要自己构造（下文轻量路线给出写法）。
+
+**defaultContext：连接的初始 context。** 形状由泛型决定，`onConnect`、`onAuthenticate` 的返回值会并入它（合并规则见 [鉴权与上下文](?path=/docs/auth--docs) 课）。不传就是空对象。
+
+**返回 ClientConnection：调用方接手两件事。** 与 v3 不同，`handleConnection` 不再内部挂事件监听，它返回一个 `ClientConnection`，把传输层的事件权交还给你：
+
+| 你要转发的 | 时机 | 调用 |
+| --- | --- | --- |
+| 二进制消息 | 底层连接收到 message 事件 | `clientConnection.handleMessage(data)`，data 为 Uint8Array |
+| 连接关闭 | 底层连接收到 close 事件 | `clientConnection.handleClose(事件)`，事件含 code 与 reason 字段 |
+| 带外活跃 | 底层 pong 等「没消息但活着」的信号 | `clientConnection.touch()`，避免纯空闲连接被空闲超时关闭 |
+
+缺第一件，客户端连上后永远不同步；缺第二件，断开后文档不落库、连接计数不清零；缺第三件，开着页却不编辑的用户会被超时断开。`onClose(callback)` 一般用不到，想在文档连接关闭时追加动作才需要。
+
+这不是猜测，内置 `Server` 自己就是这么接的（经源码 `Server.ts` 核对）：open 钩子里调 `handleConnection(peer.websocket, peer.request)` 并把返回值存到 peer 上，message 钩子里转发 `handleMessage`，close 钩子里转发 `handleClose`，另外把底层 socket 的 pong 折算成 `touch()`。**学会本课，等于看懂了内置 Server 的内核。**
+
+v3 差异：v3 签名是 `handleConnection(incoming: WebSocket, request: IncomingMessage, defaultContext): void`——请求是 Node 对象、返回 void、内部自挂 message 与 close 监听，所以 `tester/server.js` 一行就接完了。v4 把这三处全部交还调用方：web Request、返回 ClientConnection、转发由你接线。
+
+## 官方配方：express 接入
+
+官方 examples 页给出的 Express 模式：express 只管 HTTP，node:http 包一层拿到服务器实例，WebSocket 流量交给 crossws 的 Node 适配器——与内置 Server 用的是同一套适配器。先装依赖：
+
+```bash
+npm install @hocuspocus/server express crossws
+```
+
+完整可复制的服务器代码（依官方示例整理，注释标出关键点）：
+
+```ts
+// server.ts —— express + crossws 接入（官方 examples 页 Express 模式）
+// Node 22+，npx tsx server.ts 启动
+import express from 'express';
+import { createServer } from 'node:http';
+import crossws from 'crossws/adapters/node';
+import { Hocuspocus } from '@hocuspocus/server';
+import type { WebSocketLike } from '@hocuspocus/server';
+
+const hocuspocus = new Hocuspocus({
+  // 钩子链与内置 Server 完全一致，这里用加载日志做可观察信号
+  async onLoadDocument({ documentName }) {
+    console.log('[onLoadDocument]', documentName);
+  },
+});
+
+const app = express();
+app.get('/healthz', (_request, response) => {
+  response.send('ok'); // HTTP 路由照常用 express 写
+});
+
+const server = createServer(app); // 关键：用 node:http 包一层，而不是 app.listen
+
+const ws = crossws({
+  hooks: {
+    open(peer) {
+      // crossws 已完成两次转换：Node 请求转成 web Request，底层 socket 适配成 WebSocketLike
+      const clientConnection = hocuspocus.handleConnection(
+        peer.websocket as unknown as WebSocketLike,
+        peer.request as Request,
+        { user_id: 1234 }, // 初始 context，后续钩子的返回值会并入
+      );
+      // 存到 peer 上，供 message 与 close 钩子取用（内置 Server 同款做法）
+      ;(peer as any)._hocuspocus = clientConnection;
+      // 底层 socket 的 pong 折算为连接活跃：纯空闲连接不被空闲超时踢掉
+      ;(peer.raw as any)?.on?.('pong', () => clientConnection.touch());
+    },
+    message(peer, message) {
+      (peer as any)._hocuspocus?.handleMessage(message.uint8Array());
+    },
+    close(peer, event) {
+      (peer as any)._hocuspocus?.handleClose({ code: event.code, reason: event.reason });
+    },
+    error(peer, error) {
+      console.error(`[ws error] ${peer.id}:`, error);
+    },
+  },
+});
+
+server.on('upgrade', (request, socket, head) => {
+  ws.handleUpgrade(request, socket, head); // crossws 接手升级，之后走 open 钩子
+});
+
+server.listen(3000, () => {
+  console.log('listening on http://127.0.0.1:3000');
+});
+```
+
+用「第一个协同文档」课的 provider 连 `ws://127.0.0.1:3000` 打开 `example-document`，服务器控制台输出（示意）：
+
+```text
+listening on http://127.0.0.1:3000
+[onLoadDocument] example-document
+```
+
+三处要点：
+
+- **为什么 `createServer(app)` 而不是 `app.listen()`**：WebSocket 升级要挂在 node:http 服务器的 upgrade 事件上，express 的 `app.listen()` 返回的实例虽然底层相同，但官方配方显式用 `createServer` 包一层，upgrade 事件的两个参数（socket 与 head）才能完整交给 crossws。
+- **crossws 干了三件脏活**：把 Node 的 IncomingMessage 转成 web Request；把底层 socket 适配成 WebSocketLike；自带心跳——定期 ping 客户端，配合 open 钩子里那条 pong 监听完成保活。换掉它，这三件事就回到你手上（见下一节）。
+- **升级路径不分流**：当前写法接受所有路径的 WebSocket 升级。要限制路径，在 `server.on('upgrade')` 里检查 `request.url`，不匹配就 `socket.destroy()` 并返回。
+
+官方对这种场景的警告（examples 页原文）：Some extensions use the `onRequest`, `onUpgrade` and `onListen` hooks, which will not be fired in this scenario.——这三个钩子及依赖它们的扩展在此场景一律失效，等价做法见下文「onUpgrade 与 onRequest 钩子」。
+
+v3 对照：`tester/server.js` 用 express-ws 三行接完——`app.ws('/', (websocket, request) => hocuspocus.handleConnection(websocket, request, context))`。v4 下这行过不了两关：request 是 express 的 Node 风格请求，不是 web Request；没有保存返回值、也没有转发 message 与 close。迁移对照见常见问题最后一问。
+
+## 轻量路线：ws 直连
+
+不想引入 crossws（或想要完全掌控升级、消息、心跳）时，用 `ws` 包直连。代价是 crossws 代劳的三件脏活全部自己写：
+
+```bash
+npm install @hocuspocus/server express ws
+```
+
+```ts
+// server-ws.ts —— express + ws 直连，不经过 crossws
+// Node 22+，npx tsx server-ws.ts 启动
+import express from 'express';
+import { createServer } from 'node:http';
+import type { IncomingMessage } from 'node:http';
+import { WebSocketServer } from 'ws';
+import { Hocuspocus } from '@hocuspocus/server';
+
+const hocuspocus = new Hocuspocus({
+  async onLoadDocument({ documentName }) {
+    console.log('[onLoadDocument]', documentName);
+  },
+});
+
+const app = express();
+app.get('/healthz', (_request, response) => response.send('ok'));
+
+const server = createServer(app);
+const wss = new WebSocketServer({ noServer: true }); // 不自挂 upgrade 事件，交给下面统一处理
+
+// v4 的 handleConnection 只认 web Request：把 Node 的 IncomingMessage 转一道
+function toWebRequest(request: IncomingMessage): Request {
+  const host = request.headers.host ?? 'localhost';
+  return new Request(`http://${host}${request.url ?? '/'}`, {
+    headers: new Headers(request.headers as Record<string, string>),
+  });
+}
+
+server.on('upgrade', (request, socket, head) => {
+  // 路径分流就做在这里：检查 request.url，不匹配的 socket.destroy() 后返回
+  wss.handleUpgrade(request, socket, head, (websocket) => {
+    const clientConnection = hocuspocus.handleConnection(
+      websocket, // ws 的原生 WebSocket 天然满足 WebSocketLike
+      toWebRequest(request),
+      { userId: 1234 },
+    );
+
+    // crossws 钩子代劳的三件事，这里全部自己接线
+    websocket.on('message', (data) => {
+      clientConnection.handleMessage(new Uint8Array(data as Uint8Array)); // Buffer 转纯字节视图
+    });
+    websocket.on('close', (code, reason) => {
+      clientConnection.handleClose({ code, reason: reason.toString() });
+    });
+
+    // 心跳保活：定期 ping，pong 到达时折算为活跃（对齐内置 Server 的行为）
+    websocket.on('pong', () => clientConnection.touch());
+    const heartbeat = setInterval(() => websocket.ping(), 30000);
+    websocket.once('close', () => clearInterval(heartbeat));
+  });
+});
+
+server.listen(3000, () => {
+  console.log('listening on http://127.0.0.1:3000');
+});
+```
+
+预期输出与上一节相同（示意）：provider 连入后打印 `[onLoadDocument] example-document`。两条路线怎么选：
+
+| 维度 | crossws 配方 | ws 直连 |
+| --- | --- | --- |
+| 新增依赖 | express、crossws | express、ws |
+| web Request 构造 | crossws 代劳 | 自己写 toWebRequest |
+| 消息与关闭转发 | 钩子代劳（与内置 Server 同款） | 自己接线 |
+| 心跳保活 | crossws 心跳 + pong 折算 | 自己 setInterval ping |
+| 适合 | 尽量贴近内置 Server 行为 | 不想多一层适配、要完全掌控 |
+
+## onUpgrade 与 onRequest 钩子
+
+这两个钩子的定位是「给内置 Server 加自定义 HTTP 逻辑」：`onUpgrade` 在收到 WebSocket 升级请求时触发，`onRequest` 在收到普通 HTTP 请求时触发，都在内置 Server 自己的 node:http 层上。自己接线时，HTTP 层本来就是你的 express，这两个钩子永远不会执行——同样失效的还有 `onListen`（内置 Server 监听成功时触发，payload 只有 port 字段；自定义服务器里你自己调 `listen`）。
+
+一个容易误判的点：v4 把连接层请求全面换成了 web Request，但这两个钩子是例外，仍用 Node 类型（经源码 `types.ts` 与官方升级指南核对，原文理由：它们工作在 WebSocket 升级之前的 HTTP 层）：
+
+| 钩子 | 触发时机 | payload 关键字段 | 请求对象类型 |
+| --- | --- | --- | --- |
+| onUpgrade | 收到 WebSocket 升级请求 | request、socket、head、instance | Node IncomingMessage |
+| onRequest | 收到普通 HTTP 请求 | request、response、instance | Node IncomingMessage 与 ServerResponse |
+
+两个钩子都是中间件语义：抛错即中断钩子链，后续钩子与默认处理（升级交给 crossws、响应交给内置路由）都不再执行，请求被你接管。在内置 Server 上按路径接管升级的典型写法：
+
+```ts
+// 仅内置 Server 场景：同端口上把某路径的升级留给自己的 WebSocket 服务
+async onUpgrade({ request, head }) {
+  if (request.url?.split('?')[0] === '/custom-ws') {
+    // 路径命中：这里用自己的 WebSocket 逻辑处理 head 与 socket，
+    // 抛错中断链条，升级不再交给 Hocuspocus
+    throw new Error('handled-elsewhere');
+  }
+  // 未命中：不抛错，钩子链继续，升级照常交给 Hocuspocus
+},
+```
+
+自己接线时做等价的事，位置完全平移：升级路径分流写在 `server.on('upgrade')` 里（上一节代码的注释位），健康检查与普通 API 写成 express 路由（`/healthz`）。依赖 `onRequest` / `onUpgrade` / `onListen` 的扩展在此场景同样不工作，把它们的逻辑上移到你的 express 中间件与 upgrade 监听器，或改用内置 Server。
+
+## 常见问题
+
+- 客户端 `status` 是 `connected`，但内容永远不同步
+  `handleConnection` 的返回值没有接 message 转发：连接建立了，二进制消息却没进 `handleMessage`。检查是否保存了返回的 ClientConnection，以及 message 事件（或 crossws 的 message 钩子）里是否调用了 `handleMessage`。close 转发同理——缺了它，断开后不落库、连接计数不清零。
+- 钩子里报 `requestHeaders.get is not a function`，或 `requestParameters` 总是空的
+  把 Node 的 IncomingMessage（含 express 的 Request）直接当 web Request 传给了 `handleConnection`。`requestHeaders` 必须是 web `Headers` 才有 `get()`；用 ws 直连时先过一遍 `toWebRequest`，或改用 crossws 配方由适配器转换。
+- `onUpgrade`、`onRequest`、`onListen` 完全不触发，依赖它们的扩展也不工作
+  这不是 bug：自己接线的服务器里这三个钩子本来就不会执行（官方 examples 页明确警告）。升级逻辑上移到 `server.on('upgrade')`，HTTP 逻辑写成 express 路由；若必须用这些钩子及其扩展生态，改回内置 `Server.listen()`。
+- 页面开着不编辑，过一会儿连接被断开（内置 Server 不会）
+  纯空闲连接靠心跳保活：内置 Server 依赖 crossws 的心跳加 pong 折算 `touch()`。ws 直连时要自己补「定期 ping + pong 调 `touch()`」（轻量路线代码已含）；都不想要的话，把 `timeout` 调大（默认值与机制见 [Server 配置](?path=/docs/server-config--docs) 课）。
+- WebSocket 升级报错或行为错乱，像被处理了两次
+  一个 http 服务器的 upgrade 事件只能交给一处：要么 `new WebSocketServer({ server })` 让 ws 包自己挂监听，要么 `noServer: true` 加自己的 `server.on('upgrade')`，二者混用会对同一次升级各 `handleUpgrade` 一次。同理，不要再对同一端口跑一个内置 `Server.listen()`——端口冲突或升级被抢。
+- 从 v3 的 express-ws 写法迁移，`handleConnection` 报类型错误
+  对照逐行改：
+
+| v3（tester/server.js） | v4 接入现有服务器 |
+| --- | --- |
+| express-ws 的 `app.ws` 路由 | `server.on('upgrade')` 加 crossws 或 ws 的 `handleUpgrade` |
+| `handleConnection(websocket, request)` | `handleConnection(websocket, toWebRequest(request))` |
+| request 是 Node IncomingMessage | request 必须是 web Request |
+| 返回值可忽略，内部自挂事件 | 返回 ClientConnection，需转发 message 与 close |
+| express-ws 自动处理升级与心跳 | 升级与心跳由你的代码（或 crossws）负责 |
+
+## 总结回顾
+
+摘要：
+
+Hocuspocus 内核不监听端口，内置 `Server.listen()` 只是官方替你写好的一份接线代码。自己接入时，模型是 `handleConnection(incoming, request, defaultContext)` 返回 ClientConnection：incoming 只需满足 WebSocketLike 三成员（send、close、readyState），request 必须是 web 标准 Request（钩子的请求头与 query 参数都从它来，Node 对象必须先转换），返回值由调用方驱动——转发 message 到 `handleMessage`、close 到 `handleClose`、pong 到 `touch()`。两条落地路线：官方配方用 crossws 的 Node 适配器（转换、转发、心跳全部代劳，与内置 Server 同款），轻量路线用 ws 包直连（三件事自己写）。`onUpgrade`、`onRequest`、`onListen` 只在内置 Server 上触发且保持 Node 类型（HTTP 层早于升级，是 v4 web Request 化的例外），自定义服务器里等价逻辑平移到 upgrade 监听器与 express 路由。
+
+一句话：
+
+> handleConnection 只做「翻译」：把一次 WebSocket 连接翻译成文档连接；端口、升级、消息、关闭与心跳的搬运永远是调用方的事——内置 Server 不过是官方写好的那份搬运代码。
+
+知识要点：
+
+- 内置 `Server.listen()` 与自定义接入在哪五个维度上分工不同？
+- `handleConnection` 的三个参数各是什么类型？返回值要接手哪三件事（消息、关闭、带外活跃）？
+- WebSocketLike 为什么只有三个成员？这给跨运行时带来了什么？
+- 为什么必须把 Node 请求转成 web Request？`getParameters` 对 URL 做了哪种兼容、`headers` 为什么没有？
+- crossws 配方与 ws 直连各自动了哪些手？三条「代劳」分别是什么？
+- `onUpgrade`、`onRequest`、`onListen` 在什么场景触发、v4 用什么类型、自定义服务器里如何做等价的事？
+
+## 参考资料
+
+- [Server Examples（官方 Express 集成配方与本课警告原文）](https://tiptap.dev/docs/hocuspocus/server/examples)
+- [Hooks（onUpgrade 与 onRequest 的 payload、中间件语义）](https://tiptap.dev/docs/hocuspocus/server/hooks)
+- [Upgrade to Hocuspocus v4（handleConnection 迁移对照、onUpgrade 与 onRequest 保持 Node 类型的原因）](https://tiptap.dev/docs/hocuspocus/getting-started/upgrade)
+- [Hocuspocus.ts（v4 源码：handleConnection 签名与 ClientConnection 的创建）](https://github.com/ueberdosis/hocuspocus/blob/main/packages/server/src/Hocuspocus.ts)
+- [Server.ts（v4 源码：crossws 接线、upgrade 事件、pong 折算 touch）](https://github.com/ueberdosis/hocuspocus/blob/main/packages/server/src/Server.ts)
+- [types.ts（v4 源码：WebSocketLike、onUpgradePayload 与 onRequestPayload）](https://github.com/ueberdosis/hocuspocus/blob/main/packages/server/src/types.ts)
+- [ClientConnection.ts（v4 源码：handleMessage、handleClose、touch）](https://github.com/ueberdosis/hocuspocus/blob/main/packages/server/src/ClientConnection.ts)
+- [getParameters.ts（v4 源码：对完整 URL 与纯路径的双兼容）](https://github.com/ueberdosis/hocuspocus/blob/main/packages/server/src/util/getParameters.ts)
