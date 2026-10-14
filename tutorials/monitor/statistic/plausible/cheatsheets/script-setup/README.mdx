@@ -1,0 +1,166 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ScriptSetup from './script-setup.stories';
+
+<Meta of={ScriptSetup} name="Docs" />
+
+# 接入脚本
+
+在页面的 `<head>` 里放一行 `<script>`，就完成了 Plausible 的全部接入：脚本加载后自动把这次访问上报为一条 pageview 事件，本地实例看板的 realtime 读数立刻出现这次访问。本课讲清这行片段的每个部分决定什么、脚本加载后做了什么、什么时候需要换用 `script.manual.js` 等变体手动控制上报。
+
+读完本课你应能预测：改 `data-domain` 后事件会进哪个站点；改脚本文件名会改变什么行为；看板没有数据时按什么顺序排查。
+
+```mermaid
+flowchart LR
+  A["页面 head 中的 script 标签"] --> B["实例下发脚本文件 /js/script.js"]
+  B --> C["自动上报 pageview（POST /api/event）"]
+  C --> D["看板 realtime 出现访问"]
+```
+
+脚本文件不止 `script.js` 一个。下表是变体家族总览，多个能力按 `script.<ext1>.<ext2>.js` 组合（规则见「脚本变体」一节）：
+
+| 脚本文件 | 相比 script.js 的变化 | 适用场景 |
+| --- | --- | --- |
+| `script.js` | 基准：加载后自动上报 pageview | 绝大多数站点 |
+| `script.manual.js` | 不再自动上报，改由你调用 `window.plausible('pageview')` | SPA 等需要自己控制时机的场景（见「手动 pageview」） |
+| `script.hash.js` | 把 URL 中 `#` 后的部分计入页面路径 | hash 路由站点（见 [SPA 路由](?path=/docs/spa-tracking--docs)） |
+| `script.local.js` | 允许上报 localhost / file:// 页面的事件 | 本地测试与开发（线上站点不要带） |
+| `script.outbound-links.js` | 自动跟踪出站链接点击 | 无代码追踪（见 [自动追踪](?path=/docs/automatic-tracking--docs)） |
+| `script.file-downloads.js` | 自动跟踪文件下载 | 无代码追踪（见 [自动追踪](?path=/docs/automatic-tracking--docs)） |
+| `script.tagged-events.js` | 给元素加特定 CSS class 即可触发自定义事件 | 见 [自定义事件](?path=/docs/custom-events--docs) |
+| `script.pageview-props.js` | 把 script 标签上的 `event-*` 属性附加为 pageview 的自定义属性 | 见 [自定义属性](?path=/docs/custom-properties--docs) |
+| `script.revenue.js` | 允许事件携带收入数据 | 见 [收入归因](?path=/docs/revenue-attribution--docs) |
+| `script.exclusions.js` | 按标签上的 `data-include` / `data-exclude` 通配规则过滤页面 | 只统计部分路径 |
+| `script.compat.js` | 改用 XMLHttpRequest 等老式 API（标签需加 `id="plausible"`） | 必须支持老式浏览器 |
+
+## 快速上手
+
+最小闭环：给测试页贴上片段，打开页面，在看板 realtime 里看到这次访问。前提：本地实例已运行且已创建站点 `test.local`（见 [本地实例](?path=/docs/local-instance--docs)）。
+
+1. 新建 `test-page.html`，在 `<head>` 中贴入：
+
+   ```html
+   <script defer data-domain="test.local" src="http://localhost:8000/js/script.local.js"></script>
+   ```
+
+   标准写法用 `script.js`；这里带 `.local` 是因为测试页本身跑在 localhost，而脚本默认会忽略 localhost 页面的事件（原因见「脚本变体」）。
+
+2. 用任意静态服务器打开测试页，例如在页面所在目录执行 `npx serve .` 或 `python3 -m http.server 3000`，然后访问 `http://localhost:3000/test-page.html`。
+
+3. 打开看板 `http://localhost:8000/test.local`，顶部的 realtime（当前访客）读数出现这次访问，说明接入成功。
+
+## 标准片段
+
+标准片段只有一行，三个部分各司其职。本地 CE 实例（本手册默认环境）：
+
+```html
+<script defer data-domain="test.local" src="http://localhost:8000/js/script.js"></script>
+```
+
+官方云端：
+
+```html
+<script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
+```
+
+两者唯一的差别是 `src` 指向谁。片段放在页面的 `<head>` 内。
+
+- `defer`：脚本异步加载、不阻塞页面渲染，HTML 解析完成后执行。
+- `data-domain="test.local"`：站点标识，会写进之后每个事件的 `d` 字段。必须与实例中创建的站点域名逐字符一致（不带协议、不带路径），否则事件照收、看板却按站点过滤而看不到数据。
+- `src`：脚本文件地址。脚本从哪个地址加载，事件就上报到哪个实例——上报端点默认是「脚本源 + `/api/event`」，也可以用标签上的 `data-api` 属性显式覆盖（代理场景用到，见 [绕过广告拦截](?path=/docs/proxy--docs)）。
+
+脚本加载后自动完成这些事：
+
+1. 读取自身标签上的 `data-domain` 作为站点标识。
+2. 页面可见时自动上报一次 pageview：`fetch` POST `/api/event`，请求体是 JSON，关键字段为 `n`（事件名 `"pageview"`）、`u`（当前页面地址）、`d`（`data-domain`）、`r`（referrer）。
+3. 挂钩 `history.pushState` / `popstate`，之后 SPA 路由切换也会补报 pageview（细节见 [SPA 路由](?path=/docs/spa-tracking--docs)）。
+4. 把 `window.plausible` 替换为真正的上报函数，并补发加载完成前排队的调用。
+
+可核对证据：浏览器 Network 面板先看到 `/js/script.js` 返回 200，随后出现一条 `/api/event` 的 POST、状态 202；看板 realtime 读数同步 +1。下文「脚本变体」的实例把同一过程搬进了本页。
+
+## 脚本变体
+
+变体文件由服务端按同一规则编译并提供：文件名以 `script` 为基名（`plausible`、`analytics` 两个基名等价可用），后接任意个扩展名，形如 `script.<ext1>.<ext2>.js`。服务端查找前会对扩展名排序，所以 `script.manual.local.js` 与 `script.local.manual.js` 指向同一个文件；书写惯例是按字母序组合，例如 `script.file-downloads.outbound-links.js`。
+
+两个与本课直接相关的成员：
+
+- `manual` 关闭「加载后自动上报 pageview」，改为完全由页面调用 `window.plausible` 上报。
+- `local` 关闭脚本对 localhost、`127.0.0.1`、`file://` 页面的忽略规则。默认脚本在这类地址上会放弃上报并在 Console 打印 `Ignoring Event: localhost`；本手册的范例都运行在 localhost 页面里，所以范例脚本一律带 `.local`。线上站点不要带它，否则你在本机开发时的访问也会进统计。
+
+下面的实例在当前 Docs 页（它本身就是一个 localhost 页面）动态注入你选择的脚本文件，并把真实发出的上报请求呈现为读数。运行条件与快速上手相同：本地实例运行中，且已创建站点 `test.local`。
+
+<Canvas of={ScriptSetup.Interactive} />
+<Controls of={ScriptSetup.Interactive} />
+
+| 读者操作 | 可观察证据 |
+| --- | --- |
+| 保持默认 `script.local.js` 等待加载 | 「脚本状态」变为「已加载」，「已上报 pageview」不经任何操作自动变为 1——这就是标准脚本的自动行为 |
+| 「脚本文件」切到 `script.manual.local.js` | 计数清零且不再自动增长；点一次「触发 pageview」计数 +1 |
+| 「脚本文件」切到 `script.manual.js` 再点击 | 「最近触发结果」显示「已忽略：localhost 页面需要带 .local 的脚本变体」，计数不变——对应上文的忽略规则 |
+| 把「data-domain」改成其他值再触发 | 「最近上报域名」同步变化；改成实例里不存在的域名时上报仍返回成功，但看板按站点过滤而看不到 |
+| 停掉本地实例后切换「脚本文件」 | 「脚本状态」显示「加载失败：本地实例未运行？」，按钮点击给出无法上报的提示而非静默失败 |
+| 打开 Show code | 看到注入脚本与触发上报的完整实现 `example.ts` |
+
+「最近上报 URL」显示的是当前 Docs 页地址：事件里的 `u` 字段就是上报页面的地址。每次成功上报后，看板 `http://localhost:8000/test.local` 的 realtime 读数同步 +1，可与页内读数互相印证。
+
+## 手动 pageview
+
+`script.manual.js` 把上报时机完全交给页面：加载后不发任何事件，由你在需要时调用 `window.plausible`（同一函数也是自定义事件的入口，见 [自定义事件](?path=/docs/custom-events--docs)）：
+
+```js
+// 上报一次 pageview，URL 取当前页面地址
+window.plausible('pageview');
+
+// 用 url 选项覆盖上报的页面地址（自定义页面位置的官方写法）
+window.plausible('pageview', { url: 'https://example.com/custom-location' });
+
+// callback 在请求结束后收到结果：成功为 { status: 202 }；事件被忽略时无参数
+window.plausible('pageview', { callback: (result) => console.log(result?.status) });
+```
+
+要点：
+
+- 每次调用都计为一个独立 pageview，同一页面重复调用会重复计数。
+- 脚本加载完成前也可以调用：先用官方内联写法放一个队列桩 `window.plausible = window.plausible || function(){(plausible.q=plausible.q||[]).push(arguments)}`，调用会排队，脚本加载后自动补发。
+- 典型用途是 SPA 在路由切换时自行上报，完整方案见 [SPA 路由](?path=/docs/spa-tracking--docs)。
+
+## 常见问题
+
+- 看板无数据，Network 里 `/js/script.js` 404 或连接失败。
+  确认 `src` 指向正在运行的实例：本地 CE 是 `http://localhost:8000`，云端是 `https://plausible.io`。自托管时不要照抄云端地址；实例未启动时脚本地址本身也不可达。文件名拼错（不存在的扩展名）同样会得到 404。
+
+- 脚本正常加载、`/api/event` 返回 202，但看板始终没有数据。
+  `/api/event` 不校验域名是否存在，202 不代表数据进了看板。核对 `data-domain` 与实例中站点域名逐字符一致（不带协议和路径）；看板按站点域名过滤事件，对不上就被滤掉。再检查响应头 `x-plausible-dropped: 1`，出现它说明事件到达服务端但被丢弃（如命中屏蔽规则或被识别为机器人）。
+
+- 看板无数据时按什么顺序排查？
+  一看脚本是否加载（Network 过滤 `script`，状态 200），没有就查 `src`、实例状态和广告拦截/隐私扩展（可换无痕窗口对比，彻底绕过见 [绕过广告拦截](?path=/docs/proxy--docs)）；二看 `/api/event` 是否发出（状态 202），没有就打开 Console——出现 `Ignoring Event: localhost` 说明页面跑在 localhost 而脚本没带 `.local`；三看域名是否匹配、响应头是否有 `x-plausible-dropped`；最后排除缓存与片段本身的问题：View Source 确认线上页面确实带着未改动的片段、页面缓存已清、每页只有一个片段（重复片段会重复计数）。
+
+- 站点设置里给出的片段和本课写的不一样。
+  实例的站点设置（Tracking → Review）给出的是按站点生成的新版写法：`async` 加载 `/js/pa-<站点脚本id>.js` 再配一行 `plausible.init()`。两种写法当前版本都支持、上报同一端点；本课使用经典写法（`script.js` + `data-domain`），因为它把「脚本文件、站点标识、上报端点」的关系直接摆在标签上，且配合变体文件名即可完成本手册后续课程的大部分实验。
+
+## 总结回顾
+
+摘要：
+
+接入 Plausible 只需要在 `<head>` 放一行 `<script>`：`src` 决定脚本和上报端点指向哪个实例，`data-domain` 决定数据进入哪个站点，`defer` 保证不阻塞渲染。脚本加载后自动上报一次 pageview 并挂钩 SPA 路由，证据是 Network 里的 `/api/event` 202 与看板 realtime 的实时读数。需要更多能力时按 `script.<ext1>.<ext2>.js` 组合变体文件名；`manual` 变体关闭自动上报，改由 `window.plausible('pageview')` 手动触发；`local` 变体解除脚本对 localhost 页面的忽略，是本地实验的必备开关。看板无数据时按「脚本加载 → 事件发出 → 域名匹配 → 缓存与片段」的顺序排查。
+
+一句话：
+
+> 一行 `<script>` 就是全部接入：脚本源决定报到哪个实例，`data-domain` 决定数据进哪个站点，pageview 由脚本自动完成。
+
+知识要点：
+
+- 标准片段的 `defer`、`data-domain`、`src` 各自决定什么？
+- 脚本加载后自动完成了哪些事？
+- 为什么 localhost 测试页上看不到数据，该换哪个变体？
+- `script.manual.local.js` 这个文件名按什么规则组合，扩展名顺序有影响吗？
+- 哪种变体下必须自己调用 `window.plausible('pageview')`，它有哪些选项？
+- `/api/event` 返回 202 但看板无数据，按什么顺序排查？
+
+## 参考资料
+
+- [Add the tracking script to your website（官方文档）](https://plausible.io/docs/plausible-script)
+- [Script extensions and enhanced measurement（官方文档）](https://plausible.io/docs/script-extensions)
+- [Custom page locations：手动上报时覆盖页面地址（官方文档）](https://plausible.io/docs/custom-locations)
+- [Verify the integration is working：官方排查清单（官方文档）](https://plausible.io/docs/troubleshoot-integration)
+- [plausible/analytics：tracker_plug.ex 与 tracker 源码（变体文件名、localhost 忽略规则与上报行为的事实来源）](https://github.com/plausible/analytics)
+- [plausible/community-edition：CE 部署与默认端口](https://github.com/plausible/community-edition)

@@ -1,0 +1,120 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="email-slack-reports" title="看板与协作/邮件与 Slack 报表" name="Docs" />
+
+# 邮件与 Slack 报表
+
+看板要登录打开才能看，但关心数据的人大多不会每天登看板。Plausible 的推送体系负责把读数送出门：**邮件报表**按周期把上一周/上一月的核心统计直接发到邮箱；**Slack 报表**把同样的内容送进 Slack 频道；**流量异常通知**（traffic spike / drop）在流量突然冲高或跌没时主动告警。三类通道的消息有一个共同形态：统计直接嵌在正文里，没有附件、没有 PDF、不需要点链接登录看板。
+
+理解本课只需要一个架构事实：**这三类推送全部走邮件**。Plausible 没有独立的 Slack 应用或 Webhook 集成——Slack 接入是靠 Slack 频道自带的「邮箱地址」接收邮件报表实现的（v3.2.1 源码核对：路由、worker、模板中均无 Slack 专属实现）。推论很直接：只要实例能发邮件，三类通道在云端与 CE 上全部可用；CE 上唯一的门槛是 SMTP 配置（见 [配置](?path=/docs/ce-configuration--docs)，本课不展开参数细节）。
+
+| 通道 | 收到的内容 | 频率 / 触发 | 配置入口 | CE 可用性 |
+| --- | --- | --- | --- | --- |
+| 邮件周报 | 上周核心指标（visitors、pageviews、bounce rate 及环比）+ Top 5 页面/来源/目标 | 每周一 9:00（站点时区） | 站点设置 → Email reports | 可用，依赖 SMTP |
+| 邮件月报 | 同上，统计上月整月 | 每月 1 号 9:00（站点时区） | 同上 | 可用，依赖 SMTP |
+| Slack 报表 | 即邮件报表/通知，显示在频道里 | 跟随所订阅的报表或通知 | Slack 频道邮箱 + 同一设置页 | 可用（走邮件通道） |
+| 流量激增通知（spike） | 当前实时人数、Top 来源与页面 | 实时人数 ≥ 阈值（默认 10），每 15 分钟检查 | 同上 | 可用，依赖 SMTP |
+| 流量下跌通知（drop） | 当前读数与看板链接 | 最近 12 小时访客 < 阈值（默认 1），每 15 分钟检查 | 同上 | 可用，依赖 SMTP |
+
+## 邮件报表
+
+周期性报表和异常通知共用同一个设置页：站点设置的 **Email reports** 页，本地实例为 `http://localhost:8000/test.local/settings/email-reports`（看板右上角齿轮进入站点设置）。页面上四个区块——Weekly email reports、Monthly email reports、Traffic spike notifications、Traffic drop notifications，本节前两个，后两个见「流量异常通知」。
+
+**开启路径**：
+
+1. 打开开关「Send a weekly email report every Monday」或「Send a monthly email report on 1st of the month」。两个开关互相独立，可只开一个。
+2. 在该报表的 **Report recipients** 输入框填入邮箱地址，点 **Add recipient**。可重复添加任意多个。
+3. 接收人模型的三个特点：地址可以是**任意邮箱**，不要求注册账号；数量不限；不计入团队成员名额（团队成员体系见 [团队与站点管理](?path=/docs/team-sites--docs)）。Slack 频道邮箱之所以能成为接收人，正是靠「任意邮箱均可」这一点。
+4. 周报与月报的接收人列表**各自独立**——只加了周报接收人，月报不会发给他们。
+
+**发送时间**：按站点时区，周报每周一 9:00、月报每月 1 号 9:00 发出（v3.2.1 `ScheduleEmailReports` worker 每小时扫描一次，为到点的站点排队发送任务）。修改站点时区（站点设置 General 页）会改变后续发送时刻。
+
+**收到的内容**（以 v3.2.1 `SendEmailReport` worker 与邮件模板源码核对）：
+
+- 主题：`Weekly report for <域名>`；月报为 `<月份名> report for <域名>`，如 `October report for test.local`。
+- 三项核心指标及环比：visitors、pageviews、bounce rate，各带与上一周期（再上一周/再上一月）的变化。
+- 三个 Top 5 榜单：页面、来源（排除 Direct / None）、目标转化。
+- 统计窗口是**上一个完整周期**：上周一至周日、上月 1 号至月末，按站点时区划界。
+- 正文即全部内容，无附件、无 PDF；底部带退订链接。
+
+**取消方式**分两侧：管理侧在设置页逐个删除接收人，或关闭开关整体停用；收件人侧点邮件底部的退订链接即可把自己从接收人列表移除（`GET /sites/<域名>/weekly-report/unsubscribe`，v3.2.1 `UnsubscribeController` 核对，无需登录），不影响其他接收人，也不关闭报表本身。
+
+## Slack 报表
+
+Slack 接入的原理一句话：Slack 频道可以生成一个专属邮箱地址，发到该地址的邮件会显示在频道里。所以「配置 Slack 报表」= 在 Slack 侧拿到频道邮箱 + 在 Plausible 侧把它加为接收人，Plausible 侧没有任何额外的 Slack 配置项。
+
+**操作路径**：
+
+1. Slack 侧：点击会话顶部的频道名 → **Integrations** 标签 → 选择 **Send emails to this channel** → 点 **Get email address**，复制生成的频道邮箱地址。
+2. Plausible 侧：回到站点设置 Email reports 页，把频道邮箱填进 **Report recipients**（订阅周报/月报）或通知区块的 **Notification recipients**（订阅异常告警），点 **Add recipient**。
+
+频道随后就会按订阅频率收到消息，统计直接显示在频道里，成员无需打开看板。取消订阅只需在接收人列表删除该频道邮箱，或在 Slack 侧移除该邮箱地址。
+
+两条边界：
+
+- **Slack 侧套餐限制**：为频道生成邮箱地址是 Slack 付费版功能（Slack 官方文档），免费版工作区的 Integrations 里没有这个选项。这不是 Plausible 的限制。
+- **CE 可用性**：因为整条链路就是「发邮件」，CE 与云端行为一致，唯一前提是实例 SMTP 可用。不存在「Slack 集成是云端专属」的问题。
+
+## 流量异常通知
+
+同一设置页的下两个区块，spike 与 drop 各一条配置，共享同一套运行模型，先记住共性：
+
+- **组成**：开关 + 阈值（填数字后点 **Save threshold**）+ 独立的 **Notification recipients** 接收人列表。两类通知的接收人互不相通，与报表接收人也互不相通。
+- **检查节奏**：后台 worker 每 15 分钟检查一次（`TrafficChangeNotifier`，cron `*/15 * * * *`），所以触发到送达最长有约 15 分钟延迟。
+- **发送上限**：同类通知两封之间至少间隔 12 小时（源码 `@min_interval_hours 12`），官方文档口径为「同一站点 24 小时内最多收到两封」——流量反复越阈不会刷屏。
+- **取消**：删除接收人或关闭开关，无邮件内退订链接（退订路由只覆盖周报/月报）。
+
+### 流量激增通知（spike）
+
+开关「Send notifications of traffic spikes」，阈值字段 **Current visitors threshold**，默认 10。
+
+触发口径：阈值对比的是 **current visitors**——最近 5 分钟内加载过页面的去重人数，即看板右上角那个绿色实时数字（口径细节见 [看板导览](?path=/docs/dashboard-tour--docs)）。实时人数 ≥ 阈值即触发。它是「此刻有多少人在站上」的瞬时指标，不是小时或天级累计，所以日常缓慢增长不会触发，只有瞬时冲高（被转发、上热榜、被大站引用）才会。
+
+邮件内容：主题 `Traffic spike on <域名>`，正文含当前实时人数、带来这波流量的 Top 来源（前 3，排除 Direct / None）与 Top 页面，附看板链接。官方文档建议收到 spike 后在看板趋势图上加一条 annotation 记录原因，方便日后回看。
+
+### 流量下跌通知（drop）
+
+开关「Send notifications of traffic drops」，阈值字段 **12 hours visitor threshold**，默认 1。
+
+触发口径：最近 12 小时的 unique visitors **低于**阈值即触发。默认阈值 1 的含义是「连续 12 小时一个访客都没有」才告警——它的设计目的是抓站点宕机、跟踪脚本被误删这类「流量归零」事故，不适合检测「流量比平时少三成」这类软下跌；想更敏感可以把阈值调高。
+
+邮件内容：主题 `Traffic drop on <域名>`，含当前读数与看板链接。
+
+## 常见问题
+
+- 配置了报表或通知，到点却一封邮件都没收到（本地 CE 实例）。
+  先查 SMTP：默认 compose 不带邮件环境变量，未配置 `SMTP_HOST_ADDR` 时 Plausible 会尝试绕过中继直接投递，多数接收方会拒收或判垃圾邮件。处理：按 [配置](?path=/docs/ce-configuration--docs) 配好邮件环境变量并重启容器。已确认 SMTP 正常则查垃圾箱——直投或缺少 SPF/DKIM 的邮件极易进垃圾箱。
+- Slack 频道的 Integrations 里找不到「Send emails to this channel」。
+  为频道生成邮箱地址是 Slack 付费版功能，免费版工作区没有这个选项。处理：换付费版工作区拿频道邮箱，Plausible 侧不需要任何改动；或退而用邮件报表本身。
+- 流量明显涨了一波，spike 通知却没发，或收到得比预期晚。
+  按三点核对：口径是「最近 5 分钟实时人数」，缓慢增长到很大但任何时刻实时人数未达阈值都不会触发；检查每 15 分钟一轮，触发到送达最多延迟约 15 分钟；同类通知两封至少间隔 12 小时，短时间反复冲高只会收到一封。
+- 邮件报表里的数字和看板对不上。
+  窗口不同：报表统计的是上一个完整周期（上周一整周/上月整月，按站点时区），而看板默认看 Today 或 Last 28 Days。把看板时间范围切到同一窗口再对比，数字即一致。
+
+## 总结回顾
+
+摘要：
+
+Plausible 的三类推送通道——邮件周报/月报、Slack 报表、流量 spike/drop 通知——全部集中在站点设置的 Email reports 页，且全部建立在邮件之上：Slack 接入只是订阅了 Slack 频道的邮箱地址，不存在独立的 Slack 集成，因此 CE 与云端能力一致，唯一前提是 SMTP 可用。报表按站点时区在周一/每月 1 号 9:00 发出，内容直接嵌在正文：visitors、pageviews、bounce rate 及环比，加 Top 5 页面、来源、目标；接收人可以是任意邮箱、不限数量、不占成员名额，可逐个删除、关开关或点邮件内退订链接。异常通知每 15 分钟检查一次，spike 按最近 5 分钟实时人数 ≥ 阈值（默认 10）触发，drop 按最近 12 小时访客 < 阈值（默认 1）触发，同类通知两封至少间隔 12 小时；通知接收人与报表接收人各自独立管理。
+
+一句话：
+
+> 一切推送都是邮件：SMTP 配通，周报、月报、Slack 频道消息和流量告警就全部可用；收不到时先查 SMTP，再查垃圾箱。
+
+知识要点：
+
+- 周报与月报各自的开关位置、发送时刻和统计窗口是什么？
+- 报表接收人模型有哪三个特点？收件人如何自助退订，退订影响谁？
+- Slack 报表的接入原理是什么，为什么它在 CE 上不是云端专属？Slack 侧有什么套餐限制？
+- spike 与 drop 通知各自的触发口径、默认阈值、检查频率和发送间隔上限是什么？
+- 报表邮件正文包含哪些指标和榜单，环比对比的是哪个周期？
+- CE 实例上收不到任何推送邮件时，按什么顺序排查？
+
+## 参考资料
+
+- [Email reports（官方文档）](https://plausible.io/docs/email-reports)
+- [Slack reports（官方文档）](https://plausible.io/docs/slack-reports)
+- [Traffic spike & drop alerts（官方文档）](https://plausible.io/docs/traffic-spikes)
+- [Send emails to Slack（Slack 官方文档：频道邮箱与套餐限制）](https://slack.com/help/articles/206819278-Send-emails-to-Slack)
+- [plausible/analytics：v3.2.1 路由、Email reports 设置模板、ScheduleEmailReports / SendEmailReport / TrafficChangeNotifier / UnsubscribeController 源码（发送时刻、触发口径、限频与退订行为的事实来源）](https://github.com/plausible/analytics)
+- [plausible/community-edition Wiki：Configuration（MAILER_ADAPTER、SMTP_HOST_ADDR 等邮件环境变量）](https://github.com/plausible/community-edition/wiki/configuration)

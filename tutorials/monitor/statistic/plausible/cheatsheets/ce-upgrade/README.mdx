@@ -1,0 +1,250 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta id="ce-upgrade" title="自托管运维/升级" name="Docs" />
+
+# 升级
+
+CE 不会自动更新：镜像 tag 锁死在 compose.yml 里，官方也不向旧版本回移安全修复（wiki 原文），所以升级不是可选项。一次升级只做两件事——换镜像、让容器在重启时自动跑数据库迁移。换镜像随时可逆；迁移只向前推进、没有自动回退，风险全部集中在数据库上。这个风险结构决定了流程顺序：先读 Release Notes、先备份，再拉新版本——出问题时你才知道能退到哪一步。
+
+本课沿用 [本地实例](?path=/docs/local-instance--docs) 的部署：`plausible/community-edition` 仓库克隆在 `plausible-ce` 目录，按 tag 锁在 v3.2.1（当前最新 stable）；三个容器的数据在命名卷 `db-data`、`event-data`、`event-logs`、`plausible-data` 中，卷的真实名称带 compose 项目前缀，用 `docker volume ls` 查看。
+
+```mermaid
+flowchart LR
+  A["读 Release Notes<br/>判断有无特殊步骤"] --> B["备份 PostgreSQL<br/>pg_dump"]
+  B --> C["备份 ClickHouse<br/>event-data 卷"]
+  C --> D["git pull origin 新 tag<br/>compose.yml 指向新镜像"]
+  D --> E["docker compose up -d<br/>重建镜像变化的容器"]
+  E --> F["自动执行<br/>db createdb && db migrate"]
+  F --> G{"验证<br/>ps / logs / 看板"}
+  G -->|"正常"| H["完成，清理旧镜像"]
+  G -->|"异常"| I["回滚镜像，必要时恢复备份"]
+```
+
+关键输入与默认值：
+
+| 项目 | 取值 / 默认 | 说明 |
+| --- | --- | --- |
+| 标准升级命令 | `git pull origin <tag>` + `docker compose up -d` | CE wiki Upgrade 页原文 |
+| 迁移执行点 | 容器启动命令自带 `db createdb && db migrate` | compose.yml 固定写入，每次重建自动执行 |
+| 镜像 tag 推荐 | 锁定补丁版（如 `v3.2.1`） | wiki 原文推荐；`latest` 不受控 |
+| 发布节奏 | 约每半年一个新版本 | 具体日期以 releases 页为准；安全修复不回移旧版本 |
+| 数据卷 | `db-data`、`event-data`、`event-logs`、`plausible-data` | 标准升级不触碰任何卷 |
+| 首要风险 | 数据库迁移不可自动回退 | 升级前备份因此成为硬前置 |
+
+## 快速上手
+
+最小闭环：把 v3.2.0 的检出升到 v3.2.1——两个真实 tag，且后者直接快进于前者。生产实例先把下节「升级前」的备份做完再动手。
+
+```console
+$ cd plausible-ce
+$ git pull origin v3.2.1
+$ docker compose up -d
+```
+
+三行都是 wiki 原文命令：`cd` 进入克隆目录，`git pull` 检出新 tag（compose.yml 随之指向新镜像），`docker compose up -d` 让 compose 重建镜像变化的容器。迁移不用手动执行——重建后的 plausible 容器启动命令固定为 `db createdb && db migrate`（compose.yml 原文），会等两个数据库通过健康检查后自动跑。
+
+三层验证：
+
+| 操作 | 可观察证据 |
+| --- | --- |
+| `docker compose ps` | plausible 的 IMAGE 列变为 `ghcr.io/plausible/community-edition:v3.2.1`，两个数据库仍 `Up (healthy)` |
+| `docker compose logs -f plausible` | 能看到迁移执行完成后应用正常监听 |
+| 打开看板 | 站点、目标等元数据与历史统计都在 |
+
+克隆时若按 1.2 课用了 `-b v3.2.1 --single-branch`，检出处于 detached HEAD；wiki 的 `git pull origin <tag>` 在新旧 tag 呈快进关系时直接前移检出，等价写法是 `git fetch origin tag <tag>` 后 `git checkout <tag>`。
+
+## 升级前：备份与 Release Notes
+
+升级前只有两个准备动作：备份数据（出事能恢复）和读 Release Notes（预判特殊步骤）。标准小版本升级其实不触碰数据卷，备份真正兜底的是大版本数据迁移和误操作（`docker volume rm`、`docker compose down -v`）。
+
+### 备份 PostgreSQL
+
+两步导出，容器内 dump、拷回宿主机（wiki 原文命令）：
+
+```console
+$ docker compose exec plausible_db sh -c "pg_dump -U postgres plausible_db > plausible_db.bak"
+$ docker compose cp plausible_db:plausible_db.bak plausible_db.bak
+```
+
+可观察验证：`head plausible_db.bak` 应看到以 `-- PostgreSQL database dump` 开头的 SQL（wiki 同款检查）。这份文件包含用户、站点、目标等全部元数据，是数据库层面唯一的回滚凭据，每次升级前重新生成一份。
+
+边界：`pg_dump` 是逻辑备份，只覆盖 PostgreSQL；ClickHouse 里的统计数据要单独备份。
+
+### 备份 ClickHouse
+
+官方 wiki 没有 CE 数据备份专页（wiki 全部页面里没有 backup 页，已核对）。统计数据都在 `event-data` 卷（容器内 `/var/lib/clickhouse`），常用两条路线：
+
+- 停写后整卷打包（离线、零依赖）。plausible 停止后不再有新写入，把卷打成 tar：
+
+```console
+$ docker compose stop plausible
+$ docker run --rm -v plausible-ce_event-data:/data -v "$PWD:/backup" alpine \
+    tar czf /backup/event-data.tar.gz -C /data .
+```
+
+卷名带 compose 项目前缀，先 `docker volume ls` 确认真实名称（wiki 在 PostgreSQL 流程里也是这样确认的）。还原是反向操作：新建空卷后把 tar 解包回去。
+
+- 在线备份（数据量大、不想停机）。用 ClickHouse 原生 `BACKUP`/`RESTORE` 语句（支持 Disk/S3 目标、全量与增量）或社区工具 clickhouse-backup，语法见 ClickHouse 官方备份文档。
+
+### 读 Release Notes
+
+每个新版本的发布说明里都有升级小节，写明从上一版本升级有没有额外步骤——这是判断「能不能直接套标准流程」的唯一依据。发布页支持订阅：仓库页 Watch → Custom → Releases。
+
+两个真实样本的对比就是判断规则的证据：
+
+- v3.0.0（2025-04）：升级说明只有「把 compose.yml 里 ClickHouse 与 plausible 的镜像换成新 tag，`docker compose up -d`」。大版本也可以只是换镜像，迁移照常自动执行。
+- v2.0.0（2023-07）：升级说明整段 WARNING——必须执行数据迁移 `bin/plausible rpc Plausible.DataMigration.NumericIDs.run`，把旧表数据拷进新的 `events_v2`/`sessions_v2` 表，并要求 `event-data` 卷两倍的空闲磁盘、ClickHouse 至少 22.6。跳过说明的后果原文写明：看板看不到任何历史数据。
+
+判断规则：说明里出现 data migration、schema 变化、额外命令、磁盘或依赖版本要求时，按说明插入对应步骤；只有换镜像说明或没有升级小节时，走标准流程。
+
+## 标准升级
+
+机制一句话：compose.yml 里的镜像 tag 跟着仓库 tag 走，`git pull` 拿到新 compose.yml 后，`docker compose up -d` 发现镜像变化就重建容器，重建后的启动命令自动完成建库与迁移。整个过程不碰数据卷；`compose.override.yml` 不被 git 跟踪（见 1.2 课），本地端口映射等改动不会与 pull 冲突。
+
+wiki 给出的完整循环，外加一个可选的预拉取（`up -d` 本身会自动拉镜像，预拉取只为缩短重建窗口）：
+
+```console
+$ cd plausible-ce
+$ git pull origin v3.2.1
+$ docker compose pull        # 可选
+$ docker compose up -d
+```
+
+验证按快速上手的三层表走；出问题按「回滚与边界」处理。
+
+### 版本 tag 与发布节奏
+
+镜像 tag 有四种写法（wiki 原文以 `v2.1.4` 举例，此处换算为当前版本）：
+
+| tag | 行为 | 说明 |
+| --- | --- | --- |
+| `v3.2.1` | 锁定单个具体版本 | 官方推荐；可复现，升级时机自己控制 |
+| `v3.2` | 跟随 3.2 内的补丁更新 | 自动收补丁，不跨次版本 |
+| `v3` | 跟随整个 3.x 的更新 | 自动收次版本，不跨大版本 |
+| `latest` | 指向最新 stable | 不受控，不建议 |
+
+本手册 compose.yml 锁定的是补丁级 tag。版本体系仿 Intended Effort Versioning（EFFVER），发布节奏约每半年一个新版本，可在 releases 页核对：v2.1.0（2024-05）→ v3.0.0（2025-04）→ v3.1.0（2025-11）→ v3.2.0（2026-01）→ v3.2.1（2026-05）。安全补丁与 bug 修复不向旧版本回移（wiki 原文），升级是拿到修复的唯一途径。
+
+### 清理旧镜像
+
+升级不删旧镜像，多次升级会积攒无用的旧 tag。wiki 的清理两步：
+
+```console
+$ docker images --filter=reference='*plausible*'
+$ docker rmi <image_id>
+```
+
+仍被运行容器引用的镜像 Docker 会拒绝删除，不会误伤在用版本。
+
+## PostgreSQL 大版本升级
+
+这是独立于 CE 升级的流程，用于更换 PostgreSQL 大版本（如 16 → 18）。PostgreSQL 的内部存储格式跨大版本会变化（官方升级文档原文），旧数据目录不能直接交给新版本镜像；wiki 专页选的方法是 `pg_dump` + `psql`——把旧库导成 SQL、删掉旧卷、用新版本起一个空库再灌回去。wiki 注明：过程中需要停掉部分容器，实例暂时不可用。
+
+按 wiki 原文步骤走（卷名以项目前缀 `plausible-ce_` 为例，动手前用 `docker volume ls` 确认）：
+
+1. 停应用，避免继续写入旧库：
+
+```console
+$ docker compose stop plausible
+```
+
+2. 导出最新数据并拷回宿主机，`head` 确认 dump 完整（升级前备份若刚做过，这步重做一份以拿到最新状态）：
+
+```console
+$ docker compose exec plausible_db sh -c "pg_dump -U postgres plausible_db > plausible_db.bak"
+$ docker compose cp plausible_db:plausible_db.bak plausible_db.bak
+$ head plausible_db.bak   # 应以 -- PostgreSQL database dump 开头
+```
+
+3. 把 compose.yml 里 `plausible_db` 的镜像换成新大版本：
+
+```diff
+  plausible_db:
+-   image: postgres:16-alpine
++   image: postgres:18-alpine
+```
+
+直接改 compose.yml 会留下本地改动，下次 `git pull` 可能冲突；更干净的做法是把这几行 image 覆盖写进 compose.override.yml（合并规则见 1.2 课）。
+
+4. 停掉并删除旧 `plausible_db` 容器，删掉它的旧卷——数据已安全躺在 dump 文件里：
+
+```console
+$ docker compose stop plausible plausible_db
+$ docker compose rm plausible_db
+$ docker volume rm plausible-ce_db-data
+```
+
+5. 启动新版本数据库（自动拉新镜像、创建新卷），建库、拷入 dump、恢复：
+
+```console
+$ docker compose up plausible_db -d
+$ docker compose exec plausible_db createdb -U postgres plausible_db
+$ docker compose cp plausible_db.bak plausible_db:plausible_db.bak
+$ docker compose exec plausible_db sh -c "psql -U postgres -d plausible_db < plausible_db.bak"
+```
+
+6. 启动全部服务，验证看板与历史数据正常后，清理两侧的 `.bak`：
+
+```console
+$ docker compose up -d
+$ rm plausible_db.bak
+$ docker compose exec plausible_db rm plausible_db.bak
+```
+
+三条边界：
+
+- 该流程只重建 `db-data` 卷；`event-data`、`event-logs`、`plausible-data` 原样保留，ClickHouse 统计数据不受影响。
+- dump/restore 是逻辑迁移，不经过旧数据目录，wiki 声明适用于 12+ 升到 16+；版本跨度越大，越要先 `head` 检查 dump、在小库上演练一遍。
+- 高危动作只有第 4 步的 `docker volume rm`：执行前必须确认第 2 步的 dump 存在且 `head` 检查通过。
+
+## 回滚与边界
+
+镜像回退随时可行——把检出指回旧 tag 重建即可：
+
+```console
+$ git checkout v3.2.0
+$ docker compose up -d
+```
+
+数据库没有对称的回退，两条证据：compose.yml 的启动命令只有 `db createdb && db migrate`，没有降级入口，迁移只向前执行；v2.0.0 的数据迁移把统计拷进全新的 `events_v2`/`sessions_v2` 表，官方说明验证无误后才 drop 旧表——对旧版本而言数据形态已经改变。
+
+由此得出边界：升级失败时镜像可以退，但已前移的 schema 不保证与旧代码兼容，可能出现功能异常甚至 500；数据层面可靠的回滚只有恢复升级前的备份一条路。这正是「升级前备份」是硬前置的原因。另外标准升级重建 plausible 容器期间实例短暂不可用，数据库与统计数据不受影响。
+
+## 常见问题
+
+- 升级后打开看板 500 或接口报错。
+  先看 `docker compose logs -f plausible` 再决定动作：日志能区分「迁移还在跑」「数据库未通过健康检查」「迁移语句报错」三种情况。迁移在容器启动时自动执行，先等它跑完再刷新；确认迁移报错后按「回滚与边界」退镜像，必要时恢复备份，不要反复重启碰运气。
+- 升级前忘了备份，升级后数据看起来不对。
+  先确认损失范围再动手：标准升级不删除任何卷，数据本身还在——立即回退镜像止血，再看日志评估。真正丢数据的只有两个动作：PostgreSQL 大版本流程里的 `docker volume rm`（元数据依赖 dump）和 `docker compose down -v`。卷已删且无 dump 时，用户、站点、目标等元数据无法找回；`event-data` 卷不在该流程里，统计数据不受影响。
+- PostgreSQL 大版本可以跳级升吗？
+  wiki 的 dump/restore 方法不经过旧数据目录，页首声明适用于 12+ 升到 16+，跳级在方法上可行；但跨度越大，dump 与扩展的兼容不确定性越高，先 `head` 检查 dump 并在小库上演练。不可行的是另一件事：把旧数据卷直接挂给新版本镜像——内部存储格式跨大版本变化，新版本无法读取。
+
+## 总结回顾
+
+摘要：
+
+升级 CE 由两个动作构成：`git pull` 换掉 compose.yml 锁定的镜像 tag，`docker compose up -d` 重建镜像变化的容器；重建后的启动命令自动执行 `db createdb && db migrate`，迁移永远不需要手动跑。流程顺序由风险结构决定——迁移只向前、没有自动回退，所以先读 Release Notes 判断有无特殊步骤（v3.0.0 只需换镜像，v2.0.0 要求整段数据迁移与两倍磁盘），再用 `pg_dump` 备份 PostgreSQL 元数据、给 `event-data` 卷打包或用 ClickHouse 原生备份保护统计数据。PostgreSQL 大版本升级是独立流程：dump、换镜像、删旧卷、新库恢复，只重建 `db-data` 卷、全程停机。出事时镜像随时可退，数据库只能靠恢复备份。
+
+一句话：
+
+> 升级是换镜像加自动迁移——随时可退的是镜像，退不回去的是数据库，所以备份和 Release Notes 必须在 `git pull` 之前。
+
+知识要点：
+
+- 标准升级的最小命令闭环是哪几行，迁移在哪个环节自动执行？
+- 为什么升级前必须读 Release Notes？v2.0.0 与 v3.0.0 的升级说明差在哪里？
+- PostgreSQL 和 ClickHouse 各怎么备份，分别覆盖哪份数据？
+- 镜像 tag 的几种锁定粒度是什么，官方推荐哪种，为什么不建议 `latest`？
+- PostgreSQL 大版本升级的完整步骤是什么，哪一步不可逆？
+- 升级失败后能回退什么、不能回退什么，边界由什么决定？
+
+## 参考资料
+
+- [Wiki: Upgrade](https://github.com/plausible/community-edition/wiki/Upgrade)
+- [Wiki: Upgrade PostgreSQL](https://github.com/plausible/community-edition/wiki/Upgrade-PostgreSQL)
+- [Release Notes（plausible/analytics releases）](https://github.com/plausible/analytics/releases)
+- [v2.0.0 Release Notes（数据迁移示例）](https://github.com/plausible/analytics/releases/tag/v2.0.0)
+- [v3.0.0 Release Notes（换镜像升级示例）](https://github.com/plausible/analytics/releases/tag/v3.0.0)
+- [compose.yml（v3.2.1，迁移命令与卷定义）](https://github.com/plausible/community-edition/blob/v3.2.1/compose.yml)
+- [ClickHouse: Backup and Restore](https://clickhouse.com/docs/en/operations/backup)
+- [PostgreSQL: Upgrading（大版本存储格式变化）](https://www.postgresql.org/docs/current/upgrading.html)
